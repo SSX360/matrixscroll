@@ -9,7 +9,6 @@ on:
       tag:
         description: GitHub release tag to publish, for example v0.1.0
         required: true
-        default: v0.1.0
         type: string
   release:
     types: [published]
@@ -31,10 +30,10 @@ jobs:
       - name: Validate release tag
         shell: bash
         run: |
-          case "$RELEASE_TAG" in
-            v[0-9]*.[0-9]*.[0-9]*) ;;
-            *) echo "Release tag must look like v0.1.0, got: $RELEASE_TAG" >&2; exit 1 ;;
-          esac
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must exactly match vMAJOR.MINOR.PATCH, got: $RELEASE_TAG" >&2
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
