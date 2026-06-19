@@ -5,14 +5,14 @@ The same API serves the local emulator today and the physical NXP SE050 device
 later, selected via the MATRIXSCROLL_MODE environment variable.
 
 Security contract:
-  - Private keys never leave the provider. Public callers only ever see the
-    public key, the derived device id, and signatures.
+  - Private keys are never exposed by the SDK API. Public callers only ever see
+    the public key, the derived device id, and signatures.
   - In emulated mode the private seed is stored locally under
     ~/.matrixscroll/device.json. The directory is created 0700 and the file is
     opened 0600 at creation time (never write-then-chmod), so the seed is never
     momentarily world-readable. A corrupt store fails loud rather than silently
-    re-minting identity. On real hardware the seed is sealed in the secure
-    element and this file holds only public material.
+    re-minting identity. In the planned hardware path the seed is sealed in the
+    secure element and this file holds only public material.
 """
 
 from __future__ import annotations

@@ -4,13 +4,12 @@ This document maps Matrix Scroll to the joint guidance **Careful Adoption of
 Agentic AI Services** published by ASD's ACSC, CISA, NSA, the Canadian Centre
 for Cyber Security, NCSC-NZ, and NCSC-UK.
 
-Primary source:
+Official public sources verified for traceability:
 
-- <https://media.defense.gov/2026/Apr/30/2003922823/-1/-1/0/CAREFUL%20ADOPTION%20OF%20AGENTIC%20AI%20SERVICES_FINAL.PDF>
-
-Additional public mirrors/summaries used for traceability:
-
+- <https://www.cyber.gov.au/business-government/secure-design/artificial-intelligence/careful-adoption-of-agentic-ai-services>
 - <https://www.cisa.gov/resources-tools/resources/careful-adoption-agentic-ai-services>
+- <https://www.nsa.gov/aisc/>
+- <https://www.cyber.gc.ca/en/news-events/joint-guidance-careful-adoption-agentic-artificial-intelligence-services>
 - <https://www.ncsc.govt.nz/protect-your-organisation/careful-adoption-of-agentic-ai-services/>
 - <https://www.ncsc.gov.uk/blogs/thinking-carefully-before-adopting-agentic-ai>
 
@@ -40,7 +39,7 @@ The machine-readable control matrix lives at
 | AAI-07 | Monitoring and auditability | Signed manifests are portable audit records verifiable offline. |
 | AAI-08 | Incident response / kill switch | CI/CLI verification exits non-zero; manifests include escalation and shutdown metadata. |
 | AAI-09 | Supply-chain management | Minimal deps, Dependabot, CI build verification, and conformance vectors. |
-| AAI-10 | Strong authentication / non-repudiation | Ed25519 identity; SSX360 hardware mode keeps private keys out of agent runtimes. |
+| AAI-10 | Strong authentication / non-repudiation | Ed25519 identity; the planned SSX360 hardware mode keeps private keys out of agent runtimes. |
 | AAI-11 | Governance and change control | CODEOWNERS + CI protect spec/core/vectors/security files. |
 | AAI-12 | Deception / prompt-injection resilience | Trust is verified after agent action; model text cannot forge signatures. |
 
@@ -51,8 +50,9 @@ Matrix Scroll adds a stronger evidence layer on top:
 
 1. **Offline verification** — auditors can verify a manifest without trusting
    Matrix Scroll servers, the original CI system, or the agent runtime.
-2. **Hardware-rooted provenance** — SSX360 L2 mode moves the signing key into a
-   secure element so the agent cannot exfiltrate it as a normal credential.
+2. **Hardware-rooted provenance path** — the SSX360 L2 design moves the signing
+   key into a secure element so the agent cannot exfiltrate it as a normal
+   credential. In v0.1.x, this is a typed provider path awaiting SE050 transport.
 3. **Fail-closed policy gates** — the CLI returns exit `2` for tampered,
    unsigned, malformed, wrong-schema, wrong-algorithm, or wrong-device-id input.
 4. **Executable conformance** — `vectors/` lets third-party implementations

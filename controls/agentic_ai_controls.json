@@ -1,8 +1,10 @@
 {
   "schema": "matrixscroll.agentic_ai_controls.v1",
   "sources": [
-    "https://media.defense.gov/2026/Apr/30/2003922823/-1/-1/0/CAREFUL%20ADOPTION%20OF%20AGENTIC%20AI%20SERVICES_FINAL.PDF",
+    "https://www.cyber.gov.au/business-government/secure-design/artificial-intelligence/careful-adoption-of-agentic-ai-services",
     "https://www.cisa.gov/resources-tools/resources/careful-adoption-agentic-ai-services",
+    "https://www.nsa.gov/aisc/",
+    "https://www.cyber.gc.ca/en/news-events/joint-guidance-careful-adoption-agentic-artificial-intelligence-services",
     "https://www.ncsc.govt.nz/protect-your-organisation/careful-adoption-of-agentic-ai-services/",
     "https://www.ncsc.gov.uk/blogs/thinking-carefully-before-adopting-agentic-ai"
   ],
@@ -13,7 +15,7 @@
       "guidance": "Adopt agentic AI incrementally; prefer tightly scoped pilots before connecting agents to real systems or sensitive data.",
       "matrixscroll_control": "Matrix Scroll signs bounded manifests rather than granting agents authority. The SDK records scope, task, reviewer, and policy fields as verifiable evidence.",
       "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "README.md"],
-      "goes_beyond": "Hardware-rooted signatures make the boundary review portable and independently auditable."
+      "goes_beyond": "Signed boundary reviews are portable and independently auditable; the planned hardware path can bind them to a physical signer."
     },
     {
       "id": "AAI-02",
@@ -29,7 +31,7 @@
       "guidance": "Use temporary credentials where possible and revoke elevated access when work completes.",
       "matrixscroll_control": "Manifests can require short-lived credential metadata and explicitly avoid embedding secrets. Tests enforce redaction-sensitive fields stay unsigned as labels only.",
       "evidence_paths": ["SECURITY.md", "examples/agentic_ai_evidence_manifest.json"],
-      "goes_beyond": "The signing key itself never appears as an application credential; hardware mode seals it in SSX360/SE050."
+      "goes_beyond": "The signing key itself never appears as an application credential; the planned hardware mode seals it in SSX360/SE050."
     },
     {
       "id": "AAI-04",
@@ -37,7 +39,7 @@
       "guidance": "Define who owns the agent, approves access, monitors behaviour, reviews incidents, and can stop it.",
       "matrixscroll_control": "Signed manifests carry owner, approver, reviewer, and break-glass contact fields as tamper-evident accountability evidence.",
       "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "docs/AGENTIC_AI_SECURITY.md"],
-      "goes_beyond": "Approvals can be bound to a physical root of trust instead of a mutable log entry."
+      "goes_beyond": "Approvals can be bound to a signature instead of a mutable log entry; the planned hardware path can bind that signature to a physical root of trust."
     },
     {
       "id": "AAI-05",
@@ -83,7 +85,7 @@
       "id": "AAI-10",
       "title": "Strong authentication and non-repudiation",
       "guidance": "Use strong authentication and avoid relying on weak internal safeguards for agent authority.",
-      "matrixscroll_control": "Ed25519 signatures bind agent evidence to a public key; hardware mode moves the private key into SSX360/SE050.",
+      "matrixscroll_control": "Ed25519 signatures bind agent evidence to a public key; the planned hardware mode moves the private key into SSX360/SE050.",
       "evidence_paths": ["SPEC.md", "matrixscroll/_core.py", "SECURITY.md"],
       "goes_beyond": "The private signing key is separated from agent runtime credentials and can be physically held or removed."
     },
