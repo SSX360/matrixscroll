@@ -90,6 +90,15 @@ class VerifyCommandTests(_RunMixin, unittest.TestCase):
             self.assertEqual(rc, 2)
             self.assertIn("error", json.loads(out))
 
+    def test_verify_accepts_utf8_bom_manifest_from_windows_tools(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            path = self._signed_path(Path(tmp), {"release": "bom-ok"})
+            text = path.read_text(encoding="utf-8")
+            path.write_text(text, encoding="utf-8-sig")
+            rc, out = self._run(["verify", str(path)])
+            self.assertEqual(rc, 0)
+            self.assertTrue(json.loads(out)["ok"])
+
 
 class SignCommandTests(_RunMixin, unittest.TestCase):
     def test_sign_then_verify_roundtrip(self):
@@ -102,6 +111,15 @@ class SignCommandTests(_RunMixin, unittest.TestCase):
             signed = json.loads(out)
             self.assertIn("signature", signed)
             self.assertTrue(matrixscroll.verify_manifest(signed))
+
+    def test_sign_accepts_utf8_bom_manifest_from_windows_tools(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            src = Path(tmp) / "in.json"
+            src.write_text(json.dumps({"release": "bom-ok"}), encoding="utf-8-sig")
+            rc, out = self._run(["sign", str(src)])
+            self.assertEqual(rc, 0)
+            self.assertTrue(matrixscroll.verify_manifest(json.loads(out)))
 
 
 if __name__ == "__main__":

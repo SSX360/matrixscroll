@@ -28,7 +28,7 @@ def _cmd_status(_args: argparse.Namespace) -> int:
 def _cmd_verify(args: argparse.Namespace) -> int:
     path = Path(args.manifest)
     try:
-        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest = json.loads(path.read_text(encoding="utf-8-sig"))
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": f"cannot read manifest: {exc}"}))
         return 2
@@ -46,7 +46,7 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 def _cmd_sign(args: argparse.Namespace) -> int:
     path = Path(args.manifest)
     try:
-        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest = json.loads(path.read_text(encoding="utf-8-sig"))
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": f"cannot read manifest: {exc}"}))
         return 2

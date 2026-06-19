@@ -1,7 +1,11 @@
 # Wire-format / cryptography / conformance changes require maintainer review.
 /SPEC.md @SSX360
+/controls/ @SSX360
+/docs/AGENTIC_AI_SECURITY.md @SSX360
+/examples/agentic_ai_evidence_manifest.json @SSX360
 /matrixscroll/_core.py @SSX360
 /vectors/ @SSX360
+/tests/test_agentic_guidance.py @SSX360
 /tests/test_vectors.py @SSX360
 /SECURITY.md @SSX360
 /.github/workflows/ @SSX360

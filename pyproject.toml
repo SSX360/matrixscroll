@@ -67,6 +67,9 @@ packages = ["matrixscroll"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/matrixscroll",
+    "/controls",
+    "/docs",
+    "/examples",
     "/tests",
     "/vectors",
     "/README.md",
