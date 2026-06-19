@@ -10,8 +10,6 @@ on:
         description: GitHub release tag to publish, for example v0.1.0
         required: true
         type: string
-  release:
-    types: [published]
 
 jobs:
   pypi:
@@ -25,7 +23,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+      RELEASE_TAG: ${{ github.event.inputs.tag }}
     steps:
       - name: Validate release tag
         shell: bash
