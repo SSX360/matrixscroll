@@ -2,7 +2,7 @@
 
 **Open protocol for signed AI-assisted code provenance.**
 
-Every AI-generated change in your IDE can be cryptographically signed by an
+Every AI generated change in your IDE can be cryptographically signed by an
 Ed25519 identity and verified offline with a public key and one command. The
 v0.1.x reference implementation ships a well-tested software root of trust;
 SSX360/NXP SE050 hardware signing is the compatible reference-device path in
