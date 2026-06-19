@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify signed release manifest
-        uses: ./matrixscroll-action
+        uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: examples/release-manifest.signed.json
           matrixscroll-version: "0.1.1"
@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Verify commit envelope artifact
-        uses: ./matrixscroll-action
+        uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: evidence/commit-envelope.signed.json
         continue-on-error: true  # enable enforce once envelopes are exported in CI
