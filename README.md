@@ -7,6 +7,8 @@ Ed25519 key sealed in a hardware root of trust. Anyone can verify the result
 offline with a public key and one command.
 
 - 📜 **Spec:** [`SPEC.md`](SPEC.md) — wire format, canonical encoding, schemas.
+- 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
+  maps Matrix Scroll to the joint *Careful Adoption of Agentic AI Services* guidance.
 - 🔐 **Algorithm:** Ed25519 (RFC 8032). Keys never leave the provider.
 - 🧪 **Conformance vectors:** [`vectors/`](vectors/) — for non-Python implementations.
 - 🌐 **Site:** <https://matrixscroll.com>
@@ -107,6 +109,15 @@ read-only dashboards can render before the hardware path is wired.
 Matrix Scroll is a protocol. This Python package is the reference. We welcome
 implementations in Rust, Go, TypeScript, and embedded C — run them against
 [`vectors/`](vectors/) to self-certify. See `CONTRIBUTING.md`.
+
+## Agentic AI guidance proof
+
+The repo includes a machine-readable control matrix at
+[`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json), an
+example bounded-agent evidence manifest at
+[`examples/agentic_ai_evidence_manifest.json`](examples/agentic_ai_evidence_manifest.json),
+and executable checks in `tests/test_agentic_guidance.py`. These prove each
+claim maps to repo evidence and that signed agent scope changes fail verify.
 
 ## License
 

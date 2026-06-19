@@ -1,0 +1,107 @@
+{
+  "schema": "matrixscroll.agentic_ai_controls.v1",
+  "sources": [
+    "https://media.defense.gov/2026/Apr/30/2003922823/-1/-1/0/CAREFUL%20ADOPTION%20OF%20AGENTIC%20AI%20SERVICES_FINAL.PDF",
+    "https://www.cisa.gov/resources-tools/resources/careful-adoption-agentic-ai-services",
+    "https://www.ncsc.govt.nz/protect-your-organisation/careful-adoption-of-agentic-ai-services/",
+    "https://www.ncsc.gov.uk/blogs/thinking-carefully-before-adopting-agentic-ai"
+  ],
+  "controls": [
+    {
+      "id": "AAI-01",
+      "title": "Start small with bounded, low-risk tasks",
+      "guidance": "Adopt agentic AI incrementally; prefer tightly scoped pilots before connecting agents to real systems or sensitive data.",
+      "matrixscroll_control": "Matrix Scroll signs bounded manifests rather than granting agents authority. The SDK records scope, task, reviewer, and policy fields as verifiable evidence.",
+      "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "README.md"],
+      "goes_beyond": "Hardware-rooted signatures make the boundary review portable and independently auditable."
+    },
+    {
+      "id": "AAI-02",
+      "title": "Least privilege and explicit scope",
+      "guidance": "Give agents only the minimum access they need, for the shortest time required, and limit resources/actions/timeframes.",
+      "matrixscroll_control": "The evidence manifest includes explicit resource, operation, expiry, and environment fields that are signed before use.",
+      "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "tests/test_agentic_guidance.py"],
+      "goes_beyond": "Offline verifiers can reject unsigned or tampered privilege envelopes without contacting Matrix Scroll."
+    },
+    {
+      "id": "AAI-03",
+      "title": "Avoid long-lived credentials",
+      "guidance": "Use temporary credentials where possible and revoke elevated access when work completes.",
+      "matrixscroll_control": "Manifests can require short-lived credential metadata and explicitly avoid embedding secrets. Tests enforce redaction-sensitive fields stay unsigned as labels only.",
+      "evidence_paths": ["SECURITY.md", "examples/agentic_ai_evidence_manifest.json"],
+      "goes_beyond": "The signing key itself never appears as an application credential; hardware mode seals it in SSX360/SE050."
+    },
+    {
+      "id": "AAI-04",
+      "title": "Human accountability and approval",
+      "guidance": "Define who owns the agent, approves access, monitors behaviour, reviews incidents, and can stop it.",
+      "matrixscroll_control": "Signed manifests carry owner, approver, reviewer, and break-glass contact fields as tamper-evident accountability evidence.",
+      "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "docs/AGENTIC_AI_SECURITY.md"],
+      "goes_beyond": "Approvals can be bound to a physical root of trust instead of a mutable log entry."
+    },
+    {
+      "id": "AAI-05",
+      "title": "Threat-model the deployment",
+      "guidance": "Consider misuse, manipulation, prompt injection, unexpected behaviour, and operational failure before deployment.",
+      "matrixscroll_control": "The security mapping documents threats and maps them to signed provenance, strict verification, and conformance tests.",
+      "evidence_paths": ["docs/AGENTIC_AI_SECURITY.md", "tests/test_core.py"],
+      "goes_beyond": "Schema/algorithm/device-id tampering are executable tests, not just checklist entries."
+    },
+    {
+      "id": "AAI-06",
+      "title": "Secure defaults and input validation",
+      "guidance": "Use safe configurations, validation, sanitisation, rate limits, and sandboxing appropriate to the integration.",
+      "matrixscroll_control": "The SDK rejects NaN/Infinity, malformed base64, wrong algorithms, wrong schemas, unsigned manifests, and device-id mismatches by default.",
+      "evidence_paths": ["SPEC.md", "tests/test_core.py", "tests/test_vectors.py"],
+      "goes_beyond": "Canonical JSON and conformance vectors make validation behaviour reproducible across languages."
+    },
+    {
+      "id": "AAI-07",
+      "title": "Monitor behaviour and preserve audit evidence",
+      "guidance": "Maintain visibility into agent operation and look for unusual or unexpected activity across tools and workflows.",
+      "matrixscroll_control": "Every signed manifest is a portable audit record with device id, public key, timestamp, mode, and immutable signature value.",
+      "evidence_paths": ["SPEC.md", "vectors/valid_simple.json", "matrixscroll/cli.py"],
+      "goes_beyond": "Verification works offline and can be run by auditors without trusting the original system."
+    },
+    {
+      "id": "AAI-08",
+      "title": "Incident response and kill switch",
+      "guidance": "Plan for failures, misuse, loss of control, and who can stop an agent.",
+      "matrixscroll_control": "Evidence manifests include kill-switch and incident-routing fields; failed verification exits non-zero for CI/policy gates.",
+      "evidence_paths": ["examples/agentic_ai_evidence_manifest.json", "tests/test_cli.py", "SECURITY.md"],
+      "goes_beyond": "Tampered manifests fail closed with deterministic exit code 2."
+    },
+    {
+      "id": "AAI-09",
+      "title": "Supply-chain and dependency management",
+      "guidance": "Understand third-party components, models, tools, integrations, and update exposure.",
+      "matrixscroll_control": "The repo uses minimal runtime dependencies, Dependabot, CI build verification, and a public spec/conformance suite.",
+      "evidence_paths": ["pyproject.toml", ".github/dependabot.yml", ".github/workflows/test.yml", "vectors/README.md"],
+      "goes_beyond": "Third-party implementations can self-test against public vectors before being trusted."
+    },
+    {
+      "id": "AAI-10",
+      "title": "Strong authentication and non-repudiation",
+      "guidance": "Use strong authentication and avoid relying on weak internal safeguards for agent authority.",
+      "matrixscroll_control": "Ed25519 signatures bind agent evidence to a public key; hardware mode moves the private key into SSX360/SE050.",
+      "evidence_paths": ["SPEC.md", "matrixscroll/_core.py", "SECURITY.md"],
+      "goes_beyond": "The private signing key is separated from agent runtime credentials and can be physically held or removed."
+    },
+    {
+      "id": "AAI-11",
+      "title": "Governance and change control",
+      "guidance": "Integrate agentic AI risk with existing security governance and define ownership before deployment.",
+      "matrixscroll_control": "Spec, core crypto, vectors, security policy, and CI are CODEOWNERS-protected and tested across OS/Python versions.",
+      "evidence_paths": [".github/CODEOWNERS", ".github/workflows/test.yml", "CONTRIBUTING.md"],
+      "goes_beyond": "Protocol-impacting changes require both human review and machine conformance checks."
+    },
+    {
+      "id": "AAI-12",
+      "title": "Plan for deceptive or manipulated inputs",
+      "guidance": "Agentic systems inherit prompt-injection/jailbreak risks and need external safeguards, not trust in model behaviour alone.",
+      "matrixscroll_control": "Matrix Scroll verifies outputs after the model/agent acts; trust is anchored in cryptographic evidence, not model claims.",
+      "evidence_paths": ["SPEC.md", "vectors/tampered_field.json", "vectors/tampered_signature.json"],
+      "goes_beyond": "A compromised or deceived agent cannot forge a valid signature without the private key."
+    }
+  ]
+}
