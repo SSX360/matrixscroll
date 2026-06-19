@@ -59,7 +59,7 @@ Documentation = "https://matrixscroll.com/docs"
 Source = "https://github.com/SSX360/matrixscroll"
 Issues = "https://github.com/SSX360/matrixscroll/issues"
 Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
-"Reference Device" = "https://ssx360-3d-pipeline.vercel.app/"
+"Reference Device" = "https://matrixscroll.com/device"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]
