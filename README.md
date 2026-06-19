@@ -12,7 +12,7 @@ offline with a public key and one command.
 - 🔐 **Algorithm:** Ed25519 (RFC 8032). Keys never leave the provider.
 - 🧪 **Conformance vectors:** [`vectors/`](vectors/) — for non-Python implementations.
 - 🌐 **Site:** <https://matrixscroll.com>
-- 🔧 **Reference device:** [SSX360](https://ssx360-3d-pipeline.vercel.app/) (NXP SE050).
+- 🔧 **Reference device:** [SSX360](https://matrixscroll.com/device) (NXP SE050).
 
 ```bash
 pip install matrixscroll
