@@ -15,8 +15,8 @@ well-tested, spec-aware."
 - **No new runtime dependencies** without discussion in an issue first. The
   surface area of a cryptographic SDK should stay tight.
 - **Signed commits preferred.** Use `git config commit.gpgsign true` or an SSH
-  signing key. Once the SSX360 device ships, hardware-signed commits are the
-  preferred default.
+  signing key. Once the SSX360 device ships, hardware-backed commit signing is
+  the preferred default.
 
 ## Development setup
 
