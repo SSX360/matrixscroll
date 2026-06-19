@@ -112,6 +112,47 @@ class ManifestSigningTests(unittest.TestCase):
     def test_verify_manifest_without_signature_block(self):
         self.assertFalse(matrixscroll.verify_manifest({"run_id": "r1"}))
 
+    def test_signed_manifest_is_deep_copied(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = self._nested_manifest()
+            signed = matrixscroll.sign_manifest(manifest, _provider(Path(tmp)))
+            manifest["meta"]["a"]["deep"][0] = 99
+            self.assertTrue(matrixscroll.verify_manifest(signed))
+
+
+class StrictVerificationTests(unittest.TestCase):
+    def _signed(self) -> dict:
+        with tempfile.TemporaryDirectory() as tmp:
+            return matrixscroll.sign_manifest({"release": "v0.1.0"}, _provider(Path(tmp)))
+
+    def test_rejects_wrong_signature_schema(self):
+        signed = self._signed()
+        signed["signature"]["schema"] = "matrixscroll.signature.v999"
+        self.assertFalse(matrixscroll.verify_manifest(signed))
+
+    def test_rejects_wrong_algorithm(self):
+        signed = self._signed()
+        signed["signature"]["algorithm"] = "ed448"
+        self.assertFalse(matrixscroll.verify_manifest(signed))
+
+    def test_rejects_mismatched_device_id(self):
+        signed = self._signed()
+        signed["signature"]["device_id"] = "MS-0000-0000"
+        self.assertFalse(matrixscroll.verify_manifest(signed))
+
+    def test_rejects_missing_public_key_without_raising(self):
+        signed = self._signed()
+        signed["signature"].pop("public_key")
+        self.assertFalse(matrixscroll.verify_manifest(signed))
+
+    def test_rejects_malformed_public_key_without_raising(self):
+        signed = self._signed()
+        signed["signature"]["public_key"] = "not base64!!"
+        self.assertFalse(matrixscroll.verify_manifest(signed))
+
+    def test_rejects_non_dict_manifest_without_raising(self):
+        self.assertFalse(matrixscroll.verify_manifest([]))  # type: ignore[arg-type]
+
 
 class CanonicalTests(unittest.TestCase):
     def test_key_order_independent(self):

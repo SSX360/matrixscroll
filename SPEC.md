@@ -111,9 +111,10 @@ Given a signed manifest `M`:
 4. Run Ed25519 verify: `verify(pub, input_bytes, sig)`.
 5. If the verify succeeds, the manifest is **valid**. Otherwise **invalid**.
 
-Verifiers MAY additionally check that `block["device_id"]` matches the
-derivation from `block["public_key"]`; the reference implementation does not,
-because the public key is the authoritative identity.
+Verifiers MUST additionally check that `block["device_id"]` matches the
+derivation from `block["public_key"]`. The public key remains the authoritative
+cryptographic identity; the device id check prevents UI and policy layers from
+displaying a forged human-readable handle.
 
 ## 7. Key storage (emulated mode)
 

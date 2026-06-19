@@ -51,8 +51,9 @@ $ matrixscroll verify release.signed.json
 ```
 
 `matrixscroll verify` exits **0** on a valid signature, **2** on any failure
-(tampered manifest, missing signature block, unreadable file). Pipe it from
-CI without parsing the output.
+(tampered manifest, missing signature block, wrong schema/algorithm, mismatched
+device id, malformed public key, unreadable file). Pipe it from CI without
+parsing the output.
 
 ## How it works
 
@@ -94,7 +95,8 @@ read-only dashboards can render before the hardware path is wired.
 - Emulated key store: `~/.matrixscroll/device.json`
   (override with `MATRIXSCROLL_HOME`).
 - The directory is created `0700`; the seed file is opened `0600` with
-  `O_CREAT|O_TRUNC` so the private seed is never momentarily world-readable.
+  `O_CREAT|O_EXCL` so the private seed is never momentarily world-readable and
+  a race cannot silently clobber an existing key store.
 - A corrupt or truncated store **fails loud** (`IdentityError`) rather than
   silently minting a fresh identity. Identity rotation is an explicit operation.
 - The hardware path holds nothing private on disk — the seed is sealed in the

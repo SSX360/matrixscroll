@@ -36,6 +36,18 @@ class TamperedVectorTests(unittest.TestCase):
     def test_tampered_signature_value_fails(self):
         self.assertFalse(matrixscroll.verify_manifest(_load("tampered_signature.json")))
 
+    def test_tampered_schema_fails(self):
+        self.assertFalse(matrixscroll.verify_manifest(_load("tampered_schema.json")))
+
+    def test_tampered_algorithm_fails(self):
+        self.assertFalse(matrixscroll.verify_manifest(_load("tampered_algorithm.json")))
+
+    def test_tampered_device_id_fails(self):
+        self.assertFalse(matrixscroll.verify_manifest(_load("tampered_device_id.json")))
+
+    def test_malformed_public_key_fails(self):
+        self.assertFalse(matrixscroll.verify_manifest(_load("tampered_public_key.json")))
+
 
 class UnsignedVectorTests(unittest.TestCase):
     def test_unsigned_manifest_rejected(self):

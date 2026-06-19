@@ -18,6 +18,8 @@ Security contract:
 from __future__ import annotations
 
 import base64
+import binascii
+import copy
 import hashlib
 import json
 import os
@@ -64,7 +66,7 @@ def _b64(data: bytes) -> str:
 
 
 def _unb64(value: str) -> bytes:
-    return base64.b64decode(value.encode("ascii"))
+    return base64.b64decode(value.encode("ascii"), validate=True)
 
 
 def _write_secret(path: Path, text: str) -> None:
@@ -74,7 +76,7 @@ def _write_secret(path: Path, text: str) -> None:
     never momentarily world-readable (which a write-then-chmod sequence allows).
     On Windows the POSIX mode is advisory, but O_EXCL still prevents clobbering.
     """
-    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     fd = os.open(str(path), flags, FILE_MODE)
     try:
         os.write(fd, text.encode("utf-8"))
@@ -162,7 +164,7 @@ class EmulatedProvider(IdentityProvider):
         try:
             doc = json.loads(path.read_text(encoding="utf-8"))
             seed = _unb64(doc["private_key"])
-        except (OSError, ValueError, KeyError) as exc:
+        except (OSError, ValueError, KeyError, AttributeError, binascii.Error) as exc:
             raise IdentityError(f"device key store at {path} is unreadable: {exc}")
         if len(seed) != SEED_LEN:
             raise IdentityError(
@@ -277,12 +279,12 @@ def sign(data: bytes, provider: IdentityProvider | None = None) -> bytes:
 
 def verify(public_key: str | bytes, data: bytes, signature: str | bytes) -> bool:
     """Verify a signature against a public key. Returns False on any mismatch."""
-    pub = public_key if isinstance(public_key, bytes) else _unb64(public_key)
-    sig = signature if isinstance(signature, bytes) else _unb64(signature)
     try:
+        pub = public_key if isinstance(public_key, bytes) else _unb64(public_key)
+        sig = signature if isinstance(signature, bytes) else _unb64(signature)
         Ed25519PublicKey.from_public_bytes(pub).verify(sig, data)
         return True
-    except (InvalidSignature, ValueError):
+    except (InvalidSignature, ValueError, TypeError, AttributeError, binascii.Error):
         return False
 
 
@@ -311,7 +313,7 @@ def sign_manifest(
     """Return a copy of ``manifest`` with a Matrix Scroll signature block attached."""
     provider = provider or get_provider()
     info = identity_info(provider)
-    signed = dict(manifest)
+    signed = copy.deepcopy(manifest)
     signed.pop("signature", None)
     signature_value = _b64(provider.sign(_canonical(signed)))
     signed["signature"] = {
@@ -327,9 +329,32 @@ def sign_manifest(
 
 
 def verify_manifest(manifest: dict[str, Any]) -> bool:
-    """Verify a manifest produced by :func:`sign_manifest`."""
-    block = manifest.get("signature")
-    if not isinstance(block, dict) or "value" not in block:
+    """Verify a manifest produced by :func:`sign_manifest`.
+
+    Malformed signature blocks return ``False`` instead of raising. Version and
+    algorithm checks intentionally happen before the cryptographic verify so a
+    future schema cannot be accidentally accepted under v1 rules.
+    """
+    if not isinstance(manifest, dict):
         return False
-    return verify(block["public_key"], _canonical(manifest), block["value"])
+    block = manifest.get("signature")
+    if not isinstance(block, dict):
+        return False
+    if block.get("schema") != SIGNATURE_SCHEMA or block.get("algorithm") != ALGORITHM:
+        return False
+    public_key = block.get("public_key")
+    signature = block.get("value")
+    if not isinstance(public_key, str) or not isinstance(signature, str):
+        return False
+    try:
+        public_key_bytes = _unb64(public_key)
+    except (ValueError, binascii.Error):
+        return False
+    if block.get("device_id") != device_id(public_key_bytes):
+        return False
+    try:
+        signing_input = _canonical(manifest)
+    except (TypeError, ValueError):
+        return False
+    return verify(public_key_bytes, signing_input, signature)
 

@@ -1,0 +1,7 @@
+# Wire-format / cryptography / conformance changes require maintainer review.
+/SPEC.md @SSX360
+/matrixscroll/_core.py @SSX360
+/vectors/ @SSX360
+/tests/test_vectors.py @SSX360
+/SECURITY.md @SSX360
+/.github/workflows/ @SSX360
