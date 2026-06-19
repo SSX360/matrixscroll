@@ -1,0 +1,14 @@
+{
+  "author": "caf\u00e9",
+  "emoji": "\ud83d\udd10",
+  "note": "na\u00efve r\u00e9sum\u00e9",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4775-7BD5",
+    "mode": "emulated",
+    "public_key": "PLDaipe8r3pmSN/YDPJDd9BnIoI3dYsB+QdoLzInQ5g=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-19T12:00:00Z",
+    "value": "rtxHTNfSzV6Ty1I3TpZVp7FwGLiFALxjSB6IqGLeskpxhWInzGQsbdV1FASHWjw9kvo72I8xLW3VTJWz6rsKAQ=="
+  }
+}

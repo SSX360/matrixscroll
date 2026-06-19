@@ -1,0 +1,28 @@
+{
+  "kpis": [
+    {
+      "actual": 66.7,
+      "label": "rate"
+    }
+  ],
+  "meta": {
+    "a": {
+      "deep": [
+        99,
+        2,
+        1
+      ]
+    },
+    "z": 1
+  },
+  "run_id": "r-001",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4775-7BD5",
+    "mode": "emulated",
+    "public_key": "PLDaipe8r3pmSN/YDPJDd9BnIoI3dYsB+QdoLzInQ5g=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-19T12:00:00Z",
+    "value": "QmUuwnwb44NYPo5VWLcbMUkGruXPwiAARTXxHW+5WbiyBGyFtD5m+H0JXEuyHsQiLj/xrSPwLdAZaGlpjo/FDg=="
+  }
+}
