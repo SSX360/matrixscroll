@@ -126,6 +126,22 @@ def main() -> int:
         tampered_signature["signature"]["value"] = base64.b64encode(bytes(sig)).decode("ascii")
         _write("tampered_signature.json", tampered_signature)
 
+        tampered_schema = json.loads(json.dumps(simple))
+        tampered_schema["signature"]["schema"] = "matrixscroll.signature.v999"
+        _write("tampered_schema.json", tampered_schema)
+
+        tampered_algorithm = json.loads(json.dumps(simple))
+        tampered_algorithm["signature"]["algorithm"] = "ed448"
+        _write("tampered_algorithm.json", tampered_algorithm)
+
+        tampered_device_id = json.loads(json.dumps(simple))
+        tampered_device_id["signature"]["device_id"] = "MS-0000-0000"
+        _write("tampered_device_id.json", tampered_device_id)
+
+        tampered_public_key = json.loads(json.dumps(simple))
+        tampered_public_key["signature"]["public_key"] = "not base64!!"
+        _write("tampered_public_key.json", tampered_public_key)
+
         _write("unsigned_no_block.json", {"release": "v0.1.0", "artifact": "x.whl"})
         _write(
             "unsigned_empty_block.json",
