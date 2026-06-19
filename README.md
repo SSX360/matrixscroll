@@ -1,18 +1,20 @@
 # Matrix Scroll
 
-**Open protocol for hardware-signed AI-assisted code.**
+**Open protocol for signed AI-assisted code provenance.**
 
-Every AI-generated change in your IDE gets cryptographically signed by an
-Ed25519 key sealed in a hardware root of trust. Anyone can verify the result
-offline with a public key and one command.
+Every AI-generated change in your IDE can be cryptographically signed by an
+Ed25519 identity and verified offline with a public key and one command. The
+v0.1.x reference implementation ships a well-tested software root of trust;
+SSX360/NXP SE050 hardware signing is the compatible reference-device path in
+progress.
 
 - 📜 **Spec:** [`SPEC.md`](SPEC.md) — wire format, canonical encoding, schemas.
 - 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
   maps Matrix Scroll to the joint *Careful Adoption of Agentic AI Services* guidance.
-- 🔐 **Algorithm:** Ed25519 (RFC 8032). Keys never leave the provider.
+- 🔐 **Algorithm:** Ed25519 (RFC 8032). Private keys are never exposed by the SDK API.
 - 🧪 **Conformance vectors:** [`vectors/`](vectors/) — for non-Python implementations.
 - 🌐 **Site:** <https://matrixscroll.com>
-- 🔧 **Reference device:** [SSX360](https://matrixscroll.com/device) (NXP SE050).
+- 🔧 **Reference device:** [SSX360](https://matrixscroll.com/device) (NXP SE050 hardware path in progress).
 
 ```bash
 pip install matrixscroll
@@ -78,8 +80,10 @@ parsing the output.
                          (anyone, anywhere, offline)
 ```
 
-The same Python API serves the local software emulator and the physical
-SSX360 device. Switch with the `MATRIXSCROLL_MODE` environment variable.
+The same Python API is designed to serve the local software emulator and the
+physical SSX360 device path. Switch with the `MATRIXSCROLL_MODE` environment
+variable; in v0.1.x, `hardware` mode reports unavailable until the SE050
+transport ships.
 
 ## Compliance levels
 
@@ -101,8 +105,8 @@ read-only dashboards can render before the hardware path is wired.
   a race cannot silently clobber an existing key store.
 - A corrupt or truncated store **fails loud** (`IdentityError`) rather than
   silently minting a fresh identity. Identity rotation is an explicit operation.
-- The hardware path holds nothing private on disk — the seed is sealed in the
-  secure element.
+- The planned hardware path holds nothing private on disk — the seed is sealed
+  in the secure element. In v0.1.x, this path is a typed availability stub.
 
 ## Reference implementation, not the only one
 

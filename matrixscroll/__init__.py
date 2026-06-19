@@ -1,9 +1,10 @@
-"""Matrix Scroll — open protocol for hardware-signed AI-assisted code.
+"""Matrix Scroll — open protocol for signed AI-assisted code provenance.
 
 This package is the Python reference implementation of the Matrix Scroll
 protocol. It exposes an Ed25519 root-of-trust abstraction with a software
-emulator (default) and a hardware provider stub for the SSX360 reference
-device (NXP SE050). Private keys never leave the provider.
+emulator (default) and a typed hardware-provider path for the SSX360 reference
+device (NXP SE050). In v0.1.x, hardware mode reports unavailable until the
+SE050 transport ships. Private keys are never exposed by the SDK API.
 
 Quickstart:
 
@@ -37,7 +38,7 @@ from ._core import (
     verify_manifest,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "ALGORITHM",

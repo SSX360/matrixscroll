@@ -19,3 +19,22 @@ def test_sdk_public_docs_do_not_link_vercel_preview_urls():
     for path in checked:
         text = path.read_text(encoding="utf-8")
         assert "vercel.app" not in text, path.name
+
+
+def test_pypi_metadata_does_not_overclaim_hardware_availability():
+    checked = [
+        ROOT / "README.md",
+        ROOT / "CONTRIBUTING.md",
+        ROOT / "pyproject.toml",
+        ROOT / "matrixscroll" / "__init__.py",
+        ROOT / "matrixscroll" / "_core.py",
+    ]
+    forbidden = [
+        "hardware-signed",
+        "sealed in a hardware root",
+        "keys never leave the provider",
+    ]
+    for path in checked:
+        text = path.read_text(encoding="utf-8").lower()
+        for phrase in forbidden:
+            assert phrase not in text, f"{phrase!r} found in {path.name}"
