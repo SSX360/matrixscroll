@@ -49,6 +49,8 @@ dev = [
     "pytest>=7.4",
     "build>=1.0",
 ]
+git = []
+yubikey = []
 
 [project.scripts]
 matrixscroll = "matrixscroll.cli:main"
@@ -69,6 +71,7 @@ include = [
     "/matrixscroll",
     "/controls",
     "/docs",
+    "/schemas",
     "/examples",
     "/tests",
     "/vectors",
