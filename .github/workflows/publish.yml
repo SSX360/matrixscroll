@@ -65,7 +65,7 @@ jobs:
 
       - name: Check release artifacts
         run: |
-          python -m pip install --upgrade pip twine
+          python -m pip install --upgrade pip 'twine==6.1.0'
           python -m twine check --strict dist/*
 
       - name: Publish to PyPI
