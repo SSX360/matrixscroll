@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "matrixscroll"
+version = "0.1.0"
+description = "Open protocol for hardware-signed AI-assisted code (Ed25519 root of trust, software emulator + SSX360 reference device)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    { name = "SSX360", email = "security@matrixscroll.com" },
+]
+keywords = [
+    "ed25519",
+    "signing",
+    "provenance",
+    "root-of-trust",
+    "secure-element",
+    "ai",
+    "supply-chain",
+    "ssx360",
+    "matrixscroll",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "cryptography>=41.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "build>=1.0",
+]
+
+[project.scripts]
+matrixscroll = "matrixscroll.cli:main"
+
+[project.urls]
+Homepage = "https://matrixscroll.com"
+Documentation = "https://matrixscroll.com/docs"
+Source = "https://github.com/SSX360/matrixscroll"
+Issues = "https://github.com/SSX360/matrixscroll/issues"
+Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
+"Reference Device" = "https://ssx360-3d-pipeline.vercel.app/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["matrixscroll"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/matrixscroll",
+    "/tests",
+    "/vectors",
+    "/README.md",
+    "/LICENSE",
+    "/SECURITY.md",
+    "/SPEC.md",
+    "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra"
