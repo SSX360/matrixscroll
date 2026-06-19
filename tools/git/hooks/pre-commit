@@ -1,0 +1,33 @@
+#!/bin/sh
+# matrixscroll-git hook
+# Signs a commit envelope before each commit (warn mode by default).
+
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+MS_DIR="$ROOT/.git/matrixscroll"
+ENVELOPES="$MS_DIR/envelopes"
+CONFIG="$MS_DIR/config.json"
+
+mkdir -p "$ENVELOPES"
+
+if ! command -v matrixscroll >/dev/null 2>&1; then
+  echo "matrixscroll: CLI not found; skipping envelope signing" >&2
+  exit 0
+fi
+
+if ! python -c "import matrixscroll.git" 2>/dev/null; then
+  echo "matrixscroll: git module not available; skipping envelope signing" >&2
+  exit 0
+fi
+
+python -m matrixscroll.git hook pre-commit || {
+  ENFORCE=$(python -c "import json; print(json.load(open(r'$CONFIG')).get('enforce', False))" 2>/dev/null || echo False)
+  if [ "$ENFORCE" = "True" ] || [ "$ENFORCE" = "true" ]; then
+    echo "matrixscroll: envelope signing failed (enforce mode)" >&2
+    exit 2
+  fi
+  echo "matrixscroll: envelope signing failed (warn mode, continuing)" >&2
+}
+
+exit 0

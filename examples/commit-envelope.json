@@ -1,0 +1,29 @@
+{
+  "schema": "matrixscroll.commit_envelope.v1",
+  "commit": {
+    "expected_id": "0000000000000000000000000000000000000000",
+    "tree": "0000000000000000000000000000000000000000",
+    "parents": [],
+    "author": {
+      "name": "Example Developer",
+      "email": "dev@example.com",
+      "date": "1740000000"
+    },
+    "committer": {
+      "name": "Example Developer",
+      "email": "dev@example.com",
+      "date": "1740000000"
+    },
+    "message": "feat: add commit envelope example\n\nSigned-by: matrixscroll"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli",
+    "tool_version": "2.43.0"
+  },
+  "repository": {
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll",
+    "branch": "main"
+  }
+}

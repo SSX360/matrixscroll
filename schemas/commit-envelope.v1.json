@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/commit-envelope.v1.json",
+  "title": "Matrix Scroll Commit Envelope v1",
+  "type": "object",
+  "required": ["schema", "commit", "provenance", "repository"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.commit_envelope.v1"
+    },
+    "commit": {
+      "type": "object",
+      "required": ["tree", "parents", "author", "committer", "message"],
+      "properties": {
+        "expected_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "SHA-1 of the commit object, computed before commit"
+        },
+        "actual_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "SHA-1 after commit (filled post-commit)"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          }
+        },
+        "author": {
+          "$ref": "#/$defs/gitIdentity"
+        },
+        "committer": {
+          "$ref": "#/$defs/gitIdentity"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["actor_type", "tool"],
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": ["human", "agent", "ci"]
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "agent_scope": {
+          "type": "string",
+          "description": "Reference URI or path to signed agent evidence manifest"
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Ephemeral agent session identifier"
+        }
+      },
+      "additionalProperties": true
+    },
+    "repository": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "remote_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "branch": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "schema",
+        "algorithm",
+        "device_id",
+        "public_key",
+        "mode",
+        "signed_at",
+        "value"
+      ],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "matrixscroll.signature.v1"
+        },
+        "algorithm": {
+          "type": "string",
+          "const": "ed25519"
+        },
+        "device_id": {
+          "type": "string",
+          "pattern": "^MS-[0-9A-F]{4}-[0-9A-F]{4}$"
+        },
+        "public_key": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["emulated", "hardware", "yubikey"]
+        },
+        "signed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "gitIdentity": {
+      "type": "object",
+      "required": ["name", "email", "date"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "date": {
+          "type": "string",
+          "description": "Git date format: Unix timestamp + timezone offset"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
