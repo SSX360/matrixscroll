@@ -40,7 +40,8 @@ Out of scope:
 
 | Version | Status |
 | ------- | ------ |
-| 0.1.x   | Active development; security fixes shipped on patch releases. |
+| 0.2.x   | Active development; security fixes on patch releases. |
+| 0.1.x   | Legacy; upgrade to 0.2.x for Git hooks and commit envelopes. |
 
 Pre-1.0 there is no extended support window. Pin to a known-good version
 in production until 1.0.
