@@ -53,7 +53,7 @@ class StatusSurfaceTests(unittest.TestCase):
         self.assertNotIn("public_key", status)
 
     def test_identity_info_still_raises_for_unavailable_provider(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(IdentityError):
             matrixscroll.identity_info(HardwareProvider())
 
 

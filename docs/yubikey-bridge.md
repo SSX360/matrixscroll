@@ -123,6 +123,20 @@ Add to SPEC.md when PIV bridge ships:
 
 Conformance vectors required before enabling in release CI.
 
+## device_id derivation
+
+YubiKey envelopes use the same `MS-XXXX-YYYY` format as emulated mode:
+
+```
+device_id = "MS-" + sha256(public_key_der)[:8] uppercased with hyphen at position 4
+```
+
+Implementation: [`matrixscroll/providers/emulated.py`](../matrixscroll/providers/emulated.py) `device_id()`.
+
+Public key bytes come from PKCS#11 EC key export (or mock P-256 key when `MATRIXSCROLL_YKCS11_MOCK=1`).
+
+Manual smoke test: [`docs/yubikey-smoke.md`](yubikey-smoke.md)
+
 ## Test plan
 
 1. Unit: mock PKCS#11 session returns fixed signature → verify path

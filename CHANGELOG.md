@@ -4,6 +4,20 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-06-24
+
+Post-HN patch: GitHub gpgsig commit binding, SE050 mock transport, YubiKey pubkey export, Rekor/GUAC CLI MVP.
+
+### Added
+- **GitHub `gpgsig` commit binding** — verify envelopes against raw commit object SHA when OpenPGP signatures are present.
+- **SE050 mock transport** — `MATRIXSCROLL_SE050_MOCK=1` enables `HardwareProvider` for development (`providers/se050_transport.py`).
+- **YubiKey public key export** — PKCS#11 EC public key read path (mock + real token).
+- **GUAC export CLI** — `matrixscroll envelope-export-guac --bundle DIR --output guac.jsonl`.
+- **Rekor publish stub** — `matrixscroll envelope-publish-rekor --bundle DIR` (dry-run artifacts; optional `--rekor-cli`).
+
+### Fixed
+- **`parse_commit()` / envelope verify** on GitHub-signed commits with multi-line `gpgsig` headers (Windows CRLF safe).
+
 ## [0.2.4] - 2026-06-20
 
 Who-Acted gate productization: attribution policy, delegation schema, CI hardening.

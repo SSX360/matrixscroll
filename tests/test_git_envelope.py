@@ -47,6 +47,47 @@ def test_sign_and_verify_commit_envelope():
     assert verify_manifest(signed)
 
 
+def test_parse_commit_with_gpgsig_header():
+    from matrixscroll.git import _commit_headers_and_body, compute_commit_id
+
+    raw = (
+        "tree d8329fc1cc938780ff89978712c630256214f016\n"
+        "parent 5d81bf8ee076675e943c5fca5c24ba8fc6af21b6\n"
+        "author Dev <dev@example.com> 1000000000 +0000\n"
+        "committer Dev <dev@example.com> 1000000000 +0000\n"
+        "gpgsig -----BEGIN PGP SIGNATURE-----\n"
+        " \n"
+        " signed-body\n"
+        " -----END PGP SIGNATURE-----\n"
+        "\n"
+        "feat: signed commit\n"
+    )
+    tree, parents, author, committer, body = _commit_headers_and_body(raw)
+    assert body == "feat: signed commit\n"
+    commit_id = compute_commit_id(
+        tree=tree,
+        parents=parents,
+        author=author,
+        committer=committer,
+        message=body,
+    )
+    assert len(commit_id) == 40
+
+
+def test_github_gpgsig_fixture_parse():
+    from matrixscroll.git import _commit_headers_and_body, _commit_object_sha
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "github-gpgsig-commit.txt"
+    raw_bytes = fixture.read_bytes()
+    expected_sha = _commit_object_sha(raw_bytes)
+    raw = raw_bytes.decode("utf-8").replace("\r\n", "\n")
+    tree, parents, author, committer, body = _commit_headers_and_body(raw)
+    assert tree
+    assert author["email"]
+    assert body.startswith("feat: Scroll Gate")
+    assert expected_sha == "449abcd4799578bfce0ca128a088af8c298f762a"
+
+
 def test_parse_commit_matches_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     import subprocess
 

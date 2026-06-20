@@ -55,34 +55,54 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Detect envelope notes
+        id: notes
+        run: |
+          set -euo pipefail
+          git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll || true
+          if git show-ref --verify --quiet refs/notes/matrixscroll; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Install matrixscroll from source
-        run: pip install -e .
+      - name: Warn when notes missing (soft gate)
+        if: steps.notes.outputs.present != 'true' && vars.ENFORCE_PROVENANCE != 'true'
+        run: |
+          {
+            echo "## Matrix Scroll provenance gate"
+            echo ""
+            echo "**Status:** warning — envelope notes not published"
+            echo ""
+            echo "Publish notes before merge when ready:"
+            echo ""
+            echo '```bash'
+            echo "matrixscroll hook-install"
+            echo "matrixscroll envelope-publish-notes --base origin/main --head HEAD"
+            echo "git push origin refs/notes/matrixscroll"
+            echo '```'
+            echo ""
+            echo "Set repository variable \`ENFORCE_PROVENANCE=true\` to hard-fail missing notes."
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Fetch envelope notes
-        continue-on-error: true
-        run: git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll
+      - name: Fail when notes missing (hard gate)
+        if: steps.notes.outputs.present != 'true' && vars.ENFORCE_PROVENANCE == 'true'
+        run: |
+          echo "Envelope notes ref refs/notes/matrixscroll not found." >&2
+          echo "Publish with matrixscroll envelope-publish-notes and push notes." >&2
+          exit 1
 
       - name: Verify PR commit envelope range
-        continue-on-error: true
-        run: |
-          set +e
-          matrixscroll envelope-verify-range \
-            --base "${{ github.event.pull_request.base.sha }}" \
-            --head "${{ github.event.pull_request.head.sha }}" \
-            --source notes \
-            --summary-output provenance-summary.json | tee verify-output.json
-          RC=${PIPESTATUS[0]}
-          python -c "
-          import json, os
-          from matrixscroll.gate import format_range_summary
-          summary = json.loads(open('verify-output.json').read())
-          open(os.environ['GITHUB_STEP_SUMMARY'], 'a').write(format_range_summary(summary))
-          "
-          exit $RC
+        if: steps.notes.outputs.present == 'true'
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          head-ref: ${{ github.event.pull_request.head.sha }}
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          source: notes
+          notes-ref: refs/notes/matrixscroll
+          fetch-notes: "false"
+          matrixscroll-version: "0.2.4"
+          summary-output: provenance-summary.json
 
       - name: Upload provenance summary
         if: always()

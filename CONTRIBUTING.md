@@ -29,6 +29,25 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
+## Commit envelope provenance (Scroll Gate)
+
+For PRs that include agent-assisted commits, publish signed commit envelopes to git notes:
+
+```bash
+matrixscroll hook-install
+export MATRIXSCROLL_ACTOR_TYPE=agent   # or human / ci as appropriate
+export MATRIXSCROLL_TOOL=cursor        # or your IDE / agent tool name
+git commit -m "feat: your change"
+matrixscroll envelope-publish-notes --base origin/main --head HEAD
+git push origin refs/notes/matrixscroll
+```
+
+CI verifies the PR range with `matrixscroll envelope-verify-range --source notes`.
+Until repository variable `ENFORCE_PROVENANCE=true` is set, missing notes produce a **warning**
+in the GitHub Step Summary rather than a hard failure.
+
+Optional policy file for release branches: [`.github/trusted-keys.json`](.github/trusted-keys.json).
+
 ## Running the conformance vectors
 
 ```bash
@@ -42,7 +61,7 @@ vectors are welcome.
 
 ## Pull request checklist
 
-- [ ] Tests pass locally (`pytest -q`).
+- [ ] For agent-assisted commits: publish envelope git notes (`envelope-publish-notes` + push `refs/notes/matrixscroll`).
 - [ ] New public API has a docstring and is re-exported from
       `matrixscroll/__init__.py` if it's part of the supported surface.
 - [ ] `CHANGELOG.md` updated with a dated version entry (see Keep a Changelog format).

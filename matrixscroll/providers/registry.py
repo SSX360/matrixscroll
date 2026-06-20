@@ -29,6 +29,10 @@ def get_provider(*, refresh: bool = False) -> IdentityProvider:
         from .yubikey import YubiKeyProvider
 
         _PROVIDER = YubiKeyProvider()
+    elif mode == "tpm":
+        from .tpm import TpmProvider
+
+        _PROVIDER = TpmProvider()
     else:
         _PROVIDER = EmulatedProvider.load_or_create()
     return _PROVIDER
