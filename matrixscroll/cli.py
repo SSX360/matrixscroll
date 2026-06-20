@@ -22,8 +22,10 @@ from .policy import VerifyPolicy, verify_manifest_with_policy
 
 try:
     from . import git as _git
+    from . import gate as _gate
 except ImportError:  # pragma: no cover
     _git = None  # type: ignore[assignment]
+    _gate = None  # type: ignore[assignment]
 
 
 def _cmd_status(_args: argparse.Namespace) -> int:
@@ -32,7 +34,10 @@ def _cmd_status(_args: argparse.Namespace) -> int:
 
 
 def _load_policy(args: argparse.Namespace) -> VerifyPolicy | None:
-    policy = VerifyPolicy(require_mode=args.require_mode or None)
+    policy = VerifyPolicy(
+        require_mode=args.require_mode or None,
+        verify_agent_scope=bool(getattr(args, "verify_agent_scope", False)),
+    )
     if args.trusted_keys:
         file_policy = VerifyPolicy.from_json_file(args.trusted_keys)
         policy.trusted_public_keys = file_policy.trusted_public_keys
@@ -40,11 +45,15 @@ def _load_policy(args: argparse.Namespace) -> VerifyPolicy | None:
             policy.require_mode = file_policy.require_mode
         if file_policy.allowed_schemas:
             policy.allowed_schemas = file_policy.allowed_schemas
-    if (
-        policy.require_mode is None
-        and policy.trusted_public_keys is None
-        and policy.allowed_schemas is None
-    ):
+        if file_policy.require_actor_types:
+            policy.require_actor_types = file_policy.require_actor_types
+        if file_policy.deny_actor_types:
+            policy.deny_actor_types = file_policy.deny_actor_types
+        if file_policy.require_delegation_for_actor_types:
+            policy.require_delegation_for_actor_types = file_policy.require_delegation_for_actor_types
+        if file_policy.verify_agent_scope:
+            policy.verify_agent_scope = True
+    if policy.is_empty():
         return None
     return policy
 
@@ -159,6 +168,90 @@ def _cmd_sign(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_envelope_export(args: argparse.Namespace) -> int:
+    if _gate is None:
+        print(json.dumps({"ok": False, "error": "gate module unavailable"}))
+        return 1
+    try:
+        result = _gate.export_envelope_bundle(
+            args.base,
+            args.head,
+            Path(args.output),
+        )
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_envelope_publish_notes(args: argparse.Namespace) -> int:
+    if _gate is None:
+        print(json.dumps({"ok": False, "error": "gate module unavailable"}))
+        return 1
+    try:
+        result = _gate.publish_envelopes_to_notes(
+            args.base,
+            args.head,
+            notes_ref=args.notes_ref,
+        )
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_envelope_fetch_notes(args: argparse.Namespace) -> int:
+    if _gate is None:
+        print(json.dumps({"ok": False, "error": "gate module unavailable"}))
+        return 1
+    try:
+        result = _gate.fetch_notes(args.remote, notes_ref=args.notes_ref)
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_envelope_verify_range(args: argparse.Namespace) -> int:
+    if _gate is None:
+        print(json.dumps({"ok": False, "error": "gate module unavailable"}))
+        return 1
+    policy = _load_policy(args)
+    bundle_dir = Path(args.bundle) if args.bundle else None
+    try:
+        summary = _gate.verify_envelope_range(
+            args.base,
+            args.head,
+            source=args.source,
+            notes_ref=args.notes_ref,
+            bundle_dir=bundle_dir,
+            policy=policy,
+        )
+    except (RuntimeError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    if args.summary_output:
+        Path(args.summary_output).write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return 0 if summary.get("ok") else 2
+
+
+def _add_range_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--base", default="", help="Base ref for commit range (empty = all ancestors)")
+    parser.add_argument("--head", required=True, help="Head ref for commit range")
+    parser.add_argument(
+        "--notes-ref",
+        default="refs/notes/matrixscroll",
+        help="Git notes ref for envelope transport",
+    )
+
+
 def _add_policy_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--require-mode",
@@ -171,6 +264,11 @@ def _add_policy_args(parser: argparse.ArgumentParser) -> None:
         metavar="PATH",
         default="",
         help="JSON file with trusted_public_keys and optional policy fields",
+    )
+    parser.add_argument(
+        "--verify-agent-scope",
+        action="store_true",
+        help="Verify provenance.agent_scope linked manifest signatures",
     )
 
 
@@ -206,6 +304,59 @@ def build_parser() -> argparse.ArgumentParser:
     _add_policy_args(env_verify)
     env_verify.set_defaults(command="envelope-verify")
 
+    env_export = sub.add_parser(
+        "envelope-export",
+        help="Export local commit envelopes for a range into a filesystem bundle",
+    )
+    _add_range_args(env_export)
+    env_export.add_argument("--output", "-o", required=True, help="Output bundle directory")
+    env_export.set_defaults(command="envelope-export")
+
+    env_pub_notes = sub.add_parser(
+        "envelope-publish-notes",
+        help="Publish local commit envelopes to git notes",
+    )
+    _add_range_args(env_pub_notes)
+    env_pub_notes.set_defaults(command="envelope-publish-notes")
+
+    env_fetch_notes = sub.add_parser(
+        "envelope-fetch-notes",
+        help="Fetch envelope git notes from a remote",
+    )
+    env_fetch_notes.add_argument("--remote", default="origin", help="Remote name")
+    env_fetch_notes.add_argument(
+        "--notes-ref",
+        default="refs/notes/matrixscroll",
+        help="Git notes ref",
+    )
+    env_fetch_notes.set_defaults(command="envelope-fetch-notes")
+
+    env_verify_range = sub.add_parser(
+        "envelope-verify-range",
+        help="Verify commit envelopes for every commit in a range",
+    )
+    _add_range_args(env_verify_range)
+    env_verify_range.add_argument(
+        "--source",
+        choices=["local", "notes", "bundle"],
+        default="local",
+        help="Where to load envelopes from",
+    )
+    env_verify_range.add_argument(
+        "--bundle",
+        metavar="DIR",
+        default="",
+        help="Bundle directory when --source=bundle",
+    )
+    env_verify_range.add_argument(
+        "--summary-output",
+        metavar="PATH",
+        default="",
+        help="Write full JSON summary to this file",
+    )
+    _add_policy_args(env_verify_range)
+    env_verify_range.set_defaults(command="envelope-verify-range")
+
     return parser
 
 
@@ -222,6 +373,10 @@ def main(argv: list[str] | None = None) -> int:
         "hook-status": _cmd_hook_status,
         "envelope-build": _cmd_envelope_build,
         "envelope-verify": _cmd_envelope_verify,
+        "envelope-export": _cmd_envelope_export,
+        "envelope-publish-notes": _cmd_envelope_publish_notes,
+        "envelope-fetch-notes": _cmd_envelope_fetch_notes,
+        "envelope-verify-range": _cmd_envelope_verify_range,
     }
     handler = handlers.get(args.command)
     if handler is None:

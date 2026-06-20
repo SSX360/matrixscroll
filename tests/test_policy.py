@@ -24,3 +24,40 @@ def test_verify_manifest_with_policy_trusted_keys():
     ok, reason = verify_manifest_with_policy(signed, VerifyPolicy(trusted_public_keys={"wrong"}))
     assert not ok
     assert reason == "public key not in trusted set"
+
+
+def test_verify_envelope_attribution_policy_actor_types():
+    from matrixscroll.policy import verify_envelope_attribution_policy
+
+    envelope = {"provenance": {"actor_type": "agent", "tool": "pytest"}}
+    ok, _ = verify_envelope_attribution_policy(
+        envelope, VerifyPolicy(require_actor_types={"agent"})
+    )
+    assert ok
+    ok, reason = verify_envelope_attribution_policy(
+        envelope, VerifyPolicy(deny_actor_types={"agent"})
+    )
+    assert not ok
+    assert "denied" in (reason or "")
+
+
+def test_verify_envelope_attribution_policy_delegation_required():
+    from matrixscroll.policy import verify_envelope_attribution_policy
+
+    envelope = {"provenance": {"actor_type": "agent", "tool": "pytest"}}
+    ok, reason = verify_envelope_attribution_policy(
+        envelope, VerifyPolicy(require_delegation_for_actor_types={"agent"})
+    )
+    assert not ok
+    assert "delegation" in (reason or "")
+
+    envelope["delegation"] = {"owner_id": "owner@example.com"}
+    ok, _ = verify_envelope_attribution_policy(
+        envelope, VerifyPolicy(require_delegation_for_actor_types={"agent"})
+    )
+    assert ok
+
+
+def test_verify_policy_is_empty():
+    assert VerifyPolicy().is_empty()
+    assert not VerifyPolicy(require_mode="emulated").is_empty()
