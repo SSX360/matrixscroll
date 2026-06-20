@@ -99,6 +99,40 @@ class VerifyCommandTests(_RunMixin, unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertTrue(json.loads(out)["ok"])
 
+    def test_verify_require_mode_passes_for_matching_mode(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            path = self._signed_path(Path(tmp), {"release": "policy-ok"})
+            rc, out = self._run(["verify", str(path), "--require-mode", "emulated"])
+            self.assertEqual(rc, 0)
+            self.assertTrue(json.loads(out)["ok"])
+
+    def test_verify_require_mode_fails_for_mismatch(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            path = self._signed_path(Path(tmp), {"release": "policy-fail"})
+            rc, out = self._run(["verify", str(path), "--require-mode", "hardware"])
+            self.assertEqual(rc, 2)
+            self.assertIn("required mode hardware", json.loads(out)["error"])
+
+    def test_verify_trusted_keys_passes_for_signer_key(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            path = self._signed_path(Path(tmp), {"release": "trusted-ok"})
+            signed = json.loads(path.read_text(encoding="utf-8"))
+            pub = signed["signature"]["public_key"]
+            keys_path = Path(tmp) / "trusted-keys.json"
+            keys_path.write_text(json.dumps({"trusted_public_keys": [pub]}), encoding="utf-8")
+            rc, out = self._run(["verify", str(path), "--trusted-keys", str(keys_path)])
+            self.assertEqual(rc, 0)
+            self.assertTrue(json.loads(out)["ok"])
+
+    def test_verify_trusted_keys_fails_for_unknown_key(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            path = self._signed_path(Path(tmp), {"release": "trusted-fail"})
+            keys_path = Path(tmp) / "trusted-keys.json"
+            keys_path.write_text(json.dumps({"trusted_public_keys": ["wrong-key"]}), encoding="utf-8")
+            rc, out = self._run(["verify", str(path), "--trusted-keys", str(keys_path)])
+            self.assertEqual(rc, 2)
+            self.assertIn("trusted set", json.loads(out)["error"])
+
 
 class SignCommandTests(_RunMixin, unittest.TestCase):
     def test_sign_then_verify_roundtrip(self):
