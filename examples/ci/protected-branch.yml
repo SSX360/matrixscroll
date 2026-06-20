@@ -21,7 +21,7 @@ jobs:
         uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: examples/release-manifest.signed.json
-          matrixscroll-version: "0.1.1"
+          matrixscroll-version: "0.2.2"
 
   verify-commit-envelope:
     runs-on: ubuntu-latest
@@ -35,4 +35,5 @@ jobs:
         uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: evidence/commit-envelope.signed.json
-        continue-on-error: true  # enable enforce once envelopes are exported in CI
+          matrixscroll-version: "0.2.2"
+        # Set continue-on-error: true only while rolling out envelope export in CI

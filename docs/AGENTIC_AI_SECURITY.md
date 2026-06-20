@@ -52,7 +52,7 @@ Matrix Scroll adds a stronger evidence layer on top:
    Matrix Scroll servers, the original CI system, or the agent runtime.
 2. **Hardware-rooted provenance path** — the SSX360 L2 design moves the signing
    key into a secure element so the agent cannot exfiltrate it as a normal
-   credential. In v0.1.x, this is a typed provider path awaiting SE050 transport.
+   credential. Hardware mode is a typed provider path awaiting SE050 transport.
 3. **Fail-closed policy gates** — the CLI returns exit `2` for tampered,
    unsigned, malformed, wrong-schema, wrong-algorithm, or wrong-device-id input.
 4. **Executable conformance** — `vectors/` lets third-party implementations
