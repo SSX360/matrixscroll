@@ -34,6 +34,24 @@ def _run_git(*args: str, cwd: Path | None = None, strip: bool = True) -> str:
     return result.stdout
 
 
+def _run_git_bytes(*args: str, cwd: Path | None = None) -> bytes:
+    result = subprocess.run(
+        ["git", *args],
+        capture_output=True,
+        check=False,
+        cwd=cwd,
+    )
+    if result.returncode != 0:
+        err = (result.stderr or result.stdout or b"").decode("utf-8", errors="replace").strip()
+        raise RuntimeError(err or "git command failed")
+    return result.stdout
+
+
+def _commit_object_sha(raw: bytes) -> str:
+    wrapped = b"commit " + str(len(raw)).encode("ascii") + b"\0" + raw
+    return hashlib.sha1(wrapped, usedforsecurity=False).hexdigest()
+
+
 def repo_root() -> Path:
     return Path(_run_git("rev-parse", "--show-toplevel"))
 
@@ -127,15 +145,19 @@ def _parse_identity_line(line: str) -> dict[str, str]:
     return {"name": name, "email": email, "date": f"{timestamp} {tz}"}
 
 
-def parse_commit(sha: str, root: Path | None = None) -> dict[str, Any]:
-    root = root or repo_root()
-    commit_sha = _run_git("rev-parse", sha, cwd=root)
-    raw = _run_git("cat-file", "commit", commit_sha, cwd=root, strip=False)
+def _commit_headers_and_body(raw: str) -> tuple[str, list[str], dict[str, str], dict[str, str], str]:
+    """Parse a raw commit object, including multi-line ``gpgsig`` headers."""
+    lines = raw.split("\n")
     tree = ""
     parents: list[str] = []
     author: dict[str, str] | None = None
     committer: dict[str, str] | None = None
-    for line in raw.splitlines():
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line == "":
+            i += 1
+            break
         if line.startswith("tree "):
             tree = line.split(" ", 1)[1]
         elif line.startswith("parent "):
@@ -144,18 +166,37 @@ def parse_commit(sha: str, root: Path | None = None) -> dict[str, Any]:
             author = _parse_identity_line(line)
         elif line.startswith("committer "):
             committer = _parse_identity_line(line)
-    if not tree or author is None or committer is None or "\n\n" not in raw:
-        raise RuntimeError(f"unexpected commit object for {sha}")
-    body = raw.split("\n\n", 1)[1]
-    actual_id = compute_commit_id(
-        tree=tree,
-        parents=parents,
-        author=author,
-        committer=committer,
-        message=body,
-    )
-    if actual_id != commit_sha:
-        raise RuntimeError(f"commit id mismatch for {sha}")
+        elif line.startswith("gpgsig "):
+            i += 1
+            while i < len(lines) and lines[i].startswith(" "):
+                i += 1
+            continue
+        i += 1
+    if not tree or author is None or committer is None:
+        raise RuntimeError("unexpected commit object headers")
+    body = "\n".join(lines[i:])
+    return tree, parents, author, committer, body
+
+
+def parse_commit(sha: str, root: Path | None = None) -> dict[str, Any]:
+    root = root or repo_root()
+    commit_sha = _run_git("rev-parse", sha, cwd=root)
+    raw_bytes = _run_git_bytes("cat-file", "commit", commit_sha, cwd=root)
+    if _commit_object_sha(raw_bytes) != commit_sha:
+        raise RuntimeError(f"commit object hash mismatch for {sha}")
+    raw = raw_bytes.decode("utf-8").replace("\r\n", "\n")
+    tree, parents, author, committer, body = _commit_headers_and_body(raw)
+    has_gpgsig = any(line.startswith("gpgsig ") for line in raw.split("\n"))
+    if not has_gpgsig:
+        actual_id = compute_commit_id(
+            tree=tree,
+            parents=parents,
+            author=author,
+            committer=committer,
+            message=body,
+        )
+        if actual_id != commit_sha:
+            raise RuntimeError(f"commit id mismatch for {sha}")
     return {
         "actual_id": commit_sha,
         "tree": tree,

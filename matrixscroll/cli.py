@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -166,6 +167,35 @@ def _cmd_sign(args: argparse.Namespace) -> int:
     signed = sign_manifest(manifest)
     print(json.dumps(signed, indent=2, sort_keys=True))
     return 0
+
+
+def _cmd_envelope_export_guac(args: argparse.Namespace) -> int:
+    from . import guac_export as guac_mod
+
+    try:
+        result = guac_mod.export_guac_jsonl(Path(args.bundle), Path(args.output))
+    except (RuntimeError, FileNotFoundError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
+
+
+def _cmd_envelope_publish_rekor(args: argparse.Namespace) -> int:
+    from . import rekor_publish as rekor_mod
+
+    bundle = Path(args.bundle)
+    try:
+        if args.rekor_cli:
+            result = rekor_mod.publish_rekor_cli(bundle, rekor_url=args.rekor_url or None)
+        else:
+            out = Path(args.output) if args.output else bundle / ".rekor-dry-run"
+            result = rekor_mod.publish_rekor_dry_run(bundle, out)
+    except (RuntimeError, FileNotFoundError, subprocess.CalledProcessError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
 
 
 def _cmd_envelope_export(args: argparse.Namespace) -> int:
@@ -357,6 +387,28 @@ def build_parser() -> argparse.ArgumentParser:
     _add_policy_args(env_verify_range)
     env_verify_range.set_defaults(command="envelope-verify-range")
 
+    guac_export = sub.add_parser(
+        "envelope-export-guac",
+        help="Export verified envelopes from a bundle to GUAC JSONL",
+    )
+    guac_export.add_argument("--bundle", required=True, help="Envelope bundle directory")
+    guac_export.add_argument("--output", "-o", required=True, help="Output JSONL path")
+    guac_export.set_defaults(command="envelope-export-guac")
+
+    rekor_pub = sub.add_parser(
+        "envelope-publish-rekor",
+        help="Publish envelopes to Rekor (dry-run by default)",
+    )
+    rekor_pub.add_argument("--bundle", required=True, help="Envelope bundle directory")
+    rekor_pub.add_argument("--output", "-o", default="", help="Dry-run output directory")
+    rekor_pub.add_argument(
+        "--rekor-cli",
+        action="store_true",
+        help="Upload via rekor-cli (requires REKOR_URL)",
+    )
+    rekor_pub.add_argument("--rekor-url", default="", help="Rekor server URL override")
+    rekor_pub.set_defaults(command="envelope-publish-rekor")
+
     return parser
 
 
@@ -377,6 +429,8 @@ def main(argv: list[str] | None = None) -> int:
         "envelope-publish-notes": _cmd_envelope_publish_notes,
         "envelope-fetch-notes": _cmd_envelope_fetch_notes,
         "envelope-verify-range": _cmd_envelope_verify_range,
+        "envelope-export-guac": _cmd_envelope_export_guac,
+        "envelope-publish-rekor": _cmd_envelope_publish_rekor,
     }
     handler = handlers.get(args.command)
     if handler is None:

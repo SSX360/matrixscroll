@@ -5,13 +5,23 @@ from __future__ import annotations
 import base64
 import binascii
 import copy
+import hashlib
 import time
 from typing import Any
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 
 from .canonical import canonical_bytes
 from .constants import ALGORITHM, SIGNATURE_SCHEMA
 from .providers.emulated import device_id
 from .providers.registry import get_provider, identity_info, verify
+
+
+def _provider_algorithm(provider) -> str:
+    return getattr(provider, "algorithm", ALGORITHM)
 
 
 def sign_manifest(
@@ -21,17 +31,38 @@ def sign_manifest(
     info = identity_info(provider)
     signed = copy.deepcopy(manifest)
     signed.pop("signature", None)
-    signature_value = base64.b64encode(provider.sign(canonical_bytes(signed))).decode("ascii")
-    signed["signature"] = {
+    canonical = canonical_bytes(signed)
+    signing_input = provider.signing_input(canonical) if hasattr(provider, "signing_input") else canonical
+    signature_value = base64.b64encode(provider.sign(signing_input)).decode("ascii")
+    algorithm = _provider_algorithm(provider)
+    block: dict[str, Any] = {
         "schema": SIGNATURE_SCHEMA,
-        "algorithm": ALGORITHM,
+        "algorithm": algorithm,
         "device_id": info["device_id"],
         "public_key": info["public_key"],
         "mode": info["mode"],
         "signed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "value": signature_value,
     }
+    digest = getattr(provider, "digest", None)
+    if digest:
+        block["digest"] = digest
+    signed["signature"] = block
     return signed
+
+
+def _verify_ecdsa_p256(public_key: bytes, data: bytes, signature: bytes, digest: str | None) -> bool:
+    try:
+        from cryptography.hazmat.primitives.serialization import load_der_public_key
+
+        key = load_der_public_key(public_key)
+        if not isinstance(key, ec.EllipticCurvePublicKey):
+            return False
+        payload = hashlib.sha256(data).digest() if digest == "sha256" else data
+        key.verify(signature, payload, ec.ECDSA(Prehashed(hashes.SHA256())))
+        return True
+    except (InvalidSignature, ValueError, TypeError):
+        return False
 
 
 def verify_manifest(manifest: dict[str, Any]) -> bool:
@@ -40,14 +71,16 @@ def verify_manifest(manifest: dict[str, Any]) -> bool:
     block = manifest.get("signature")
     if not isinstance(block, dict):
         return False
-    if block.get("schema") != SIGNATURE_SCHEMA or block.get("algorithm") != ALGORITHM:
+    if block.get("schema") != SIGNATURE_SCHEMA:
         return False
+    algorithm = block.get("algorithm", ALGORITHM)
     public_key = block.get("public_key")
     signature = block.get("value")
     if not isinstance(public_key, str) or not isinstance(signature, str):
         return False
     try:
         public_key_bytes = base64.b64decode(public_key.encode("ascii"), validate=True)
+        signature_bytes = base64.b64decode(signature.encode("ascii"), validate=True)
     except (ValueError, binascii.Error):
         return False
     if block.get("device_id") != device_id(public_key_bytes):
@@ -56,4 +89,13 @@ def verify_manifest(manifest: dict[str, Any]) -> bool:
         signing_input = canonical_bytes(manifest)
     except (TypeError, ValueError):
         return False
-    return verify(public_key_bytes, signing_input, signature)
+    if algorithm == "ecdsa-p256":
+        return _verify_ecdsa_p256(
+            public_key_bytes,
+            signing_input,
+            signature_bytes,
+            block.get("digest") if isinstance(block.get("digest"), str) else "sha256",
+        )
+    if algorithm != ALGORITHM:
+        return False
+    return verify(public_key_bytes, signing_input, signature_bytes)

@@ -1,0 +1,26 @@
+tree 74bec0db90408c16afa552a0864d2c6062073d8d
+parent 5d81bf8ee076675e943c5fca5c24ba8fc6af21b6
+author Matrix Scroll <119862339+SSX360@users.noreply.github.com> 1781930911 -0400
+committer GitHub <noreply@github.com> 1781930911 -0400
+gpgsig -----BEGIN PGP SIGNATURE-----
+ 
+ wsFcBAABCAAQBQJqNhufCRC1aQ7uu5UhlAAAb2MQAB6y4Lzt+5QilXk1SDbGo+dF
+ tgBt0E1kyFoBq3OkAXdtSNHgaaWta322MQaLvl1RCVyb8qXPDDzLZzg+dYsenaVj
+ gBuWf1rAsSE15vzAQpXfrUxJgfIginMsy0gvpASHhPIHYOqkNmNtIUroI/p9Q4yM
+ iODmh19lR56icKtszJyaBt+hMT+2WkQbLGc9z5MaWhUpe+v20vLVJCsRaTajg/I3
+ NLbl+NOvtuD2aFRo8m7xDMPVY7a2caCaGSIH65zl6Kt4kjDsQozKaehDlqkoMs+M
+ XlEmFpjPS0h96jl40CLNEGwF/TC6zgpy4zzYO8fgQIyjMLHmTLqB9KJyY9mXGbJA
+ RSeEQ2LHW28egdRxY8pkWPwy6ioDbAmHGPfqlhTd5fpIaqzUSWHDMazUWnVPbpVJ
+ oAHCCW3JzeJP1WxBlaqLSRR7GYyf4lNZIyU76llg0V9lgcx0qt5ijFxJozdsk9ry
+ D09SBEKzPpy9Ysw7HWXBOJPUKpZxGLdtVb9Ua8KWA6Ed+HagrZ6L12il5ay8vvxm
+ rGrEPvlu6WYxTQhsP1WxiWceWjPLKHQjgNl8gMblGckaNmbucXC2ZZvChbfhllHp
+ iUz9NH/G5oDfDH0cmB+e4JqoVbRI8qaiC6+gEcE28SxkCM2+UNxAwFadmL7o+Ayi
+ thzMRc07rLUN0vjOwY4e
+ =E0NJ
+ -----END PGP SIGNATURE-----
+ 
+
+feat: Scroll Gate 0.2.4 with attribution policy and delegation schema (#12)
+
+Co-authored-by: SSX360 <security@matrixscroll.com>
+Co-authored-by: Cursor <cursoragent@cursor.com>

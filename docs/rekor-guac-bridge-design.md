@@ -1,6 +1,6 @@
 # Rekor / GUAC envelope bridge (design)
 
-> Status: design RFC for Phase 3. Not implemented.
+> Status: MVP shipped in v0.2.5 (`envelope-export-guac`, `envelope-publish-rekor` dry-run).
 
 ## Goal
 
