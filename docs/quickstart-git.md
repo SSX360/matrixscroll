@@ -33,6 +33,17 @@ Enable enforce mode in `.git/matrixscroll/config.json`:
 }
 ```
 
+## Windows
+
+Commit-envelope signing requires **matrixscroll 0.2.1+** (fixes Git `cat-file` parsing on Windows). After upgrading:
+
+```powershell
+pip install -U "matrixscroll>=0.2.1"
+matrixscroll hook-install
+```
+
+Use `python -m matrixscroll.cli` if the `matrixscroll` script is not on your PATH.
+
 ## Agent provenance
 
 Set environment variables before committing:

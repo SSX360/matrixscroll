@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 from ._core import sign_manifest, status, verify_manifest
+from .policy import VerifyPolicy, verify_manifest_with_policy
 
 try:
     from . import git as _git
@@ -30,6 +31,24 @@ def _cmd_status(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_policy(args: argparse.Namespace) -> VerifyPolicy | None:
+    policy = VerifyPolicy(require_mode=args.require_mode or None)
+    if args.trusted_keys:
+        file_policy = VerifyPolicy.from_json_file(args.trusted_keys)
+        policy.trusted_public_keys = file_policy.trusted_public_keys
+        if file_policy.require_mode and not policy.require_mode:
+            policy.require_mode = file_policy.require_mode
+        if file_policy.allowed_schemas:
+            policy.allowed_schemas = file_policy.allowed_schemas
+    if (
+        policy.require_mode is None
+        and policy.trusted_public_keys is None
+        and policy.allowed_schemas is None
+    ):
+        return None
+    return policy
+
+
 def _cmd_verify(args: argparse.Namespace) -> int:
     path = Path(args.manifest)
     try:
@@ -37,15 +56,25 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": f"cannot read manifest: {exc}"}))
         return 2
-    ok = verify_manifest(manifest)
+    policy = _load_policy(args)
+    if policy is not None:
+        ok, reason = verify_manifest_with_policy(manifest, policy)
+        if not ok:
+            print(json.dumps({"ok": False, "error": reason or "policy verification failed"}))
+            return 2
+    else:
+        ok = verify_manifest(manifest)
+        if not ok:
+            print(json.dumps({"ok": False, "error": "cryptographic verification failed"}))
+            return 2
     block = manifest.get("signature") or {}
     print(json.dumps({
-        "ok": ok,
+        "ok": True,
         "device_id": block.get("device_id"),
         "mode": block.get("mode"),
         "signed_at": block.get("signed_at"),
     }, sort_keys=True))
-    return 0 if ok else 2
+    return 0
 
 
 def _cmd_hook_install(_args: argparse.Namespace) -> int:
@@ -97,15 +126,25 @@ def _cmd_envelope_verify(args: argparse.Namespace) -> int:
             print(json.dumps({"ok": False, "error": f"no envelope for {target}"}))
             return 2
         envelope = json.loads(env_path.read_text(encoding="utf-8-sig"))
-    ok = verify_manifest(envelope)
+    policy = _load_policy(args)
+    if policy is not None:
+        ok, reason = verify_manifest_with_policy(envelope, policy)
+        if not ok:
+            print(json.dumps({"ok": False, "error": reason or "policy verification failed"}))
+            return 2
+    else:
+        ok = verify_manifest(envelope)
+        if not ok:
+            print(json.dumps({"ok": False, "error": "cryptographic verification failed"}))
+            return 2
     block = envelope.get("signature") or {}
     print(json.dumps({
-        "ok": ok,
+        "ok": True,
         "device_id": block.get("device_id"),
         "mode": block.get("mode"),
         "signed_at": block.get("signed_at"),
     }, sort_keys=True))
-    return 0 if ok else 2
+    return 0
 
 
 def _cmd_sign(args: argparse.Namespace) -> int:
@@ -120,6 +159,21 @@ def _cmd_sign(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_policy_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--require-mode",
+        metavar="MODE",
+        default="",
+        help="Require signature mode (e.g. emulated, hardware)",
+    )
+    parser.add_argument(
+        "--trusted-keys",
+        metavar="PATH",
+        default="",
+        help="JSON file with trusted_public_keys and optional policy fields",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -131,6 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify_p = sub.add_parser("verify", help="Verify a signed manifest JSON file")
     verify_p.add_argument("manifest", help="Path to a signed manifest produced by sign_manifest")
+    _add_policy_args(verify_p)
 
     sign_p = sub.add_parser("sign", help="Sign a manifest JSON file with the active provider")
     sign_p.add_argument("manifest", help="Path to a manifest JSON file to sign")
@@ -148,6 +203,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     env_verify = sub.add_parser("envelope-verify", help="Verify a commit envelope by path or commit sha")
     env_verify.add_argument("target", help="Envelope file path or 40-char commit sha")
+    _add_policy_args(env_verify)
     env_verify.set_defaults(command="envelope-verify")
 
     return parser
