@@ -1,0 +1,38 @@
+# Protected branch provenance gate
+#
+# Copy into .github/workflows/provenance.yml
+# Requires a signed manifest committed or uploaded as a CI artifact.
+
+name: provenance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  verify-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify signed release manifest
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          manifest: examples/release-manifest.signed.json
+          matrixscroll-version: "0.1.1"
+
+  verify-commit-envelope:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify commit envelope artifact
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          manifest: evidence/commit-envelope.signed.json
+        continue-on-error: true  # enable enforce once envelopes are exported in CI

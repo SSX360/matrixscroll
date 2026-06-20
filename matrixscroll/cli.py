@@ -19,6 +19,11 @@ from pathlib import Path
 
 from ._core import sign_manifest, status, verify_manifest
 
+try:
+    from . import git as _git
+except ImportError:  # pragma: no cover
+    _git = None  # type: ignore[assignment]
+
 
 def _cmd_status(_args: argparse.Namespace) -> int:
     print(json.dumps(status(), indent=2, sort_keys=True))
@@ -34,6 +39,66 @@ def _cmd_verify(args: argparse.Namespace) -> int:
         return 2
     ok = verify_manifest(manifest)
     block = manifest.get("signature") or {}
+    print(json.dumps({
+        "ok": ok,
+        "device_id": block.get("device_id"),
+        "mode": block.get("mode"),
+        "signed_at": block.get("signed_at"),
+    }, sort_keys=True))
+    return 0 if ok else 2
+
+
+def _cmd_hook_install(_args: argparse.Namespace) -> int:
+    from . import git as git_mod
+    try:
+        result = git_mod.install_hooks()
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    print(json.dumps(result))
+    return 0
+
+
+def _cmd_hook_status(_args: argparse.Namespace) -> int:
+    from . import git as git_mod
+    try:
+        print(json.dumps(git_mod.hook_status(), indent=2))
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    return 0
+
+
+def _cmd_envelope_build(args: argparse.Namespace) -> int:
+    if _git is None:
+        print(json.dumps({"ok": False, "error": "git module unavailable"}))
+        return 1
+    message = args.message
+    envelope = _git.build_commit_envelope(message=message)
+    signed = _git.sign_commit_envelope(envelope)
+    if args.output:
+        Path(args.output).write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    else:
+        print(json.dumps(signed, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_envelope_verify(args: argparse.Namespace) -> int:
+    if _git is None:
+        print(json.dumps({"ok": False, "error": "git module unavailable"}))
+        return 1
+    target = args.target
+    path = Path(target)
+    if path.is_file():
+        envelope = json.loads(path.read_text(encoding="utf-8-sig"))
+    else:
+        env_path = _git.envelope_path(target)
+        if not env_path.is_file():
+            print(json.dumps({"ok": False, "error": f"no envelope for {target}"}))
+            return 2
+        envelope = json.loads(env_path.read_text(encoding="utf-8-sig"))
+    ok = verify_manifest(envelope)
+    block = envelope.get("signature") or {}
     print(json.dumps({
         "ok": ok,
         "device_id": block.get("device_id"),
@@ -70,6 +135,21 @@ def build_parser() -> argparse.ArgumentParser:
     sign_p = sub.add_parser("sign", help="Sign a manifest JSON file with the active provider")
     sign_p.add_argument("manifest", help="Path to a manifest JSON file to sign")
 
+    sub.add_parser("hook", help="Install Matrix Scroll git hooks in the current repo").set_defaults(
+        command="hook-install"
+    )
+    sub.add_parser("hook-install", help="Install Matrix Scroll git hooks in the current repo")
+    sub.add_parser("hook-status", help="Print git hook installation status as JSON")
+
+    env_build = sub.add_parser("envelope", help="Build and sign a commit envelope")
+    env_build.add_argument("--message", "-m", help="Commit message override")
+    env_build.add_argument("--output", "-o", help="Write signed envelope to file")
+    env_build.set_defaults(command="envelope-build")
+
+    env_verify = sub.add_parser("envelope-verify", help="Verify a commit envelope by path or commit sha")
+    env_verify.add_argument("target", help="Envelope file path or 40-char commit sha")
+    env_verify.set_defaults(command="envelope-verify")
+
     return parser
 
 
@@ -82,6 +162,10 @@ def main(argv: list[str] | None = None) -> int:
         "status": _cmd_status,
         "verify": _cmd_verify,
         "sign": _cmd_sign,
+        "hook-install": _cmd_hook_install,
+        "hook-status": _cmd_hook_status,
+        "envelope-build": _cmd_envelope_build,
+        "envelope-verify": _cmd_envelope_verify,
     }
     handler = handlers.get(args.command)
     if handler is None:

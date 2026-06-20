@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/release-manifest.v1.json",
+  "title": "Matrix Scroll Release Manifest v1",
+  "type": "object",
+  "required": ["schema", "release", "artifacts"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.release.v1"
+    },
+    "release": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.]+)?$"
+        },
+        "tag": { "type": "string" },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": true
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "digest"],
+        "properties": {
+          "name": { "type": "string" },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "url": { "type": "string", "format": "uri" },
+          "media_type": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "commit_envelopes": {
+      "type": "array",
+      "description": "SHAs of signed commit envelopes included in this release",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{40}$"
+      }
+    },
+    "signature": {
+      "type": "object"
+    }
+  }
+}

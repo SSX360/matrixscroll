@@ -4,9 +4,9 @@
 
 Every AI-generated change in your IDE can be cryptographically signed by an
 Ed25519 identity and verified offline with a public key and one command. The
-v0.1.x reference implementation ships a well-tested software root of trust;
-SSX360/NXP SE050 hardware signing is the compatible reference-device path in
-progress.
+v0.2.x reference implementation ships a well-tested software root of trust
+with Git commit-envelope hooks; SSX360/NXP SE050 hardware signing is the
+compatible reference-device path in progress.
 
 - 📜 **Spec:** [`SPEC.md`](SPEC.md) — wire format, canonical encoding, schemas.
 - 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
@@ -35,6 +35,35 @@ signed = matrixscroll.sign_manifest({"release": "v1.0.0", "artifacts": [...]})
 
 # Verify, anywhere, offline
 assert matrixscroll.verify_manifest(signed)
+```
+
+## Agent provenance for Git commits
+
+When an AI agent (Cursor, Claude Code, Copilot, etc.) produces a commit, Matrix
+Scroll attaches a signed **commit envelope** with actor, tool, and scope metadata.
+Verify in CI without trusting the IDE.
+
+```bash
+pip install matrixscroll
+matrixscroll hook-install
+
+export MATRIXSCROLL_ACTOR_TYPE=agent
+export MATRIXSCROLL_TOOL=cursor
+git commit -m "feat: agent-assisted change"
+
+matrixscroll envelope-verify "$(git rev-parse HEAD)"
+```
+
+See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
+[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+
+### CI verify
+
+```yaml
+- uses: SSX360/matrixscroll-verify-action@v1
+  with:
+    manifest: examples/agentic_ai_evidence_manifest.signed.json
+    matrixscroll-version: "0.2.0"
 ```
 
 ## CLI
