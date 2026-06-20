@@ -23,7 +23,7 @@ already support signing workflows.
 
 Schema id: `matrixscroll.commit_envelope.v1`
 
-See [`schemas/commit-envelope.v1.json`](../schemas/commit-envelope.v1.json) and
+See [`schemas/commit-envelope.v1.json`](../../schemas/commit-envelope.v1.json) and
 [`examples/commit-envelope.json`](../../examples/commit-envelope.json).
 
 ### Required fields

@@ -69,4 +69,4 @@ Or use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrix
 bash examples/demo/agent-commit-demo.sh
 ```
 
-See [spec](../superpowers/specs/2026-06-19-matrixscroll-git-design.md).
+See [WHITEPAPER.md](WHITEPAPER.md) and [`schemas/commit-envelope.v1.json`](../schemas/commit-envelope.v1.json).
