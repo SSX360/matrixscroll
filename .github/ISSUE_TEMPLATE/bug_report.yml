@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a defect in the Matrix Scroll SDK or specification
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For **security vulnerabilities**, do not use this form. Email security@matrixscroll.com or open a [private advisory](https://github.com/SSX360/matrixscroll/security/advisories/new).
+  - type: input
+    id: version
+    attributes:
+      label: matrixscroll version
+      placeholder: "0.2.2"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: pip install matrixscroll ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
