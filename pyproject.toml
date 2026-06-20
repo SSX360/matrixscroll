@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.2.0"
+version = "0.2.1"
 description = "Open protocol for signing AI-assisted code provenance with Ed25519; shipping software root of trust with SSX360 hardware support in progress."
 readme = "README.md"
 requires-python = ">=3.10"
