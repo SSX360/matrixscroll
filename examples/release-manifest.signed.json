@@ -1,0 +1,33 @@
+{
+  "artifacts": [
+    {
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "application/zip",
+      "name": "matrixscroll-0.2.0-py3-none-any.whl",
+      "url": "https://pypi.org/project/matrixscroll/0.2.0/"
+    },
+    {
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "media_type": "application/gzip",
+      "name": "matrixscroll-0.2.0.tar.gz",
+      "url": "https://pypi.org/project/matrixscroll/0.2.0/"
+    }
+  ],
+  "commit_envelopes": [],
+  "release": {
+    "commit": "0000000000000000000000000000000000000000",
+    "published_at": "2026-06-19T00:00:00Z",
+    "tag": "v0.2.0",
+    "version": "0.2.0"
+  },
+  "schema": "matrixscroll.release.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-20T00:04:31Z",
+    "value": "f+jTP4C1lgX9bI0fKRwdQO646GLgFVxdj/McNu3KjsQwJZ/FPlwBobB7vHdIckaqsQ1GNHEvOFR9UetWLKxiCQ=="
+  }
+}

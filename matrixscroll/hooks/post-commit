@@ -1,0 +1,16 @@
+#!/bin/sh
+# matrixscroll-git hook
+set -e
+python -m matrixscroll.git hook post-commit || {
+  CONFIG="$PWD/.git/matrixscroll/config.json"
+  ENFORCE=false
+  if [ -f "$CONFIG" ]; then
+    ENFORCE=$(python -c "import json; print(json.load(open(r'''$CONFIG''')).get('enforce', False))")
+  fi
+  if [ "$ENFORCE" = "True" ] || [ "$ENFORCE" = "true" ]; then
+    echo "matrixscroll: envelope signing failed (enforce mode)" >&2
+    exit 2
+  fi
+  echo "matrixscroll: envelope signing failed (warn mode)" >&2
+}
+exit 0

@@ -67,3 +67,22 @@ def test_example_commit_envelope_schema_constant():
     example = Path(__file__).resolve().parents[1] / "examples" / "commit-envelope.json"
     data = json.loads(example.read_text(encoding="utf-8"))
     assert data["schema"] == COMMIT_ENVELOPE_SCHEMA
+
+
+def test_tampered_envelope_fails_verify():
+    envelope = {
+        "schema": COMMIT_ENVELOPE_SCHEMA,
+        "commit": {
+            "actual_id": "abc123" + "0" * 34,
+            "tree": "d8329fc1cc938780ff89978712c630256214f016",
+            "parents": [],
+            "author": {"name": "T", "email": "t@example.com", "date": "1 +0000"},
+            "committer": {"name": "T", "email": "t@example.com", "date": "1 +0000"},
+            "message": "test",
+        },
+        "provenance": {"actor_type": "agent", "tool": "pytest"},
+        "repository": {"name": "matrixscroll"},
+    }
+    signed = sign_commit_envelope(envelope)
+    signed["provenance"]["tool"] = "tampered"
+    assert not verify_manifest(signed)

@@ -16,7 +16,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest tests/test_vectors.py -v
 
-  verify-signed-vector:
+  verify-signed-examples:
     runs-on: ubuntu-latest
     needs: vectors
     steps:
@@ -25,7 +25,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
-      - name: Verify conformance vector
+      - name: Verify signed examples and conformance vector
         run: |
           matrixscroll verify vectors/valid_simple.json
-          test $? -eq 0
+          matrixscroll verify examples/agentic_ai_evidence_manifest.signed.json
+          matrixscroll verify examples/commit-envelope.signed.json
+          matrixscroll verify examples/release-manifest.signed.json
