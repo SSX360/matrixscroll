@@ -47,6 +47,24 @@ def test_sign_and_verify_commit_envelope():
     assert verify_manifest(signed)
 
 
+def test_parse_commit_matches_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    import subprocess
+
+    from matrixscroll.git import parse_commit
+
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "dev@example.com"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "Dev"], cwd=tmp_path, check=True)
+    sample = tmp_path / "hello.txt"
+    sample.write_text("hello\n", encoding="utf-8")
+    subprocess.run(["git", "add", "hello.txt"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=tmp_path, check=True)
+    sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True).strip()
+    parsed = parse_commit(sha, tmp_path)
+    assert parsed["actual_id"] == sha
+    assert parsed["message"].startswith("init")
+
+
 def test_build_commit_envelope_in_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     import subprocess
 
