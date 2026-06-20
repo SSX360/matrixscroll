@@ -5,7 +5,7 @@ Use Matrix Scroll to sign **agent-assisted commits** from GitHub Copilot (IDE or
 ## One-time setup
 
 ```bash
-pip install "matrixscroll>=0.2.4"
+pip install "matrixscroll>=0.2.5"
 matrixscroll hook-install
 ```
 

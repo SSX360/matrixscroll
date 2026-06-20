@@ -15,6 +15,7 @@ Matrix Scroll is a cryptographic evidence layer: when an AI agent (Cursor, Claud
 - 📄 **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md) — why Git commits, implementation guide.
 - ⚖️ **Comparison:** [`docs/COMPARISON.md`](docs/COMPARISON.md) — vs Sigstore, agentmark, Alien, ForgeProof.
 - 💬 **Support:** [`SUPPORT.md`](SUPPORT.md) — issues, Discussions, security contact.
+- 📦 **Software products (D0–365):** [`docs/SOFTWARE_PRODUCTS.md`](docs/SOFTWARE_PRODUCTS.md) — what ships without hardware.
 - 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
   maps Matrix Scroll to the joint *Careful Adoption of Agentic AI Services* guidance.
 - 🔐 **Algorithm:** Ed25519 (RFC 8032). Private keys are never exposed by the SDK API.
@@ -44,7 +45,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: examples/agentic_ai_evidence_manifest.signed.json
-    matrixscroll-version: "0.2.4"
+    matrixscroll-version: "0.2.5"
     require-mode: emulated
 ```
 
@@ -66,7 +67,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.2.4"
+    matrixscroll-version: "0.2.5"
     summary-output: provenance-summary.json
 ```
 
