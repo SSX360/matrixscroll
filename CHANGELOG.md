@@ -4,6 +4,15 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-06-20
+
+Policy flags for CI and release gates.
+
+### Added
+- **CLI policy flags** — `matrixscroll verify` and `matrixscroll envelope-verify` accept
+  `--require-mode` and `--trusted-keys` (JSON policy file), wired to
+  `verify_manifest_with_policy()`.
+
 ## [0.2.1] - 2026-06-20
 
 Windows and cross-platform commit envelope fix.
