@@ -90,6 +90,31 @@
       },
       "additionalProperties": true
     },
+    "delegation": {
+      "type": "object",
+      "description": "Human owner and approver attestation for agent commits (AAI-04)",
+      "properties": {
+        "owner_id": {
+          "type": "string",
+          "description": "Named system or resource owner (email or stable id)"
+        },
+        "approver_id": {
+          "type": "string",
+          "description": "Human who approved agent scope for this session"
+        },
+        "delegation_manifest_uri": {
+          "type": "string",
+          "description": "Path or URI to signed agentic_ai_evidence manifest"
+        },
+        "delegation_manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional SHA-256 of delegation manifest bytes"
+        }
+      },
+      "required": ["owner_id"],
+      "additionalProperties": false
+    },
     "signature": {
       "type": "object",
       "required": [

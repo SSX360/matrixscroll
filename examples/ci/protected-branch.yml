@@ -1,7 +1,10 @@
-# Protected branch provenance gate
+# Protected branch provenance gate (Scroll Gate)
 #
 # Copy into .github/workflows/provenance.yml
-# Requires a signed manifest committed or uploaded as a CI artifact.
+#
+# Requires developers to publish commit envelopes to git notes before PR review:
+#   matrixscroll envelope-publish-notes --base origin/main --head HEAD
+#   git push origin refs/notes/matrixscroll
 
 name: provenance
 
@@ -21,9 +24,9 @@ jobs:
         uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: examples/release-manifest.signed.json
-          matrixscroll-version: "0.2.2"
+          matrixscroll-version: "0.2.4"
 
-  verify-commit-envelope:
+  verify-pr-envelopes:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
@@ -31,9 +34,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify commit envelope artifact
+      - name: Verify PR commit envelope range
         uses: SSX360/matrixscroll-verify-action@v1
         with:
-          manifest: evidence/commit-envelope.signed.json
-          matrixscroll-version: "0.2.2"
-        # Set continue-on-error: true only while rolling out envelope export in CI
+          head-ref: ${{ github.event.pull_request.head.sha }}
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          source: notes
+          notes-ref: refs/notes/matrixscroll
+          fetch-notes: "true"
+          matrixscroll-version: "0.2.4"
+          summary-output: provenance-summary.json
+        # Optional policy enforcement:
+        # require-mode: emulated
+        # trusted-keys: .github/trusted-keys.json
+
+      - name: Upload provenance summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-summary
+          path: provenance-summary.json
+
+  verify-bundle-fallback:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify bundle artifact (optional fallback)
+        if: false  # enable when teams upload envelope bundles as CI artifacts
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          head-ref: ${{ github.event.pull_request.head.sha }}
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          source: bundle
+          bundle-dir: evidence/bundle
+          matrixscroll-version: "0.2.4"

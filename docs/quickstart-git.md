@@ -56,12 +56,66 @@ export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.jso
 
 ## Verify in CI
 
+Single envelope:
+
 ```bash
 matrixscroll verify .git/matrixscroll/envelopes/<commit-sha>.json
 matrixscroll envelope-verify <commit-sha>
 ```
 
-Or use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action).
+PR commit range (Scroll Gate):
+
+```bash
+# Export a filesystem bundle for artifacts or support
+matrixscroll envelope-export --base origin/main --head HEAD --output ./evidence/bundle
+
+# Publish envelopes to git notes (recommended transport)
+matrixscroll envelope-publish-notes --base origin/main --head HEAD
+git push origin refs/notes/matrixscroll
+
+# Verify every commit in a PR range from notes or a bundle
+matrixscroll envelope-verify-range --base origin/main --head HEAD --source notes
+matrixscroll envelope-verify-range --base origin/main --head HEAD --source bundle --bundle ./evidence/bundle
+```
+
+Use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) for GitHub Actions.
+
+**Time anchoring:** envelope `signed_at` is informational only. Use Git commit
+graph order or ledger insertion order for chronology — not self-reported timestamps.
+
+## Recommended PR flow
+
+1. `matrixscroll hook-install`
+2. Commit normally (hooks sign each commit locally)
+3. Before opening or updating a PR:
+   ```bash
+   matrixscroll envelope-publish-notes --base origin/main --head HEAD
+   git push origin refs/notes/matrixscroll
+   ```
+4. Enable the PR provenance workflow (see `examples/ci/protected-branch.yml`)
+
+## Branch protection runbook
+
+1. Add `.github/workflows/provenance.yml` from [`examples/ci/protected-branch.yml`](../examples/ci/protected-branch.yml).
+2. Require developers to publish notes before PR review:
+   ```bash
+   matrixscroll envelope-publish-notes --base origin/main --head HEAD
+   git push origin refs/notes/matrixscroll
+   ```
+3. In GitHub **Settings → Branches → Branch protection** for `main`:
+   - Require status check: **Verify PR commit envelope range** (or your workflow job name)
+   - Require branches to be up to date before merging
+4. Optional policy file `.github/trusted-keys.json`:
+   ```json
+   {
+     "require_mode": "emulated",
+     "require_delegation_for_actor_types": ["agent"],
+     "verify_agent_scope": true,
+     "trusted_public_keys": ["BASE64_ED25519_PUBLIC_KEY"]
+   ```
+5. Fail-closed: CI fetches `refs/notes/matrixscroll` from origin; missing notes fail the gate.
+
+See IDE-specific guides: [`quickstart-cursor.md`](quickstart-cursor.md), [`quickstart-copilot.md`](quickstart-copilot.md), [`quickstart-claude-code.md`](quickstart-claude-code.md).
 
 ## Demo
 
