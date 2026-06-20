@@ -4,6 +4,30 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-06-20
+
+Agent provenance release: Git commit envelopes, SDK module split, CI scaffolding.
+
+### Added
+- **Git integration** — `matrixscroll/git.py` with post-commit envelope signing
+  and pre-push verification for commits being pushed.
+- **Hook installer** — `matrixscroll hook-install` / `matrixscroll hook-status`
+  (hooks ship inside the wheel at `matrixscroll/hooks/`).
+- **Commit envelope schema** — `schemas/commit-envelope.v1.json` plus release and
+  evidence-pack schemas under `schemas/`.
+- **Signed examples** — `examples/*.signed.json` for CI and documentation.
+- **Agent demo** — `examples/demo/agent-commit-demo.sh` and signed-example generator.
+- **SDK split** — `canonical.py`, `manifest.py`, `policy.py`, `providers/` with
+  `_core.py` retained as a compatibility shim.
+- **Policy verification** — `verify_manifest_with_policy()` for mode and trusted-key gates.
+- **YubiKey prototype** — `providers/yubikey.py` boundary (`MATRIXSCROLL_MODE=yubikey`).
+- **CI** — `verify-manifest` workflow and protected-branch example using
+  `SSX360/matrixscroll-verify-action@v1`.
+
+### Changed
+- CLI adds `envelope`, `envelope-verify`, and hook subcommands.
+- Commit envelopes bind to the **actual** commit SHA via post-commit signing.
+
 ## [0.1.1] - 2026-06-19
 
 Copy and citation hardening patch. No protocol or API changes.
@@ -44,5 +68,6 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.2.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.0
 [0.1.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.1.1
 [0.1.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.1.0

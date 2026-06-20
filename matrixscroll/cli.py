@@ -49,26 +49,24 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 
 def _cmd_hook_install(_args: argparse.Namespace) -> int:
-    if _git is None:
-        print(json.dumps({"ok": False, "error": "git module unavailable"}))
+    from . import git as git_mod
+    try:
+        result = git_mod.install_hooks()
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
         return 1
-    import subprocess
-    install_script = Path(__file__).resolve().parents[1] / "tools" / "git" / "install.py"
-    result = subprocess.run([sys.executable, str(install_script)], capture_output=True, text=True)
-    print(result.stdout.strip() or result.stderr.strip())
-    return result.returncode
+    print(json.dumps(result))
+    return 0
 
 
 def _cmd_hook_status(_args: argparse.Namespace) -> int:
-    import subprocess
-    install_script = Path(__file__).resolve().parents[1] / "tools" / "git" / "install.py"
-    result = subprocess.run(
-        [sys.executable, str(install_script), "--status"],
-        capture_output=True,
-        text=True,
-    )
-    print(result.stdout.strip() or result.stderr.strip())
-    return result.returncode
+    from . import git as git_mod
+    try:
+        print(json.dumps(git_mod.hook_status(), indent=2))
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 1
+    return 0
 
 
 def _cmd_envelope_build(args: argparse.Namespace) -> int:

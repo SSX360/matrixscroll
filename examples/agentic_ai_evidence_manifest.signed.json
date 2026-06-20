@@ -1,0 +1,80 @@
+{
+  "human_accountability": {
+    "access_approver": "repo-owner",
+    "break_glass_contact": "security@matrixscroll.com",
+    "kill_switch": "revoke token and disable agent workflow",
+    "reviewer_required": true,
+    "system_owner": "security@matrixscroll.com"
+  },
+  "least_privilege": {
+    "credential_type": "temporary scoped token",
+    "expires_at": "2026-06-19T12:30:00Z",
+    "resources": [
+      "repo:SSX360/matrixscroll:pull_request:read",
+      "repo:SSX360/matrixscroll:pull_request_review:write"
+    ],
+    "revocation_required": true
+  },
+  "policy": {
+    "control_set": "matrixscroll.agentic_ai_controls.v1",
+    "guidance": "Careful Adoption of Agentic AI Services",
+    "required_controls": [
+      "AAI-01",
+      "AAI-02",
+      "AAI-03",
+      "AAI-04",
+      "AAI-05",
+      "AAI-06",
+      "AAI-07",
+      "AAI-08",
+      "AAI-09",
+      "AAI-10",
+      "AAI-11",
+      "AAI-12"
+    ]
+  },
+  "risk_controls": {
+    "incident_plan": "security advisory + token revocation + evidence retention",
+    "monitoring": [
+      "tool-call log",
+      "signed manifest",
+      "CI verification gate"
+    ],
+    "network_egress": "deny-by-default",
+    "prompt_injection_assumed": true,
+    "sensitive_data_allowed": false,
+    "threat_model_completed": true
+  },
+  "schema": "matrixscroll.agentic_ai_evidence.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-20T00:04:31Z",
+    "value": "er6pxO6LGusOSTR0XrJtSLTMokLJc8psWqmuXixqZoONvYRx9Wem5sGOhtXtdKQz3Gd8gOHi1j7+AYIVfx2XBg=="
+  },
+  "supply_chain": {
+    "conformance_vectors_required": true,
+    "model_provider": "local-or-approved-provider",
+    "runtime_dependencies_reviewed": true,
+    "sbom_required": true
+  },
+  "task": {
+    "allowed_operations": [
+      "read_repository",
+      "write_review_comment"
+    ],
+    "classification": "low-risk bounded pilot",
+    "denied_operations": [
+      "merge_pull_request",
+      "push_commit",
+      "modify_secrets",
+      "deploy"
+    ],
+    "environment": "sandbox",
+    "goal": "Review a non-production pull request and produce findings only",
+    "id": "pilot-code-review-001"
+  }
+}
