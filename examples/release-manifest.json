@@ -1,22 +1,22 @@
 {
   "schema": "matrixscroll.release.v1",
   "release": {
-    "version": "0.2.0",
-    "tag": "v0.2.0",
+    "version": "0.2.2",
+    "tag": "v0.2.2",
     "commit": "0000000000000000000000000000000000000000",
     "published_at": "2026-06-19T00:00:00Z"
   },
   "artifacts": [
     {
-      "name": "matrixscroll-0.2.0-py3-none-any.whl",
+      "name": "matrixscroll-0.2.2-py3-none-any.whl",
       "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-      "url": "https://pypi.org/project/matrixscroll/0.2.0/",
+      "url": "https://pypi.org/project/matrixscroll/0.2.2/",
       "media_type": "application/zip"
     },
     {
-      "name": "matrixscroll-0.2.0.tar.gz",
+      "name": "matrixscroll-0.2.2.tar.gz",
       "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "url": "https://pypi.org/project/matrixscroll/0.2.0/",
+      "url": "https://pypi.org/project/matrixscroll/0.2.2/",
       "media_type": "application/gzip"
     }
   ],

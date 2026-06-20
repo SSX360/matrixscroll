@@ -17,14 +17,14 @@ they are reproducible across machines (this is a **test-only** key — do not
 reuse it for any real signing). To regenerate after a protocol change:
 
 ```bash
-cd matrixscroll-sdk
+cd matrixscroll
 python vectors/_generate.py
 pytest tests/test_vectors.py -v
 ```
 
 ## Using these from another language
 
-1. Load `valid_simple.json`.
+1. Load `valid_simple.json` or `valid_commit_envelope.json`.
 2. Parse the top-level `signature` block to recover `public_key` (base64).
 3. Compute the canonical encoding of the manifest **with the `signature` key
    removed**, per `SPEC.md §4`.
