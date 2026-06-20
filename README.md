@@ -1,14 +1,13 @@
 # Matrix Scroll
 
-**Open protocol for signed AI-assisted code provenance.**
+**Signed provenance for agent-assisted Git commits — verify offline, one command.**
 
-Every AI-generated change in your IDE can be cryptographically signed by an
-Ed25519 identity and verified offline with a public key and one command. The
-v0.2.x reference implementation ships a well-tested software root of trust
-with Git commit-envelope hooks; SSX360/NXP SE050 hardware signing is the
-compatible reference-device path in progress.
+Matrix Scroll is a cryptographic evidence layer: when an AI agent (Cursor, Claude Code, Copilot, etc.) produces a commit, a signed **commit envelope** records actor, tool, and optional scope. Verify locally or in CI without trusting the IDE. The v0.2.x reference SDK ships an emulated Ed25519 root of trust with Git hooks; SSX360/NXP SE050 hardware signing is the compatible reference-device path in progress.
+
+Matrix Scroll is **not** an IAM system, agent sandbox, or prompt-injection filter — it complements those controls with tamper-evident signatures.
 
 - 📜 **Spec:** [`SPEC.md`](SPEC.md) — wire format, canonical encoding, schemas.
+- 📄 **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md) — why Git commits, implementation guide.
 - 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
   maps Matrix Scroll to the joint *Careful Adoption of Agentic AI Services* guidance.
 - 🔐 **Algorithm:** Ed25519 (RFC 8032). Private keys are never exposed by the SDK API.
@@ -63,7 +62,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: examples/agentic_ai_evidence_manifest.signed.json
-    matrixscroll-version: "0.2.0"
+    matrixscroll-version: "0.2.2"
 ```
 
 ## CLI
