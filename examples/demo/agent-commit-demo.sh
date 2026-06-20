@@ -6,13 +6,13 @@ export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=cursor
 export MATRIXSCROLL_HOME="${MATRIXSCROLL_HOME:-$(mktemp -d)/matrixscroll-demo}"
 
-TMPDIR="$(mktemp -d)"
-trap 'rm -rf "$TMPDIR"' EXIT
+DEMO_TMPDIR="$(mktemp -d)"
+trap 'rm -rf "$DEMO_TMPDIR"' EXIT
 
 echo "== Matrix Scroll agent commit demo =="
-python -m matrixscroll.git hook status 2>/dev/null || true
+matrixscroll hook-status 2>/dev/null || true
 
-cd "$TMPDIR"
+cd "$DEMO_TMPDIR"
 git init -q
 git config user.email "agent-demo@matrixscroll.com"
 git config user.name "Matrix Scroll Demo"
