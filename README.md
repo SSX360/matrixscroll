@@ -25,7 +25,7 @@ Matrix Scroll is a cryptographic evidence layer: when an AI agent (Cursor, Claud
 ## Agent provenance for Git commits
 
 ```bash
-pip install "matrixscroll>=0.2.1"
+pip install "matrixscroll==0.2.5"
 matrixscroll hook-install
 
 export MATRIXSCROLL_ACTOR_TYPE=agent
@@ -77,7 +77,7 @@ Policy flags (`--require-mode`, `--trusted-keys`, actor/delegation policy) ship 
 ## Quickstart (Python API)
 
 ```bash
-pip install "matrixscroll>=0.2.1"
+pip install "matrixscroll==0.2.5"
 ```
 
 ```python

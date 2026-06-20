@@ -40,6 +40,6 @@ Commercial support for teams (policy design, hardware rollout, CI integration) i
 
 ## Status
 
-- **Shipping now:** L1 emulated Ed25519 key, Git post-commit hooks, PyPI `matrixscroll` 0.2.1+, policy flags in 0.2.2+
+- **Shipping now:** L1 emulated Ed25519 key, Git post-commit hooks, PyPI `matrixscroll` **0.2.5**, Scroll Gate, delegation schema, GUAC/Rekor CLI MVP
 - **In progress:** SSX360 / NXP SE050 hardware provider, YubiKey PKCS#11 bridge
 - **Not in scope:** IAM, sandbox, prompt-injection filter, or agent runtime

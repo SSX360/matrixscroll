@@ -60,7 +60,7 @@ No single competitor listed above combines all four today.
 - **CI gate:** Scroll Gate ships in **0.2.3+** — PR commit-range verification via `envelope-verify-range`, git notes transport (`refs/notes/matrixscroll`), and filesystem bundles. [`matrixscroll-verify-action`](https://github.com/SSX360/matrixscroll-verify-action) supports `head-ref`/`base-ref` range mode with agent/human counts.
 - **Owner/delegation attestation:** Optional `delegation` block in commit envelope schema (**0.2.4+**); see [`delegation-attestation-rfc.md`](delegation-attestation-rfc.md). Alien still leads on OIDC/DPoP owner binding.
 - **Multi-agent commits:** Multiple actors in one envelope — on the roadmap.
-- **Rekor / transparency log:** Not shipped yet; would align with Sigstore ecosystem expectations.
+- **Rekor / GUAC export:** Dry-run CLI ships in **0.2.5** (`envelope-publish-rekor`, `envelope-export-guac`); full Rekor upload integration still in progress.
 - **Hardware:** SSX360 reference device and Scroll Key retail are **in progress**; L1 emulated key is what you can use now.
 
 ## When to use what
