@@ -13,6 +13,8 @@ Matrix Scroll is a cryptographic evidence layer: when an AI agent (Cursor, Claud
 - 📜 **Spec:** [`SPEC.md`](SPEC.md) — wire format, canonical encoding, document types.
 - 📋 **Commit envelope schema:** [`schemas/commit-envelope.v1.json`](schemas/commit-envelope.v1.json)
 - 📄 **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md) — why Git commits, implementation guide.
+- ⚖️ **Comparison:** [`docs/COMPARISON.md`](docs/COMPARISON.md) — vs Sigstore, agentmark, Alien, ForgeProof.
+- 💬 **Support:** [`SUPPORT.md`](SUPPORT.md) — issues, Discussions, security contact.
 - 🛡 **Agentic AI controls:** [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
   maps Matrix Scroll to the joint *Careful Adoption of Agentic AI Services* guidance.
 - 🔐 **Algorithm:** Ed25519 (RFC 8032). Private keys are never exposed by the SDK API.
