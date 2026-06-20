@@ -13,6 +13,9 @@ Two schema identifiers are stamped into every artifact:
 - `matrixscroll.identity.v1` — identity descriptors (`identity_info`,
   `status`, the on-disk key store).
 - `matrixscroll.signature.v1` — the signature block attached to manifests.
+- `matrixscroll.commit_envelope.v1` — Git commit provenance document (see §10).
+- `matrixscroll.release_manifest.v1` and evidence-pack schemas — release and
+  audit artifacts (see §10).
 
 A breaking change to canonical encoding, signature layout, device id
 derivation, or algorithm choice **must** bump the relevant version. Minor
@@ -155,3 +158,41 @@ A conforming implementation MUST:
   as **invalid**.
 
 It SHOULD also publish its own cross-language vectors for community testing.
+
+## 10. Document types
+
+Beyond the generic signed-manifest pattern in §5–§6, v0.2.x defines typed
+documents. Each document carries a top-level `schema` string and a `signature`
+block conforming to §5.
+
+### 10.1 Commit envelope (`matrixscroll.commit_envelope.v1`)
+
+Binds provenance metadata to a Git commit. Used by post-commit hooks and
+`matrixscroll envelope-verify`.
+
+Required top-level fields:
+
+- `schema` — constant `"matrixscroll.commit_envelope.v1"`.
+- `commit` — normalized commit object (tree, parents, author, committer,
+  message; `expected_id` is informational for pre-sign drafts).
+- `provenance` — `actor_type` (`human` | `agent` | `ci`), `tool`, optional
+  `tool_version`, optional scope manifest reference.
+- `repository` — optional remote URL, branch, and repo name.
+- `signature` — per §5.
+
+Storage path (reference implementation):
+
+    .git/matrixscroll/envelopes/<40-char-commit-sha>.json
+
+JSON Schema: [`schemas/commit-envelope.v1.json`](schemas/commit-envelope.v1.json).
+Conformance vector: [`vectors/valid_commit_envelope.json`](vectors/valid_commit_envelope.json).
+
+### 10.2 Release manifest (`matrixscroll.release_manifest.v1`)
+
+Signed release metadata (version, tag, artifact list). JSON Schema:
+[`schemas/release-manifest.v1.json`](schemas/release-manifest.v1.json).
+
+### 10.3 Evidence pack
+
+Signed audit or agent-scope evidence. JSON Schema:
+[`schemas/evidence-pack.v1.json`](schemas/evidence-pack.v1.json).
