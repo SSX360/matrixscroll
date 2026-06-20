@@ -19,7 +19,7 @@ HOOK_MARKER = "# matrixscroll-git hook\n"
 DEFAULT_CONFIG = {"enforce": False, "actor_type": "human", "tool": "git-cli"}
 
 
-def _run_git(*args: str, cwd: Path | None = None) -> str:
+def _run_git(*args: str, cwd: Path | None = None, strip: bool = True) -> str:
     result = subprocess.run(
         ["git", *args],
         capture_output=True,
@@ -29,7 +29,9 @@ def _run_git(*args: str, cwd: Path | None = None) -> str:
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip())
-    return result.stdout.strip()
+    if strip:
+        return result.stdout.strip()
+    return result.stdout
 
 
 def repo_root() -> Path:
@@ -102,28 +104,49 @@ def compute_commit_id(
     message: str,
 ) -> str:
     """Compute Git commit object SHA-1 without creating the commit."""
-    lines = [f"tree {tree}"]
-    for parent in parents:
-        lines.append(f"parent {parent}")
-    lines.append(f"author {author['name']} <{author['email']}> {author['date']}")
-    lines.append(f"committer {committer['name']} <{committer['email']}> {committer['date']}")
-    lines.append("")
-    lines.append(message.rstrip("\n"))
-    body = "\n".join(lines).encode("utf-8")
-    header = f"commit {len(body)}\0".encode("ascii") + body
-    return hashlib.sha1(header, usedforsecurity=False).hexdigest()
+    parts = [
+        f"tree {tree}",
+        *[f"parent {parent}" for parent in parents],
+        f"author {author['name']} <{author['email']}> {author['date']}",
+        f"committer {committer['name']} <{committer['email']}> {committer['date']}",
+    ]
+    body = ("\n".join(parts) + "\n\n").encode("utf-8") + message.encode("utf-8")
+    wrapped = f"commit {len(body)}\0".encode("ascii") + body
+    return hashlib.sha1(wrapped, usedforsecurity=False).hexdigest()
+
+
+def _parse_identity_line(line: str) -> dict[str, str]:
+    """Parse ``author Name <email> timestamp tz`` from a commit object line."""
+    _, rest = line.split(" ", 1)
+    name_email, timestamp, tz = rest.rsplit(" ", 2)
+    if name_email.endswith(">") and " <" in name_email:
+        name, email = name_email.rsplit(" <", 1)
+        email = email[:-1]
+    else:
+        name, email = name_email, ""
+    return {"name": name, "email": email, "date": f"{timestamp} {tz}"}
 
 
 def parse_commit(sha: str, root: Path | None = None) -> dict[str, Any]:
     root = root or repo_root()
-    fmt = "%H%x00%T%x00%P%x00%an%x00%ae%x00%at%x00%cn%x00%ce%x00%ct%x00%B"
-    parts = _run_git("show", "-s", f"--format={fmt}", sha, cwd=root).split("\0")
-    if len(parts) < 10:
-        raise RuntimeError(f"unexpected git show output for {sha}")
-    commit_sha, tree, parents_raw, an, ae, at, cn, ce, ct, body = parts[:10]
-    parents = [p for p in parents_raw.split() if p]
-    author = {"name": an, "email": ae, "date": _git_date(int(at))}
-    committer = {"name": cn, "email": ce, "date": _git_date(int(ct))}
+    commit_sha = _run_git("rev-parse", sha, cwd=root)
+    raw = _run_git("cat-file", "commit", commit_sha, cwd=root, strip=False)
+    tree = ""
+    parents: list[str] = []
+    author: dict[str, str] | None = None
+    committer: dict[str, str] | None = None
+    for line in raw.splitlines():
+        if line.startswith("tree "):
+            tree = line.split(" ", 1)[1]
+        elif line.startswith("parent "):
+            parents.append(line.split(" ", 1)[1])
+        elif line.startswith("author "):
+            author = _parse_identity_line(line)
+        elif line.startswith("committer "):
+            committer = _parse_identity_line(line)
+    if not tree or author is None or committer is None or "\n\n" not in raw:
+        raise RuntimeError(f"unexpected commit object for {sha}")
+    body = raw.split("\n\n", 1)[1]
     actual_id = compute_commit_id(
         tree=tree,
         parents=parents,
@@ -178,7 +201,7 @@ def build_commit_envelope(
             if msg_file.is_file():
                 msg = msg_file.read_text(encoding="utf-8")
             else:
-                msg = _run_git("log", "-1", "--pretty=%B", cwd=root) if parents else ""
+                msg = _run_git("log", "-1", "--pretty=%B", cwd=root, strip=False) if parents else ""
         msg = msg or ""
         commit_block = {
             "expected_id": compute_commit_id(
