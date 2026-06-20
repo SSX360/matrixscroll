@@ -4,26 +4,23 @@ Matrix Scroll Git hooks attach a signed **commit envelope** to every local commi
 
 ## Install hooks
 
-From any git repository:
-
 ```bash
 pip install matrixscroll
-python path/to/matrixscroll/tools/git/install.py
+matrixscroll hook-install
+matrixscroll hook-status
 ```
 
-Or from a clone of this repo:
-
-```bash
-cd matrixscroll
-pip install -e ".[dev]"
-python tools/git/install.py
-```
+Hooks ship inside the Python wheel (`matrixscroll/hooks/`). No separate clone path
+is required for pip-installed users.
 
 ## What happens on commit
 
-1. `pre-commit` builds a commit envelope from the staged tree and message
+1. **post-commit** reads the new commit SHA and builds a commit envelope from `git show`
 2. The envelope is signed with your active Matrix Scroll identity
 3. The signed envelope is stored at `.git/matrixscroll/envelopes/<sha>.json`
+
+**pre-push** verifies envelopes only for commits being pushed (not every envelope
+ever stored locally).
 
 By default hooks run in **warn mode** (signing failures do not block commits).
 Enable enforce mode in `.git/matrixscroll/config.json`:
@@ -43,13 +40,22 @@ Set environment variables before committing:
 ```bash
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=cursor
-export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.json
+export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.json
 ```
 
 ## Verify in CI
 
 ```bash
 matrixscroll verify .git/matrixscroll/envelopes/<commit-sha>.json
+matrixscroll envelope-verify <commit-sha>
 ```
 
-See [docs/superpowers/specs/2026-06-19-matrixscroll-git-design.md](../superpowers/specs/2026-06-19-matrixscroll-git-design.md).
+Or use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action).
+
+## Demo
+
+```bash
+bash examples/demo/agent-commit-demo.sh
+```
+
+See [spec](../superpowers/specs/2026-06-19-matrixscroll-git-design.md).
