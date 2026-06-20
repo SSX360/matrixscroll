@@ -36,9 +36,9 @@ The machine-readable control matrix lives at
 | AAI-04 | Human accountability | Owner, approver, reviewer, break-glass contact, and kill-switch fields are signed. |
 | AAI-05 | Threat modeling | Threats are mapped to strict verification and tamper vectors. |
 | AAI-06 | Secure defaults / validation | Wrong schema, algorithm, device id, malformed key, NaN, and unsigned manifests fail closed. |
-| AAI-07 | Monitoring and auditability | Signed manifests are portable audit records verifiable offline. |
+| AAI-07 | Monitoring and auditability | Signed manifests and **commit envelopes** (`.git/matrixscroll/envelopes/<sha>.json`) are portable audit records verifiable offline. |
 | AAI-08 | Incident response / kill switch | CI/CLI verification exits non-zero; manifests include escalation and shutdown metadata. |
-| AAI-09 | Supply-chain management | Minimal deps, Dependabot, CI build verification, and conformance vectors. |
+| AAI-09 | Supply-chain management | Git post-commit hooks + CI verify-action; minimal deps; Dependabot; conformance vectors. |
 | AAI-10 | Strong authentication / non-repudiation | Ed25519 identity; the planned SSX360 hardware mode keeps private keys out of agent runtimes. |
 | AAI-11 | Governance and change control | CODEOWNERS + CI protect spec/core/vectors/security files. |
 | AAI-12 | Deception / prompt-injection resilience | Trust is verified after agent action; model text cannot forge signatures. |
@@ -63,14 +63,12 @@ Matrix Scroll adds a stronger evidence layer on top:
 ## Recommended deployment pattern
 
 1. Define the agent task as a low-risk, bounded pilot.
-2. Create an evidence manifest like
+2. Install Git hooks (`matrixscroll hook-install`) and set `MATRIXSCROLL_ACTOR_TYPE=agent`.
+3. Create an evidence manifest like
    [`examples/agentic_ai_evidence_manifest.json`](../examples/agentic_ai_evidence_manifest.json).
-3. Have a human owner approve the resource/operation/timeframe scope.
-4. Sign the manifest with `matrixscroll sign`.
-5. Require `matrixscroll verify` in CI before the agent can act or before its
-   output can be accepted.
-6. Retain the signed manifest with logs, SBOM, model/provider metadata, and
-   incident-response records.
+4. Have a human owner approve the resource/operation/timeframe scope.
+5. Sign the manifest with `matrixscroll sign`; require `matrixscroll envelope-verify` on each agent commit in CI.
+6. Retain signed envelopes and manifests with logs, SBOM, and incident-response records.
 
 ## Residual risks outside SDK scope
 
