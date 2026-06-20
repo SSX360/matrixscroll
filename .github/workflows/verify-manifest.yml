@@ -34,3 +34,60 @@ jobs:
           matrixscroll verify examples/agentic_ai_evidence_manifest.signed.json
           matrixscroll verify examples/commit-envelope.signed.json
           matrixscroll verify examples/release-manifest.signed.json
+
+  scroll-gate-smoke:
+    runs-on: ubuntu-latest
+    needs: vectors
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest tests/test_gate.py tests/test_policy.py -v
+
+  verify-pr-envelopes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: scroll-gate-smoke
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install matrixscroll from source
+        run: pip install -e .
+
+      - name: Fetch envelope notes
+        continue-on-error: true
+        run: git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll
+
+      - name: Verify PR commit envelope range
+        continue-on-error: true
+        run: |
+          set +e
+          matrixscroll envelope-verify-range \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}" \
+            --source notes \
+            --summary-output provenance-summary.json | tee verify-output.json
+          RC=${PIPESTATUS[0]}
+          python -c "
+          import json, os
+          from matrixscroll.gate import format_range_summary
+          summary = json.loads(open('verify-output.json').read())
+          open(os.environ['GITHUB_STEP_SUMMARY'], 'a').write(format_range_summary(summary))
+          "
+          exit $RC
+
+      - name: Upload provenance summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-summary
+          path: provenance-summary.json
+          if-no-files-found: ignore

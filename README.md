@@ -6,7 +6,7 @@ Matrix Scroll is a cryptographic evidence layer: when an AI agent (Cursor, Claud
 
 **Honest limits**
 
-- **Shipping now:** L1 emulated Ed25519 software key; Git post-commit hooks; PyPI `matrixscroll` 0.2.1+
+- **Shipping now:** L1 emulated Ed25519 software key; Git post-commit hooks; Scroll Gate PR verification (0.2.3+); delegation attestation schema (0.2.4+)
 - **In progress:** SSX360 SE050 hardware provider; YubiKey PKCS#11 bridge
 - **Not:** IAM, sandbox, prompt-injection filter, or agent runtime
 
@@ -38,17 +38,41 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
 See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 [`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
 
-### CI verify
+### CI verify (single manifest)
 
 ```yaml
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: examples/agentic_ai_evidence_manifest.signed.json
-    matrixscroll-version: "0.2.2"
+    matrixscroll-version: "0.2.4"
     require-mode: emulated
 ```
 
-Policy flags (`--require-mode`, `--trusted-keys`) ship in **0.2.2+**.
+### Scroll Gate (PR commit range)
+
+Developers publish envelopes to git notes before PR review:
+
+```bash
+matrixscroll envelope-publish-notes --base origin/main --head HEAD
+git push origin refs/notes/matrixscroll
+```
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+- uses: SSX360/matrixscroll-verify-action@v1
+  with:
+    head-ref: ${{ github.event.pull_request.head.sha }}
+    base-ref: ${{ github.event.pull_request.base.sha }}
+    source: notes
+    matrixscroll-version: "0.2.4"
+    summary-output: provenance-summary.json
+```
+
+See [`docs/quickstart-git.md`](docs/quickstart-git.md) and [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
+
+Policy flags (`--require-mode`, `--trusted-keys`, actor/delegation policy) ship in **0.2.2+**.
 
 ## Quickstart (Python API)
 

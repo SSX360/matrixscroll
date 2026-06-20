@@ -4,6 +4,34 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-06-20
+
+Who-Acted gate productization: attribution policy, delegation schema, CI hardening.
+
+### Added
+- **Attribution policy** — `require_actor_types`, `deny_actor_types`,
+  `require_delegation_for_actor_types`, `verify_agent_scope` in `VerifyPolicy`.
+- **`delegation` block** in commit envelope schema with owner/approver/manifest pin.
+- **`delegation-attestation-rfc.md`**, IDE quickstarts (Cursor, Copilot, Claude Code),
+  branch-protection runbook, Rekor/GUAC bridge design doc.
+- **GitHub Step Summary** in verify-action range mode; fail-closed notes fetch.
+- **pre-push** SHA-bound verification; optional `publish_notes` in hook config.
+
+### Fixed
+- Empty commit ranges in `verify_envelope_range` now pass with `note: no commits in range`.
+
+## [0.2.3] - 2026-06-20
+
+Scroll Gate export MVP: PR commit-range verification with git notes and bundle transport.
+
+### Added
+- **`matrixscroll/gate.py`** — SHA-bound envelope verification, commit-range discovery,
+  filesystem bundle export, git notes publish/fetch, and range verification summaries.
+- **CLI commands** — `envelope-export`, `envelope-publish-notes`, `envelope-fetch-notes`,
+  and `envelope-verify-range` with policy flags and JSON summaries for CI.
+- **GitHub Action range mode** — `head-ref` / `base-ref` inputs for PR provenance gates
+  via notes or bundle sources.
+
 ## [0.2.2] - 2026-06-20
 
 Policy flags for CI and release gates.

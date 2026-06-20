@@ -16,7 +16,7 @@ from .manifest import sign_manifest, verify_manifest
 
 COMMIT_ENVELOPE_SCHEMA = "matrixscroll.commit_envelope.v1"
 HOOK_MARKER = "# matrixscroll-git hook\n"
-DEFAULT_CONFIG = {"enforce": False, "actor_type": "human", "tool": "git-cli"}
+DEFAULT_CONFIG = {"enforce": False, "actor_type": "human", "tool": "git-cli", "publish_notes": False}
 
 
 def _run_git(*args: str, cwd: Path | None = None, strip: bool = True) -> str:
@@ -356,7 +356,13 @@ def hook_post_commit() -> int:
 
 def hook_pre_push(stdin_text: str = "") -> int:
     try:
+        from .gate import publish_push_envelopes_to_notes, verify_commit_envelope_for_sha
+
         root = repo_root()
+        config = load_config(root)
+        if config.get("publish_notes"):
+            publish_push_envelopes_to_notes(stdin_text, root=root)
+
         commits = _commits_being_pushed(stdin_text)
         if not commits:
             print(json.dumps({"ok": True, "verified": 0, "note": "no commits to push"}))
@@ -369,10 +375,11 @@ def hook_pre_push(stdin_text: str = "") -> int:
                 failures.append(f"missing:{sha}")
                 continue
             envelope = json.loads(path.read_text(encoding="utf-8"))
-            if verify_manifest(envelope):
+            result = verify_commit_envelope_for_sha(envelope, sha, root=root)
+            if result.ok:
                 verified += 1
             else:
-                failures.append(path.name)
+                failures.append(f"{path.name}:{result.error}")
         if failures:
             print(json.dumps({"ok": False, "verified": verified, "failures": failures}))
             return 2

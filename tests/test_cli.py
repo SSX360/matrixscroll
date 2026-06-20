@@ -156,5 +156,75 @@ class SignCommandTests(_RunMixin, unittest.TestCase):
             self.assertTrue(matrixscroll.verify_manifest(json.loads(out)))
 
 
+class GateCommandTests(_RunMixin, unittest.TestCase):
+    def _init_repo(self, tmp: Path) -> Path:
+        import subprocess
+
+        repo = tmp / "repo"
+        repo.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "dev@example.com"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Dev"], cwd=repo, check=True)
+        return repo
+
+    def _commit(self, repo: Path, name: str, message: str) -> str:
+        import subprocess
+
+        (repo / name).write_text(f"{name}\n", encoding="utf-8")
+        subprocess.run(["git", "add", name], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", message], cwd=repo, check=True)
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
+
+    def _save_envelope(self, repo: Path, sha: str) -> None:
+        from matrixscroll.git import build_commit_envelope, save_envelope, sign_commit_envelope
+
+        envelope = build_commit_envelope(commit_sha=sha, root=repo)
+        save_envelope(sign_commit_envelope(envelope), repo)
+
+    def test_envelope_export_and_verify_range(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            repo = self._init_repo(Path(tmp))
+            sha = self._commit(repo, "a.txt", "first")
+            self._save_envelope(repo, sha)
+            bundle = Path(tmp) / "bundle"
+            old_cwd = os.getcwd()
+            try:
+                os.chdir(repo)
+                rc, out = self._run(["envelope-export", "--head", sha, "--output", str(bundle)])
+                self.assertEqual(rc, 0)
+                data = json.loads(out)
+                self.assertEqual(data["exported"], 1)
+                rc, out = self._run([
+                    "envelope-verify-range",
+                    "--head", sha,
+                    "--source", "bundle",
+                    "--bundle", str(bundle),
+                ])
+                self.assertEqual(rc, 0)
+                summary = json.loads(out)
+                self.assertTrue(summary["ok"])
+                self.assertEqual(summary["verified_count"], 1)
+                self.assertIn("verified_count", summary)
+                self.assertIn("results", summary)
+            finally:
+                os.chdir(old_cwd)
+
+    def test_envelope_verify_range_fails_missing(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            repo = self._init_repo(Path(tmp))
+            sha = self._commit(repo, "a.txt", "first")
+            old_cwd = os.getcwd()
+            try:
+                os.chdir(repo)
+                rc, out = self._run(["envelope-verify-range", "--head", sha, "--source", "local"])
+                self.assertEqual(rc, 2)
+                summary = json.loads(out)
+                self.assertFalse(summary["ok"])
+            finally:
+                os.chdir(old_cwd)
+
+
 if __name__ == "__main__":
     unittest.main()
