@@ -1,7 +1,7 @@
 # Matrix Scroll
 
 **Matrix Scroll is signed commit-time provenance for agent-assisted Git,
-verified offline, with hardware as an optional trust upgrade.**
+verified offline, with hardware as an optional preview trust upgrade.**
 
 This repository is the canonical SDK, verifier contract, fixture set, and
 release surface for the product.
