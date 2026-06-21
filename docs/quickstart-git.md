@@ -2,6 +2,13 @@
 
 Matrix Scroll Git hooks attach a signed **commit envelope** to every local commit.
 
+## What is Matrix Scroll and how does it secure Git?
+
+Matrix Scroll is signed commit-time provenance for agent-assisted Git. It
+secures Git by attaching an Ed25519-signed commit envelope to each commit,
+recording the actor, tool, and optional bounded scope, then letting reviewers
+verify that proof offline before merge.
+
 ## Install hooks
 
 ```bash
@@ -80,6 +87,15 @@ matrixscroll envelope-verify-range --base origin/main --head HEAD --source bundl
 
 Use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) for GitHub Actions.
 
+## How can I integrate Matrix Scroll into a CI/CD workflow?
+
+1. Install `matrixscroll==0.2.6` and `matrixscroll hook-install` in the repo.
+2. Publish commit envelopes to `refs/notes/matrixscroll` before PR review.
+3. Run `SSX360/matrixscroll-verify-action@v1` in GitHub Actions to verify the
+   full PR commit range from notes.
+4. Require that job on protected branches so CI blocks unsigned or unverifiable
+   PR commits before merge.
+
 **Time anchoring:** envelope `signed_at` is informational only. Use Git commit
 graph order or ledger insertion order for chronology — not self-reported timestamps.
 
@@ -114,6 +130,14 @@ graph order or ledger insertion order for chronology — not self-reported times
      "trusted_public_keys": ["BASE64_ED25519_PUBLIC_KEY"]
    ```
 5. Fail-closed: CI fetches `refs/notes/matrixscroll` from origin; missing notes fail the gate.
+
+## How do hardware and emulated modes differ in Matrix Scroll?
+
+Emulated mode ships today and stores the signing key on disk with owner-only
+permissions so teams can trial the entire workflow immediately. Hardware mode
+keeps the same commit envelope schema and verifier behavior, but moves the
+private key into the SE050 secure element so the host cannot export it; that
+path stays preview-only until device acceptance is complete.
 
 `MATRIXSCROLL_TOOL` is free-form provenance metadata. Use the label you want
 auditors and CI reviewers to see, such as `agent-runner`, `git-cli`, or your
