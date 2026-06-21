@@ -8,6 +8,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    branches: [main, codex/**]
   workflow_dispatch:
 
 jobs:
