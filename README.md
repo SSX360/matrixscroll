@@ -1,12 +1,21 @@
 # Matrix Scroll
 
-Signed provenance for agent-assisted Git commits with offline verification.
+**Matrix Scroll is signed commit-time provenance for agent-assisted Git,
+verified offline, with hardware as an optional trust upgrade.**
+
+This repository is the canonical SDK, verifier contract, fixture set, and
+release surface for the product.
 
 Matrix Scroll is a cryptographic evidence layer for Git. When an agent, CI
 workflow, or human operator produces a commit, a signed commit envelope can
 record the actor, tool, and optional bounded scope. Anyone can verify that
 envelope locally, in CI, or in the browser without trusting the editor session
 that produced it.
+
+Keep GitHub Advanced Security, Semgrep, Snyk, branch protection, and artifact
+attestations. Matrix Scroll adds signed commit-time authorship proof before
+merge, and it keeps the same offline verification contract across the CLI,
+browser, CI, and the SE050 preview path.
 
 The reference SDK ships pure Ed25519 over canonical manifest bytes today. The
 SSX360 / NXP SE050 path is the compatible next trust layer and remains a
@@ -17,16 +26,26 @@ preview path until device acceptance is complete.
 - Shipping now: PyPI `matrixscroll==0.2.6`, Git post-commit hooks,
   `matrixscroll envelope-verify`, Scroll Gate PR verification, browser
   verifier, the GitHub Action, and a USB CDC host transport preview for the
-  SE050 rollout path.
+  SE050 rollout path. Emulated mode is the default evaluation path.
 - In progress: RP2350 + SE050 firmware validation, external Ed25519-capable
   hardware key backends, and transparency-log integrations.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
+
+## Where it fits
+
+- Scanners and branch protection catch code and policy issues; Matrix Scroll
+  records who or what signed the change before push.
+- Hardware keys and build attestations remain complementary roots and downstream
+  proofs; Matrix Scroll covers commit-time provenance.
+- The public contract stays pure Ed25519 over canonical manifest bytes,
+  whether the signer is emulated today or hardware-backed later.
 
 ## Quickstart
 
 ```bash
 pip install "matrixscroll==0.2.6"
 matrixscroll hook-install
+matrixscroll hook-status
 
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -169,6 +188,11 @@ Switch providers with `MATRIXSCROLL_MODE`. Hardware mode includes a USB CDC
 host transport preview and a mock path for CI; real SE050 signing still
 depends on device firmware validation. External-key backends stay out of the
 mainline until they can sign the same canonical bytes with Ed25519.
+
+For rollout order, start with `MATRIXSCROLL_MODE=emulated` for evaluation,
+layer in external Ed25519-capable signers only when they stay verifier
+compatible, and treat `hardware` as the SE050 preview path until device
+acceptance is complete.
 
 ## Compliance levels
 

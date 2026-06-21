@@ -61,6 +61,23 @@ jobs:
 - Matrix Scroll does not replace IAM or sandboxing
 - Matrix Scroll does not replace release-signing or artifact attestations
 
+## Clean-machine proof status
+
+Recorded on `2026-06-21` against the pinned public flow:
+`pip install "matrixscroll==0.2.6"` -> `matrixscroll hook-install` ->
+`matrixscroll hook-status` -> first agent-assisted commit ->
+`matrixscroll envelope-verify`.
+
+| Platform | Result | Notes |
+| --- | --- | --- |
+| Windows | PASS | Fresh temp venv install and local repo proof completed in `8.7s`; `hook-status` reported both hooks present and `envelope-verify` returned `ok: true` in `emulated` mode. |
+| Ubuntu (local WSL) | BLOCKED | The current Ubuntu image has Python `3.14.4` but no `python3-pip` or `python3-venv`, so the Matrix Scroll install never started. Re-run on a provisioned Ubuntu image before the launch wave. |
+| macOS | PENDING | No local macOS runner is available in this workspace yet. Record one clean-machine pass before the Show HN window opens. |
+
+Launch read today: Windows is proven, Linux is environment-blocked, and macOS
+still needs a real run. Keep the HN gate red until Ubuntu and macOS are both
+recorded.
+
 ## Public follow-through
 
 If a pilot works, publish one of these:
