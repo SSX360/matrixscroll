@@ -103,7 +103,7 @@ when they preserve the same pure Ed25519 byte contract.
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com>
-- Reference device path: <https://matrixscroll.com/device/>
+- Reference device path: [SSX360](https://matrixscroll.com/device)
 
 ## Python API
 
