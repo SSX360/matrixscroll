@@ -23,4 +23,3 @@ gpgsig -----BEGIN PGP SIGNATURE-----
 feat: Scroll Gate 0.2.4 with attribution policy and delegation schema (#12)
 
 Co-authored-by: SSX360 <security@matrixscroll.com>
-Co-authored-by: Cursor <cursoragent@cursor.com>

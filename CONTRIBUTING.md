@@ -36,7 +36,7 @@ For PRs that include agent-assisted commits, publish signed commit envelopes to 
 ```bash
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent   # or human / ci as appropriate
-export MATRIXSCROLL_TOOL=cursor        # or your IDE / agent tool name
+export MATRIXSCROLL_TOOL=agent-runner  # or your editor / agent tool name
 git commit -m "feat: your change"
 matrixscroll envelope-publish-notes --base origin/main --head HEAD
 git push origin refs/notes/matrixscroll

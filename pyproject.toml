@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.2.5"
-description = "Signed provenance for agent-assisted Git commits with offline verification; emulated Ed25519 ships today and the SE050 hardware path remains in progress."
+version = "0.2.6"
+description = "Signed provenance for agent-assisted Git commits with offline verification; emulated Ed25519 ships today and the SE050 hardware path remains an optional preview."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -50,6 +50,7 @@ dev = [
     "build>=1.0",
 ]
 git = []
+hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.7"]
 tpm = []
 
@@ -65,8 +66,13 @@ Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
 Whitepaper = "https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md"
 Verifier = "https://matrixscroll.com/verify"
 Compare = "https://matrixscroll.com/compare"
+Changelog = "https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md"
+Discussions = "https://github.com/SSX360/matrixscroll/discussions"
 Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "GitHub Action" = "https://github.com/SSX360/matrixscroll-verify-action"
+"PyPI Provenance" = "https://pypi.org/project/matrixscroll/"
+Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
+"Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
 "Reference Device" = "https://matrixscroll.com/device"
 
 [tool.hatch.build.targets.wheel]

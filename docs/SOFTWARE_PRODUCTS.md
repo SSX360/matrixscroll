@@ -1,33 +1,32 @@
-# Matrix Scroll — software products (D0–365, no hardware required)
+# Matrix Scroll software products
 
-Hardware (Matrix Key, SE050) is optional. These products ship on **L1 emulated Ed25519** today.
+Hardware is optional. These products ship on pure Ed25519 over canonical
+manifest bytes today.
 
 | Product | Status | Access | Notes |
 |---------|--------|--------|-------|
-| **Matrix Scroll SDK** | ✅ GA | PyPI `matrixscroll==0.2.5` | Hooks, envelopes, Scroll Gate, policy CLI |
-| **Scroll Gate CI** | ✅ GA | [`matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) | PR range + manifest verify |
-| **Browser verifier** | ✅ GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
-| **Protocol docs** | ✅ GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
-| **Mission Control (local)** | ✅ Beta | `launch/runtime-console/` in SSX360 workspace | Agent registry, demo mode; not hosted SaaS yet |
-| **Mission Control (hosted preview)** | 🛠 Deploy | Vercel demo (`DEPLOY_MODE=demo`) | Read-only UI; Paperclip sign stays local |
-| **GUAC export CLI** | ✅ MVP | `matrixscroll envelope-export-guac` | v0.2.5 |
-| **Rekor publish CLI** | ✅ Dry-run | `matrixscroll envelope-publish-rekor --dry-run` | v0.2.5 |
-| **YubiKey bridge** | 🛠 Beta | `MATRIXSCROLL_MODE=yubikey` | PKCS#11 pubkey path; device validation ongoing |
-| **TypeScript verifier** | 📋 Planned | npm package | Phase 3 |
-| **Mission Control SaaS** | 📋 Planned | Stripe tiers (software-only) | Org registry + policy; no hardware gate |
-| **Paperclip companion** | 📋 Planned | Desktop app | Personal agent approval surface |
+| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.2.6` | Hooks, envelopes, Scroll Gate, policy CLI |
+| **Scroll Gate CI** | GA | [`matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) | PR range + manifest verify |
+| **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
+| **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
+| **GUAC export CLI** | MVP | `matrixscroll envelope-export-guac` | Same manifest contract |
+| **Rekor publish CLI** | Dry-run | `matrixscroll envelope-publish-rekor --dry-run` | Evidence export, not new signing mode |
+| **SE050 host preview** | Preview | `MATRIXSCROLL_MODE=hardware` | USB CDC host transport + mock path |
+| **External key backends** | In progress | provider research | Only graduates when the backend preserves Ed25519 over canonical bytes |
+| **TypeScript verifier** | Planned | npm package | Phase 3 |
 
-## Developer install (today)
+## Developer install
 
 ```bash
-pip install "matrixscroll==0.2.5"
+pip install "matrixscroll==0.2.6"
 matrixscroll hook-install
-export MATRIXSCROLL_ACTOR_TYPE=agent MATRIXSCROLL_TOOL=cursor
+export MATRIXSCROLL_ACTOR_TYPE=agent
+export MATRIXSCROLL_TOOL=agent-runner
 git commit -m "feat: agent change"
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
 
-## CI (Scroll Gate)
+## CI
 
 ```yaml
 - uses: SSX360/matrixscroll-verify-action@v1
@@ -35,18 +34,20 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.2.5"
+    matrixscroll-version: "0.2.6"
     summary-output: provenance-summary.json
 ```
 
-## Honest limits (software-only)
+## Honest limits
 
-- **L1 emulated** signing is the default root of trust until hardware PoC sign-off.
-- Mission Control **hosted** paywall can gate org features (registry, exports, team keys) without requiring Matrix Key.
-- Matrix Key / SE050 unlock **L2 hardware** mode — roadmap, not required for adoption.
+- L1 emulated signing is the default root of trust until hardware preview
+  sign-off is complete.
+- The SE050 path is a trust upgrade, not a dependency for adoption.
+- Existing security keys are complementary today and become first-class Matrix
+  Scroll backends only when they preserve the same Ed25519 contract.
 
 ## Links
 
-- Company: [ssx360.com](https://ssx360.com)
+- Product site: [matrixscroll.com](https://matrixscroll.com)
 - SDK repo: [github.com/SSX360/matrixscroll](https://github.com/SSX360/matrixscroll)
-- Whitepaper: [ssx360.com/docs/SSX-360-Hardware-Attested-Authorization-for-Autonomous-Agents.pdf](https://ssx360.com/docs/SSX-360-Hardware-Attested-Authorization-for-Autonomous-Agents.pdf)
+- Whitepaper: [docs/WHITEPAPER.md](WHITEPAPER.md)

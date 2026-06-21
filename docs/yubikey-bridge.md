@@ -1,151 +1,54 @@
-# YubiKey Bridge Provider — Research & Prototype
+# External key backends and YubiKey notes
 
-**Date:** 2026-06-19  
-**Status:** Prototype boundary defined for v0.2.x  
-**Provider mode:** `MATRIXSCROLL_MODE=yubikey`
+**Status:** Research and rollout criteria only. Not part of the public signing
+contract today.
 
-## Executive summary
+## Public rule
 
-Matrix Scroll v1 uses **Ed25519** for manifest signatures. YubiKey PIV slots natively
-support **RSA-2048/3072/4096** and **EC P-256/P-384** — not Ed25519. Therefore the
-YubiKey bridge has three viable paths:
+Matrix Scroll v1 signs canonical manifest bytes with **pure Ed25519**. A
+hardware backend qualifies for the public SDK only if it can:
 
-| Path | Pros | Cons | Recommendation |
-|------|------|------|----------------|
-| **A. PIV ECDSA P-256 bridge** | Enterprise-standard, PKCS#11, touch policy | Different algorithm than v1 Ed25519 manifests | **Phase 1 bridge** — sign digest via PIV, map to Matrix Scroll v2 or hybrid block |
-| **B. OpenPGP card Ed25519** | Same curve as v1 | Less uniform on Windows, harder CI automation | Dev-only optional path |
-| **C. SSH FIDO2 (`ed25519-sk`)** | Native Ed25519, Git-native | FIDO2 is auth-oriented; not ideal for automated manifest signing | Pair with Git commit signing, not Matrix Scroll manifests |
+1. hold a non-exportable private key or equivalent hardware root
+2. sign the canonical manifest bytes directly
+3. return a public key that fits the current `device_id` derivation
+4. verify through the existing SDK with no alternate algorithm or verifier path
 
-**Recommendation:** Ship `YubiKeyProvider` as a **PIV ECDSA-P256 bridge** that signs
-manifest digests via PKCS#11, with a `signature.algorithm` extension proposal for
-v2 (`ecdsa-p256`). Until v2 ships, use YubiKey bridge for **release-grade evidence**
-where policy accepts P-256, and keep emulated Ed25519 for dev vectors.
+## Why the earlier PIV bridge is not shipping
 
-## Yubico integration surfaces
+YubiKey PIV is strong for authentication and enterprise device trust, but the
+current PIV signing surfaces are centered on RSA or ECDSA rather than the pure
+Ed25519 contract Matrix Scroll v1 already ships. That makes a PIV bridge a
+different trust shape, not a drop-in Matrix Scroll backend.
 
-Per [Yubico PIV Walk-Through](https://developers.yubico.com/PIV/Guides/PIV_Walk-Through.html):
+For that reason:
 
-- **Yubico PIV Tool** — slot management, key generation
-- **ykcs11 / opensc-pkcs11** — PKCS#11 module for signing
-- **PIV touch policy** — `touch-policy=always` for user presence
+- the public SDK does not widen the signature algorithm surface
+- the earlier PIV prototype stays explicitly experimental
+- the mainline release path stays anchored on Ed25519-only verification
 
-Per [Securing git with SSH and FIDO2](https://developers.yubico.com/SSH/Securing_git_with_SSH_and_FIDO2.html):
+## What counts as a good near-term backend
 
-- Git commit signing via `ed25519-sk` is complementary, not a replacement for
-  Matrix Scroll commit envelopes
-- Hosting platforms verify SSH signatures separately from Matrix Scroll manifests
+- an Ed25519-capable hardware path that signs canonical bytes directly
+- a reproducible public-key export path
+- clear user presence or key-protection semantics
+- clean local developer ergonomics on at least one supported platform
 
-## Prototype architecture
+Existing keys from ecosystems like YubiKey, Nitrokey, Solo, or platform
+hardware can still be complementary trust roots for developers today. They
+become first-class Matrix Scroll backends only when they satisfy the same byte
+contract as emulated mode and the SE050 preview.
 
-```
-manifest (JSON)
-    │
-    ▼
-canonical_bytes(manifest)          # unchanged SPEC.md rules
-    │
-    ▼
-SHA-256(canonical_bytes)             # 32-byte digest
-    │
-    ▼
-PKCS#11 C_Sign (PIV slot 9c)       # ECDSA P-256 over digest
-    │
-    ▼
-signature block (mode=yubikey)
-```
+## Experimental PIV prototype
 
-### Environment variables
+`MATRIXSCROLL_MODE=yubikey` is retained only as an explicit research boundary.
+It is disabled by default and requires
+`MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV=1` for local prototype work.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MATRIXSCROLL_MODE` | `emulated` | Set to `yubikey` |
-| `MATRIXSCROLL_YKCS11_MODULE` | platform-specific | Path to `ykcs11.dll` / `.so` |
-| `MATRIXSCROLL_PIV_SLOT` | `9c` | PIV signature slot |
-| `MATRIXSCROLL_PIV_PIN` | — | Optional PIN (prefer prompt/agent) |
+That path is intentionally out of the public rollout because it would otherwise
+blur the trust model.
 
-### Failure modes
+## Related docs
 
-| Condition | Behavior | Exit / exception |
-|-----------|----------|------------------|
-| Module not found | `is_available() → (False, reason)` | status JSON, no crash |
-| No YubiKey inserted | `(False, "no token present")` | signing raises `IdentityError` |
-| Wrong PIN | `(False, "authentication failed")` | signing raises `IdentityError` |
-| Touch timeout | `(False, "user presence required")` | signing raises `IdentityError` |
-| Slot empty | `(False, "no key in PIV slot")` | signing raises `IdentityError` |
-| PKCS#11 unavailable on CI | use emulated in dev CI; require hardware in release CI via policy | policy exit 2 |
-
-## SSH signing compatibility
-
-Matrix Scroll commit envelopes and Git SSH commit signatures are **orthogonal**:
-
-1. **Git SSH signature** — proves commit object integrity on GitHub/GitLab
-2. **Matrix Scroll envelope** — proves provenance metadata (agent, tool, scope)
-
-Recommended developer setup:
-
-```bash
-# Git native signing (optional)
-git config gpg.format ssh
-git config user.signingkey ~/.ssh/id_ed25519_sk.pub
-
-# Matrix Scroll envelope (required for agentic provenance)
-export MATRIXSCROLL_MODE=yubikey   # or emulated for dev
-matrixscroll hook-install
-```
-
-## Implementation status
-
-Prototype stub: [`matrixscroll/providers/yubikey.py`](../../matrixscroll/providers/yubikey.py)
-
-- Defines provider interface and availability checks
-- Documents PKCS#11 integration points
-- Does **not** add PKCS#11 runtime dependency yet (per CONTRIBUTING no-deps rule)
-
-Future optional extra:
-
-```toml
-[project.optional-dependencies]
-yubikey = ["python-pkcs11>=0.7"]
-```
-
-## v2 protocol extension (proposed)
-
-Add to SPEC.md when PIV bridge ships:
-
-```json
-{
-  "signature": {
-    "algorithm": "ecdsa-p256",
-    "digest": "sha256",
-    "value": "<base64 DER ECDSA signature>"
-  }
-}
-```
-
-Conformance vectors required before enabling in release CI.
-
-## device_id derivation
-
-YubiKey envelopes use the same `MS-XXXX-YYYY` format as emulated mode:
-
-```
-device_id = "MS-" + sha256(public_key_der)[:8] uppercased with hyphen at position 4
-```
-
-Implementation: [`matrixscroll/providers/emulated.py`](../matrixscroll/providers/emulated.py) `device_id()`.
-
-Public key bytes come from PKCS#11 EC key export (or mock P-256 key when `MATRIXSCROLL_YKCS11_MOCK=1`).
-
-Manual smoke test: [`docs/yubikey-smoke.md`](yubikey-smoke.md)
-
-## Test plan
-
-1. Unit: mock PKCS#11 session returns fixed signature → verify path
-2. Integration (manual): YubiKey 5 + ykcs11 on Linux/macOS/Windows
-3. Policy: `--require-mode yubikey` on release manifests only
-
-## References
-
-- [Yubico Developer Program](https://developers.yubico.com/Developer_Program/)
-- [PIV Walk-Through](https://developers.yubico.com/PIV/Guides/PIV_Walk-Through.html)
-- [Securing git with SSH and FIDO2](https://developers.yubico.com/SSH/Securing_git_with_SSH_and_FIDO2.html)
-- [Overview of the SDK](https://docs.yubico.com/yesdk/users-manual/getting-started/overview-of-sdk.html)
+- [`hardware-provider.md`](hardware-provider.md)
+- [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md)
+- [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md)

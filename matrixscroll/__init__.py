@@ -3,8 +3,10 @@
 This package is the Python reference implementation of the Matrix Scroll
 protocol. It exposes an Ed25519 root-of-trust abstraction with L1 emulated
 software keys (default) and a typed hardware-provider path for the SSX360
-reference device (NXP SE050). Hardware mode reports unavailable until the
-SE050 transport ships. Private keys are never exposed by the SDK API.
+reference device (NXP SE050). Hardware mode now includes a USB CDC host
+transport preview plus an in-process mock path; real device signing still
+depends on firmware PoC validation. Private keys are never exposed by the SDK
+API.
 
 Quickstart:
 
@@ -38,7 +40,7 @@ from ._core import (
     verify_manifest,
 )
 
-__version__ = "0.2.5"
+__version__ = "0.2.6"
 
 __all__ = [
     "ALGORITHM",

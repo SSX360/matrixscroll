@@ -4,9 +4,30 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.5] - 2026-06-24
+## [0.2.6] - 2026-06-21
 
-Post-HN patch: GitHub gpgsig commit binding, SE050 mock transport, YubiKey pubkey export, Rekor/GUAC CLI MVP.
+SDK rollout hardening: generic public attribution, SE050 host transport preview,
+and repo-local hardware rollout docs.
+
+### Added
+- **USB CDC host transport preview** - `SerialSE050Transport` for newline-delimited
+  JSON `ping` / `pubkey` / `sign` framing over the RP2350 USB bridge.
+- **Hardware extra** - `pip install "matrixscroll[hardware]"` now pulls in
+  `pyserial` for the SE050 host path.
+- **Rollout docs** - adopter kit, five-minute guide, hardware provider quickstart,
+  SE050 protocol reference, and contractor-facing PoC scope kept inside the SDK repo.
+
+### Changed
+- **Public quickstarts** - replaced editor-specific public quickstarts with
+  generic agent-facing guidance while keeping the manifest schema and API unchanged.
+- **Hardware messaging** - clarified that the SDK now ships a host transport
+  preview and mock path, while real device signing still depends on firmware PoC validation.
+- **Release copy** - aligned README, support docs, CI examples, and package metadata
+  around the `0.2.6` rollout surface.
+
+## [0.2.5] - 2026-06-20
+
+Credibility and compatibility patch: GitHub gpgsig commit binding, SE050 mock transport, YubiKey pubkey export, Rekor/GUAC CLI MVP.
 
 ### Added
 - **GitHub `gpgsig` commit binding** — verify envelopes against raw commit object SHA when OpenPGP signatures are present.

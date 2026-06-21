@@ -85,7 +85,7 @@ def test_github_gpgsig_fixture_parse():
     assert tree
     assert author["email"]
     assert body.startswith("feat: Scroll Gate")
-    assert expected_sha == "449abcd4799578bfce0ca128a088af8c298f762a"
+    assert expected_sha == "3d921eeba50ed6098444706a8338f873eea6abbc"
 
 
 def test_parse_commit_matches_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

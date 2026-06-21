@@ -19,7 +19,7 @@ from typing import Any
 from ..errors import IdentityError
 from .base import IdentityProvider
 from .emulated import device_id as ms_device_id
-from .se050_transport import SE050Transport, open_transport
+from .se050_transport import MockSE050Transport, SE050Transport, open_transport
 
 
 class HardwareProvider(IdentityProvider):
@@ -37,7 +37,8 @@ class HardwareProvider(IdentityProvider):
         if self._transport is None:
             return False, self.UNAVAILABLE_REASON
         if not self._transport.ping():
-            return False, "SE050 transport did not respond to ping"
+            reason = getattr(self._transport, "reason", None)
+            return False, reason or "SE050 transport did not respond to ping"
         return True, None
 
     def _require_transport(self) -> SE050Transport:
@@ -63,7 +64,8 @@ class HardwareProvider(IdentityProvider):
             "mode": self.mode,
             "available": available,
             "reason": reason,
-            "mock": self._transport is not None,
+            "mock": isinstance(self._transport, MockSE050Transport),
+            "transport": type(self._transport).__name__ if self._transport is not None else None,
             "device_id": ms_device_id(self.public_key_bytes()) if available else None,
         }
         return detail

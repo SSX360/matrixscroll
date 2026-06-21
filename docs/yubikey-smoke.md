@@ -1,35 +1,22 @@
-# YubiKey manual smoke test
+# YubiKey research smoke notes
 
-Requires a YubiKey 5 with PIV EC key and [Yubico PKCS#11 module](https://www.yubico.com/support/download/yubikey-manager/) installed.
+The PIV prototype is intentionally **not** part of the public Matrix Scroll
+rollout because the current path does not preserve the v1 Ed25519 signing
+contract.
 
-## Linux / macOS
+Use these notes only for local prototype work.
 
-```bash
-export MATRIXSCROLL_MODE=yubikey
-export MATRIXSCROLL_YKCS11_MODULE=/usr/lib/x86_64-linux-gnu/libykcs11.so  # adjust path
-export MATRIXSCROLL_PIV_PIN='your-pin'
-
-matrixscroll status
-matrixscroll sign vectors/valid_simple.json
-matrixscroll verify vectors/valid_simple.json
-```
-
-## Windows
+## Mock research boundary
 
 ```powershell
 $env:MATRIXSCROLL_MODE = "yubikey"
-$env:MATRIXSCROLL_YKCS11_MODULE = "C:\Program Files\Yubico\Yubico PIV Tool\bin\ykcs11.dll"
-$env:MATRIXSCROLL_PIV_PIN = "your-pin"
-
-matrixscroll status
-```
-
-## Mock (no hardware)
-
-```powershell
-$env:MATRIXSCROLL_MODE = "yubikey"
+$env:MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV = "1"
 $env:MATRIXSCROLL_YKCS11_MOCK = "1"
 python -m pytest tests/test_yubikey_provider.py -q
 ```
 
-Expected: `algorithm: ecdsa-p256`, `mode: yubikey`, verify passes.
+Expected:
+
+- provider availability can be inspected in experimental mode
+- `sign_manifest()` rejects the provider for public use because it is not
+  Ed25519-compatible

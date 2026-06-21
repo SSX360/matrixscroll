@@ -71,7 +71,7 @@ Full wire format: [`SPEC.md`](../SPEC.md). Schema: [`schemas/commit-envelope.v1.
 ### 1. Install
 
 ```bash
-pip install "matrixscroll>=0.2.1"
+pip install "matrixscroll==0.2.6"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -80,14 +80,14 @@ matrixscroll hook-status
 
 ```bash
 export MATRIXSCROLL_ACTOR_TYPE=agent
-export MATRIXSCROLL_TOOL=cursor
+export MATRIXSCROLL_TOOL=agent-runner
 git commit -m "feat: agent-assisted change"
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
 
 Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/config.json` to block commits when signing fails. See [`docs/quickstart-git.md`](quickstart-git.md).
 
-**Windows:** commit-envelope signing requires matrixscroll **0.2.1+** (cat-file parsing fix).
+**Windows:** support landed in matrixscroll **0.2.1**; pin **0.2.6** or newer in pilot environments.
 
 ### 3. CI gate
 
@@ -95,12 +95,12 @@ Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/conf
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: path/to/signed-manifest.json
-    matrixscroll-version: "0.2.2"
+    matrixscroll-version: "0.2.6"
     require-mode: emulated
     trusted-keys: trusted-keys.json
 ```
 
-Policy flags (`--require-mode`, `--trusted-keys`) ship in **0.2.2+**.
+Policy flags (`--require-mode`, `--trusted-keys`) are available in the `0.2.x` line; this whitepaper pins `0.2.6` for copy-and-paste examples.
 
 ### 4. Optional scope manifest
 
@@ -118,7 +118,9 @@ export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.jso
 | **L2 Hardware** | SSX360 / NXP SE050 secure element | In progress |
 | **L3 Attested** | L2 + remote attestation | Roadmap |
 
-YubiKey bridge (PKCS#11 / PIV) documented in [`docs/yubikey-bridge.md`](yubikey-bridge.md).
+External hardware key backend criteria are documented in
+[`docs/yubikey-bridge.md`](yubikey-bridge.md). Non-Ed25519 bridge experiments
+remain outside the public rollout.
 
 ## Common pitfalls
 

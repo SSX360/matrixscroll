@@ -5,7 +5,7 @@ Matrix Scroll Git hooks attach a signed **commit envelope** to every local commi
 ## Install hooks
 
 ```bash
-pip install matrixscroll
+pip install "matrixscroll==0.2.6"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -29,16 +29,16 @@ Enable enforce mode in `.git/matrixscroll/config.json`:
 {
   "enforce": true,
   "actor_type": "human",
-  "tool": "cursor"
+  "tool": "git-cli"
 }
 ```
 
 ## Windows
 
-Commit-envelope signing requires **matrixscroll 0.2.1+** (fixes Git `cat-file` parsing on Windows). After upgrading:
+Windows support landed in **matrixscroll 0.2.1**. Pin `0.2.6` or newer after upgrading:
 
 ```powershell
-pip install -U "matrixscroll>=0.2.1"
+pip install -U "matrixscroll==0.2.6"
 matrixscroll hook-install
 ```
 
@@ -50,7 +50,7 @@ Set environment variables before committing:
 
 ```bash
 export MATRIXSCROLL_ACTOR_TYPE=agent
-export MATRIXSCROLL_TOOL=cursor
+export MATRIXSCROLL_TOOL=agent-runner
 export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.json
 ```
 
@@ -115,7 +115,11 @@ graph order or ledger insertion order for chronology — not self-reported times
    ```
 5. Fail-closed: CI fetches `refs/notes/matrixscroll` from origin; missing notes fail the gate.
 
-See IDE-specific guides: [`quickstart-cursor.md`](quickstart-cursor.md), [`quickstart-copilot.md`](quickstart-copilot.md), [`quickstart-claude-code.md`](quickstart-claude-code.md).
+`MATRIXSCROLL_TOOL` is free-form provenance metadata. Use the label you want
+auditors and CI reviewers to see, such as `agent-runner`, `git-cli`, or your
+internal tool name.
+
+See also: [`quickstart-agent.md`](quickstart-agent.md), [`quickstart-claude-code.md`](quickstart-claude-code.md).
 
 ## Demo
 

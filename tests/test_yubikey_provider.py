@@ -1,4 +1,4 @@
-"""Tests for YubiKey provider prototype boundary."""
+"""Tests for the experimental YubiKey provider boundary."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ def test_yubikey_provider_unavailable_without_module(monkeypatch: pytest.MonkeyP
     available, reason = provider.is_available()
     assert not available
     assert reason is not None
+    assert "disabled in the public SDK" in reason
 
 
 def test_yubikey_sign_raises_without_mock(monkeypatch: pytest.MonkeyPatch):
@@ -24,22 +25,33 @@ def test_yubikey_sign_raises_without_mock(monkeypatch: pytest.MonkeyPatch):
         provider.sign(b"test")
 
 
-def test_yubikey_mock_sign_and_verify(monkeypatch: pytest.MonkeyPatch):
+def test_yubikey_mock_provider_is_available_only_with_experimental_flag(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setenv("MATRIXSCROLL_YKCS11_MOCK", "1")
+    monkeypatch.setenv("MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV", "1")
+    provider = YubiKeyProvider()
+    available, reason = provider.is_available()
+    assert available
+    assert reason is None
+
+
+def test_sign_manifest_rejects_non_ed25519_provider(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MATRIXSCROLL_MODE", "yubikey")
     monkeypatch.setenv("MATRIXSCROLL_YKCS11_MOCK", "1")
-    from matrixscroll.manifest import sign_manifest, verify_manifest
+    monkeypatch.setenv("MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV", "1")
+    from matrixscroll.manifest import sign_manifest
     from matrixscroll.providers.registry import get_provider
 
     provider = get_provider(refresh=True)
     manifest = {"schema": "matrixscroll.test.v1", "payload": "yubikey-demo"}
-    signed = sign_manifest(manifest, provider)
-    assert signed["signature"]["algorithm"] == "ecdsa-p256"
-    assert signed["signature"]["mode"] == "yubikey"
-    assert verify_manifest(signed)
+    with pytest.raises(Exception):
+        sign_manifest(manifest, provider)
 
 
 def test_yubikey_mock_public_key_bytes(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MATRIXSCROLL_YKCS11_MOCK", "1")
+    monkeypatch.setenv("MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV", "1")
     provider = YubiKeyProvider()
     pub = provider.public_key_bytes()
     assert len(pub) > 0

@@ -5,17 +5,12 @@ from __future__ import annotations
 import base64
 import binascii
 import copy
-import hashlib
 import time
 from typing import Any
 
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
-
 from .canonical import canonical_bytes
 from .constants import ALGORITHM, SIGNATURE_SCHEMA
+from .errors import IdentityError
 from .providers.emulated import device_id
 from .providers.registry import get_provider, identity_info, verify
 
@@ -28,13 +23,18 @@ def sign_manifest(
     manifest: dict[str, Any], provider=None
 ) -> dict[str, Any]:
     provider = provider or get_provider()
+    algorithm = _provider_algorithm(provider)
+    if algorithm != ALGORITHM:
+        raise IdentityError(
+            "Matrix Scroll v1 signs canonical manifest bytes with Ed25519 only. "
+            f"Provider {provider.mode!r} reports unsupported algorithm {algorithm!r}."
+        )
     info = identity_info(provider)
     signed = copy.deepcopy(manifest)
     signed.pop("signature", None)
     canonical = canonical_bytes(signed)
     signing_input = provider.signing_input(canonical) if hasattr(provider, "signing_input") else canonical
     signature_value = base64.b64encode(provider.sign(signing_input)).decode("ascii")
-    algorithm = _provider_algorithm(provider)
     block: dict[str, Any] = {
         "schema": SIGNATURE_SCHEMA,
         "algorithm": algorithm,
@@ -44,25 +44,8 @@ def sign_manifest(
         "signed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "value": signature_value,
     }
-    digest = getattr(provider, "digest", None)
-    if digest:
-        block["digest"] = digest
     signed["signature"] = block
     return signed
-
-
-def _verify_ecdsa_p256(public_key: bytes, data: bytes, signature: bytes, digest: str | None) -> bool:
-    try:
-        from cryptography.hazmat.primitives.serialization import load_der_public_key
-
-        key = load_der_public_key(public_key)
-        if not isinstance(key, ec.EllipticCurvePublicKey):
-            return False
-        payload = hashlib.sha256(data).digest() if digest == "sha256" else data
-        key.verify(signature, payload, ec.ECDSA(Prehashed(hashes.SHA256())))
-        return True
-    except (InvalidSignature, ValueError, TypeError):
-        return False
 
 
 def verify_manifest(manifest: dict[str, Any]) -> bool:
@@ -89,13 +72,6 @@ def verify_manifest(manifest: dict[str, Any]) -> bool:
         signing_input = canonical_bytes(manifest)
     except (TypeError, ValueError):
         return False
-    if algorithm == "ecdsa-p256":
-        return _verify_ecdsa_p256(
-            public_key_bytes,
-            signing_input,
-            signature_bytes,
-            block.get("digest") if isinstance(block.get("digest"), str) else "sha256",
-        )
     if algorithm != ALGORITHM:
         return False
     return verify(public_key_bytes, signing_input, signature_bytes)

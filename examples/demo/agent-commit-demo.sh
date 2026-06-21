@@ -3,7 +3,7 @@
 set -euo pipefail
 
 export MATRIXSCROLL_ACTOR_TYPE=agent
-export MATRIXSCROLL_TOOL=cursor
+export MATRIXSCROLL_TOOL=agent-runner
 export MATRIXSCROLL_HOME="${MATRIXSCROLL_HOME:-$(mktemp -d)/matrixscroll-demo}"
 
 DEMO_TMPDIR="$(mktemp -d)"

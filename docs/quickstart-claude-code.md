@@ -1,11 +1,12 @@
-# Agent quickstart: Claude Code
+# Agent quickstart: Claude Code example
 
-Use Matrix Scroll to sign **agent-assisted commits** from Claude Code with verifiable provenance.
+Use Matrix Scroll to sign **agent-assisted commits** from Claude Code with
+verifiable provenance.
 
 ## One-time setup
 
 ```bash
-pip install "matrixscroll>=0.2.5"
+pip install "matrixscroll>=0.2.6"
 matrixscroll hook-install
 ```
 
@@ -42,4 +43,4 @@ git push origin refs/notes/matrixscroll
 
 Copy [`examples/ci/protected-branch.yml`](../examples/ci/protected-branch.yml).
 
-See also: [`quickstart-git.md`](quickstart-git.md), [`quickstart-cursor.md`](quickstart-cursor.md).
+See also: [`quickstart-agent.md`](quickstart-agent.md), [`quickstart-git.md`](quickstart-git.md).

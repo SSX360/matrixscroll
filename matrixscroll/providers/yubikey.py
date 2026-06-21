@@ -1,8 +1,9 @@
-"""YubiKey PIV bridge provider (prototype boundary).
+"""Experimental YubiKey PIV bridge provider.
 
 Set MATRIXSCROLL_MODE=yubikey to select this provider. The prototype defines the
-interface and availability checks; PKCS#11 signing is wired when the optional
-``matrixscroll[yubikey]`` extra is installed or when ``MATRIXSCROLL_YKCS11_MOCK=1``.
+interface and availability checks, but it is not part of the public Matrix
+Scroll rollout because the current PIV path does not preserve the v1 Ed25519
+signing contract.
 
 See docs/yubikey-bridge.md for the full research and rollout plan.
 """
@@ -19,6 +20,7 @@ from .base import IdentityProvider
 
 DEFAULT_PIV_SLOT = "9c"
 _MOCK_PRIVATE_KEY: Any | None = None
+_EXPERIMENTAL_FLAG = "MATRIXSCROLL_ENABLE_EXPERIMENTAL_PIV"
 
 
 def _mock_private_key():
@@ -63,6 +65,10 @@ def _piv_slot() -> str:
     return os.environ.get("MATRIXSCROLL_PIV_SLOT", DEFAULT_PIV_SLOT).strip() or DEFAULT_PIV_SLOT
 
 
+def _experimental_enabled() -> bool:
+    return os.environ.get(_EXPERIMENTAL_FLAG, "").strip().lower() in {"1", "true", "yes"}
+
+
 class YubiKeyProvider(IdentityProvider):
     """Sign manifest digests via YubiKey PIV + PKCS#11 (prototype)."""
 
@@ -81,6 +87,13 @@ class YubiKeyProvider(IdentityProvider):
         return hashlib.sha256(canonical).digest()
 
     def is_available(self) -> tuple[bool, str | None]:
+        if not _experimental_enabled():
+            return (
+                False,
+                "Experimental PIV bridge is disabled in the public SDK because "
+                "Matrix Scroll v1 remains pure Ed25519 over canonical manifest bytes. "
+                f"Set {_EXPERIMENTAL_FLAG}=1 only for prototype work.",
+            )
         if self._mock:
             return True, None
         if self._module is None:

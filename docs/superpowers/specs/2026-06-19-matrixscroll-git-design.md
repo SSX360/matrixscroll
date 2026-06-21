@@ -39,7 +39,7 @@ See [`schemas/commit-envelope.v1.json`](../../schemas/commit-envelope.v1.json) a
 | `commit.message` | string | Raw commit message bytes as UTF-8 string |
 | `provenance` | object | Who/what produced the commit |
 | `provenance.actor_type` | string | `human` \| `agent` \| `ci` |
-| `provenance.tool` | string | e.g. `cursor`, `claude-code`, `git-cli` |
+| `provenance.tool` | string | e.g. `agent-cli`, `ci-runner`, `git-cli` |
 | `provenance.tool_version` | string | Optional semver or build id |
 | `provenance.agent_scope` | string | Optional reference to signed agent evidence manifest |
 | `repository` | object | `{name, remote_url}` best-effort from git config |
