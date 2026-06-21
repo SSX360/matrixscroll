@@ -61,6 +61,26 @@ jobs:
 - Matrix Scroll does not replace IAM or sandboxing
 - Matrix Scroll does not replace release-signing or artifact attestations
 
+## Clean-machine proof status
+
+Recorded on `2026-06-21` against the pinned public flow:
+`pip install "matrixscroll==0.2.6"` -> `matrixscroll hook-install` ->
+`matrixscroll hook-status` -> first agent-assisted commit ->
+`matrixscroll envelope-verify`.
+
+Hosted source of truth: GitHub Actions run
+`27904509800` on `codex/trust-layer-rollout`.
+
+| Platform | Result | Notes |
+| --- | --- | --- |
+| Windows | PASS | GitHub-hosted smoke completed with `1.0s` to first verified commit. Local temp-venv proof also passed in `8.7s`. |
+| Ubuntu | PASS | GitHub-hosted smoke completed with `0.4s` to first verified commit. |
+| macOS | PASS | GitHub-hosted smoke completed with `0.3s` to first verified commit. |
+
+Local environment note: the workspace WSL image is still missing `python3-pip`
+and `python3-venv`, so local Ubuntu reproduction remains under-provisioned even
+though launch evidence is now covered by the hosted workflow.
+
 ## Public follow-through
 
 If a pilot works, publish one of these:

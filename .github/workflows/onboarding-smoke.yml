@@ -1,0 +1,49 @@
+name: onboarding-smoke
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main, codex/**]
+  workflow_dispatch:
+
+jobs:
+  clean-machine:
+    name: ${{ matrix.os }} · py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install pinned PyPI release
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "matrixscroll==0.2.6"
+
+      - name: Run clean-machine onboarding smoke
+        env:
+          ONBOARDING_SUMMARY_PATH: onboarding-smoke-summary-${{ matrix.os }}.json
+        run: python .github/scripts/onboarding_smoke.py
+
+      - name: Upload onboarding summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-smoke-${{ matrix.os }}
+          path: onboarding-smoke-summary-${{ matrix.os }}.json
+          if-no-files-found: error

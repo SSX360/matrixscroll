@@ -101,7 +101,7 @@ jobs:
           source: notes
           notes-ref: refs/notes/matrixscroll
           fetch-notes: "false"
-          matrixscroll-version: "0.2.5"
+          matrixscroll-version: "0.2.6"
           summary-output: provenance-summary.json
 
       - name: Upload provenance summary
