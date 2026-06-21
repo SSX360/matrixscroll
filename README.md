@@ -40,6 +40,31 @@ preview path until device acceptance is complete.
 - The public contract stays pure Ed25519 over canonical manifest bytes,
   whether the signer is emulated today or hardware-backed later.
 
+## Common questions
+
+### What is Matrix Scroll and how does it secure Git?
+
+Matrix Scroll is signed commit-time provenance for agent-assisted Git. It
+secures Git by attaching an Ed25519-signed commit envelope to a commit,
+recording the actor, tool, and optional bounded scope, then letting reviewers
+verify that proof offline in the CLI, browser, or CI before merge.
+
+### How do hardware and emulated modes differ in Matrix Scroll?
+
+Emulated mode ships today and keeps the signing key on disk with owner-only
+permissions so teams can evaluate the full workflow now. Hardware mode keeps
+the same verifier contract and commit envelope schema, but moves the private
+key into the SE050 secure element so the host cannot export it; that path
+remains preview-only until device acceptance is complete.
+
+### How can I integrate Matrix Scroll into a CI/CD workflow?
+
+Install the SDK and hooks in your repo, publish commit envelopes to
+`refs/notes/matrixscroll` before PR review, and use
+`SSX360/matrixscroll-verify-action@v1` to verify the full PR commit range in
+GitHub Actions. Protected branches can then require Matrix Scroll proof
+alongside your existing scanners, branch protection, and build attestations.
+
 ## Quickstart
 
 ```bash
