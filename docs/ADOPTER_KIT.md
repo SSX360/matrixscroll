@@ -68,15 +68,18 @@ Recorded on `2026-06-21` against the pinned public flow:
 `matrixscroll hook-status` -> first agent-assisted commit ->
 `matrixscroll envelope-verify`.
 
+Hosted source of truth: GitHub Actions run
+`27904509800` on `codex/trust-layer-rollout`.
+
 | Platform | Result | Notes |
 | --- | --- | --- |
-| Windows | PASS | Fresh temp venv install and local repo proof completed in `8.7s`; `hook-status` reported both hooks present and `envelope-verify` returned `ok: true` in `emulated` mode. |
-| Ubuntu (local WSL) | BLOCKED | The current Ubuntu image has Python `3.14.4` but no `python3-pip` or `python3-venv`, so the Matrix Scroll install never started. Re-run on a provisioned Ubuntu image before the launch wave. |
-| macOS | PENDING | No local macOS runner is available in this workspace yet. Record one clean-machine pass before the Show HN window opens. |
+| Windows | PASS | GitHub-hosted smoke completed with `1.0s` to first verified commit. Local temp-venv proof also passed in `8.7s`. |
+| Ubuntu | PASS | GitHub-hosted smoke completed with `0.4s` to first verified commit. |
+| macOS | PASS | GitHub-hosted smoke completed with `0.3s` to first verified commit. |
 
-Launch read today: Windows is proven, Linux is environment-blocked, and macOS
-still needs a real run. Keep the HN gate red until Ubuntu and macOS are both
-recorded.
+Local environment note: the workspace WSL image is still missing `python3-pip`
+and `python3-venv`, so local Ubuntu reproduction remains under-provisioned even
+though launch evidence is now covered by the hosted workflow.
 
 ## Public follow-through
 
