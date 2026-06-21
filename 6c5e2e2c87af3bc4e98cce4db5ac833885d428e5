@@ -1,0 +1,40 @@
+{
+  "commit": {
+    "actual_id": "6c5e2e2c87af3bc4e98cce4db5ac833885d428e5",
+    "author": {
+      "date": "1782052806 -0400",
+      "email": "agent-demo@matrixscroll.com",
+      "name": "Matrix Scroll Demo"
+    },
+    "committer": {
+      "date": "1782052897 -0400",
+      "email": "agent-demo@matrixscroll.com",
+      "name": "Matrix Scroll Demo"
+    },
+    "message": "SSX-16 docs: clarify preview trust-upgrade wording\n",
+    "parents": [
+      "b68cb4f38f158767bb566cf57edbd25c225f64fd"
+    ],
+    "tree": "7d541c5fc9a9f32dab5be51a67d5b19f53dd78d4"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "codex",
+    "tool_version": "gpt-5"
+  },
+  "repository": {
+    "branch": "codex/trust-layer-rollout",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-21T14:47:57Z",
+    "value": "aN/RUXBzK1fyfT8Yo01ruzJSkxudQPeUG/CbgaPv2uujKyVRTXwt9CN0YOa+OsuX+0RN9qFOLEqr1gGM0FMmDw=="
+  }
+}
