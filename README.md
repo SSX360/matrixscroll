@@ -3,8 +3,79 @@
 **Matrix Scroll is signed commit-time provenance for agent-assisted Git,
 verified offline, with hardware as an optional preview trust upgrade.**
 
+> [!IMPORTANT]
+> **Compliance Mapping:** Matrix Scroll commit envelopes map directly to secure software supply chain and agentic AI traceability standards, including the **Five Eyes Joint Guidance on deploying AI systems (Apr 30)**, **EU AI Act Article 50 transparency requirements (Aug 2)**, and the **NIST SSDF (Secure Software Development Framework)**.
+
 This repository is the canonical SDK, verifier contract, fixture set, and
 release surface for the product.
+
+---
+
+## 🎬 Hero Demo: Agent Self-Attestation Loop
+
+Watch an AI agent attest its own commits in-loop inside Claude Code or Cursor:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as AI Agent (Claude Code/Cursor)
+    participant MCP as Matrix Scroll MCP
+    participant Git as Git Repo
+    participant Gate as Scroll Gate (CI/CD)
+    participant Verifier as Browser / Offline Verifier
+
+    Agent->>Agent: Writes/modifies expected code
+    Agent->>MCP: Call create_envelope(actor="agent", tool, scope)
+    MCP-->>Agent: Returns signed envelope (Ed25519)
+    Agent->>Git: Commit code and envelope
+    Gate->>Git: verify_pr_range(base, head)
+    Gate-->>Gate: Validates Ed25519 signature
+    Verifier->>Verifier: Reviewer confirms offline (No API key / no upload)
+```
+
+1. **Agent writes code** -> Modifies files in the workspace.
+2. **Calls the Matrix Scroll MCP tool** -> Generates and signs a commit envelope with Ed25519 (`actor=agent`).
+3. **Commit is created** -> Git saves the changes and the attestation envelope.
+4. **Scroll Gate verifies the PR range** -> Ensures every commit in the PR is attested.
+5. **Browser verifier confirms offline** -> Proof is audited client-side without external dependencies.
+
+Run the self-attestation loop locally:
+```bash
+./examples/demo/hero-self-attestation-demo.sh
+```
+
+---
+
+## Model Context Protocol (MCP) Server (Headline Install)
+
+Matrix Scroll includes an optional Model Context Protocol (MCP) server that enables AI agents to sign their own commits in-loop. When Cursor or Claude Code performs an engineering task, they can attest their changes directly through the MCP server.
+
+### Installation
+
+Install the package with the optional `[mcp]` dependencies:
+```bash
+pip install "matrixscroll[mcp]"
+```
+
+### Running the Server
+
+Start the MCP server over standard input/output (stdio):
+```bash
+python -m matrixscroll.mcp
+```
+
+### Exposed Tools
+
+The server registers 6 Model Context Protocol tools focused strictly on agent self-attestation and range verification:
+
+1. **`create_envelope(workspace: str, actor: str, tool: str, scope: str, message: str)`**: Builds, signs, and saves a commit envelope for staged changes or an existing commit using Ed25519.
+2. **`verify_envelope(workspace: str, sha: str)`**: Cryptographically verifies a signed commit envelope's signature and integrity for a SHA.
+3. **`verify_pr_range(workspace: str, base: str, head: str, source: str)`**: Verifies every commit in a given range (e.g., base..head) against validation policies.
+4. **`envelope_publish_notes(workspace: str, base: str, head: str)`**: Publishes local commit envelopes to Git notes (`refs/notes/matrixscroll`) for transport.
+5. **`status(workspace: str)`**: Retrieves status and details (public key, device ID, mode) of the active identity provider.
+6. **`audit_export(workspace: str, base: str, head: str, output: str)`**: Exports a range of commit envelopes into a deterministic bundle directory for audit logs.
+
+---
 
 Matrix Scroll is a cryptographic evidence layer for Git. When an agent, CI
 workflow, or human operator produces a commit, a signed commit envelope can
@@ -65,7 +136,7 @@ Install the SDK and hooks in your repo, publish commit envelopes to
 GitHub Actions. Protected branches can then require Matrix Scroll proof
 alongside your existing scanners, branch protection, and build attestations.
 
-## Quickstart
+## Alternative Setup: Raw CLI & Git Hooks
 
 ```bash
 pip install "matrixscroll==0.2.6"
@@ -253,41 +324,6 @@ The repo includes a machine-readable control matrix at
 example bounded-agent evidence manifest at
 [`examples/agentic_ai_evidence_manifest.json`](examples/agentic_ai_evidence_manifest.json),
 and executable checks in `tests/test_agentic_guidance.py`.
-
-## Model Context Protocol (MCP) Server
-
-Matrix Scroll includes an optional Model Context Protocol (MCP) server that exposes commit-time provenance, trust auditing, and configuration tools directly to AI agents and IDEs (such as Cursor, VS Code, and Claude Desktop).
-
-### Installation
-
-Install the package with the optional `[mcp]` dependencies:
-```bash
-pip install "matrixscroll[mcp]"
-```
-
-### Running the Server
-
-Start the MCP server over standard input/output (stdio):
-```bash
-python -m matrixscroll.mcp
-```
-
-### Exposed Tools
-
-The server registers 10 Model Context Protocol tools:
-
-1. **`analyze_workspace(workspace: str)`**: Scans a local workspace directory and returns its project profile (languages, frameworks, notable SDKs).
-2. **`brainstorm_workspace(workspace: str, goal: str)`**: Generates file-grounded development ideas and next-steps for the workspace.
-3. **`recommend_ecosystem(workspace: str, goal: str)`**: Recommends appropriate MCP servers, skills, repositories, and APIs.
-4. **`build_usecase_blueprint(workspace: str, goal: str)`**: Synthesizes a structured build, integration, and foundation blueprint.
-5. **`scan_research_radar(workspace: str, goal: str)`**: Surfaces relevant papers, preprints, and models.
-6. **`scan_market_radar(workspace: str, goal: str)`**: Surfaces launch signals and developer-discussion references.
-7. **`benchmark_openhuman(workspace: str)`**: Evaluates project-first safety and telemetry stance.
-8. **`audit_trust_surface(workspace: str, target: str)`**: Audits naming consistency, naming drifts, and active proof links.
-9. **`scaffold_editor_integration(workspace: str, editor: str, write: bool)`**: Previews or writes the workspace configuration (`.cursor/mcp.json` or `.vscode/mcp.json`).
-10. **`plan_matrixscroll_rollout(workspace: str, audience: str, goal: str)`**: Packages a rollout guide with proof assets and verifier steps.
-
-The default posture is read-only. File writing occurs only when using `scaffold_editor_integration` with `write=True`.
 
 ## License
 

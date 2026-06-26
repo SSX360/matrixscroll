@@ -15,7 +15,6 @@ from .git import (
     _repository_info,
     _run_git,
     envelope_path,
-    matrixscroll_dir,
     repo_root,
 )
 from .manifest import verify_manifest
@@ -27,7 +26,6 @@ from .policy import (
 
 DEFAULT_NOTES_REF = "refs/notes/matrixscroll"
 BUNDLE_INDEX = "index.json"
-AGENTIC_EVIDENCE_SCHEMA = "matrixscroll.agentic_ai_evidence.v1"
 
 
 @dataclass

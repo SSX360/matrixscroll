@@ -1,5 +1,8 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "matrixscroll-mcp",
+  "displayName": "Matrix Scroll MCP",
+  "description": "Cryptographic self-attestation and range verification for agent-assisted Git commits.",
   "maintainers": [
     "SSX360"
   ]

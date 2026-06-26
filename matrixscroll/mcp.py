@@ -7,242 +7,177 @@ package_dir = Path(__file__).resolve().parent
 if str(package_dir) not in sys.path:
     sys.path.append(str(package_dir))
 
-"""Optional Matrix Scroll MCP server powered by Digital Rain.
-
-Exposes the local intelligence engine (``digital_rain_core``) as Model Context
-Protocol tools over stdio so agents and editors such as Cursor and Claude
-Desktop can call it directly. The default posture is read-only: tools scan,
-rank, explain, audit, and preview without mutating the repo. The only
-write-capable surface is explicit editor-config scaffolding, and it only writes
-when ``write=True`` is passed. Network enrichment stays opt-in per call
-(``live`` defaults to ``False``) to preserve the offline-first guarantee.
-
-Install the optional dependency with ``pip install .[mcp]`` and run with
-``python mcp_server.py`` or point your editor's MCP config at that command.
-"""
-
-
+import os
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from . import mcp_core as core
+from . import git as _git
+from . import gate as _gate
+from ._core import status as _status
 
 mcp = FastMCP("matrixscroll-mcp")
 
 
 @mcp.tool()
-def analyze_workspace(workspace: str) -> dict[str, Any]:
-    """Scan a local workspace directory and return its project profile.
-
-    This tool is read-only and performs an offline scan of the target directory to detect
-    programming languages, active frameworks, dependencies, and project structure signals.
-    It does not modify any files.
-
-    Parameters:
-        workspace (str): The absolute path to the local directory to be analyzed.
-
-    Returns:
-        dict[str, Any]: A dictionary containing detected languages, frameworks, notable SDKs,
-        package managers, manifest files, and a high-level summary string of the project profile.
-    """
-    return core.analyze_workspace(workspace)
-
-
-@mcp.tool()
-def brainstorm_workspace(workspace: str, goal: str = "", limit: int = 6) -> dict[str, Any]:
-    """Generate local, file-grounded next-action brainstorm recommendations for a workspace.
-
-    This tool is read-only and uses local project files, rules, and notes to suggest developer
-    next steps. It is designed to be run offline.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        goal (str, optional): A specific engineering or product goal to align recommendations with. Defaults to "".
-        limit (int, optional): The maximum number of recommendations to return. Defaults to 6.
-
-    Returns:
-        dict[str, Any]: A dictionary containing project summary, suggestions (each with title,
-        prompt, category, and tag), and execution status flags.
-    """
-    return core.brainstorm_workspace(workspace, goal=goal, limit=limit)
-
-
-@mcp.tool()
-def recommend_ecosystem(
-    workspace: str, goal: str = "", limit: int = 9, live: bool = False
-) -> dict[str, Any]:
-    """Recommend compatible MCP servers, skills, repositories, and APIs for a project.
-
-    This tool recommends external ecosystem integrations matching the project profile.
-    It has no side effects.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        goal (str, optional): The target engineering goal or capability needed. Defaults to "".
-        limit (int, optional): The maximum number of recommendations to return. Defaults to 9.
-        live (bool, optional): If True, query public ecosystem indexes for real-time recommendations.
-                               If False (default), uses pre-cached local resources to run entirely offline.
-
-    Returns:
-        dict[str, Any]: A dictionary containing recommended repositories, MCP servers, and hosted API integrations.
-    """
-    return core.recommend_ecosystem(workspace, goal=goal, limit=limit, live=live)
-
-
-@mcp.tool()
-def build_usecase_blueprint(
-    workspace: str, goal: str = "", limit: int = 8, live: bool = False
-) -> dict[str, Any]:
-    """Synthesize a 3-layer architecture blueprint (BUILD/INTEGRATE/FOUNDATION) for a goal.
-
-    This tool is read-only and structures ecosystem findings into an actionable design plan
-    specifying what should be custom-built vs. integrated.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        goal (str, optional): The target development or architectural goal. Defaults to "".
-        limit (int, optional): The maximum number of items to rank and recommend. Defaults to 8.
-        live (bool, optional): If True, performs live network lookups for ecosystem tools.
-                               If False (default), runs completely offline.
-
-    Returns:
-        dict[str, Any]: A dictionary detailing the 3-layer architectural canvas, confidence scores,
-        patterns to borrow, and next steps.
-    """
-    return core.build_usecase_blueprint(workspace, goal=goal, limit=limit, live=live)
-
-
-@mcp.tool()
-def scan_research_radar(
-    workspace: str, goal: str = "", limit: int = 4, live: bool = False
-) -> dict[str, Any]:
-    """Surface academic papers, models, and AI releases relevant to the workspace.
-
-    This tool is read-only and assists with literature mapping and model selection for agent tasks.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        goal (str, optional): The research topic or machine learning goal. Defaults to "".
-        limit (int, optional): The maximum number of papers or models to return. Defaults to 4.
-        live (bool, optional): If True, queries arXiv and Hugging Face API live.
-                               If False (default), uses local cached results.
-
-    Returns:
-        dict[str, Any]: A dictionary listing relevant papers, machine learning models, and source metadata.
-    """
-    return core.scan_research_radar(workspace, goal=goal, limit=limit, live=live)
-
-
-@mcp.tool()
-def scan_market_radar(
-    workspace: str, goal: str = "", limit: int = 8, live: bool = False
-) -> dict[str, Any]:
-    """Surface launch directories and developer discussions matching a project goal.
-
-    This tool is read-only and helps identify user objections, maker positioning, and market feedback.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        goal (str, optional): The product, feature category, or topic to search. Defaults to "".
-        limit (int, optional): The maximum number of market signals to return. Defaults to 8.
-        live (bool, optional): If True, queries Hacker News, DevHunt, and Uneed APIs live.
-                               If False (default), runs completely offline.
-
-    Returns:
-        dict[str, Any]: A dictionary listing developer attention items, categories, and tags.
-    """
-    return core.scan_market_radar(workspace, goal=goal, limit=limit, live=live)
-
-
-@mcp.tool()
-def benchmark_openhuman(workspace: str) -> dict[str, Any]:
-    """Compare the project's posture and tools against the OpenHuman framework.
-
-    This tool is read-only and returns a product-level comparison to help define local features.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace.
-
-    Returns:
-        dict[str, Any]: A dictionary detailing integration metrics, architectural alignments,
-        and next-step suggestions.
-    """
-    return core.benchmark_openhuman(workspace)
-
-
-@mcp.tool()
-def audit_trust_surface(workspace: str, target: str = "auto") -> dict[str, Any]:
-    """Audit the project for missing proof links, legacy names, and trust gaps.
-
-    This tool is read-only and analyzes public-facing metadata and documentation files
-    (such as README, docs, verify, index.html) to locate credentials and references.
-
-    Parameters:
-        workspace (str): The absolute path to the local project workspace to audit.
-        target (str, optional): The target trust profile. Must be one of:
-                                - "public-site": A public webpage surface.
-                                - "mcp-server": An MCP server code surface.
-                                - "trust-repo": A public repository layout.
-                                - "repo": A standard repository layout.
-                                - "auto" (default): Auto-detects target based on available files.
-
-    Returns:
-        dict[str, Any]: A dictionary containing a summary of detected proof links, stale naming issues,
-        gaps in trust coverage, and recommended fixes.
-    """
-    return core.audit_trust_surface(workspace, target=target)
-
-
-@mcp.tool()
-def scaffold_editor_integration(
+def create_envelope(
     workspace: str,
-    editor: str,
-    write: bool = False,
+    actor: str = "agent",
+    tool: str = "matrixscroll-mcp",
+    scope: str = "",
+    message: str = "",
 ) -> dict[str, Any]:
-    """Preview or write editor configurations to integrate the Matrix Scroll MCP server.
+    """Build, sign, and save a cryptographic commit envelope for staged changes or an existing commit in the workspace.
 
-    This tool is write-capable. By default, it runs in preview-only mode returning a unified diff.
-    It will only write the configuration to disk if the `write` parameter is explicitly set to True.
+    This generates an Ed25519-signed commit envelope containing actor, tool, and optional scope details.
 
     Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        editor (str): The target editor/host name. Supported values: "cursor", "vscode", "claude".
-        write (bool, optional): If True, writes the updated configuration directly to the project's
-                                editor settings directory. If False (default), returns a diff preview only.
-
-    Returns:
-        dict[str, Any]: A dictionary containing the target configuration path, config payload,
-        unified diff preview, and write success status.
+        workspace (str): The absolute path to the local git repository workspace.
+        actor (str, optional): The actor signing the commit. Defaults to "agent".
+        tool (str, optional): The tool name creating the commit. Defaults to "matrixscroll-mcp".
+        scope (str, optional): Optional context/scope identifier (e.g. prompt or issue key). Defaults to "".
+        message (str, optional): Commit message override. Defaults to "".
     """
-    return core.scaffold_editor_integration(workspace, editor=editor, write=write)
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Not a directory: {workspace}")
+
+    # Temporarily inject environment variables for the builder
+    old_actor = os.environ.get("MATRIXSCROLL_ACTOR_TYPE")
+    old_tool = os.environ.get("MATRIXSCROLL_TOOL")
+    old_scope = os.environ.get("MATRIXSCROLL_AGENT_SCOPE")
+
+    os.environ["MATRIXSCROLL_ACTOR_TYPE"] = actor
+    os.environ["MATRIXSCROLL_TOOL"] = tool
+    if scope:
+        os.environ["MATRIXSCROLL_AGENT_SCOPE"] = scope
+    elif "MATRIXSCROLL_AGENT_SCOPE" in os.environ:
+        del os.environ["MATRIXSCROLL_AGENT_SCOPE"]
+
+    try:
+        envelope = _git.build_commit_envelope(message=message or None, root=root)
+        signed = _git.sign_commit_envelope(envelope)
+        saved_path = _git.save_envelope(signed, root)
+        return {
+            "ok": True,
+            "path": str(saved_path),
+            "envelope": signed,
+        }
+    finally:
+        # Restore environment variables
+        if old_actor is not None:
+            os.environ["MATRIXSCROLL_ACTOR_TYPE"] = old_actor
+        elif "MATRIXSCROLL_ACTOR_TYPE" in os.environ:
+            del os.environ["MATRIXSCROLL_ACTOR_TYPE"]
+
+        if old_tool is not None:
+            os.environ["MATRIXSCROLL_TOOL"] = old_tool
+        elif "MATRIXSCROLL_TOOL" in os.environ:
+            del os.environ["MATRIXSCROLL_TOOL"]
+
+        if old_scope is not None:
+            os.environ["MATRIXSCROLL_AGENT_SCOPE"] = old_scope
+        elif "MATRIXSCROLL_AGENT_SCOPE" in os.environ:
+            del os.environ["MATRIXSCROLL_AGENT_SCOPE"]
 
 
 @mcp.tool()
-def plan_matrixscroll_rollout(
-    workspace: str,
-    audience: str,
-    goal: str = "",
-) -> dict[str, Any]:
-    """Generate a structured, target-ready rollout plan for the Matrix Scroll protocol.
+def verify_envelope(workspace: str, sha: str) -> dict[str, Any]:
+    """Verify the cryptographic signature and integrity of a signed commit envelope for a specific commit SHA.
 
-    This tool is read-only and outputs a target-specific playbook, objection-handling map,
-    and compare hooks to make the security story clear to stakeholders.
+    Validates that the envelope is cryptographically sound and matches the commit hash in the git repository.
 
     Parameters:
-        workspace (str): The absolute path to the local project workspace.
-        audience (str): The target stakeholder persona. Must be one of:
-                        - "founder": Product-focused value and fast-proof setups.
-                        - "security": Trust limits, sandboxing, and policy enforcement.
-                        - "devrel": Copyable config blocks and developer rollout assets.
-                        - "team": Rollout phases, workspace onboarding, and team config review.
-        goal (str, optional): The specific engineering or adoption goal. Defaults to "".
-
-    Returns:
-        dict[str, Any]: A dictionary containing target-specific one-liners, steps, proof assets,
-        common objections with responses, and comparison hooks.
+        workspace (str): The absolute path to the local git repository workspace.
+        sha (str): The 40-character commit hash to verify.
     """
-    return core.plan_matrixscroll_rollout(workspace, audience=audience, goal=goal)
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Not a directory: {workspace}")
+
+    envelope = _gate._load_envelope_for_sha(sha, source="local", root=root)
+    if envelope is None:
+        return {
+            "ok": False,
+            "sha": sha,
+            "error": f"missing envelope for sha: {sha}",
+        }
+
+    res = _gate.verify_commit_envelope_for_sha(envelope, sha, root=root)
+    return res.to_dict()
+
+
+@mcp.tool()
+def verify_pr_range(workspace: str, base: str, head: str, source: str = "local") -> dict[str, Any]:
+    """Verify every commit envelope in a given PR or commit range (base..head).
+
+    Ensures all commits in the range have valid envelopes matching policies.
+
+    Parameters:
+        workspace (str): The absolute path to the local git repository workspace.
+        base (str): The base commit or ref (e.g. "main", "origin/main").
+        head (str): The head commit or ref (e.g. "HEAD", branch name).
+        source (str, optional): Envelope source. Must be "local" (default), "notes", or "bundle".
+    """
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Not a directory: {workspace}")
+
+    if source not in ("local", "notes", "bundle"):
+        raise ValueError(f"Invalid source: {source}. Must be local, notes, or bundle.")
+
+    summary = _gate.verify_envelope_range(base, head, source=source, root=root)
+    return summary
+
+
+@mcp.tool()
+def envelope_publish_notes(workspace: str, base: str, head: str) -> dict[str, Any]:
+    """Publish local signed commit envelopes to git notes (refs/notes/matrixscroll) for a commit range.
+
+    Makes local signed envelopes available for transport and range verification.
+
+    Parameters:
+        workspace (str): The absolute path to the local git repository workspace.
+        base (str): The base commit or ref of the range.
+        head (str): The head commit or ref of the range.
+    """
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Not a directory: {workspace}")
+
+    return _gate.publish_envelopes_to_notes(base, head, root=root)
+
+
+@mcp.tool()
+def status(workspace: str = "") -> dict[str, Any]:
+    """Retrieve the active cryptographic identity provider status, device ID, public key, and mode.
+
+    Returns configuration and status details of the signing backend.
+
+    Parameters:
+        workspace (str, optional): The absolute path to the local git repository workspace. Defaults to "".
+    """
+    return _status()
+
+
+@mcp.tool()
+def audit_export(workspace: str, base: str, head: str, output: str) -> dict[str, Any]:
+    """Export local commit envelopes for a given range in the workspace into a deterministic bundle directory.
+
+    Collects and packages envelopes in the base..head range into a directory for audit verification.
+
+    Parameters:
+        workspace (str): The absolute path to the local git repository workspace.
+        base (str): The base commit or ref of the range.
+        head (str): The head commit or ref of the range.
+        output (str): The absolute path to the output bundle directory.
+    """
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Not a directory: {workspace}")
+
+    out_path = Path(output).expanduser().resolve()
+    return _gate.export_envelope_bundle(base, head, out_path, root=root)
 
 
 def main() -> None:
