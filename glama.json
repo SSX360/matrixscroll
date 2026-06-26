@@ -1,6 +1,9 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": [
-    "SSX360"
-  ]
+  "name": "matrixscroll-mcp",
+  "description": "Provenance-only MCP server: create_envelope, verify_envelope, verify_pr_range, publish_notes, status, audit_export.",
+  "maintainers": ["SSX360"],
+  "homepage": "https://matrixscroll.com",
+  "repository": "https://github.com/SSX360/matrixscroll",
+  "documentation": "https://github.com/SSX360/matrixscroll/blob/main/docs/HERO_DEMO.md"
 }

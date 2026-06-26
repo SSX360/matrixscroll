@@ -30,6 +30,11 @@ Track outbound and registry traction while rolling out:
 | PyPI `[mcp]` extra | [![PyPI MCP downloads](https://img.shields.io/pypi/dm/matrixscroll?label=mcp%20extra)](https://pypi.org/project/matrixscroll/) |
 | GitHub stars | [![GitHub stars](https://img.shields.io/github/stars/SSX360/matrixscroll?style=social)](https://github.com/SSX360/matrixscroll/stargazers) |
 | Scroll Gate Action | [![GitHub Action](https://img.shields.io/github/stars/SSX360/matrixscroll-verify-action?style=social)](https://github.com/SSX360/matrixscroll-verify-action) |
+| Glama MCP registry | [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll) |
+
+## Hero demo (post–MCP merge)
+
+Record the 60–90s provenance flow in [`docs/HERO_DEMO.md`](docs/HERO_DEMO.md) — Scroll Gate + browser verifier + MCP verbs only.
 
 ## Install — MCP server (headline path)
 
