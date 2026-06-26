@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "dbb8c8240ccfa7bf12242804a43d0daf8a209393",
+    "author": {
+      "date": "1782514845 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782514845 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "docs: adoption signal counters in README\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "6647f8d5b20fc74cc300318e2afbbc51cee51268"
+    ],
+    "tree": "ad3433d5587a6287675baa21c8f0085d5ab74959"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-26T23:00:45Z",
+    "value": "NBvvxkBEL38DhI41qZHOHQ75+sjavkezhR0v97oS4jXPgUDQ3OIE1D1zLOZlGv/bJNwbhqqVKO17yvTE7VtuAA=="
+  }
+}
