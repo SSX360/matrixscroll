@@ -254,6 +254,41 @@ example bounded-agent evidence manifest at
 [`examples/agentic_ai_evidence_manifest.json`](examples/agentic_ai_evidence_manifest.json),
 and executable checks in `tests/test_agentic_guidance.py`.
 
+## Model Context Protocol (MCP) Server
+
+Matrix Scroll includes an optional Model Context Protocol (MCP) server that exposes commit-time provenance, trust auditing, and configuration tools directly to AI agents and IDEs (such as Cursor, VS Code, and Claude Desktop).
+
+### Installation
+
+Install the package with the optional `[mcp]` dependencies:
+```bash
+pip install "matrixscroll[mcp]"
+```
+
+### Running the Server
+
+Start the MCP server over standard input/output (stdio):
+```bash
+python -m matrixscroll.mcp
+```
+
+### Exposed Tools
+
+The server registers 10 Model Context Protocol tools:
+
+1. **`analyze_workspace(workspace: str)`**: Scans a local workspace directory and returns its project profile (languages, frameworks, notable SDKs).
+2. **`brainstorm_workspace(workspace: str, goal: str)`**: Generates file-grounded development ideas and next-steps for the workspace.
+3. **`recommend_ecosystem(workspace: str, goal: str)`**: Recommends appropriate MCP servers, skills, repositories, and APIs.
+4. **`build_usecase_blueprint(workspace: str, goal: str)`**: Synthesizes a structured build, integration, and foundation blueprint.
+5. **`scan_research_radar(workspace: str, goal: str)`**: Surfaces relevant papers, preprints, and models.
+6. **`scan_market_radar(workspace: str, goal: str)`**: Surfaces launch signals and developer-discussion references.
+7. **`benchmark_openhuman(workspace: str)`**: Evaluates project-first safety and telemetry stance.
+8. **`audit_trust_surface(workspace: str, target: str)`**: Audits naming consistency, naming drifts, and active proof links.
+9. **`scaffold_editor_integration(workspace: str, editor: str, write: bool)`**: Previews or writes the workspace configuration (`.cursor/mcp.json` or `.vscode/mcp.json`).
+10. **`plan_matrixscroll_rollout(workspace: str, audience: str, goal: str)`**: Packages a rollout guide with proof assets and verifier steps.
+
+The default posture is read-only. File writing occurs only when using `scaffold_editor_integration` with `write=True`.
+
 ## License
 
 - Code: **Apache-2.0** (`LICENSE`).

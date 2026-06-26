@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy the codebase
 COPY . /app
 
-# Install the package locally
-RUN uv pip install --system .
+# Install the package locally with MCP extra dependencies
+RUN uv pip install --system .[mcp]
 
 # Command to launch the Matrix Scroll MCP stdio server
 ENTRYPOINT ["python", "-m", "matrixscroll.mcp"]

@@ -53,6 +53,13 @@ git = []
 hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.7"]
 tpm = []
+mcp = [
+    "mcp>=1.0.0,<2.0.0",
+    "flask>=3.0",
+    "requests>=2.31",
+    "anthropic>=0.40",
+    "google-genai>=0.3",
+]
 
 [project.scripts]
 matrixscroll = "matrixscroll.cli:main"
