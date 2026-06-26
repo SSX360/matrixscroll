@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-import scanner
-import immersive_web
+from . import scanner
+from . import immersive_web
 
 
 def _top(items: list[dict[str, Any]], n: int = 3) -> list[dict[str, Any]]:

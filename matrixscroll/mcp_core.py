@@ -9,14 +9,14 @@ from pathlib import Path
 import sys
 from typing import Any
 
-import brainstorm as bs
-import benchmark
-import market_radar
-import oss_insight
-import research_radar
-import scanner
-import usecase_synthesizer
-import workspace_config as wc
+from . import brainstorm as bs
+from . import benchmark
+from . import market_radar
+from . import oss_insight
+from . import research_radar
+from . import scanner
+from . import usecase_synthesizer
+from . import workspace_config as wc
 
 LEGACY_MCP_LABELS: dict[str, str] = {
     "cursor-copilot": "Legacy editor config label still appears.",
@@ -280,7 +280,7 @@ def _editor_config_payload(workspace: Path, editor: str) -> dict[str, Any]:
     server_entry = {
         "type": "stdio",
         "command": _mcp_python_command(server_root),
-        "args": [str(server_root / "mcp_server.py")],
+        "args": [str(server_root / "mcp.py")],
         "env": _editor_env(workspace, editor),
     }
     return {

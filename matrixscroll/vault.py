@@ -12,10 +12,10 @@ from pathlib import Path
 import time
 from typing import List, Dict, Any
 
-import search as S
+from . import search as S
 
 try:
-    import workspace_config as wc
+    from . import workspace_config as wc
 except ImportError:
     wc = None  # type: ignore
 

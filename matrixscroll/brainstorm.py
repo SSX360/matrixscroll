@@ -9,10 +9,10 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-import scanner
-import vault
-import workspace_config as wc
-import llm
+from . import scanner
+from . import vault
+from . import workspace_config as wc
+from . import llm
 
 _JOB_TTL_SECONDS = 600
 _jobs: dict[str, dict[str, Any]] = {}
