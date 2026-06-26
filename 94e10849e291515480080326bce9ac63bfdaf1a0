@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "94e10849e291515480080326bce9ac63bfdaf1a0",
+    "author": {
+      "date": "1782512930 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782512930 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "test: deliberately unsigned commit for Scroll Gate enforce proof\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "caedce0947e091ec5ede069201c272ba5e02627e"
+    ],
+    "tree": "ba0d16550a82a66bac07d8a569ea7bca3086d258"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-26T22:28:50Z",
+    "value": "1wqZYoJnNHAraNQgjEaceSfqcoEMYB9dnYmUJQpOLVyce9dq03Qci64FfKM0mga34fAKy3LHPNZrCYTlPm7qDA=="
+  }
+}
