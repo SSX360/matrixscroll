@@ -1,0 +1,96 @@
+name: provenance-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  scroll-gate:
+    name: Scroll Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Matrix Scroll
+        run: pip install "matrixscroll==0.2.6"
+
+      - name: Resolve gate mode
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "mode=warn" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ vars.ENFORCE_PROVENANCE }}" = "true" ]; then
+            echo "mode=enforce" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=warn" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect envelope notes
+        id: notes
+        run: |
+          set -euo pipefail
+          git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll || true
+          if git show-ref --verify --quiet refs/notes/matrixscroll; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Warn mode summary (always green)
+        if: steps.gate.outputs.mode == 'warn'
+        run: |
+          {
+            echo "## Matrix Scroll provenance gate"
+            echo ""
+            echo "**Mode:** warn — checks are advisory; merge/deploy not blocked"
+            echo "**Notes ref:** ${{ steps.notes.outputs.present == 'true' && 'present' || 'missing' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify PR range (warn mode, non-blocking)
+        if: steps.gate.outputs.mode == 'warn' && github.event_name == 'pull_request' && steps.notes.outputs.present == 'true'
+        continue-on-error: true
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          head-ref: ${{ github.event.pull_request.head.sha }}
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          source: notes
+          notes-ref: refs/notes/matrixscroll
+          fetch-notes: "false"
+          matrixscroll-version: "0.2.6"
+          summary-output: provenance-summary.json
+
+      - name: Enforce — require envelope notes ref
+        if: steps.gate.outputs.mode == 'enforce' && steps.notes.outputs.present != 'true'
+        run: |
+          echo "Envelope notes ref refs/notes/matrixscroll not found." >&2
+          exit 1
+
+      - name: Enforce — verify main commit range
+        if: steps.gate.outputs.mode == 'enforce'
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          head-ref: ${{ github.sha }}
+          base-ref: ${{ github.event.before }}
+          source: notes
+          notes-ref: refs/notes/matrixscroll
+          fetch-notes: "false"
+          matrixscroll-version: "0.2.6"
+          summary-output: provenance-summary.json
+
+      - name: Upload provenance summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-summary
+          path: provenance-summary.json
+          if-no-files-found: ignore
