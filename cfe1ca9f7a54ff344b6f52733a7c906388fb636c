@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "cfe1ca9f7a54ff344b6f52733a7c906388fb636c",
+    "author": {
+      "date": "1782515040 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782515040 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "docs: hero demo link, Glama registry metadata, adoption counters\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "dbb8c8240ccfa7bf12242804a43d0daf8a209393"
+    ],
+    "tree": "3694b0c0131214b021aaafe511b1e5732ed18259"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-26T23:04:01Z",
+    "value": "xpVpsVWeiuGNPVEt/xPhzLBbecQTE1fLvBiEFd5QIQyUBn7JTaqODQaFcBH3JS7ALS3FjMMUfzW1FQSZm4TxCA=="
+  }
+}
