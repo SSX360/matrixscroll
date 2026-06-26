@@ -1,7 +1,66 @@
 # Matrix Scroll
 
-**Matrix Scroll is signed commit-time provenance for agent-assisted Git,
-verified offline, with hardware as an optional preview trust upgrade.**
+**Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
+open Ed25519 commit-provenance protocol for agent-assisted Git — verified
+offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
+upgrade; emulated mode ships today.
+
+**Hosted control plane:** identity, billing, and device activation live at
+[ssx360.com](https://ssx360.com/). Digital Rain is the local funnel; Matrix
+Scroll is the spear.
+
+## Compliance evidence mapping
+
+Matrix Scroll **maps to** and **produces evidence for** (never “required by”):
+
+- **Five Eyes · Agentic AI (Apr 2026)** — cryptographic attestation that agents
+  run expected, unmodified code.
+- **EU AI Act · high-risk traceability** — verifiable commit-time audit artifacts.
+- **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
+
+Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+
+## Install — MCP server (headline path)
+
+Agents sign commits in-loop via the **provenance-only** MCP server:
+
+```json
+{
+  "mcpServers": {
+    "matrixscroll-mcp": {
+      "command": "matrixscroll-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+```bash
+pip install "matrixscroll[mcp]==0.2.6"
+matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
+```
+
+**MCP tools (provenance verbs only):** `create_envelope`, `verify_envelope`,
+`verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`.
+
+Workspace intelligence (analyze, brainstorm, radar) lives in
+[Digital Rain](https://ssx360.com/) — not in this MCP server.
+
+## Also available — CLI & hooks
+
+```bash
+pip install "matrixscroll==0.2.6"
+matrixscroll hook-install
+export MATRIXSCROLL_ACTOR_TYPE=agent
+export MATRIXSCROLL_TOOL=agent-runner
+git commit -m "feat: agent-assisted change"
+matrixscroll envelope-verify "$(git rev-parse HEAD)"
+```
+
+See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
+[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+
+---
 
 This repository is the canonical SDK, verifier contract, fixture set, and
 release surface for the product.
@@ -65,7 +124,7 @@ Install the SDK and hooks in your repo, publish commit envelopes to
 GitHub Actions. Protected branches can then require Matrix Scroll proof
 alongside your existing scanners, branch protection, and build attestations.
 
-## Quickstart
+## Quickstart (CLI)
 
 ```bash
 pip install "matrixscroll==0.2.6"

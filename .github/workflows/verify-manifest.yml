@@ -47,6 +47,7 @@ jobs:
       - run: pytest tests/test_gate.py tests/test_policy.py -v
 
   verify-pr-envelopes:
+    name: Scroll Gate
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     needs: scroll-gate-smoke
