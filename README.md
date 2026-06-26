@@ -20,6 +20,17 @@ Matrix Scroll **maps to** and **produces evidence for** (never “required by”
 
 Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
+## Adoption signals
+
+Track outbound and registry traction while rolling out:
+
+| Signal | Counter |
+|--------|---------|
+| PyPI `matrixscroll` | [![PyPI downloads](https://img.shields.io/pypi/dm/matrixscroll)](https://pypi.org/project/matrixscroll/) |
+| PyPI `[mcp]` extra | [![PyPI MCP downloads](https://img.shields.io/pypi/dm/matrixscroll?label=mcp%20extra)](https://pypi.org/project/matrixscroll/) |
+| GitHub stars | [![GitHub stars](https://img.shields.io/github/stars/SSX360/matrixscroll?style=social)](https://github.com/SSX360/matrixscroll/stargazers) |
+| Scroll Gate Action | [![GitHub Action](https://img.shields.io/github/stars/SSX360/matrixscroll-verify-action?style=social)](https://github.com/SSX360/matrixscroll-verify-action) |
+
 ## Install — MCP server (headline path)
 
 Agents sign commits in-loop via the **provenance-only** MCP server:
