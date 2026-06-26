@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "6647f8d5b20fc74cc300318e2afbbc51cee51268",
+    "author": {
+      "date": "1782512973 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782512973 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "revert: remove unsigned gate test artifact\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "94e10849e291515480080326bce9ac63bfdaf1a0"
+    ],
+    "tree": "fb54f8ec2d0d3c4922a9d3f130cac692756157f3"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-26T22:29:33Z",
+    "value": "DUPkmvC7zNw2ibPfXDUJkys/X859uauHzvCOjulq4KEz04punzX6Lx8/vLJ1fqTV8wg5FCgBQjZ8VkM/AZ3jCA=="
+  }
+}
