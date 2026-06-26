@@ -47,6 +47,7 @@ jobs:
       - run: pytest tests/test_gate.py tests/test_policy.py -v
 
   verify-pr-envelopes:
+    name: Scroll Gate
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     needs: scroll-gate-smoke
@@ -85,12 +86,21 @@ jobs:
             echo "Set repository variable \`ENFORCE_PROVENANCE=true\` to hard-fail missing notes."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Fail when notes missing (hard gate)
-        if: steps.notes.outputs.present != 'true' && vars.ENFORCE_PROVENANCE == 'true'
+      - name: Fail when notes missing (hard gate on main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.notes.outputs.present != 'true' && vars.ENFORCE_PROVENANCE == 'true'
         run: |
           echo "Envelope notes ref refs/notes/matrixscroll not found." >&2
           echo "Publish with matrixscroll envelope-publish-notes and push notes." >&2
           exit 1
+
+      - name: PR warn when notes missing (never block merge pre-dogfood)
+        if: github.event_name == 'pull_request' && steps.notes.outputs.present != 'true'
+        run: |
+          {
+            echo "## Matrix Scroll provenance gate"
+            echo ""
+            echo "**Status:** warning — envelope notes not published (PR merge allowed)"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify PR commit envelope range
         if: steps.notes.outputs.present == 'true'

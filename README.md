@@ -1,7 +1,66 @@
 # Matrix Scroll
 
-**Matrix Scroll is signed commit-time provenance for agent-assisted Git,
-verified offline, with hardware as an optional preview trust upgrade.**
+**Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
+open Ed25519 commit-provenance protocol for agent-assisted Git — verified
+offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
+upgrade; emulated mode ships today.
+
+**Hosted control plane:** identity, billing, and device activation live at
+[ssx360.com](https://ssx360.com/). Digital Rain is the local funnel; Matrix
+Scroll is the spear.
+
+## Compliance evidence mapping
+
+Matrix Scroll **maps to** and **produces evidence for** (never “required by”):
+
+- **Five Eyes · Agentic AI (Apr 2026)** — cryptographic attestation that agents
+  run expected, unmodified code.
+- **EU AI Act · high-risk traceability** — verifiable commit-time audit artifacts.
+- **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
+
+Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+
+## Install — MCP server (headline path)
+
+Agents sign commits in-loop via the **provenance-only** MCP server:
+
+```json
+{
+  "mcpServers": {
+    "matrixscroll-mcp": {
+      "command": "matrixscroll-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+```bash
+pip install "matrixscroll[mcp]==0.2.6"
+matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
+```
+
+**MCP tools (provenance verbs only):** `create_envelope`, `verify_envelope`,
+`verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`.
+
+Workspace intelligence (analyze, brainstorm, radar) lives in
+[Digital Rain](https://ssx360.com/) — not in this MCP server.
+
+## Also available — CLI & hooks
+
+```bash
+pip install "matrixscroll==0.2.6"
+matrixscroll hook-install
+export MATRIXSCROLL_ACTOR_TYPE=agent
+export MATRIXSCROLL_TOOL=agent-runner
+git commit -m "feat: agent-assisted change"
+matrixscroll envelope-verify "$(git rev-parse HEAD)"
+```
+
+See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
+[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+
+---
 
 This repository is the canonical SDK, verifier contract, fixture set, and
 release surface for the product.
@@ -65,7 +124,7 @@ Install the SDK and hooks in your repo, publish commit envelopes to
 GitHub Actions. Protected branches can then require Matrix Scroll proof
 alongside your existing scanners, branch protection, and build attestations.
 
-## Quickstart
+## Quickstart (CLI)
 
 ```bash
 pip install "matrixscroll==0.2.6"
@@ -256,38 +315,20 @@ and executable checks in `tests/test_agentic_guidance.py`.
 
 ## Model Context Protocol (MCP) Server
 
-Matrix Scroll includes an optional Model Context Protocol (MCP) server that exposes commit-time provenance, trust auditing, and configuration tools directly to AI agents and IDEs (such as Cursor, VS Code, and Claude Desktop).
+The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_envelope`,
+`verify_pr_range`, `publish_notes`, `status`, and `audit_export`. Workspace intelligence
+and repo scanning live in
+[Digital Rain](https://ssx360.com/) — not in this MCP server.
 
-### Installation
+Install and register in Cursor / Claude Desktop / VS Code:
 
-Install the package with the optional `[mcp]` dependencies:
 ```bash
-pip install "matrixscroll[mcp]"
+pip install "matrixscroll[mcp]==0.2.6"
+matrixscroll-mcp   # stdio
 ```
 
-### Running the Server
-
-Start the MCP server over standard input/output (stdio):
-```bash
-python -m matrixscroll.mcp
-```
-
-### Exposed Tools
-
-The server registers 10 Model Context Protocol tools:
-
-1. **`analyze_workspace(workspace: str)`**: Scans a local workspace directory and returns its project profile (languages, frameworks, notable SDKs).
-2. **`brainstorm_workspace(workspace: str, goal: str)`**: Generates file-grounded development ideas and next-steps for the workspace.
-3. **`recommend_ecosystem(workspace: str, goal: str)`**: Recommends appropriate MCP servers, skills, repositories, and APIs.
-4. **`build_usecase_blueprint(workspace: str, goal: str)`**: Synthesizes a structured build, integration, and foundation blueprint.
-5. **`scan_research_radar(workspace: str, goal: str)`**: Surfaces relevant papers, preprints, and models.
-6. **`scan_market_radar(workspace: str, goal: str)`**: Surfaces launch signals and developer-discussion references.
-7. **`benchmark_openhuman(workspace: str)`**: Evaluates project-first safety and telemetry stance.
-8. **`audit_trust_surface(workspace: str, target: str)`**: Audits naming consistency, naming drifts, and active proof links.
-9. **`scaffold_editor_integration(workspace: str, editor: str, write: bool)`**: Previews or writes the workspace configuration (`.cursor/mcp.json` or `.vscode/mcp.json`).
-10. **`plan_matrixscroll_rollout(workspace: str, audience: str, goal: str)`**: Packages a rollout guide with proof assets and verifier steps.
-
-The default posture is read-only. File writing occurs only when using `scaffold_editor_integration` with `write=True`.
+See the [Install — MCP server](#install--mcp-server-headline-path) section above for
+the recommended `mcp.json` snippet.
 
 ## License
 
@@ -298,3 +339,8 @@ The default posture is read-only. File writing occurs only when using `scaffold_
 
 See [`SECURITY.md`](SECURITY.md). Report vulnerabilities privately to
 **security@matrixscroll.com** or via a GitHub Security Advisory.
+
+---
+
+**Protocol:** https://matrixscroll.com · **Verify:** https://matrixscroll.com/verify/  
+**Control plane:** https://ssx360.com · **Pilot:** sales@ssx360.com
