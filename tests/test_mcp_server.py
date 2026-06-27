@@ -8,7 +8,7 @@ from matrixscroll.mcp import (
     create_envelope,
     verify_envelope,
     verify_pr_range,
-    envelope_publish_notes,
+    publish_notes,
     status,
     audit_export
 )
@@ -38,9 +38,9 @@ class MCPServerTests(unittest.TestCase):
 
     def test_status(self):
         res = status(str(self.workspace))
-        self.assertEqual(res.get("available"), True)
-        self.assertEqual(res.get("mode"), "emulated")
-        self.assertIn("device_id", res)
+        self.assertEqual(res.get("ok"), True)
+        self.assertEqual(res["config"].get("actor_type"), "human")
+        self.assertIn("envelope_count", res)
 
     def test_create_envelope_and_verify(self):
         # Create a signed scope manifest first
@@ -57,10 +57,10 @@ class MCPServerTests(unittest.TestCase):
         # Create envelope (pre-commit, staged state)
         res = create_envelope(
             workspace=str(self.workspace),
-            actor="agent",
+            actor_type="agent",
             tool="test-runner",
-            scope="agent-scope.json",
-            message="feat: agent updated text"
+            agent_scope="agent-scope.json",
+            commit_sha=""
         )
         self.assertEqual(res["ok"], True)
         self.assertIn("path", res)
@@ -87,17 +87,17 @@ class MCPServerTests(unittest.TestCase):
         save_envelope(signed, self.workspace)
 
         # Verify envelope using verify_envelope tool
-        verify_res = verify_envelope(workspace=str(self.workspace), sha=second_sha)
+        verify_res = verify_envelope(workspace=str(self.workspace), commit_sha=second_sha)
         self.assertEqual(verify_res.get("ok"), True)
         self.assertEqual(verify_res.get("actor_type"), "agent")
 
         # Verify PR range (first_sha..second_sha)
-        range_res = verify_pr_range(workspace=str(self.workspace), base=self.first_sha, head=second_sha)
+        range_res = verify_pr_range(workspace=str(self.workspace), base=self.first_sha, head=second_sha, source="local")
         self.assertEqual(range_res["ok"], True)
         self.assertEqual(range_res["verified_count"], 1)
 
         # Publish notes
-        publish_res = envelope_publish_notes(workspace=str(self.workspace), base=self.first_sha, head=second_sha)
+        publish_res = publish_notes(workspace=str(self.workspace), base=self.first_sha, head=second_sha)
         self.assertEqual(publish_res["ok"], True)
         self.assertEqual(publish_res["published"], 1)
 
@@ -107,8 +107,8 @@ class MCPServerTests(unittest.TestCase):
             workspace=str(self.workspace),
             base=self.first_sha,
             head=second_sha,
-            output=str(export_dir)
+            output_dir=str(export_dir)
         )
         self.assertEqual(export_res["ok"], True)
-        self.assertEqual(export_res["exported"], 1)
+        self.assertEqual(export_res["bundle"]["exported"], 1)
         self.assertTrue((export_dir / f"{second_sha}.json").is_file())
