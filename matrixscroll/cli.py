@@ -20,6 +20,8 @@ from pathlib import Path
 
 from ._core import sign_manifest, status, verify_manifest
 from .policy import VerifyPolicy, verify_manifest_with_policy
+from ._claim import cmd_claim, cmd_identity, resolve_identity
+from ._payment import sign_payment
 
 try:
     from . import git as _git
@@ -78,12 +80,15 @@ def _cmd_verify(args: argparse.Namespace) -> int:
             print(json.dumps({"ok": False, "error": "cryptographic verification failed"}))
             return 2
     block = manifest.get("signature") or {}
-    print(json.dumps({
+    res = {
         "ok": True,
         "device_id": block.get("device_id"),
         "mode": block.get("mode"),
         "signed_at": block.get("signed_at"),
-    }, sort_keys=True))
+    }
+    if getattr(args, "identity", False):
+        res["identity"] = resolve_identity(block)
+    print(json.dumps(res, sort_keys=True))
     return 0
 
 
@@ -148,12 +153,15 @@ def _cmd_envelope_verify(args: argparse.Namespace) -> int:
             print(json.dumps({"ok": False, "error": "cryptographic verification failed"}))
             return 2
     block = envelope.get("signature") or {}
-    print(json.dumps({
+    res = {
         "ok": True,
         "device_id": block.get("device_id"),
         "mode": block.get("mode"),
         "signed_at": block.get("signed_at"),
-    }, sort_keys=True))
+    }
+    if getattr(args, "identity", False):
+        res["identity"] = resolve_identity(block)
+    print(json.dumps(res, sort_keys=True))
     return 0
 
 
@@ -302,6 +310,24 @@ def _add_policy_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _cmd_sign_payment(args: argparse.Namespace) -> int:
+    try:
+        signed = sign_payment(
+            tx_id=args.tx,
+            amount=args.amount,
+            currency=args.currency,
+            merchant=args.merchant,
+            payment_type=args.method,
+            identifier_hash=args.hash,
+            key_path=args.key_path or None
+        )
+        print(json.dumps(signed, indent=2, sort_keys=True))
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -313,6 +339,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify_p = sub.add_parser("verify", help="Verify a signed manifest JSON file")
     verify_p.add_argument("manifest", help="Path to a signed manifest produced by sign_manifest")
+    verify_p.add_argument("--identity", action="store_true", help="Resolve the signer's identity certificate and include it in output")
     _add_policy_args(verify_p)
 
     sign_p = sub.add_parser("sign", help="Sign a manifest JSON file with the active provider")
@@ -331,6 +358,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     env_verify = sub.add_parser("envelope-verify", help="Verify a commit envelope by path or commit sha")
     env_verify.add_argument("target", help="Envelope file path or 40-char commit sha")
+    env_verify.add_argument("--identity", action="store_true", help="Resolve the signer's identity certificate and include it in output")
     _add_policy_args(env_verify)
     env_verify.set_defaults(command="envelope-verify")
 
@@ -409,6 +437,23 @@ def build_parser() -> argparse.ArgumentParser:
     rekor_pub.add_argument("--rekor-url", default="", help="Rekor server URL override")
     rekor_pub.set_defaults(command="envelope-publish-rekor")
 
+    claim_p = sub.add_parser("claim", help="Enroll this key and bind it to a verified identity")
+    claim_p.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically")
+    claim_p.set_defaults(command="claim")
+
+    identity_p = sub.add_parser("identity", help="Check local verified-identity status")
+    identity_p.set_defaults(command="identity")
+
+    pay_p = sub.add_parser("sign-payment", help="Sign a payment transaction attestation")
+    pay_p.add_argument("--tx", required=True, help="Transaction ID (starts with tx_)")
+    pay_p.add_argument("--amount", type=float, required=True, help="Transaction amount")
+    pay_p.add_argument("--currency", required=True, help="Currency code (e.g. USD, BTC)")
+    pay_p.add_argument("--merchant", required=True, help="Merchant name")
+    pay_p.add_argument("--method", choices=["virtual_card", "crypto_wallet", "bank_account"], required=True, help="Payment method type")
+    pay_p.add_argument("--hash", required=True, help="SHA-256 hash of card token or wallet address")
+    pay_p.add_argument("--key-path", help="Alternative signing key path")
+    pay_p.set_defaults(command="sign-payment")
+
     return parser
 
 
@@ -431,6 +476,9 @@ def main(argv: list[str] | None = None) -> int:
         "envelope-verify-range": _cmd_envelope_verify_range,
         "envelope-export-guac": _cmd_envelope_export_guac,
         "envelope-publish-rekor": _cmd_envelope_publish_rekor,
+        "claim": cmd_claim,
+        "identity": cmd_identity,
+        "sign-payment": _cmd_sign_payment,
     }
     handler = handlers.get(args.command)
     if handler is None:
