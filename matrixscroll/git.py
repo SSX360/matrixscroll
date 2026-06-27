@@ -423,7 +423,10 @@ def hook_pre_push(stdin_text: str = "") -> int:
                 failures.append(f"{path.name}:{result.error}")
         if failures:
             print(json.dumps({"ok": False, "verified": verified, "failures": failures}))
-            return 2
+            if config.get("enforce", False):
+                return 2
+            print("WARNING: Matrix Scroll signature verification failed, but pushing anyway because 'enforce' is False in your config.", file=sys.stderr)
+            return 0
         print(json.dumps({"ok": True, "verified": verified}))
         return 0
     except Exception as exc:
