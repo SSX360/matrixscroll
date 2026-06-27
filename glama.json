@@ -1,9 +1,22 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
+  "version": "0.2.6",
   "description": "Provenance-only MCP server: create_envelope, verify_envelope, verify_pr_range, publish_notes, status, audit_export.",
   "maintainers": ["SSX360"],
   "homepage": "https://matrixscroll.com",
   "repository": "https://github.com/SSX360/matrixscroll",
-  "documentation": "https://github.com/SSX360/matrixscroll/blob/main/docs/HERO_DEMO.md"
+  "documentation": "https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-mcp.md",
+  "transport": {
+    "type": "stdio"
+  },
+  "packages": [
+    {
+      "registry": "pypi",
+      "name": "matrixscroll",
+      "version": "0.2.6",
+      "extras": ["mcp"],
+      "command": "matrixscroll-mcp"
+    }
+  ]
 }
