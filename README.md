@@ -1,81 +1,85 @@
 # Matrix Scroll
 
-**Matrix Scroll is signed commit-time provenance for agent-assisted Git,
-verified offline, with hardware as an optional preview trust upgrade.**
+**Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
+open Ed25519 commit-provenance protocol for agent-assisted Git — verified
+offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
+upgrade; emulated mode ships today.
 
-> [!IMPORTANT]
-> **Compliance Mapping:** Matrix Scroll commit envelopes map directly to secure software supply chain and agentic AI traceability standards, including the **Five Eyes Joint Guidance on deploying AI systems (Apr 30)**, **EU AI Act Article 50 transparency requirements (Aug 2)**, and the **NIST SSDF (Secure Software Development Framework)**.
+**Hosted control plane:** identity, billing, and device activation live at
+[ssx360.com](https://ssx360.com/). Digital Rain is the local funnel; Matrix
+Scroll is the spear.
+
+## Compliance evidence mapping
+
+Matrix Scroll **maps to** and **produces evidence for** (never “required by”):
+
+- **Five Eyes · Agentic AI (Apr 2026)** — cryptographic attestation that agents
+  run expected, unmodified code.
+- **EU AI Act · high-risk traceability** — verifiable commit-time audit artifacts.
+- **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
+
+Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+
+## Adoption signals
+
+Track outbound and registry traction while rolling out:
+
+| Signal | Counter |
+|--------|---------|
+| PyPI `matrixscroll` | [![PyPI downloads](https://img.shields.io/pypi/dm/matrixscroll)](https://pypi.org/project/matrixscroll/) |
+| PyPI `[mcp]` extra | [![PyPI MCP downloads](https://img.shields.io/pypi/dm/matrixscroll?label=mcp%20extra)](https://pypi.org/project/matrixscroll/) |
+| GitHub stars | [![GitHub stars](https://img.shields.io/github/stars/SSX360/matrixscroll?style=social)](https://github.com/SSX360/matrixscroll/stargazers) |
+| Scroll Gate Action | [![GitHub Action](https://img.shields.io/github/stars/SSX360/matrixscroll-verify-action?style=social)](https://github.com/SSX360/matrixscroll-verify-action) |
+| Glama MCP registry | [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll) |
+
+## Hero demo (post–MCP merge)
+
+Record the 60–90s provenance flow in [`docs/HERO_DEMO.md`](docs/HERO_DEMO.md) — Scroll Gate + browser verifier + MCP verbs only.
+
+## Install — MCP server (headline path)
+
+Agents sign commits in-loop via the **provenance-only** MCP server:
+
+```json
+{
+  "mcpServers": {
+    "matrixscroll-mcp": {
+      "command": "matrixscroll-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+```bash
+pip install "matrixscroll[mcp]==0.2.6"
+matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
+```
+
+**MCP tools (provenance verbs only):** `create_envelope`, `verify_envelope`,
+`verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`.
+
+Workspace intelligence (analyze, brainstorm, radar) lives in
+[Digital Rain](https://ssx360.com/) — not in this MCP server.
+
+## Also available — CLI & hooks
+
+```bash
+pip install "matrixscroll==0.2.6"
+matrixscroll hook-install
+export MATRIXSCROLL_ACTOR_TYPE=agent
+export MATRIXSCROLL_TOOL=agent-runner
+git commit -m "feat: agent-assisted change"
+matrixscroll envelope-verify "$(git rev-parse HEAD)"
+```
+
+See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
+[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+
+---
 
 This repository is the canonical SDK, verifier contract, fixture set, and
 release surface for the product.
-
----
-
-## 🎬 Hero Demo: Agent Self-Attestation Loop
-
-Watch an AI agent attest its own commits in-loop inside Claude Code or Cursor:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Agent as AI Agent (Claude Code/Cursor)
-    participant MCP as Matrix Scroll MCP
-    participant Git as Git Repo
-    participant Gate as Scroll Gate (CI/CD)
-    participant Verifier as Browser / Offline Verifier
-
-    Agent->>Agent: Writes/modifies expected code
-    Agent->>MCP: Call create_envelope(actor="agent", tool, scope)
-    MCP-->>Agent: Returns signed envelope (Ed25519)
-    Agent->>Git: Commit code and envelope
-    Gate->>Git: verify_pr_range(base, head)
-    Gate-->>Gate: Validates Ed25519 signature
-    Verifier->>Verifier: Reviewer confirms offline (No API key / no upload)
-```
-
-1. **Agent writes code** -> Modifies files in the workspace.
-2. **Calls the Matrix Scroll MCP tool** -> Generates and signs a commit envelope with Ed25519 (`actor=agent`).
-3. **Commit is created** -> Git saves the changes and the attestation envelope.
-4. **Scroll Gate verifies the PR range** -> Ensures every commit in the PR is attested.
-5. **Browser verifier confirms offline** -> Proof is audited client-side without external dependencies.
-
-Run the self-attestation loop locally:
-```bash
-./examples/demo/hero-self-attestation-demo.sh
-```
-
----
-
-## Model Context Protocol (MCP) Server (Headline Install)
-
-Matrix Scroll includes an optional Model Context Protocol (MCP) server that enables AI agents to sign their own commits in-loop. When Cursor or Claude Code performs an engineering task, they can attest their changes directly through the MCP server.
-
-### Installation
-
-Install the package with the optional `[mcp]` dependencies:
-```bash
-pip install "matrixscroll[mcp]"
-```
-
-### Running the Server
-
-Start the MCP server over standard input/output (stdio):
-```bash
-python -m matrixscroll.mcp
-```
-
-### Exposed Tools
-
-The server registers 6 Model Context Protocol tools focused strictly on agent self-attestation and range verification:
-
-1. **`create_envelope(workspace: str, actor: str, tool: str, scope: str, message: str)`**: Builds, signs, and saves a commit envelope for staged changes or an existing commit using Ed25519.
-2. **`verify_envelope(workspace: str, sha: str)`**: Cryptographically verifies a signed commit envelope's signature and integrity for a SHA.
-3. **`verify_pr_range(workspace: str, base: str, head: str, source: str)`**: Verifies every commit in a given range (e.g., base..head) against validation policies.
-4. **`envelope_publish_notes(workspace: str, base: str, head: str)`**: Publishes local commit envelopes to Git notes (`refs/notes/matrixscroll`) for transport.
-5. **`status(workspace: str)`**: Retrieves status and details (public key, device ID, mode) of the active identity provider.
-6. **`audit_export(workspace: str, base: str, head: str, output: str)`**: Exports a range of commit envelopes into a deterministic bundle directory for audit logs.
-
----
 
 Matrix Scroll is a cryptographic evidence layer for Git. When an agent, CI
 workflow, or human operator produces a commit, a signed commit envelope can
@@ -136,7 +140,7 @@ Install the SDK and hooks in your repo, publish commit envelopes to
 GitHub Actions. Protected branches can then require Matrix Scroll proof
 alongside your existing scanners, branch protection, and build attestations.
 
-## Alternative Setup: Raw CLI & Git Hooks
+## Quickstart (CLI)
 
 ```bash
 pip install "matrixscroll==0.2.6"
@@ -325,6 +329,23 @@ example bounded-agent evidence manifest at
 [`examples/agentic_ai_evidence_manifest.json`](examples/agentic_ai_evidence_manifest.json),
 and executable checks in `tests/test_agentic_guidance.py`.
 
+## Model Context Protocol (MCP) Server
+
+The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_envelope`,
+`verify_pr_range`, `publish_notes`, `status`, and `audit_export`. Workspace intelligence
+and repo scanning live in
+[Digital Rain](https://ssx360.com/) — not in this MCP server.
+
+Install and register in Cursor / Claude Desktop / VS Code:
+
+```bash
+pip install "matrixscroll[mcp]==0.2.6"
+matrixscroll-mcp   # stdio
+```
+
+See the [Install — MCP server](#install--mcp-server-headline-path) section above for
+the recommended `mcp.json` snippet.
+
 ## License
 
 - Code: **Apache-2.0** (`LICENSE`).
@@ -334,3 +355,8 @@ and executable checks in `tests/test_agentic_guidance.py`.
 
 See [`SECURITY.md`](SECURITY.md). Report vulnerabilities privately to
 **security@matrixscroll.com** or via a GitHub Security Advisory.
+
+---
+
+**Protocol:** https://matrixscroll.com · **Verify:** https://matrixscroll.com/verify/  
+**Control plane:** https://ssx360.com · **Pilot:** sales@ssx360.com

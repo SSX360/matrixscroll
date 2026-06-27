@@ -2,8 +2,22 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
+  "version": "0.3.0",
   "description": "Cryptographic self-attestation and range verification for agent-assisted Git commits.",
-  "maintainers": [
-    "SSX360"
+  "maintainers": ["SSX360"],
+  "homepage": "https://matrixscroll.com",
+  "repository": "https://github.com/SSX360/matrixscroll",
+  "documentation": "https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-mcp.md",
+  "transport": {
+    "type": "stdio"
+  },
+  "packages": [
+    {
+      "registry": "pypi",
+      "name": "matrixscroll",
+      "version": "0.3.0",
+      "extras": ["mcp"],
+      "command": "matrixscroll-mcp"
+    }
   ]
 }
