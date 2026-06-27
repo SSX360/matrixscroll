@@ -7,7 +7,9 @@ upgrade; emulated mode ships today.
 
 **Hosted control plane:** identity, billing, and device activation live at
 [ssx360.com](https://ssx360.com/). Digital Rain is the local funnel; Matrix
-Scroll is the spear.
+Scroll is the spear. Teams evaluating protected-branch enforcement should
+[book a provenance pilot](mailto:mission@ssx360.com?subject=Provenance%20Pilot%20Inquiry);
+Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
 
 ## Compliance evidence mapping
 
@@ -359,4 +361,4 @@ See [`SECURITY.md`](SECURITY.md). Report vulnerabilities privately to
 ---
 
 **Protocol:** https://matrixscroll.com · **Verify:** https://matrixscroll.com/verify/  
-**Control plane:** https://ssx360.com · **Pilot:** sales@ssx360.com
+**Control plane:** https://ssx360.com · **Pilot:** mission@ssx360.com · **Sign in:** https://ssx360.com/signup
