@@ -10,8 +10,8 @@ def test_public_metadata_uses_stable_device_url():
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert '"Reference Device" = "https://matrixscroll.com/device"' in pyproject
-    assert "[SSX360](https://matrixscroll.com/device)" in readme
+    assert '"Reference Device" = "https://matrixscroll.com/hardware/"' in pyproject
+    assert "[AP2 Vault Card hardware](https://matrixscroll.com/hardware/)" in readme
 
 
 def test_sdk_public_docs_do_not_link_vercel_preview_urls():

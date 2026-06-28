@@ -51,8 +51,8 @@ dev = [
 ]
 git = []
 hardware = ["pyserial>=3.5"]
-yubikey = ["python-pkcs11>=0.7"]
-tpm = []
+yubikey = ["python-pkcs11>=0.7"]  # experimental preview; mock path in tests
+tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
     "mcp>=1.0.0,<2.0.0",
 ]
@@ -77,7 +77,7 @@ Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "PyPI Provenance" = "https://pypi.org/project/matrixscroll/"
 Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
 "Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
-"Reference Device" = "https://matrixscroll.com/device"
+"Reference Device" = "https://matrixscroll.com/hardware/"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]
