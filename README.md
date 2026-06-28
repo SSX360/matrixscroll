@@ -5,9 +5,8 @@ open Ed25519 commit-provenance protocol for agent-assisted Git — verified
 offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
 upgrade; emulated mode ships today.
 
-**Hosted control plane:** identity, billing, and device activation live at
-[ssx360.com](https://ssx360.com/). Digital Rain is the local funnel; Matrix
-Scroll is the spear. Teams evaluating protected-branch enforcement should
+**Hosted control plane:** identity, billing, and device confirmation live at
+[ssx360.com](https://ssx360.com/). Teams evaluating protected-branch enforcement should
 [book a provenance pilot](mailto:mission@ssx360.com?subject=Provenance%20Pilot%20Inquiry);
 Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
 
@@ -60,9 +59,6 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 
 **MCP tools (provenance verbs only):** `create_envelope`, `verify_envelope`,
 `verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`.
-
-Workspace intelligence (analyze, brainstorm, radar) lives in
-[Digital Rain](https://ssx360.com/) — not in this MCP server.
 
 ## Also available — CLI & hooks
 
@@ -334,9 +330,7 @@ and executable checks in `tests/test_agentic_guidance.py`.
 ## Model Context Protocol (MCP) Server
 
 The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_envelope`,
-`verify_pr_range`, `publish_notes`, `status`, and `audit_export`. Workspace intelligence
-and repo scanning live in
-[Digital Rain](https://ssx360.com/) — not in this MCP server.
+`verify_pr_range`, `publish_notes`, `status`, and `audit_export`.
 
 Install and register in Cursor / Claude Desktop / VS Code:
 

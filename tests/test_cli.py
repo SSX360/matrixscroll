@@ -68,7 +68,7 @@ class VerifyCommandTests(_RunMixin, unittest.TestCase):
 
     def test_verify_passes_for_signed_manifest(self):
         with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
-            path = self._signed_path(Path(tmp), {"product": "Digital Rain", "release": "test"})
+            path = self._signed_path(Path(tmp), {"product": "Matrix Scroll", "release": "test"})
             rc, out = self._run(["verify", str(path)])
             self.assertEqual(rc, 0)
             self.assertTrue(json.loads(out)["ok"])
@@ -76,7 +76,7 @@ class VerifyCommandTests(_RunMixin, unittest.TestCase):
     def test_verify_fails_for_tampered_manifest(self):
         with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
             _reset_provider_cache()
-            signed = matrixscroll.sign_manifest({"product": "Digital Rain"}, get_provider())
+            signed = matrixscroll.sign_manifest({"product": "Matrix Scroll"}, get_provider())
             signed["product"] = "Tampered"
             path = Path(tmp) / "manifest.json"
             path.write_text(json.dumps(signed), encoding="utf-8")

@@ -6,8 +6,7 @@ Install: ``pip install "matrixscroll[mcp]"``
 Run: ``python -m matrixscroll.mcp``
 
 Tools cover commit envelope production, Scroll Gate verification, notes
-transport, and audit export. Workspace intelligence (analyze, brainstorm,
-radar) lives in Digital Rain — not here.
+transport, and audit export.
 """
 
 from typing import Any, Literal
