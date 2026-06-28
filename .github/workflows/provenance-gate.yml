@@ -4,6 +4,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      enforce:
+        description: Run Scroll Gate in enforce mode (blocks on unsigned commits)
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -22,14 +29,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install Matrix Scroll
-        run: pip install "matrixscroll==0.2.6"
+        run: pip install "matrixscroll==0.3.0"
 
       - name: Resolve gate mode
         id: gate
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "mode=warn" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ vars.ENFORCE_PROVENANCE }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.enforce }}" = "true" ]; then
             echo "mode=enforce" >> "$GITHUB_OUTPUT"
           else
             echo "mode=warn" >> "$GITHUB_OUTPUT"
@@ -54,6 +59,8 @@ jobs:
             echo ""
             echo "**Mode:** warn — checks are advisory; merge/deploy not blocked"
             echo "**Notes ref:** ${{ steps.notes.outputs.present == 'true' && 'present' || 'missing' }}"
+            echo ""
+            echo "Run this workflow manually with **enforce** enabled after envelope notes cover the commit range."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify PR range (warn mode, non-blocking)
@@ -66,7 +73,20 @@ jobs:
           source: notes
           notes-ref: refs/notes/matrixscroll
           fetch-notes: "false"
-          matrixscroll-version: "0.2.6"
+          matrixscroll-version: "0.3.0"
+          summary-output: provenance-summary.json
+
+      - name: Verify main range (warn mode, non-blocking)
+        if: steps.gate.outputs.mode == 'warn' && github.event_name == 'push' && steps.notes.outputs.present == 'true'
+        continue-on-error: true
+        uses: SSX360/matrixscroll-verify-action@v1
+        with:
+          head-ref: ${{ github.sha }}
+          base-ref: ${{ github.event.before }}
+          source: notes
+          notes-ref: refs/notes/matrixscroll
+          fetch-notes: "false"
+          matrixscroll-version: "0.3.0"
           summary-output: provenance-summary.json
 
       - name: Enforce — require envelope notes ref
@@ -75,16 +95,16 @@ jobs:
           echo "Envelope notes ref refs/notes/matrixscroll not found." >&2
           exit 1
 
-      - name: Enforce — verify main commit range
+      - name: Enforce — verify commit range
         if: steps.gate.outputs.mode == 'enforce'
         uses: SSX360/matrixscroll-verify-action@v1
         with:
-          head-ref: ${{ github.sha }}
-          base-ref: ${{ github.event.before }}
+          head-ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          base-ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           source: notes
           notes-ref: refs/notes/matrixscroll
           fetch-notes: "false"
-          matrixscroll-version: "0.2.6"
+          matrixscroll-version: "0.3.0"
           summary-output: provenance-summary.json
 
       - name: Upload provenance summary

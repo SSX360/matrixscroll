@@ -7,7 +7,7 @@ upgrade; emulated mode ships today.
 
 **Hosted control plane:** identity, billing, and device confirmation live at
 [ssx360.com](https://ssx360.com/). Teams evaluating protected-branch enforcement should
-[book a provenance pilot](mailto:mission@ssx360.com?subject=Provenance%20Pilot%20Inquiry);
+[book a provenance pilot](https://ssx360.com/contact?intent=pilot);
 Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
 
 ## Compliance evidence mapping
@@ -20,22 +20,6 @@ Matrix Scroll **maps to** and **produces evidence for** (never “required by”
 - **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
 
 Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
-
-## Adoption signals
-
-Track outbound and registry traction while rolling out:
-
-| Signal | Counter |
-|--------|---------|
-| PyPI `matrixscroll` | [![PyPI downloads](https://img.shields.io/pypi/dm/matrixscroll)](https://pypi.org/project/matrixscroll/) |
-| PyPI `[mcp]` extra | [![PyPI MCP downloads](https://img.shields.io/pypi/dm/matrixscroll?label=mcp%20extra)](https://pypi.org/project/matrixscroll/) |
-| GitHub stars | [![GitHub stars](https://img.shields.io/github/stars/SSX360/matrixscroll?style=social)](https://github.com/SSX360/matrixscroll/stargazers) |
-| Scroll Gate Action | [![GitHub Action](https://img.shields.io/github/stars/SSX360/matrixscroll-verify-action?style=social)](https://github.com/SSX360/matrixscroll-verify-action) |
-| Glama MCP registry | [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll) |
-
-## Hero demo (post–MCP merge)
-
-Record the 60–90s provenance flow in [`docs/HERO_DEMO.md`](docs/HERO_DEMO.md) — Scroll Gate + browser verifier + MCP verbs only.
 
 ## Install — MCP server (headline path)
 
@@ -100,7 +84,7 @@ preview path until device acceptance is complete.
   `matrixscroll envelope-verify`, Scroll Gate PR verification, browser
   verifier, the GitHub Action, and a USB CDC host transport preview for the
   SE050 rollout path. Emulated mode is the default evaluation path.
-- In progress: RP2350 + SE050 firmware validation, external Ed25519-capable
+- In progress: nRF52840 + SE050 firmware validation (AP2 Vault Card PoC), external Ed25519-capable
   hardware key backends, and transparency-log integrations.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
 
@@ -220,7 +204,7 @@ when they preserve the same pure Ed25519 byte contract.
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com>
-- Reference device path: [SSX360](https://matrixscroll.com/device)
+- Reference device path: [AP2 Vault Card hardware](https://matrixscroll.com/hardware/)
 
 ## Python API
 
