@@ -3,7 +3,7 @@ matrixscroll claim / identity / verify --identity
 Drop into the package as matrixscroll/_claim.py and wire the subcommands into the
 existing argparse CLI. Ship as 0.3.0. Hard invariant: the private seed NEVER
 leaves the machine — enroll proves key control by signing a server nonce locally.
-Depends only on the public 0.2.6 surface: status(), sign_manifest(), verify_manifest().
+Depends only on the public 0.3.0 surface: status(), sign_manifest(), verify_manifest().
 """
 from __future__ import annotations
 import json, os, time, webbrowser, urllib.request, urllib.error

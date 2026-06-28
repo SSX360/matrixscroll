@@ -8,13 +8,13 @@ what ships now before widening the story.
 ## Baseline on June 21, 2026
 
 - GitHub: early public repo, product-first docs, and offline verification
-- Current public release target: `matrixscroll==0.2.6`
+- Current public release target: `matrixscroll==0.3.0`
 - Public trust contract: pure Ed25519 over canonical manifest bytes
 - Hardware path: SSX360 SE050 reference implementation in progress
 
 ## Next 7 days
 
-- cut and publish `0.2.6` without widening the manifest or verify surface
+- cut and publish `0.3.0` without widening the manifest or verify surface
 - make the GitHub Action a real public proof surface
 - align site, README, action docs, and PyPI around one install flow
 - remove broken links and stale release drift from public copy
