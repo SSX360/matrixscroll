@@ -1,6 +1,6 @@
 # Rekor / GUAC envelope bridge (design)
 
-> Status: MVP shipped in v0.2.6 (`envelope-export-guac`, `envelope-publish-rekor` dry-run).
+> Status: MVP shipped in v0.3.0 (`envelope-export-guac`, `envelope-publish-rekor` dry-run).
 
 ## Goal
 
