@@ -38,11 +38,11 @@ def cmd_claim(args) -> int:
     # prove key control by signing the nonce LOCALLY (no seed leaves)
     signed_nonce = matrixscroll.sign_manifest({"challenge_id": cid, "nonce": nonce})
 
-    print(f"\nOpen this URL to sign in and start your $24.99/mo subscription:\n  {login_url}\n")
+    print(f"\nOpen this URL to sign in to your provisioned SSX360 account:\n  {login_url}\n")
     if not args.no_browser:
         try: webbrowser.open(login_url)
         except Exception: pass
-    input("Press Enter here AFTER you complete checkout in the browser... ")
+    input("Press Enter here AFTER you complete sign-in in the browser... ")
 
     for _ in range(6):  # poll while the Stripe webhook lands
         out = _post("/api/enroll/complete", {"challenge_id": cid, "signed_nonce": signed_nonce})
