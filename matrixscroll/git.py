@@ -85,10 +85,10 @@ def _git_date(timestamp: int | None = None) -> str:
     return f"{ts} {sign}{hours:02d}{minutes:02d}"
 
 
-def _git_identity() -> dict[str, str]:
+def _git_identity(root: Path | None = None) -> dict[str, str]:
     return {
-        "name": _run_git("config", "user.name"),
-        "email": _run_git("config", "user.email"),
+        "name": _run_git("config", "user.name", cwd=root),
+        "email": _run_git("config", "user.email", cwd=root),
         "date": _git_date(),
     }
 
@@ -234,7 +234,7 @@ def build_commit_envelope(
                 parents = [head]
         except RuntimeError:
             pass
-        author = _git_identity()
+        author = _git_identity(root)
         committer = dict(author)
         msg = message
         if msg is None:

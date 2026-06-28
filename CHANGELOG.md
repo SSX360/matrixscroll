@@ -4,6 +4,19 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-28
+
+Digital Rain removal and provenance-only SDK surface.
+
+### Removed
+- **Workspace intelligence modules** — deleted unused Digital Rain-era helpers
+  (`benchmark`, `brainstorm`, `scanner`, `vault`, radar modules, and related tests).
+
+### Changed
+- **Public copy** — removed Digital Rain funnel language from README, MCP docs,
+  and hero demo script; SSX360 remains the hosted control plane reference.
+- **Version pins** — bumped public quickstart and product docs to `0.3.0`.
+
 ## [0.2.6] - 2026-06-21
 
 SDK rollout hardening: generic public attribution, SE050 host transport preview,
