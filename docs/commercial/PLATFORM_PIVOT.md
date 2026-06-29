@@ -8,7 +8,7 @@ Matrix Scroll remains the **open protocol and thin client** (PyPI + MCP). SSX360
 |-----|-----|
 | matrixscroll.com (catch-all) | ssx360.com/docs |
 | matrixscroll.com/verify | ssx360.com/verify |
-| matrixscroll.com/hardware | ssx360.com/cards |
+| matrixscroll.com/hardware | ssx360.com/hardware |
 | PyPI Homepage | ssx360.com |
 
 ## Product split

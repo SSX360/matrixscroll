@@ -76,6 +76,7 @@ Discussions = "https://github.com/SSX360/matrixscroll/discussions"
 Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "GitHub Action" = "https://github.com/SSX360/matrixscroll-verify-action"
 "PyPI Provenance" = "https://pypi.org/project/matrixscroll/"
+"Reference Device" = "https://ssx360.com/hardware"
 Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
 "Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
 
