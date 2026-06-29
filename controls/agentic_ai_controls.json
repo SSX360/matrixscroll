@@ -78,7 +78,7 @@
       "title": "Supply-chain and dependency management",
       "guidance": "Understand third-party components, models, tools, integrations, and update exposure.",
       "matrixscroll_control": "The repo uses minimal runtime dependencies, Dependabot, CI build verification, and a public spec/conformance suite.",
-      "evidence_paths": ["pyproject.toml", ".github/dependabot.yml", ".github/workflows/test.yml", "vectors/README.md"],
+      "evidence_paths": ["pyproject.toml", ".github/dependabot.yml", ".github/workflows/ci-unit.yml", "vectors/README.md"],
       "goes_beyond": "Third-party implementations can self-test against public vectors before being trusted."
     },
     {
@@ -94,7 +94,7 @@
       "title": "Governance and change control",
       "guidance": "Integrate agentic AI risk with existing security governance and define ownership before deployment.",
       "matrixscroll_control": "Spec, core crypto, vectors, security policy, and CI are CODEOWNERS-protected and tested across OS/Python versions.",
-      "evidence_paths": [".github/CODEOWNERS", ".github/workflows/test.yml", "CONTRIBUTING.md"],
+      "evidence_paths": [".github/CODEOWNERS", ".github/workflows/ci-unit.yml", ".github/workflows/ci-integration.yml", "CONTRIBUTING.md"],
       "goes_beyond": "Protocol-impacting changes require both human review and machine conformance checks."
     },
     {

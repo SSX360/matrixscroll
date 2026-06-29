@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -81,11 +82,37 @@ def verify_range(
     )
 
 
-def list_envelopes(*, limit: int = 50) -> dict[str, Any]:
+def list_envelopes(
+    *,
+    limit: int = 50,
+    offset: int = 0,
+    signer_filter: str = "",
+) -> dict[str, Any]:
     """List stored envelopes for the authenticated organization."""
-    return _request("GET", f"/api/v1/envelopes?limit={limit}")
+    params = [f"limit={limit}", f"offset={offset}"]
+    if signer_filter.strip():
+        params.append(f"signer_filter={urllib.parse.quote(signer_filter.strip())}")
+    query = "&".join(params)
+    return _request("GET", f"/api/v1/envelopes?{query}")
 
 
-def audit_export(*, format: str = "json") -> dict[str, Any]:
+def audit_export(
+    *,
+    format: str = "json",
+    start_date: str = "",
+    end_date: str = "",
+    signer_id: str = "",
+    include_verification: bool = True,
+) -> dict[str, Any]:
     """Export audit bundle from the hosted platform (Team+)."""
-    return _request("GET", f"/api/v1/audit/export?format={format}")
+    params = [f"format={urllib.parse.quote(format)}"]
+    if start_date.strip():
+        params.append(f"start_date={urllib.parse.quote(start_date.strip())}")
+    if end_date.strip():
+        params.append(f"end_date={urllib.parse.quote(end_date.strip())}")
+    if signer_id.strip():
+        params.append(f"signer_id={urllib.parse.quote(signer_id.strip())}")
+    if include_verification:
+        params.append("include_verification=true")
+    query = "&".join(params)
+    return _request("GET", f"/api/v1/audit/export?{query}")

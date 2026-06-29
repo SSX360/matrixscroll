@@ -1,6 +1,10 @@
 # Matrix Scroll
 
+[![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
 [![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
+[![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
+
+**112 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md)
 
 **Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
 open Ed25519 commit-provenance protocol for agent-assisted Git — verified
@@ -43,8 +47,9 @@ pip install "matrixscroll[mcp]==0.4.0"
 matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ```
 
-**MCP tools (provenance verbs only):** `create_envelope`, `verify_envelope`,
-`verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`.
+**MCP tools (provenance verbs only):** `create_envelope`, `sign_action`, `verify_envelope`,
+`verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`, `list_envelopes`,
+`connect_card` (SE050 preview).
 
 ## Also available — CLI & hooks
 
@@ -79,6 +84,14 @@ browser, CI, and the SE050 preview path.
 The reference SDK ships pure Ed25519 over canonical manifest bytes today. The
 SSX360 / NXP SE050 path is the compatible next trust layer and remains a
 preview path until device acceptance is complete.
+
+## RFC 8032 (Ed25519) alignment
+
+Matrix Scroll v1 binds exclusively to [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032)
+Ed25519: 32-byte seeds, 32-byte public keys, 64-byte detached signatures over
+canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
+`signature.algorithm` other than `"ed25519"`. Conformance vectors live in
+[`vectors/`](vectors/); property tests in [`docs/SECURITY_PROPERTIES.md`](docs/SECURITY_PROPERTIES.md).
 
 ## Honest limits
 
@@ -335,7 +348,8 @@ the recommended `mcp.json` snippet.
 
 ## Security
 
-See [`SECURITY.md`](SECURITY.md). Report vulnerabilities privately to
+See [`SECURITY.md`](SECURITY.md) and [`docs/SECURITY_PROPERTIES.md`](docs/SECURITY_PROPERTIES.md).
+Report vulnerabilities privately to
 **security@matrixscroll.com** or via a GitHub Security Advisory.
 
 ---

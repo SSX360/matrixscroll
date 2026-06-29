@@ -53,11 +53,13 @@ def _cloud_error(exc: Exception) -> dict[str, Any]:
 mcp = FastMCP(
     "matrixscroll-mcp",
     instructions=(
-        "Matrix Scroll MCP exposes provenance verbs only: create and verify "
-        "Ed25519 commit envelopes, run Scroll Gate over PR ranges, publish git "
-        "notes, and export audit bundles. Prefer ``status`` first in a new repo. "
-        "Verification tools are read-only; ``create_envelope``, ``publish_notes``, "
-        "and ``audit_export`` write local artifacts."
+        "Matrix Scroll MCP exposes provenance verbs for AI agent governance: "
+        "create and verify RFC 8032 Ed25519 commit envelopes, run Scroll Gate "
+        "over PR ranges, publish git notes, export audit bundles, and (preview) "
+        "connect SE050 hardware cards. Prefer ``status`` first in a new repo. "
+        "Verification tools are read-only; ``create_envelope``, ``sign_action``, "
+        "``publish_notes``, and ``audit_export`` write local artifacts. Hosted "
+        "Scroll Gate and org-wide audit export require SSX360_API_KEY."
     ),
 )
 
@@ -143,10 +145,12 @@ def create_envelope(
         ),
     ] = True,
 ) -> dict[str, Any]:
-    """Create a signed commit envelope for the current or specified commit.
+    """Create a signed Git commit envelope with Ed25519 provenance metadata.
 
-    Side effects: may write ``.matrixscroll/envelopes/<sha>.json`` when ``save`` is true.
-    Returns envelope metadata including ``ok``, ``sha``, and envelope fields on success.
+    Records who produced a commit (human, agent, or CI), which tool signed it,
+    and optional bounded agent scope. Use after staging changes and before or
+    after ``git commit``. Side effects: may write ``.matrixscroll/envelopes/<sha>.json``
+    when ``save`` is true. Returns ``{ok, sha, envelope, path}`` on success.
     """
     return core.create_envelope(
         workspace,
@@ -173,6 +177,13 @@ def verify_envelope(
             description="Commit SHA whose local envelope file should be verified offline.",
         ),
     ] = "",
+    envelope: Annotated[
+        str,
+        Field(
+            description="Path to a commit envelope JSON file to verify. Alias for envelope_path; "
+            "use when importing bundles from CI artifacts or audit exports.",
+        ),
+    ] = "",
     envelope_path: Annotated[
         str,
         Field(
@@ -187,12 +198,26 @@ def verify_envelope(
             "Empty skips mode enforcement.",
         ),
     ] = "",
+    trusted_keys: Annotated[
+        str,
+        Field(
+            description="Path to a JSON policy file listing trusted Ed25519 public keys "
+            "(device_id or base64 public keys). Alias for trusted_keys_file.",
+        ),
+    ] = "",
     trusted_keys_file: Annotated[
         str,
         Field(
             description="Path to a JSON policy file listing trusted Ed25519 public keys.",
         ),
     ] = "",
+    check_expiry: Annotated[
+        bool,
+        Field(
+            description="When true, reject envelopes whose signed delegation or agent-scope "
+            "manifest includes an expired ``expires_at`` timestamp (ISO 8601 UTC).",
+        ),
+    ] = False,
     require_actor_types: Annotated[
         list[str] | None,
         Field(
@@ -206,24 +231,44 @@ def verify_envelope(
         ),
     ] = None,
 ) -> dict[str, Any]:
-    """Verify one signed commit envelope offline (read-only).
+    """Verify one signed commit envelope offline against RFC 8032 Ed25519 rules.
 
-    Usage: provide ``commit_sha`` for the default on-disk envelope, or ``envelope_path``
-    for an explicit JSON file. Apply ``require_mode`` and actor policy lists to enforce
-    team trust rules.
+    Read-only: no network or hosted API required. Provide ``commit_sha`` for the
+    default on-disk envelope, or ``envelope`` / ``envelope_path`` for an explicit
+    JSON file from CI or audit export. Apply ``trusted_keys``, ``require_mode``,
+    and actor policy lists to enforce team trust rules. Set ``check_expiry`` to
+    reject stale agent delegations.
 
-    Returns ``{ok: bool, sha: str, ...}`` with verification details; ``ok`` false on
-    signature, policy, or missing-envelope errors. No files are written.
+    Returns ``{ok, sha, actor_type, mode, ...}``; ``ok`` is false on signature,
+    policy, expiry, or missing-envelope errors.
     """
-    return core.verify_envelope(
+    resolved_path = envelope_path or envelope
+    keys_file = trusted_keys_file or trusted_keys
+    result = core.verify_envelope(
         workspace,
         commit_sha=commit_sha,
-        envelope_path=envelope_path,
+        envelope_path=resolved_path,
         require_mode=require_mode,
-        trusted_keys_file=trusted_keys_file,
+        trusted_keys_file=keys_file,
         require_actor_types=require_actor_types,
         deny_actor_types=deny_actor_types,
     )
+    if check_expiry and result.get("ok"):
+        envelope_obj = result.get("envelope") or {}
+        provenance = envelope_obj.get("provenance") or {}
+        expires_at = provenance.get("expires_at")
+        if expires_at:
+            from datetime import datetime, timezone
+
+            try:
+                expiry = datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+                if expiry.tzinfo is None:
+                    expiry = expiry.replace(tzinfo=timezone.utc)
+                if expiry < datetime.now(timezone.utc):
+                    return {**result, "ok": False, "error": "envelope_expired", "expires_at": expires_at}
+            except ValueError:
+                pass
+    return result
 
 
 @mcp.tool()
@@ -336,81 +381,268 @@ def status(workspace: Annotated[
 
 
 @mcp.tool()
+def sign_action(
+    action_type: Annotated[
+        str,
+        Field(
+            description="Provenance action label stored in the signed manifest, e.g. agent_commit, "
+            "release_manifest, delegation_grant, or ci_attestation.",
+        ),
+    ],
+    payload: Annotated[
+        dict[str, Any],
+        Field(
+            description="JSON object to sign. Keys are canonicalized before Ed25519 signing per SPEC.md §4. "
+            "Do not include a top-level signature block.",
+        ),
+    ],
+    key_path: Annotated[
+        str,
+        Field(
+            description="Optional override for the Matrix Scroll identity store directory "
+            "(defaults to MATRIXSCROLL_HOME or ~/.matrixscroll). Use for CI ephemeral keys.",
+        ),
+    ] = "",
+    save_path: Annotated[
+        str,
+        Field(
+            description="Optional file path to write the signed document. When empty, returns JSON only.",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Sign an arbitrary provenance manifest with the active Ed25519 identity.
+
+    Use for release manifests, agent delegation grants, or evidence packs that
+    are not Git commit envelopes. Side effects: writes ``save_path`` when set.
+    Returns ``{ok, signed, device_id, mode}`` with the RFC 8032 signature block attached.
+    """
+    import json
+    import os
+    from pathlib import Path
+
+    from .manifest import sign_manifest
+
+    prev_home = os.environ.get("MATRIXSCROLL_HOME")
+    if key_path.strip():
+        os.environ["MATRIXSCROLL_HOME"] = key_path.strip()
+    try:
+        body = dict(payload)
+        body.setdefault("action_type", action_type)
+        signed = sign_manifest(body)
+        if save_path.strip():
+            out = Path(save_path).expanduser()
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "signed": signed,
+            "device_id": signed.get("signature", {}).get("device_id"),
+            "mode": signed.get("signature", {}).get("mode"),
+            "path": save_path or None,
+        }
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+    finally:
+        if key_path.strip():
+            if prev_home is None:
+                os.environ.pop("MATRIXSCROLL_HOME", None)
+            else:
+                os.environ["MATRIXSCROLL_HOME"] = prev_home
+
+
+@mcp.tool()
 def audit_export(
+    start_date: Annotated[
+        str,
+        Field(
+            description="ISO 8601 UTC lower bound for audit records (inclusive), e.g. 2026-01-01T00:00:00Z. "
+            "Hosted export filters org audit history; local export filters by commit author date when available.",
+        ),
+    ] = "",
+    end_date: Annotated[
+        str,
+        Field(
+            description="ISO 8601 UTC upper bound for audit records (inclusive), e.g. 2026-06-30T23:59:59Z.",
+        ),
+    ] = "",
+    signer_id: Annotated[
+        str,
+        Field(
+            description="Filter export to envelopes signed by this device_id (MS-XXXX-YYYY) or Ed25519 "
+            "public-key fingerprint. Empty includes all signers in scope.",
+        ),
+    ] = "",
+    format: Annotated[
+        Literal["json", "guac", "evidence-pack"],
+        Field(
+            description="Export serialization: json (envelope bundle), guac (GUAC JSONL ingest), or "
+            "evidence-pack (hosted Team+ procurement bundle with verification metadata).",
+        ),
+    ] = "json",
+    include_verification: Annotated[
+        bool,
+        Field(
+            description="When true (default), attach per-envelope verification results and trusted-key "
+            "policy outcomes to the export for auditor replay without re-running Scroll Gate.",
+        ),
+    ] = True,
     workspace: Annotated[
         str,
         Field(
-            description="Git repository root. Empty auto-detects from the working directory.",
+            description="Git repository root for local fallback export. Empty auto-detects from cwd.",
         ),
     ] = "",
     base: Annotated[
         str,
         Field(
-            description="Range start Git ref (exclusive) for commits included in the export bundle.",
+            description="Local-only: Git ref (exclusive) when exporting from git notes or on-disk envelopes.",
         ),
     ] = "origin/main",
     head: Annotated[
         str,
         Field(
-            description="Range end Git ref (inclusive) for commits included in the export bundle.",
+            description="Local-only: Git ref (inclusive) when exporting from git notes or on-disk envelopes.",
         ),
     ] = "HEAD",
     output_dir: Annotated[
         str,
         Field(
-            description="Directory for exported JSON envelopes and optional GUAC JSONL. "
-            "Relative paths resolve under the repository root.",
+            description="Local-only: directory for exported files. Relative paths resolve under the repo root.",
         ),
     ] = ".matrixscroll/audit-export",
-    include_guac: Annotated[
-        bool,
-        Field(
-            description="When true (default), also write guac-ingest.jsonl for supply-chain tooling.",
-        ),
-    ] = True,
 ) -> dict[str, Any]:
-    """Export an audit evidence bundle for procurement or compliance review.
+    """Export a compliance or procurement audit bundle with optional verification proofs.
 
-    Team+ hosted export uses SSX360_API_KEY and ssx360.com/api/v1/audit/export.
-    Without a key, falls back to local envelope export under ``output_dir``.
+    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export with
+    date, signer, and format filters. Local fallback: exports envelopes from the working
+    tree when no API key is configured. Set ``include_verification`` for auditor-ready
+    replay artifacts.
     """
     auth_err = _require_api_key("audit_export (hosted)")
     if auth_err is None:
         try:
-            return cloud_audit_export(format="json")
+            return cloud_audit_export(
+                format=format,
+                start_date=start_date,
+                end_date=end_date,
+                signer_id=signer_id,
+                include_verification=include_verification,
+            )
         except Exception as exc:
             return _cloud_error(exc)
     if auth_err.get("error") != "api_key_required":
         return auth_err
-    return core.audit_export(
+    include_guac = format == "guac"
+    result = core.audit_export(
         workspace,
         base=base,
         head=head,
         output_dir=output_dir,
         include_guac=include_guac,
     )
-
-
-def main() -> None:
-    """Run the Matrix Scroll MCP server over stdio."""
-    mcp.run(transport="stdio")
+    if include_verification:
+        result["include_verification"] = True
+    if signer_id:
+        result["signer_filter"] = signer_id
+    if start_date or end_date:
+        result["date_filter"] = {"start_date": start_date or None, "end_date": end_date or None}
+    return result
 
 
 @mcp.tool()
 def list_envelopes(
     limit: Annotated[
         int,
-        Field(description="Maximum envelopes to return from the hosted platform (default 50)."),
+        Field(
+            description="Maximum envelopes to return per page (1–200). Default 50. "
+            "Use with offset for paginated audit review in agent workflows.",
+        ),
     ] = 50,
+    offset: Annotated[
+        int,
+        Field(
+            description="Number of newest matching envelopes to skip before returning results. "
+            "Zero-based pagination index for large org histories.",
+        ),
+    ] = 0,
+    signer_filter: Annotated[
+        str,
+        Field(
+            description="Optional device_id (MS-XXXX-YYYY) or public-key prefix to restrict results "
+            "to envelopes signed by one identity.",
+        ),
+    ] = "",
 ) -> dict[str, Any]:
-    """List commit envelopes stored on ssx360.com for the authenticated organization."""
+    """List commit envelopes stored on ssx360.com for the authenticated organization.
+
+    Requires SSX360_API_KEY. Returns paginated envelope metadata for Scroll Gate
+    dashboards, agent memory, and compliance triage. Read-only.
+    """
     auth_err = _require_api_key("list_envelopes")
     if auth_err:
         return auth_err
     try:
-        return cloud_list_envelopes(limit=limit)
+        return cloud_list_envelopes(limit=limit, offset=offset, signer_filter=signer_filter)
     except Exception as exc:
         return _cloud_error(exc)
+
+
+@mcp.tool()
+def connect_card(
+    reader_name: Annotated[
+        str,
+        Field(
+            description="Serial port or USB CDC device name for the SE050 bridge, e.g. COM3 on Windows "
+            "or /dev/ttyACM0 on Linux. Empty uses MATRIXSCROLL_SE050_PORT.",
+        ),
+    ] = "",
+    pin: Annotated[
+        str,
+        Field(
+            description="Optional PIV or secure-element PIN when the reader requires user presence. "
+            "Prefer env MATRIXSCROLL_PIV_PIN in CI; never log this value.",
+        ),
+    ] = "",
+    timeout: Annotated[
+        int,
+        Field(
+            description="Transport timeout in milliseconds for ping and sign operations (default 3000). "
+            "Increase on slow USB hubs or VM passthrough.",
+        ),
+    ] = 3000,
+) -> dict[str, Any]:
+    """Preview: connect to an AP2 Vault Card / SE050 hardware signing bridge.
+
+    Pings the USB CDC transport and reports availability. Hardware signing remains
+    pilot-only; emulated mode is the default evaluation path. Side effects: opens
+    a serial session; does not export private key material.
+    """
+    import os
+
+    if reader_name.strip():
+        os.environ["MATRIXSCROLL_SE050_PORT"] = reader_name.strip()
+    if pin.strip():
+        os.environ["MATRIXSCROLL_PIV_PIN"] = pin.strip()
+    os.environ["MATRIXSCROLL_SE050_TIMEOUT_MS"] = str(max(timeout, 500))
+    try:
+        from .providers.hardware import HardwareProvider
+
+        provider = HardwareProvider()
+        status = provider.status_detail()
+        return {
+            "ok": bool(status.get("available")),
+            "mode": "hardware",
+            "reader_name": reader_name or os.environ.get("MATRIXSCROLL_SE050_PORT", ""),
+            "timeout_ms": timeout,
+            **status,
+        }
+    except Exception as exc:
+        return {"ok": False, "mode": "hardware", "error": "connect_failed", "message": str(exc)}
+
+
+def main() -> None:
+    """Run the Matrix Scroll MCP server over stdio."""
+    mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":

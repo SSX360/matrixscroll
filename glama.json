@@ -3,7 +3,7 @@
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
   "version": "0.4.0",
-  "description": "Thin-client MCP for local Ed25519 commit signing and offline envelope verification. Network features (Scroll Gate, audit export, chain verify) require an ssx360.com API key.",
+  "description": "Provenance-only MCP for AI agent governance: RFC 8032 Ed25519 commit envelopes, offline verify, Scroll Gate CI, audit export, and SE050 hardware preview. Hosted features require ssx360.com API key.",
   "maintainers": ["SSX360"],
   "homepage": "https://ssx360.com",
   "repository": "https://github.com/SSX360/matrixscroll",
