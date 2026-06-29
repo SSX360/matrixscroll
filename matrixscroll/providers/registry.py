@@ -7,10 +7,8 @@ import binascii
 import os
 from typing import Any
 
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-
 from ..constants import ALGORITHM, SCHEMA
+from ..crypto_backend import ed25519_verify
 from .base import IdentityProvider
 from .emulated import EmulatedProvider, device_id, store_dir
 from .hardware import HardwareProvider
@@ -92,9 +90,8 @@ def verify(public_key: str | bytes, data: bytes, signature: str | bytes) -> bool
     try:
         pub = public_key if isinstance(public_key, bytes) else _unb64(public_key)
         sig = signature if isinstance(signature, bytes) else _unb64(signature)
-        Ed25519PublicKey.from_public_bytes(pub).verify(sig, data)
-        return True
-    except (InvalidSignature, ValueError, TypeError, AttributeError, binascii.Error):
+        return ed25519_verify(pub, data, sig)
+    except (ValueError, TypeError, AttributeError, binascii.Error):
         return False
 
 

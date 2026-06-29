@@ -4,6 +4,22 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-06-29
+
+Crypto backend consolidation (middle path).
+
+### Changed
+- **`matrixscroll.crypto_backend`** — all Ed25519 sign/verify/keygen and
+  security-relevant SHA-256 hashing route through the `cryptography` package
+  (native wheels; no user Rust toolchain).
+- **Dependency** — `cryptography>=42.0` is now required (was `>=41.0`).
+- **Docs** — `docs/CRYPTO_BACKEND.md`, README security note, SECURITY_PROPERTIES
+  backend section.
+
+### Removed
+- Scattered direct `cryptography` / `hashlib` calls in providers and gate paths
+  in favor of the centralized backend module (Git SHA-1 wire hashing unchanged).
+
 ## [0.4.1] - 2026-06-29
 
 Universal provenance SDK expansion and SSX360 Scroll Phase 1 wrapper.

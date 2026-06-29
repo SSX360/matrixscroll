@@ -12,7 +12,7 @@ See also the platform copy in [digital-rain/docs/commercial/SSX360_SCROLL.md](ht
 ## Quick start
 
 ```bash
-pip install "matrixscroll==0.4.1"
+pip install "matrixscroll==0.4.2"
 matrixscroll hook-install
 matrixscroll scroll commit -m "feat: governed commit"
 ```

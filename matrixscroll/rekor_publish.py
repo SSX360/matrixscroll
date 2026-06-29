@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import shutil
@@ -12,13 +11,14 @@ from pathlib import Path
 from typing import Any
 
 from .canonical import canonical_bytes
+from .crypto_backend import sha256_hex
 from .gate import BUNDLE_INDEX, verify_commit_envelope_for_sha
 
 REKOR_API = "rekor/v2"
 
 
 def _artifact_digest(envelope: dict[str, Any]) -> str:
-    return hashlib.sha256(canonical_bytes(envelope)).hexdigest()
+    return sha256_hex(canonical_bytes(envelope))
 
 
 def build_rekor_entry(envelope: dict[str, Any], *, sha: str) -> dict[str, Any]:

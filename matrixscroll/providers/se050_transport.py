@@ -20,10 +20,12 @@ import os
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-
 from ..constants import SEED_LEN
+from ..crypto_backend import (
+    ed25519_public_key_bytes,
+    ed25519_sign,
+    load_ed25519_private_key,
+)
 
 DEFAULT_BAUDRATE = 115200
 DEFAULT_TIMEOUT_MS = 3000
@@ -86,11 +88,8 @@ class MockSE050Transport:
         raw = seed if seed is not None else os.urandom(SEED_LEN)
         if len(raw) < SEED_LEN:
             raw = raw.ljust(SEED_LEN, b"\x00")
-        self._private = Ed25519PrivateKey.from_private_bytes(raw[:SEED_LEN])
-        self._public = self._private.public_key().public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        )
+        self._private = load_ed25519_private_key(raw[:SEED_LEN])
+        self._public = ed25519_public_key_bytes(self._private)
 
     def ping(self) -> bool:
         return True
@@ -99,7 +98,7 @@ class MockSE050Transport:
         return self._public
 
     def sign(self, message: bytes) -> bytes:
-        return self._private.sign(message)
+        return ed25519_sign(self._private, message)
 
 
 class SerialSE050Transport:
@@ -199,7 +198,7 @@ def _load_serial_class():
     except ImportError as exc:  # pragma: no cover - depends on local install
         raise TransportUnavailable(
             'pyserial is required for MATRIXSCROLL_MODE=hardware. '
-            'Install with pip install "matrixscroll[hardware]==0.4.1".'
+            'Install with pip install "matrixscroll[hardware]==0.4.2".'
         ) from exc
     return serial.Serial
 

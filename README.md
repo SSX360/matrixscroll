@@ -4,7 +4,7 @@
 [![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
 [![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
 
-**112 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md)
+**123 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md)
 
 **Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
 **universal provenance SDK** — open Ed25519 envelopes for Git commits, CI steps,
@@ -48,7 +48,7 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 ```
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.1"
+pip install "matrixscroll[mcp]==0.4.2"
 matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ```
 
@@ -59,7 +59,7 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ## Also available — CLI & hooks
 
 ```bash
-pip install "matrixscroll==0.4.1"
+pip install "matrixscroll==0.4.2"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -123,7 +123,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
 
 ## Honest limits
 
-- Shipping now: PyPI `matrixscroll==0.4.1`, Git post-commit hooks,
+- Shipping now: PyPI `matrixscroll==0.4.2`, Git post-commit hooks,
   `matrixscroll sign-action`, `matrixscroll scroll commit` (thin wrapper),
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport preview for the
@@ -169,7 +169,7 @@ alongside your existing scanners, branch protection, and build attestations.
 ## Quickstart (CLI)
 
 ```bash
-pip install "matrixscroll==0.4.1"
+pip install "matrixscroll==0.4.2"
 matrixscroll hook-install
 matrixscroll hook-status
 
@@ -196,7 +196,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.4.1"
+    matrixscroll-version: "0.4.2"
     require-mode: emulated
 ```
 
@@ -216,7 +216,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.4.1"
+    matrixscroll-version: "0.4.2"
     summary-output: provenance-summary.json
 ```
 
@@ -224,7 +224,15 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
 [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-ship in the current release line; examples in this README pin `0.4.1`.
+ship in the current release line; examples in this README pin `0.4.2`.
+
+## Security: Ed25519 via cryptography
+
+Ed25519 signing, verification, and key generation use the [`cryptography`](https://pypi.org/project/cryptography/)
+package (required dependency, `>=42.0`). Official wheels ship native crypto
+backends (OpenSSL + Rust components) — no Rust toolchain for users. All
+primitives are centralized in `matrixscroll/crypto_backend.py`; see
+[`docs/CRYPTO_BACKEND.md`](docs/CRYPTO_BACKEND.md).
 
 ## Why it is different from Sigstore
 
@@ -254,7 +262,7 @@ when they preserve the same pure Ed25519 byte contract.
 ## Python API
 
 ```bash
-pip install "matrixscroll==0.4.1"
+pip install "matrixscroll==0.4.2"
 ```
 
 ```python
@@ -364,7 +372,7 @@ The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_env
 Install and register in Cursor / Claude Desktop / VS Code:
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.1"
+pip install "matrixscroll[mcp]==0.4.2"
 matrixscroll-mcp   # stdio
 ```
 

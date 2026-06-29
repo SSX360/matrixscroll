@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.4.1"
+version = "0.4.2"
 description = "Signed provenance for agent-assisted Git commits with offline verification; emulated Ed25519 ships today and the SE050 hardware path remains an optional preview."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -41,7 +41,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "cryptography>=41.0",
+    "cryptography>=42.0",
 ]
 
 [project.optional-dependencies]

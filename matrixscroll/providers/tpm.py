@@ -14,10 +14,16 @@ import time
 from pathlib import Path
 from typing import Any
 
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ..constants import DEVICE_FILE, SCHEMA
+from ..crypto_backend import (
+    ed25519_private_seed,
+    ed25519_public_key_bytes,
+    ed25519_sign,
+    generate_ed25519_private_key,
+    load_ed25519_private_key,
+)
 from ..errors import IdentityError
 from .base import IdentityProvider
 from .emulated import EmulatedProvider, device_id, store_dir
@@ -86,24 +92,17 @@ class TpmProvider(IdentityProvider):
             doc = json.loads(self._path.read_text(encoding="utf-8"))
             seed = bytes.fromhex(doc["private_key_hex"])
             self._created_at = doc.get("created_at", "")
-            self._key = Ed25519PrivateKey.from_private_bytes(seed)
+            self._key = load_ed25519_private_key(seed)
             return self._key
-        key = Ed25519PrivateKey.generate()
+        key = generate_ed25519_private_key()
         created = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        pub = key.public_key().public_bytes(
-            serialization.Encoding.Raw,
-            serialization.PublicFormat.Raw,
-        )
+        pub = ed25519_public_key_bytes(key)
         doc = {
             "schema": SCHEMA,
             "mode": self.mode,
             "created_at": created,
             "device_id": device_id(pub),
-            "private_key_hex": key.private_bytes(
-                serialization.Encoding.Raw,
-                serialization.PrivateFormat.Raw,
-                serialization.NoEncryption(),
-            ).hex(),
+            "private_key_hex": ed25519_private_seed(key).hex(),
             "mock": self._mock,
         }
         self._path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
@@ -113,14 +112,11 @@ class TpmProvider(IdentityProvider):
 
     def public_key_bytes(self) -> bytes:
         key = self._load_or_create()
-        return key.public_key().public_bytes(
-            serialization.Encoding.Raw,
-            serialization.PublicFormat.Raw,
-        )
+        return ed25519_public_key_bytes(key)
 
     def sign(self, data: bytes) -> bytes:
         key = self._load_or_create()
-        return key.sign(data)
+        return ed25519_sign(key, data)
 
     @property
     def created_at(self) -> str:

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import shutil
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal
+
+from .crypto_backend import sha256_hex
 
 from .git import (
     COMMIT_ENVELOPE_SCHEMA,
@@ -83,7 +84,7 @@ def _verify_delegation_block(
 
         expected_hash = delegation.get("delegation_manifest_sha256")
         if expected_hash:
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            digest = sha256_hex(path.read_bytes())
             if digest != expected_hash:
                 return False, "delegation manifest sha256 mismatch"
 

@@ -9,18 +9,19 @@ import os
 import time
 from pathlib import Path
 
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ..constants import DEVICE_FILE, DIR_MODE, FILE_MODE, SCHEMA, SEED_LEN
+from ..crypto_backend import (
+    ed25519_private_seed,
+    ed25519_public_key_bytes,
+    ed25519_sign,
+    generate_ed25519_private_key,
+    load_ed25519_private_key,
+    sha256_hex,
+)
 from ..errors import IdentityError
 from .base import IdentityProvider
-
-_RAW = serialization.Encoding.Raw
-_PRIV_RAW = serialization.PrivateFormat.Raw
-_PUB_RAW = serialization.PublicFormat.Raw
-_NOENC = serialization.NoEncryption()
-
 
 def _b64(data: bytes) -> str:
     return base64.b64encode(data).decode("ascii")
@@ -44,9 +45,7 @@ def _write_secret(path: Path, text: str) -> None:
 
 
 def device_id(public_key: bytes) -> str:
-    import hashlib
-
-    digest = hashlib.sha256(public_key).hexdigest().upper()
+    digest = sha256_hex(public_key).upper()
     return f"MS-{digest[:4]}-{digest[4:8]}"
 
 
@@ -69,16 +68,16 @@ class EmulatedProvider(IdentityProvider):
         if path.is_file():
             return cls._load(path)
 
-        key = Ed25519PrivateKey.generate()
+        key = generate_ed25519_private_key()
         created = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        pub = key.public_key().public_bytes(_RAW, _PUB_RAW)
+        pub = ed25519_public_key_bytes(key)
         doc = {
             "schema": SCHEMA,
             "mode": cls.mode,
             "created_at": created,
             "device_id": device_id(pub),
             "public_key": _b64(pub),
-            "private_key": _b64(key.private_bytes(_RAW, _PRIV_RAW, _NOENC)),
+            "private_key": _b64(ed25519_private_seed(key)),
         }
         directory.mkdir(parents=True, exist_ok=True)
         try:
@@ -100,16 +99,16 @@ class EmulatedProvider(IdentityProvider):
                 f"device key store at {path} has an invalid {len(seed)}-byte seed"
             )
         try:
-            key = Ed25519PrivateKey.from_private_bytes(seed)
+            key = load_ed25519_private_key(seed)
         except ValueError as exc:
             raise IdentityError(f"device key store at {path} is corrupt: {exc}")
         return cls(key, doc.get("created_at", ""))
 
     def public_key_bytes(self) -> bytes:
-        return self._key.public_key().public_bytes(_RAW, _PUB_RAW)
+        return ed25519_public_key_bytes(self._key)
 
     def sign(self, data: bytes) -> bytes:
-        return self._key.sign(data)
+        return ed25519_sign(self._key, data)
 
     @property
     def created_at(self) -> str:

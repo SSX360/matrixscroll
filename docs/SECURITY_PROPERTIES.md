@@ -1,6 +1,6 @@
 # Matrix Scroll security properties
 
-Machine-checkable guarantees for the reference SDK (v0.4.1). Properties marked
+Machine-checkable guarantees for the reference SDK (v0.4.2). Properties marked
 **verified** have Hypothesis property tests in `tests/test_security_properties.py`.
 Formal TLA+ models are on the public roadmap.
 
@@ -12,6 +12,16 @@ Formal TLA+ models are on the public roadmap.
 | **P4** | Canonical determinism | Identical logical manifests produce identical signing input bytes after canonical JSON encoding (sorted keys, ASCII escapes, no NaN). | **Verified** (unit + vectors) |
 | **P5** | Offline verification | Envelope verification requires no network, hosted API, or hardware ping once the envelope and trusted key set are local. | **Verified** (unit) |
 | **P6** | Algorithm binding | Only Ed25519 (RFC 8032) signatures with `algorithm: "ed25519"` are accepted; other algorithms are rejected. | **Verified** (unit + vectors) |
+
+## Cryptographic backend
+
+All Ed25519 and security-relevant SHA-256 operations in the reference SDK route
+through `matrixscroll/crypto_backend.py`, backed by the [`cryptography`](https://pypi.org/project/cryptography/)
+package (official wheels bundle OpenSSL and Rust components; users install with
+`pip install matrixscroll` only). There is no pure-Python Ed25519 fallback.
+
+See [`CRYPTO_BACKEND.md`](CRYPTO_BACKEND.md) for the middle-path design vs a full
+Rust rewrite.
 
 ## Standards alignment
 
