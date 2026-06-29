@@ -744,19 +744,19 @@ def connect_card(
         ),
     ] = 3000,
 ) -> dict[str, Any]:
-    """Preview: connect to an AP2 Vault Card / SE050 hardware signing bridge.
+    """Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.
 
-    Use to probe USB CDC availability before hardware signing pilots.
-    Do not use for everyday signing — emulated mode is the default path.
-    Do not use for commit envelopes — call ``create_envelope`` after hardware
-    mode is configured.
+    Use before hardware signing pilots to confirm the reader responds on the serial
+    port. Do not use for everyday signing — emulated mode via ``create_envelope`` is
+    the default path. Do not use for verification — call ``verify_envelope`` after
+    envelopes exist. Prefer ``status`` to check local identity without opening USB.
 
-    Side effects: opens a serial session; does not export private key material.
+    Side effects: opens a short-lived serial session; does not export private keys.
     No SSX360_API_KEY required. Returns ``{ok, mode, reader_name, available?, error?}``.
 
     Parameters:
         reader_name: Serial port, e.g. COM3 or /dev/ttyACM0 (or env default).
-        pin: Optional secure-element PIN (prefer env in CI; never log).
+        pin: Optional secure-element PIN; prefer MATRIXSCROLL_PIV_PIN in CI.
         timeout: Transport timeout in milliseconds (default 3000).
     """
     import os
