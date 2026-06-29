@@ -720,7 +720,10 @@ def list_envelopes(
         return _cloud_error(exc)
 
 
-@mcp.tool(annotations=_HOSTED_NETWORK)
+@mcp.tool(
+    title="Connect SE050 hardware bridge",
+    annotations=_HOSTED_NETWORK,
+)
 def connect_card(
     reader_name: Annotated[
         str,
