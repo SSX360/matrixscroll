@@ -4,6 +4,18 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-06-29
+
+Universal provenance SDK expansion and SSX360 Scroll Phase 1 wrapper.
+
+### Added
+- **`matrixscroll.provenance`** — action envelope builders for `ci_step`, `iac_change`,
+  `db_migration`, `api_call`, and `contract_deploy` (`schemas/action-envelope.v1.json`).
+- **`matrixscroll sign-action`** CLI — sign typed action envelopes with Ed25519.
+- **`matrixscroll scroll commit`** — thin Git wrapper (Phase 1; not a Git replacement).
+- **MCP** — `sign_action` validates typed payloads; new `matrixscroll://schema/action-envelope.v1` resource.
+- **Docs** — SSX360 Scroll brief, Scroll Gate v2 SLSA L1–2 honest mapping.
+
 ## [0.3.0] - 2026-06-28
 
 Digital Rain removal and provenance-only SDK surface.

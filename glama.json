@@ -2,8 +2,8 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
-  "version": "0.4.0",
-  "description": "Provenance-only MCP for AI agent governance: RFC 8032 Ed25519 commit envelopes, offline verify, Scroll Gate CI, audit export, and SE050 hardware preview. Hosted features require ssx360.com API key.",
+  "version": "0.4.1",
+  "description": "Provenance-only MCP for AI agent governance: RFC 8032 Ed25519 commit envelopes, universal action types (ci_step, iac_change, db_migration, api_call, contract_deploy), offline verify, Scroll Gate CI (partial SLSA L1–2), audit export, and SE050 hardware preview. Hosted features require ssx360.com API key.",
   "maintainers": ["SSX360"],
   "homepage": "https://ssx360.com",
   "repository": "https://github.com/SSX360/matrixscroll",
@@ -15,7 +15,7 @@
     {
       "registry": "pypi",
       "name": "matrixscroll",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "extras": ["mcp"],
       "command": "matrixscroll-mcp"
     }

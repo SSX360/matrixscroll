@@ -54,9 +54,10 @@ mcp = FastMCP(
     "matrixscroll-mcp",
     instructions=(
         "Matrix Scroll MCP exposes provenance verbs for AI agent governance: "
-        "create and verify RFC 8032 Ed25519 commit envelopes, run Scroll Gate "
-        "over PR ranges, publish git notes, export audit bundles, and (preview) "
-        "connect SE050 hardware cards. Prefer ``status`` first in a new repo. "
+        "create and verify RFC 8032 Ed25519 commit envelopes, sign universal action types "
+        "(ci_step, iac_change, db_migration, api_call, contract_deploy), run Scroll Gate "
+        "(hosted partial SLSA L1–2), publish git notes, and export audit bundles. "
+        "Prefer ``status`` first in a new repo. "
         "Verification tools are read-only; ``create_envelope``, ``sign_action``, "
         "``publish_notes``, and ``audit_export`` write local artifacts. Hosted "
         "Scroll Gate and org-wide audit export require SSX360_API_KEY."
@@ -65,6 +66,7 @@ mcp = FastMCP(
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCHEMA_PATH = _REPO_ROOT / "schemas" / "commit-envelope.v1.json"
+_ACTION_SCHEMA_PATH = _REPO_ROOT / "schemas" / "action-envelope.v1.json"
 _SPEC_PATH = _REPO_ROOT / "SPEC.md"
 
 
@@ -74,6 +76,14 @@ def commit_envelope_schema() -> str:
     if _SCHEMA_PATH.is_file():
         return _SCHEMA_PATH.read_text(encoding="utf-8")
     return '{"error":"commit-envelope.v1.json not found in install root"}'
+
+
+@mcp.resource("matrixscroll://schema/action-envelope.v1")
+def action_envelope_schema() -> str:
+    """Public JSON Schema for universal provenance action envelopes (v1)."""
+    if _ACTION_SCHEMA_PATH.is_file():
+        return _ACTION_SCHEMA_PATH.read_text(encoding="utf-8")
+    return '{"error":"action-envelope.v1.json not found in install root"}'
 
 
 @mcp.resource("matrixscroll://spec")
@@ -385,8 +395,9 @@ def sign_action(
     action_type: Annotated[
         str,
         Field(
-            description="Provenance action label stored in the signed manifest, e.g. agent_commit, "
-            "release_manifest, delegation_grant, or ci_attestation.",
+            description="Provenance action type: git_commit, ci_step, iac_change, db_migration, "
+            "api_call, contract_deploy, or custom labels for evidence packs. "
+            "Typed actions validate required payload fields per schemas/action-envelope.v1.json.",
         ),
     ],
     payload: Annotated[
@@ -410,16 +421,18 @@ def sign_action(
         ),
     ] = "",
 ) -> dict[str, Any]:
-    """Sign an arbitrary provenance manifest with the active Ed25519 identity.
+    """Sign a universal provenance action envelope with the active Ed25519 identity.
 
-    Use for release manifests, agent delegation grants, or evidence packs that
-    are not Git commit envelopes. Side effects: writes ``save_path`` when set.
+    Use for CI steps, IaC changes, DB migrations, API calls, contract deploys,
+    release manifests, or agent delegation grants. Typed actions (ci_step, etc.)
+    validate payload fields before signing. Side effects: writes ``save_path`` when set.
     Returns ``{ok, signed, device_id, mode}`` with the RFC 8032 signature block attached.
     """
     import json
     import os
     from pathlib import Path
 
+    from .provenance import build_action_envelope, sign_action_envelope, validate_action_payload
     from .manifest import sign_manifest
 
     prev_home = os.environ.get("MATRIXSCROLL_HOME")
@@ -427,8 +440,18 @@ def sign_action(
         os.environ["MATRIXSCROLL_HOME"] = key_path.strip()
     try:
         body = dict(payload)
-        body.setdefault("action_type", action_type)
-        signed = sign_manifest(body)
+        ok, err = validate_action_payload(action_type, body)
+        if ok and action_type != "git_commit":
+            signed = sign_action_envelope(
+                build_action_envelope(action_type, body)  # type: ignore[arg-type]
+            )
+        else:
+            body.setdefault("action_type", action_type)
+            if not ok and action_type in {
+                "ci_step", "iac_change", "db_migration", "api_call", "contract_deploy"
+            }:
+                return {"ok": False, "error": "invalid_payload", "message": err}
+            signed = sign_manifest(body)
         if save_path.strip():
             out = Path(save_path).expanduser()
             out.parent.mkdir(parents=True, exist_ok=True)

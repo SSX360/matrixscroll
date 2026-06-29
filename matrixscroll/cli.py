@@ -328,6 +328,46 @@ def _cmd_sign_payment(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_sign_action(args: argparse.Namespace) -> int:
+    from .provenance import build_action_envelope, sign_action_envelope, validate_action_payload
+
+    payload_path = Path(args.payload)
+    try:
+        payload = json.loads(payload_path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": f"cannot read payload: {exc}"}))
+        return 2
+    ok, err = validate_action_payload(args.type, payload)
+    if not ok:
+        print(json.dumps({"ok": False, "error": err}))
+        return 2
+    envelope = build_action_envelope(
+        args.type,  # type: ignore[arg-type]
+        payload,
+        actor_type=args.actor_type,
+        tool=args.tool,
+    )
+    signed = sign_action_envelope(envelope)
+    if args.output:
+        Path(args.output).write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    else:
+        print(json.dumps(signed, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_scroll_commit(args: argparse.Namespace) -> int:
+    from .scroll import commit as scroll_commit
+
+    result = scroll_commit(
+        args.message,
+        actor_type=args.actor_type,
+        tool=args.tool,
+        allow_empty=args.allow_empty,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -454,6 +494,36 @@ def build_parser() -> argparse.ArgumentParser:
     pay_p.add_argument("--key-path", help="Alternative signing key path")
     pay_p.set_defaults(command="sign-payment")
 
+    sign_action_p = sub.add_parser(
+        "sign-action",
+        help="Sign a universal provenance action envelope (ci_step, iac_change, etc.)",
+    )
+    sign_action_p.add_argument(
+        "--type",
+        required=True,
+        choices=["git_commit", "ci_step", "iac_change", "db_migration", "api_call", "contract_deploy"],
+        help="Action type per schemas/action-envelope.v1.json",
+    )
+    sign_action_p.add_argument("--payload", required=True, help="JSON file with action-specific payload")
+    sign_action_p.add_argument("--output", "-o", help="Write signed envelope to file")
+    sign_action_p.add_argument(
+        "--actor-type",
+        default="human",
+        choices=["human", "agent", "ci"],
+        help="Provenance actor label",
+    )
+    sign_action_p.add_argument("--tool", default="matrixscroll", help="Producing tool name")
+    sign_action_p.set_defaults(command="sign-action")
+
+    scroll_p = sub.add_parser("scroll", help="SSX360 Scroll — Git wrapper with auto-envelope (Phase 1)")
+    scroll_sub = scroll_p.add_subparsers(dest="scroll_command")
+    scroll_commit_p = scroll_sub.add_parser("commit", help="git commit + signed envelope")
+    scroll_commit_p.add_argument("-m", "--message", required=True)
+    scroll_commit_p.add_argument("--actor-type", default="human", choices=["human", "agent", "ci"])
+    scroll_commit_p.add_argument("--tool", default="scroll")
+    scroll_commit_p.add_argument("--allow-empty", action="store_true")
+    scroll_commit_p.set_defaults(command="scroll-commit")
+
     return parser
 
 
@@ -479,6 +549,8 @@ def main(argv: list[str] | None = None) -> int:
         "claim": cmd_claim,
         "identity": cmd_identity,
         "sign-payment": _cmd_sign_payment,
+        "sign-action": _cmd_sign_action,
+        "scroll-commit": _cmd_scroll_commit,
     }
     handler = handlers.get(args.command)
     if handler is None:
