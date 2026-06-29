@@ -12,6 +12,10 @@ IaC changes, DB migrations, API calls, and smart-contract deploys — verified
 offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
 upgrade; emulated mode ships today.
 
+**TAM wedge (honest):** Layer 2 universal provenance SDK ($50–200M) · Layer 3 SSX360 Scroll
+governance on Git ($200M–1B) · Scroll Gate CI ($50–150M) · Python-first ML/agent
+ecosystem via `pip install matrixscroll`.
+
 **Hosted control plane:** identity, billing, and device confirmation live at
 [ssx360.com](https://ssx360.com/). Teams evaluating protected-branch enforcement should
 [book a provenance pilot](https://ssx360.com/contact?intent=pilot);
@@ -220,7 +224,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
 [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-are available in the `0.2.x` line; the examples in this README pin `0.3.0`.
+ship in the current release line; examples in this README pin `0.4.1`.
 
 ## Why it is different from Sigstore
 
@@ -235,15 +239,16 @@ when they preserve the same pure Ed25519 byte contract.
 
 ## Public proof links
 
-- Browser verifier: <https://matrixscroll.com/verify/>
-- Compare page: <https://matrixscroll.com/compare/>
+- Browser verifier: <https://ssx360.com/verify>
+- Compare page: <https://ssx360.com/compare>
+- Documentation: <https://ssx360.com/docs>
 - Specification: [`SPEC.md`](SPEC.md)
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
-- Site: <https://matrixscroll.com>
+- Site: <https://ssx360.com/docs> (matrixscroll.com redirects here)
 - Reference device path: [AP2 Vault Card hardware](https://ssx360.com/hardware)
 
 ## Python API
@@ -379,5 +384,5 @@ Report vulnerabilities privately to
 
 ---
 
-**Protocol:** https://matrixscroll.com · **Verify:** https://matrixscroll.com/verify/  
+**Protocol:** https://ssx360.com/docs · **Verify:** https://ssx360.com/verify  
 **Control plane:** https://ssx360.com · **Pilot:** mission@ssx360.com · **Sign in:** https://ssx360.com/signup

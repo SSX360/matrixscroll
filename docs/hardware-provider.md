@@ -23,7 +23,7 @@ matrixscroll status
 ## Quickstart (USB CDC preview)
 
 ```bash
-pip install "matrixscroll[hardware]==0.3.0"
+pip install "matrixscroll[hardware]==0.4.1"
 export MATRIXSCROLL_MODE=hardware
 export MATRIXSCROLL_SE050_PORT=/dev/ttyACM0
 matrixscroll status

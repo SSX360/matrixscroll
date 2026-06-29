@@ -28,13 +28,13 @@ Matrix Scroll remains the **open protocol and thin client** (PyPI + MCP). SSX360
 
 See [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md). Set `SSX360_API_KEY` in GitHub Actions secrets.
 
-## SDK 0.4.0
+## SDK 0.4.1
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.0"
+pip install "matrixscroll[mcp]==0.4.1"
 ```
 
-New module: `matrixscroll.cloud` — HTTP client for ssx360.com APIs.
+New in 0.4.1: `sign-action`, `scroll commit`, expanded MCP `sign_action`. Module `matrixscroll.cloud` — HTTP client for ssx360.com APIs.
 
 ## MCP environment
 

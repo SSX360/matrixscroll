@@ -11,7 +11,7 @@ who want to trial Matrix Scroll without changing their core workflow.
 
 ## 15-minute pilot
 
-1. Install `matrixscroll==0.3.0` in one repo.
+1. Install `matrixscroll==0.4.1` in one repo.
 2. Run `matrixscroll hook-install`.
 3. Make one agent-assisted commit and verify it locally.
 4. Publish notes with `matrixscroll envelope-publish-notes`.
@@ -38,7 +38,7 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.3.0"
+          matrixscroll-version: "0.4.1"
           require-mode: emulated
 ```
 
@@ -64,7 +64,7 @@ jobs:
 ## Clean-machine proof status
 
 Recorded on `2026-06-21` against the pinned public flow:
-`pip install "matrixscroll==0.3.0"` -> `matrixscroll hook-install` ->
+`pip install "matrixscroll==0.4.1"` -> `matrixscroll hook-install` ->
 `matrixscroll hook-status` -> first agent-assisted commit ->
 `matrixscroll envelope-verify`.
 

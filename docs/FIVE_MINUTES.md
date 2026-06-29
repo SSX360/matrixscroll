@@ -12,7 +12,7 @@ five-minute path from `pip install` to a verifiable commit envelope.
 ## 1. Install the SDK
 
 ```bash
-pip install "matrixscroll==0.3.0"
+pip install "matrixscroll==0.4.1"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -61,7 +61,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.3.0"
+    matrixscroll-version: "0.4.1"
     require-mode: emulated
 ```
 

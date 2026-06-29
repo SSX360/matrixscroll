@@ -1,6 +1,6 @@
 # Matrix Scroll security properties
 
-Machine-checkable guarantees for the reference SDK (v0.4.0). Properties marked
+Machine-checkable guarantees for the reference SDK (v0.4.1). Properties marked
 **verified** have Hypothesis property tests in `tests/test_security_properties.py`.
 Formal TLA+ models are on the public roadmap.
 

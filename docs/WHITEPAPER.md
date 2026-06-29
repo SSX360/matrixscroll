@@ -71,7 +71,7 @@ Full wire format: [`SPEC.md`](../SPEC.md). Schema: [`schemas/commit-envelope.v1.
 ### 1. Install
 
 ```bash
-pip install "matrixscroll==0.3.0"
+pip install "matrixscroll==0.4.1"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -87,7 +87,7 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
 
 Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/config.json` to block commits when signing fails. See [`docs/quickstart-git.md`](quickstart-git.md).
 
-**Windows:** support landed in matrixscroll **0.2.1**; pin **0.3.0** or newer in pilot environments.
+**Windows:** support landed in matrixscroll **0.2.1**; pin **0.4.1** in pilot environments.
 
 ### 3. CI gate
 
@@ -95,12 +95,12 @@ Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/conf
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: path/to/signed-manifest.json
-    matrixscroll-version: "0.3.0"
+    matrixscroll-version: "0.4.1"
     require-mode: emulated
     trusted-keys: trusted-keys.json
 ```
 
-Policy flags (`--require-mode`, `--trusted-keys`) are available in the `0.2.x` line; this whitepaper pins `0.3.0` for copy-and-paste examples.
+Policy flags (`--require-mode`, `--trusted-keys`) ship in the current release; this whitepaper pins `0.4.1` for copy-and-paste examples.
 
 ### 4. Optional scope manifest
 
