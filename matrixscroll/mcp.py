@@ -15,7 +15,28 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 from pydantic import Field
+
+# MCP tool annotations for Glama TDQS Behavioral Transparency scoring.
+_READ_ONLY = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=False,
+)
+_WRITE_LOCAL = ToolAnnotations(
+    readOnlyHint=False,
+    destructiveHint=False,
+    idempotentHint=False,
+    openWorldHint=False,
+)
+_HOSTED_NETWORK = ToolAnnotations(
+    readOnlyHint=False,
+    destructiveHint=False,
+    idempotentHint=False,
+    openWorldHint=True,
+)
 
 from . import mcp_core as core
 from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
@@ -108,7 +129,7 @@ def provenance_report(repo_path: str = ".") -> str:
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=_WRITE_LOCAL)
 def create_envelope(
     workspace: Annotated[
         str,
@@ -157,10 +178,23 @@ def create_envelope(
 ) -> dict[str, Any]:
     """Create a signed Git commit envelope with Ed25519 provenance metadata.
 
-    Records who produced a commit (human, agent, or CI), which tool signed it,
-    and optional bounded agent scope. Use after staging changes and before or
-    after ``git commit``. Side effects: may write ``.matrixscroll/envelopes/<sha>.json``
-    when ``save`` is true. Returns ``{ok, sha, envelope, path}`` on success.
+    Use after staging changes and before or after ``git commit`` when you need
+    commit-time actor/tool proof. Prefer ``sign_action`` for non-Git evidence
+    (CI steps, IaC, migrations). Do not use for verification — call
+    ``verify_envelope`` or ``verify_pr_range`` instead.
+
+    Side effects: may write ``.matrixscroll/envelopes/<sha>.json`` when ``save``
+    is true. Requires a Git repo and Matrix Scroll identity store. No network.
+    Returns ``{ok, sha, envelope, path, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        commit_sha: Existing commit to envelope (defaults to staged/next commit).
+        actor_type: Provenance actor, e.g. agent, human, ci.
+        tool: Producing tool name, e.g. cursor, claude-code.
+        agent_scope: Optional bounded scope path/glob for agent commits.
+        sign: Ed25519-sign the envelope (default True).
+        save: Persist under .matrixscroll/envelopes (default True).
     """
     return core.create_envelope(
         workspace,
@@ -173,7 +207,7 @@ def create_envelope(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=_READ_ONLY)
 def verify_envelope(
     workspace: Annotated[
         str,
@@ -243,14 +277,23 @@ def verify_envelope(
 ) -> dict[str, Any]:
     """Verify one signed commit envelope offline against RFC 8032 Ed25519 rules.
 
-    Read-only: no network or hosted API required. Provide ``commit_sha`` for the
-    default on-disk envelope, or ``envelope`` / ``envelope_path`` for an explicit
-    JSON file from CI or audit export. Apply ``trusted_keys``, ``require_mode``,
-    and actor policy lists to enforce team trust rules. Set ``check_expiry`` to
-    reject stale agent delegations.
+    Use for a single commit SHA or explicit envelope JSON file. Prefer
+    ``verify_pr_range`` for PR/branch ranges and ``audit_export`` for procurement
+    bundles spanning many commits. Do not use when you only need hook status —
+    call ``status`` instead.
 
-    Returns ``{ok, sha, actor_type, mode, ...}``; ``ok`` is false on signature,
-    policy, expiry, or missing-envelope errors.
+    Read-only: no network or SSX360_API_KEY required. Does not modify Git state.
+    Returns ``{ok, sha, actor_type, mode, error?, envelope?}``; ``ok`` is false
+    on signature, policy, expiry, or missing-envelope errors.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        commit_sha: Commit SHA to verify (uses local envelope file).
+        envelope / envelope_path: Optional explicit path to envelope JSON.
+        require_mode: Policy filter, e.g. emulated or hardware (empty skips).
+        trusted_keys / trusted_keys_file: JSON file listing trusted public keys.
+        check_expiry: Reject envelopes with expired delegation timestamps.
+        require_actor_types / deny_actor_types: Actor policy allow/deny lists.
     """
     resolved_path = envelope_path or envelope
     keys_file = trusted_keys_file or trusted_keys
@@ -281,7 +324,7 @@ def verify_envelope(
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=_HOSTED_NETWORK)
 def verify_pr_range(
     workspace: Annotated[
         str,
@@ -329,8 +372,25 @@ def verify_pr_range(
 ) -> dict[str, Any]:
     """Scroll Gate: verify signed/unsigned commits across a PR commit range.
 
-    Hosted mode (default): calls ssx360.com with SSX360_API_KEY.
-    Set source=local|notes|bundle to verify offline without an API key.
+    Use for merge gates and PR review (many commits). Prefer ``verify_envelope``
+    for one commit offline. Prefer ``audit_export`` when auditors need bundles,
+    not pass/fail on a range.
+
+    Hosted mode (default): calls ssx360.com; requires SSX360_API_KEY.
+    Set ``source=local|notes|bundle`` to verify offline without an API key.
+    Read-only for Git refs; hosted mode emits usage to ssx360.com.
+    Returns ``{ok, verified_count, unsigned_shas?, failures?, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        base: Range start ref (exclusive), e.g. origin/main.
+        head: Range end ref (inclusive), e.g. HEAD or PR head SHA.
+        source: Envelope transport — hosted, local, notes, or bundle.
+        notes_ref: Git notes ref when source=notes.
+        bundle_dir: Bundle directory when source=bundle.
+        require_mode: Policy require_mode filter.
+        trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.
+        require_actor_types / deny_actor_types: Actor policy lists.
     """
     if source in ("local", "notes", "bundle"):
         return core.verify_pr_range(
@@ -355,7 +415,7 @@ def verify_pr_range(
         return _cloud_error(exc)
 
 
-@mcp.tool()
+@mcp.tool(annotations=_WRITE_LOCAL)
 def publish_notes(
     workspace: Annotated[
         str,
@@ -376,21 +436,43 @@ def publish_notes(
 ) -> dict[str, Any]:
     """Publish local signed envelopes to git notes for CI Scroll Gate verification.
 
-    Side effects: updates the local git notes ref; push ``refs/notes/matrixscroll`` to remote separately.
+    Use after ``create_envelope`` when CI reads ``refs/notes/matrixscroll``.
+    Do not use for offline single-commit checks — call ``verify_envelope``.
+    Do not use for hosted org audit — call ``audit_export`` with SSX360_API_KEY.
+
+    Side effects: updates the local git notes ref only; push
+    ``refs/notes/matrixscroll`` to remote separately. Returns
+    ``{ok, published, notes_ref, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        base: Range start ref (exclusive) for envelopes to publish.
+        head: Range end ref (inclusive) for envelopes to publish.
+        notes_ref: Git notes ref to write (default refs/notes/matrixscroll).
     """
     return core.publish_notes(workspace, base=base, head=head, notes_ref=notes_ref)
 
 
-@mcp.tool()
+@mcp.tool(annotations=_READ_ONLY)
 def status(workspace: Annotated[
     str,
     Field(description="Git repository root. Empty auto-detects from the working directory."),
 ] = "") -> dict[str, Any]:
-    """Report hook install state, local envelope count, and Matrix Scroll config (read-only)."""
+    """Report hook install state, local envelope count, and Matrix Scroll config.
+
+    Call first in a new repo before any verify/sign tool. Read-only: no Git or
+    filesystem writes, no network. Do not use for signature checks — call
+    ``verify_envelope`` or ``verify_pr_range`` instead.
+
+    Returns ``{ok, config, hook_installed, envelope_count, mode?, device_id?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+    """
     return core.status(workspace)
 
 
-@mcp.tool()
+@mcp.tool(annotations=_WRITE_LOCAL)
 def sign_action(
     action_type: Annotated[
         str,
@@ -424,9 +506,18 @@ def sign_action(
     """Sign a universal provenance action envelope with the active Ed25519 identity.
 
     Use for CI steps, IaC changes, DB migrations, API calls, contract deploys,
-    release manifests, or agent delegation grants. Typed actions (ci_step, etc.)
-    validate payload fields before signing. Side effects: writes ``save_path`` when set.
-    Returns ``{ok, signed, device_id, mode}`` with the RFC 8032 signature block attached.
+    or agent delegation grants. Prefer ``create_envelope`` for Git commits.
+    Do not use for verification — call ``verify_envelope`` on exported JSON.
+
+    Side effects: writes ``save_path`` when set; uses local identity store.
+    No network unless you later upload the signed artifact yourself.
+    Returns ``{ok, signed, device_id, mode, path?, error?}``.
+
+    Parameters:
+        action_type: Provenance label (git_commit, ci_step, iac_change, etc.).
+        payload: JSON object to sign (no top-level signature block).
+        key_path: Optional MATRIXSCROLL_HOME override for CI ephemeral keys.
+        save_path: Optional file path to write the signed document.
     """
     import json
     import os
@@ -473,7 +564,7 @@ def sign_action(
                 os.environ["MATRIXSCROLL_HOME"] = prev_home
 
 
-@mcp.tool()
+@mcp.tool(annotations=_HOSTED_NETWORK)
 def audit_export(
     start_date: Annotated[
         str,
@@ -536,10 +627,21 @@ def audit_export(
 ) -> dict[str, Any]:
     """Export a compliance or procurement audit bundle with optional verification proofs.
 
-    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export with
-    date, signer, and format filters. Local fallback: exports envelopes from the working
-    tree when no API key is configured. Set ``include_verification`` for auditor-ready
-    replay artifacts.
+    Use when auditors need envelope bundles (JSON, GUAC JSONL, or evidence-pack).
+    Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.
+    Prefer ``list_envelopes`` to browse hosted metadata without exporting files.
+
+    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export.
+    Local fallback: exports from git notes or on-disk envelopes when no API key.
+    Side effects: writes files under ``output_dir`` locally; hosted mode returns
+    download metadata. Returns ``{ok, bundle?, download_url?, error?}``.
+
+    Parameters:
+        start_date / end_date: ISO 8601 UTC bounds (hosted filter).
+        signer_id: Filter by device_id or public-key fingerprint.
+        format: json, guac, or evidence-pack serialization.
+        include_verification: Attach per-envelope verification replay data.
+        workspace / base / head / output_dir: Local fallback range and output path.
     """
     auth_err = _require_api_key("audit_export (hosted)")
     if auth_err is None:
@@ -572,7 +674,7 @@ def audit_export(
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=_READ_ONLY)
 def list_envelopes(
     limit: Annotated[
         int,
@@ -598,8 +700,16 @@ def list_envelopes(
 ) -> dict[str, Any]:
     """List commit envelopes stored on ssx360.com for the authenticated organization.
 
-    Requires SSX360_API_KEY. Returns paginated envelope metadata for Scroll Gate
-    dashboards, agent memory, and compliance triage. Read-only.
+    Use for paginated org triage and agent memory. Requires SSX360_API_KEY.
+    Do not use for offline Git repos — call ``status`` and ``verify_envelope``.
+    Do not use for bulk export — call ``audit_export`` instead.
+
+    Read-only: no local Git writes. Returns ``{ok, envelopes, total?, error?}``.
+
+    Parameters:
+        limit: Maximum envelopes per page (1–200, default 50).
+        offset: Pagination skip index (zero-based).
+        signer_filter: Optional device_id or public-key prefix.
     """
     auth_err = _require_api_key("list_envelopes")
     if auth_err:
@@ -610,7 +720,7 @@ def list_envelopes(
         return _cloud_error(exc)
 
 
-@mcp.tool()
+@mcp.tool(annotations=_HOSTED_NETWORK)
 def connect_card(
     reader_name: Annotated[
         str,
@@ -636,9 +746,18 @@ def connect_card(
 ) -> dict[str, Any]:
     """Preview: connect to an AP2 Vault Card / SE050 hardware signing bridge.
 
-    Pings the USB CDC transport and reports availability. Hardware signing remains
-    pilot-only; emulated mode is the default evaluation path. Side effects: opens
-    a serial session; does not export private key material.
+    Use to probe USB CDC availability before hardware signing pilots.
+    Do not use for everyday signing — emulated mode is the default path.
+    Do not use for commit envelopes — call ``create_envelope`` after hardware
+    mode is configured.
+
+    Side effects: opens a serial session; does not export private key material.
+    No SSX360_API_KEY required. Returns ``{ok, mode, reader_name, available?, error?}``.
+
+    Parameters:
+        reader_name: Serial port, e.g. COM3 or /dev/ttyACM0 (or env default).
+        pin: Optional secure-element PIN (prefer env in CI; never log).
+        timeout: Transport timeout in milliseconds (default 3000).
     """
     import os
 

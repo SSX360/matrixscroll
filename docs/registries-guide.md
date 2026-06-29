@@ -6,10 +6,17 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
 
 ## 1. Glama Registry
 - **Status:** Integrated via `glama.json`.
-- **How to Publish:** 
+- **Listing:** [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll)
+- **Internal only:** Do **not** submit `digital-rain-mcp` (private SSX360 repo intelligence). If it appears on Glama from an old public scrape, delist via the Glama maintainer dashboard and revoke Glama GitHub App access to `SSX360/digital-rain`.
+- **TDQS checklist (quality A):**
+  1. Every `@mcp.tool()` declares MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`).
+  2. Tool docstrings include **when to use**, **when not to use**, sibling alternatives, side effects, and return shape.
+  3. Pydantic `Field(description=...)` on every parameter (Glama introspection reads `tools/list` JSON Schema).
+  4. CI guard: `tests/test_mcp_server.py::MCPToolDefinitionTests` asserts ≥80% schema description coverage.
+- **How to publish / re-sync:**
   1. Log in to [Glama.ai](https://glama.ai/mcp).
-  2. Sync your repository `https://github.com/SSX360/matrixscroll`.
-  3. Glama will automatically parse `glama.json` and score the tools (our tight, attestation-focused tool docstrings will secure an **A** grade).
+  2. Sync repository `https://github.com/SSX360/matrixscroll` (auto on push; manual sync if stale).
+  3. Confirm per-tool TDQS ≥ B and server quality **A** on the listing page.
 
 ## 2. Official MCP Registry (Model Context Protocol)
 - **Status:** Ready for submission.

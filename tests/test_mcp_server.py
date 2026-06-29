@@ -2,6 +2,7 @@ import unittest
 import tempfile
 import subprocess
 import json
+import asyncio
 from pathlib import Path
 
 from matrixscroll.mcp import (
@@ -10,8 +11,42 @@ from matrixscroll.mcp import (
     verify_pr_range,
     publish_notes,
     status,
-    audit_export
+    audit_export,
+    mcp,
 )
+
+
+def _schema_description_coverage(input_schema: dict) -> float:
+    props = (input_schema or {}).get("properties") or {}
+    if not props:
+        return 100.0
+    with_desc = sum(1 for spec in props.values() if (spec or {}).get("description"))
+    return (with_desc / len(props)) * 100.0
+
+
+class MCPToolDefinitionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_tool_schema_description_coverage(self):
+        tools = await mcp.list_tools()
+        self.assertGreaterEqual(len(tools), 9)
+        for tool in tools:
+            coverage = _schema_description_coverage(tool.inputSchema or {})
+            self.assertGreaterEqual(
+                coverage,
+                80.0,
+                msg=f"{tool.name} schema description coverage {coverage:.0f}%",
+            )
+
+    async def test_tool_annotations_present(self):
+        tools = await mcp.list_tools()
+        for tool in tools:
+            self.assertIsNotNone(
+                tool.annotations,
+                msg=f"{tool.name} missing MCP annotations",
+            )
+            ann = tool.annotations
+            self.assertIsNotNone(ann.readOnlyHint, msg=f"{tool.name} missing readOnlyHint")
+            self.assertIsNotNone(ann.destructiveHint, msg=f"{tool.name} missing destructiveHint")
+
 
 class MCPServerTests(unittest.TestCase):
     def setUp(self):
