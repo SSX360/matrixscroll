@@ -1,5 +1,7 @@
 # Matrix Scroll
 
+[![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
+
 **Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
 open Ed25519 commit-provenance protocol for agent-assisted Git — verified
 offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust

@@ -2,12 +2,12 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
-  "version": "0.3.0",
-  "description": "Cryptographic self-attestation and range verification for agent-assisted Git commits.",
+  "version": "0.4.0",
+  "description": "Thin-client MCP for local Ed25519 commit signing and offline envelope verification. Network features (Scroll Gate, audit export, chain verify) require an ssx360.com API key.",
   "maintainers": ["SSX360"],
-  "homepage": "https://matrixscroll.com",
+  "homepage": "https://ssx360.com",
   "repository": "https://github.com/SSX360/matrixscroll",
-  "documentation": "https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-mcp.md",
+  "documentation": "https://ssx360.com/docs#mcp",
   "transport": {
     "type": "stdio"
   },
@@ -15,7 +15,7 @@
     {
       "registry": "pypi",
       "name": "matrixscroll",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "extras": ["mcp"],
       "command": "matrixscroll-mcp"
     }

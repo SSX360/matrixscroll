@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.3.0"
+version = "0.4.0"
 description = "Signed provenance for agent-assisted Git commits with offline verification; emulated Ed25519 ships today and the SE050 hardware path remains an optional preview."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -62,14 +62,15 @@ matrixscroll = "matrixscroll.cli:main"
 matrixscroll-mcp = "matrixscroll.mcp:main"
 
 [project.urls]
-Homepage = "https://matrixscroll.com"
-Documentation = "https://matrixscroll.com/docs"
+Homepage = "https://ssx360.com"
+Documentation = "https://ssx360.com/docs"
+Repository = "https://github.com/SSX360/matrixscroll"
 Source = "https://github.com/SSX360/matrixscroll"
 Issues = "https://github.com/SSX360/matrixscroll/issues"
 Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
 Whitepaper = "https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md"
-Verifier = "https://matrixscroll.com/verify"
-Compare = "https://matrixscroll.com/compare"
+Verifier = "https://ssx360.com/verify"
+Compare = "https://ssx360.com/docs"
 Changelog = "https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md"
 Discussions = "https://github.com/SSX360/matrixscroll/discussions"
 Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
@@ -77,7 +78,6 @@ Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "PyPI Provenance" = "https://pypi.org/project/matrixscroll/"
 Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
 "Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
-"Reference Device" = "https://matrixscroll.com/hardware/"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]

@@ -18,6 +18,37 @@ from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
 from . import mcp_core as core
+from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
+from .cloud.client import list_envelopes as cloud_list_envelopes
+from .cloud.client import verify_range as cloud_verify_range
+
+SIGNUP_URL = "https://ssx360.com/signup"
+DOCS_URL = "https://ssx360.com/docs"
+
+
+def _require_api_key(feature: str) -> dict[str, Any] | None:
+    """Return structured auth error payload when SSX360_API_KEY is unset."""
+    import os
+
+    if os.environ.get("SSX360_API_KEY", "").strip():
+        return None
+    return {
+        "ok": False,
+        "error": "api_key_required",
+        "message": (
+            f"{feature} requires SSX360_API_KEY. "
+            "Community tier includes 100 CI verifications/day. "
+            f"Get a key at {SIGNUP_URL}"
+        ),
+        "signup_url": SIGNUP_URL,
+        "docs_url": DOCS_URL,
+    }
+
+
+def _cloud_error(exc: Exception) -> dict[str, Any]:
+    if isinstance(exc, CloudAuthError):
+        return {"ok": False, **exc.payload}
+    return {"ok": False, "error": "cloud_error", "message": str(exc)}
 
 mcp = FastMCP(
     "matrixscroll-mcp",
@@ -210,11 +241,12 @@ def verify_pr_range(
         Field(description="Range end Git ref (inclusive), e.g. HEAD or a PR head SHA."),
     ] = "HEAD",
     source: Annotated[
-        Literal["local", "notes", "bundle"],
+        Literal["hosted", "local", "notes", "bundle"],
         Field(
-            description="Envelope transport: local files, git notes (Scroll Gate default), or bundle dir.",
+            description="Envelope transport: hosted Scroll Gate (default, requires SSX360_API_KEY), "
+            "local files, git notes, or bundle dir for offline verification.",
         ),
-    ] = "notes",
+    ] = "hosted",
     notes_ref: Annotated[
         str,
         Field(description="Git notes ref when source=notes, default refs/notes/matrixscroll."),
@@ -240,22 +272,32 @@ def verify_pr_range(
         Field(description="Optional deny-list of provenance.actor_type values."),
     ] = None,
 ) -> dict[str, Any]:
-    """Scroll Gate: verify signed/unsigned commits across a PR commit range (read-only).
+    """Scroll Gate: verify signed/unsigned commits across a PR commit range.
 
-    Returns summary counts plus per-commit results with ``ok`` and error reasons.
+    Hosted mode (default): calls ssx360.com with SSX360_API_KEY.
+    Set source=local|notes|bundle to verify offline without an API key.
     """
-    return core.verify_pr_range(
-        workspace,
-        base=base,
-        head=head,
-        source=source,
-        notes_ref=notes_ref,
-        bundle_dir=bundle_dir,
-        require_mode=require_mode,
-        trusted_keys_file=trusted_keys_file,
-        require_actor_types=require_actor_types,
-        deny_actor_types=deny_actor_types,
-    )
+    if source in ("local", "notes", "bundle"):
+        return core.verify_pr_range(
+            workspace,
+            base=base,
+            head=head,
+            source=source,
+            notes_ref=notes_ref,
+            bundle_dir=bundle_dir,
+            require_mode=require_mode,
+            trusted_keys_file=trusted_keys_file,
+            require_actor_types=require_actor_types,
+            deny_actor_types=deny_actor_types,
+        )
+
+    auth_err = _require_api_key("verify_pr_range (hosted Scroll Gate)")
+    if auth_err:
+        return auth_err
+    try:
+        return cloud_verify_range(base=base, head=head)
+    except Exception as exc:
+        return _cloud_error(exc)
 
 
 @mcp.tool()
@@ -329,12 +371,17 @@ def audit_export(
 ) -> dict[str, Any]:
     """Export an audit evidence bundle for procurement or compliance review.
 
-    Side effects: writes envelope JSON files under ``output_dir`` and optionally
-    ``guac-ingest.jsonl``. Reads git history and local envelopes only; does not push remotes.
-
-    Returns ``{ok: bool, bundle: {...}, guac?: {...}}`` where ``bundle`` lists exported paths
-    and per-commit status, and ``guac`` summarizes JSONL output when ``include_guac`` is true.
+    Team+ hosted export uses SSX360_API_KEY and ssx360.com/api/v1/audit/export.
+    Without a key, falls back to local envelope export under ``output_dir``.
     """
+    auth_err = _require_api_key("audit_export (hosted)")
+    if auth_err is None:
+        try:
+            return cloud_audit_export(format="json")
+        except Exception as exc:
+            return _cloud_error(exc)
+    if auth_err.get("error") != "api_key_required":
+        return auth_err
     return core.audit_export(
         workspace,
         base=base,
@@ -347,6 +394,23 @@ def audit_export(
 def main() -> None:
     """Run the Matrix Scroll MCP server over stdio."""
     mcp.run(transport="stdio")
+
+
+@mcp.tool()
+def list_envelopes(
+    limit: Annotated[
+        int,
+        Field(description="Maximum envelopes to return from the hosted platform (default 50)."),
+    ] = 50,
+) -> dict[str, Any]:
+    """List commit envelopes stored on ssx360.com for the authenticated organization."""
+    auth_err = _require_api_key("list_envelopes")
+    if auth_err:
+        return auth_err
+    try:
+        return cloud_list_envelopes(limit=limit)
+    except Exception as exc:
+        return _cloud_error(exc)
 
 
 if __name__ == "__main__":
