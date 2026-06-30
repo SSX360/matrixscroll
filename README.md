@@ -6,19 +6,16 @@
 
 **123 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md)
 
-**Signed proof of who — or what — wrote every commit.** Matrix Scroll is the
-**universal provenance SDK** — open Ed25519 envelopes for Git commits, CI steps,
-IaC changes, DB migrations, API calls, and smart-contract deploys — verified
-offline in CLI, browser, and CI. Hardware (SE050) is an optional preview trust
-upgrade; emulated mode ships today.
+**Signed proof of who — or what — wrote every AI-assisted commit.** Matrix Scroll is an
+**open protocol for hardware-signed, AI-assisted code provenance** — Ed25519 commit
+envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
+verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
+secure-element signing is on the roadmap with the same verifier contract.
 
-**TAM wedge (honest):** Layer 2 universal provenance SDK ($50–200M) · Layer 3 SSX360 Scroll
-governance on Git ($200M–1B) · Scroll Gate CI ($50–150M) · Python-first ML/agent
-ecosystem via `pip install matrixscroll`.
-
-**Hosted control plane:** identity, billing, and device confirmation live at
-[ssx360.com](https://ssx360.com/). Teams evaluating protected-branch enforcement should
-[book a provenance pilot](https://ssx360.com/contact?intent=pilot);
+**Hosted control plane:** identity, billing, audit ledger, and Scroll Gate live at
+[ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
+[book a provenance pilot](https://ssx360.com/contact?intent=pilot) or visit
+[ssx360.com/enterprise](https://ssx360.com/enterprise).
 Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
 
 ## Compliance evidence mapping
@@ -54,7 +51,7 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 
 **MCP tools (provenance verbs only):** `create_envelope`, `sign_action`, `verify_envelope`,
 `verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`, `list_envelopes`,
-`connect_card` (SE050 preview).
+`connect_card` (SE050 hardware preview, roadmap).
 
 ## Also available — CLI & hooks
 
@@ -128,7 +125,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport preview for the
   SE050 rollout path. Emulated mode is the default evaluation path.
-- In progress: nRF52840 + SE050 firmware validation (AP2 Vault Card PoC), external Ed25519-capable
+- In progress: nRF52840 + SE050 firmware validation for hardware-backed signing, external Ed25519-capable
   hardware key backends, and transparency-log integrations.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
 
@@ -256,8 +253,8 @@ when they preserve the same pure Ed25519 byte contract.
 - Conformance vectors: [`vectors/`](vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
-- Site: <https://ssx360.com/docs> (matrixscroll.com redirects here)
-- Reference device path: [AP2 Vault Card hardware](https://ssx360.com/hardware)
+- Site: <https://matrixscroll.com> · Enterprise: <https://ssx360.com/enterprise>
+- SE050 hardware signing: <https://ssx360.com/enterprise#roadmap>
 
 ## Python API
 
