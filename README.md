@@ -7,7 +7,7 @@
 **123 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md)
 
 **Signed proof of who — or what — wrote every AI-assisted commit.** Matrix Scroll is an
-**open protocol for hardware-signed, AI-assisted code provenance** — Ed25519 commit
+**open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
 envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
 verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
 secure-element signing is on the roadmap with the same verifier contract.
@@ -254,6 +254,7 @@ when they preserve the same pure Ed25519 byte contract.
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com> · Enterprise: <https://ssx360.com/enterprise>
+- [AP2 Vault Card hardware](https://ssx360.com/hardware)
 - SE050 hardware signing: <https://ssx360.com/enterprise#roadmap>
 
 ## Python API
