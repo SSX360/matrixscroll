@@ -18,6 +18,11 @@ from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
+from . import mcp_core as core
+from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
+from .cloud.client import list_envelopes as cloud_list_envelopes
+from .cloud.client import verify_range as cloud_verify_range
+
 # MCP tool annotations for Glama TDQS Behavioral Transparency scoring.
 _READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
@@ -37,11 +42,6 @@ _HOSTED_NETWORK = ToolAnnotations(
     idempotentHint=False,
     openWorldHint=True,
 )
-
-from . import mcp_core as core
-from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
-from .cloud.client import list_envelopes as cloud_list_envelopes
-from .cloud.client import verify_range as cloud_verify_range
 
 SIGNUP_URL = "https://ssx360.com/signup"
 DOCS_URL = "https://ssx360.com/docs"
@@ -720,8 +720,24 @@ def list_envelopes(
         return _cloud_error(exc)
 
 
+_CONNECT_CARD_DESCRIPTION = (
+    "Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.\n\n"
+    "Use before hardware signing pilots to confirm the reader responds on the serial port. "
+    "Do not use for everyday signing — use create_envelope (emulated mode) instead. "
+    "Do not use for verification — call verify_envelope after envelopes exist. "
+    "Prefer status to check local identity without opening USB.\n\n"
+    "Side effects: opens a short-lived serial session; does not export private keys. "
+    "No SSX360_API_KEY required. Returns {ok, mode, reader_name, available?, error?}.\n\n"
+    "Parameters:\n"
+    "    reader_name: Serial port, e.g. COM3 or /dev/ttyACM0 (or env default).\n"
+    "    pin: Optional secure-element PIN; prefer MATRIXSCROLL_PIV_PIN in CI.\n"
+    "    timeout: Transport timeout in milliseconds (default 3000)."
+)
+
+
 @mcp.tool(
     title="Connect SE050 hardware bridge",
+    description=_CONNECT_CARD_DESCRIPTION,
     annotations=_HOSTED_NETWORK,
 )
 def connect_card(

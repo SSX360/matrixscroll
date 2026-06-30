@@ -61,9 +61,50 @@ def get_github_stats(token=None):
         
     return stats
 
+_GLAMA_BADGE = re.compile(
+    r">([A-F])</div><span>([^<]+)</span>",
+    re.IGNORECASE,
+)
+
+
+def _parse_glama_badges(html):
+    """Extract license, quality, and maintenance letter grades from Glama SSR HTML."""
+    quality = license_grade = maintenance = None
+    for grade, label in _GLAMA_BADGE.findall(html):
+        label_lower = label.strip().lower()
+        if label_lower.startswith("license"):
+            license_grade = grade.upper()
+        elif label_lower == "quality":
+            quality = grade.upper()
+        elif label_lower == "maintenance":
+            maintenance = grade.upper()
+    return quality, license_grade, maintenance
+
+
+def get_glama_registry_status():
+    """Return Glama listing status for matrixscroll and digital-rain."""
+    matrixscroll = fetch_json("https://glama.ai/api/mcp/v1/servers/SSX360/matrixscroll")
+    digital_rain = fetch_json("https://glama.ai/api/mcp/v1/servers/SSX360/digital-rain")
+    listing_html = fetch_html("https://glama.ai/mcp/servers/SSX360/matrixscroll")
+
+    quality = license_grade = maintenance = None
+    if isinstance(listing_html, str) and not listing_html.startswith("error:"):
+        quality, license_grade, maintenance = _parse_glama_badges(listing_html)
+
+    return {
+        "matrixscroll_listed": isinstance(matrixscroll, dict) and "error" not in matrixscroll,
+        "matrixscroll_id": matrixscroll.get("id") if isinstance(matrixscroll, dict) else None,
+        "matrixscroll_quality": quality,
+        "matrixscroll_license": license_grade,
+        "matrixscroll_maintenance": maintenance,
+        "digital_rain_listed": isinstance(digital_rain, dict) and "error" not in digital_rain,
+        "digital_rain_id": digital_rain.get("id") if isinstance(digital_rain, dict) else None,
+    }
+
+
 def get_glama_favorites():
-    html = fetch_html("https://glama.ai/mcp/servers/matrixscroll-mcp")
-    if "error" in html:
+    html = fetch_html("https://glama.ai/mcp/servers/SSX360/matrixscroll")
+    if not isinstance(html, str) or html.startswith("error:"):
         return "N/A"
     # Basic scraping for favorites count
     match = re.search(r'(\d+)\s+favorites', html, re.IGNORECASE)
@@ -100,6 +141,19 @@ def main():
     print(f"    - Verify Action Forks:    {gh['action_forks']}")
     print(f"    - Unique Clones (14d):    {gh['clones_14d']}")
     print(f"    - Unique Views (14d):     {gh['views_14d']}")
+
+    print("\n[*] Querying Glama registry status...")
+    glama_status = get_glama_registry_status()
+    if "error" in glama_status:
+        print(f"    - Error: {glama_status['error']}")
+    else:
+        print(f"    - matrixscroll quality:   {glama_status.get('matrixscroll_quality', 'unknown')}")
+        print(f"    - matrixscroll license:   {glama_status.get('matrixscroll_license', 'unknown')}")
+        print(f"    - matrixscroll maint.:    {glama_status.get('matrixscroll_maintenance', 'unknown')}")
+        if glama_status.get("digital_rain_listed"):
+            print("    - digital-rain-mcp:       STILL LISTED (email support@glama.ai, id xwxknl3sgw)")
+        else:
+            print("    - digital-rain-mcp:       not listed (ok)")
 
     print("\n[*] Querying Glama Registry favorites...")
     glama = get_glama_favorites()

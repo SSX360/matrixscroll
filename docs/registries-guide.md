@@ -5,9 +5,9 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
 ---
 
 ## 1. Glama Registry
-- **Status:** Integrated via `glama.json`.
+- **Status:** Live — quality **A** on [matrixscroll Glama listing](https://glama.ai/mcp/servers/SSX360/matrixscroll) (license A, maintenance A, TDQS tool-set A as of 2026-06-29).
 - **Listing:** [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll)
-- **Internal only:** Do **not** submit `digital-rain-mcp` (private SSX360 repo intelligence). If it appears on Glama from an old public scrape, delist via the Glama maintainer dashboard and revoke Glama GitHub App access to `SSX360/digital-rain`.
+- **Internal only:** Do **not** submit `digital-rain-mcp` (private SSX360 repo intelligence). If it appears on Glama from an old public scrape, email **support@glama.ai** with server id `xwxknl3sgw` and request delisting of `SSX360/digital-rain`.
 - **TDQS checklist (quality A):**
   1. Every `@mcp.tool()` declares MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`).
   2. Tool docstrings include **when to use**, **when not to use**, sibling alternatives, side effects, and return shape.
