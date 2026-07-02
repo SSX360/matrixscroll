@@ -9,6 +9,6 @@ Canonical operator runbooks live in **digital-rain** (docs hub):
 | Compliance mappings | `digital-rain/docs/commercial/COMPLIANCE_MAPPINGS.md` |
 | Scroll Gate v2 | [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) (local) |
 
-**SDK-specific gates (Boja Week 2):** `python scripts/release-readiness.py` must be a **required** CI check before merge. Version truth: PyPI `0.5.1` ↔ README quickstart ↔ consumer action pin.
+**SDK-specific gates (Boja Week 2):** `python scripts/release-readiness.py` must be a **required** CI check before merge. Version truth: PyPI `0.5.1` ↔ README quickstart pins ↔ consumer action pin. See [100_POINT_ADDENDUM_2026-07.md](./100_POINT_ADDENDUM_2026-07.md).
 
 **Oliver Machine persona:** README protocol links point to matrixscroll.com; relabel `ssx360` CLI simulators if binary not shipped; no AP2 Vault Card in public proof links.

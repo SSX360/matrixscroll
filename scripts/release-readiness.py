@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT = ROOT / "pyproject.toml"
 INIT = ROOT / "matrixscroll" / "__init__.py"
 GLAMA = ROOT / "glama.json"
+README = ROOT / "README.md"
+README_PIN = re.compile(r'matrixscroll(?:\[mcp\])?==([0-9]+\.[0-9]+\.[0-9]+)')
 PYPI_URL = "https://pypi.org/pypi/matrixscroll/json"
 
 
@@ -45,6 +47,11 @@ def fetch_pypi_versions() -> tuple[str, set[str]]:
     return latest, releases
 
 
+def read_readme_pins() -> set[str]:
+    text = README.read_text(encoding="utf-8")
+    return set(README_PIN.findall(text))
+
+
 def main() -> int:
     versions = {
         "pyproject.toml": read_version_from_pyproject(),
@@ -62,6 +69,19 @@ def main() -> int:
 
     target = unique.pop()
     print(f"OK: local release target is {target}")
+
+    readme_pins = read_readme_pins()
+    print(f"README install pins: {sorted(readme_pins) or ['(none)']}")
+    if not readme_pins:
+        print("FAIL: README.md has no matrixscroll== pins", file=sys.stderr)
+        return 1
+    if readme_pins != {target}:
+        print(
+            f"FAIL: README pins {sorted(readme_pins)} disagree with release target {target}",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"OK: README quickstart pins match {target}")
 
     try:
         pypi_latest, pypi_releases = fetch_pypi_versions()
