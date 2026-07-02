@@ -34,7 +34,9 @@ Supply-chain incidents involving agent-assisted merges illustrate the gap: audit
 
 ## Regulatory context (verified links)
 
-Five Eyes agencies published joint guidance on careful adoption of agentic AI services:
+Live audit regimes to lead with: DORA, PCI DSS 4.0 Req 6.5, US Treasury FS-AI RMF, and NIST SSDF. EU AI Act Article 12 is a **2027 readiness** mapping, not a current mandate on dev teams.
+
+Five Eyes agencies published supplementary joint guidance on careful adoption of agentic AI services (maps to controls; not a forcing function):
 
 - [CISA — Careful Adoption of Agentic AI Services](https://www.cisa.gov/resources-tools/resources/careful-adoption-agentic-ai-services)
 - [ACSC — Careful adoption of agentic AI services](https://www.cyber.gov.au/business-government/secure-design/artificial-intelligence/careful-adoption-of-agentic-ai-services)

@@ -24,12 +24,14 @@ Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx36
 
 ## Compliance evidence mapping
 
-Matrix Scroll **maps to** and **produces evidence for** (never “required by”):
+Matrix Scroll **maps to** and **produces evidence for** (never “required by”; not a certification claim):
 
-- **Five Eyes · Agentic AI (Apr 2026)** — cryptographic attestation that agents
-  run expected, unmodified code.
-- **EU AI Act · high-risk traceability** — verifiable commit-time audit artifacts.
-- **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
+- **DORA (Jan 2025)** — ICT change-management evidence for software changes.
+- **PCI DSS 4.0 Req 6.5 (Mar 2025)** — change-control evidence for custom software.
+- **US Treasury FS-AI RMF (Feb 2026)** — traceability for agent actions in financial software.
+- **NIST SSDF** — provenance, change authorization, and release gate review.
+- **EU AI Act Article 12** — record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
+- **Five Eyes Agentic AI guidance (Apr 2026)** — supplementary mapping only; see [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json).
 
 Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
@@ -131,9 +133,9 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport preview for the
   SE050 rollout path. Emulated mode is the default evaluation path.
-- In progress: nRF52840 + SE050 firmware validation for hardware-backed signing, external Ed25519-capable
+- In progress: nRF52840 + SE050 firmware validation — secure-element signing remains preview until device acceptance gates pass; external Ed25519-capable
   hardware key backends, and transparency-log integrations.
-- Compliance language is evidence mapping (SSDF, SLSA, EU AI Act traceability, Five Eyes agentic-AI guidance), not certification or customer endorsement.
+- Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
 - Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
 
@@ -145,7 +147,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   proofs; Matrix Scroll covers commit-time provenance.
 - The public contract stays pure Ed25519 over canonical manifest bytes for the
   required `signature` block — whether the signer is emulated today or
-  hardware-backed later. Software signers may optionally attach ML-DSA/SLH-DSA
+  SE050 secure-element signing later. Software signers may optionally attach ML-DSA/SLH-DSA
   overlays (FIPS 204/205) via `matrixscroll[pqc]` without changing hardware firmware.
 
 ## Common questions
