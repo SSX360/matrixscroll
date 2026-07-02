@@ -12,7 +12,7 @@ verify that proof offline before merge.
 ## Install hooks
 
 ```bash
-pip install "matrixscroll==0.5.0"
+pip install "matrixscroll==0.5.1"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -45,7 +45,7 @@ Enable enforce mode in `.git/matrixscroll/config.json`:
 Windows support landed in **matrixscroll 0.2.1**. Pin `0.5.0` after upgrading:
 
 ```powershell
-pip install -U "matrixscroll==0.5.0"
+pip install -U "matrixscroll==0.5.1"
 matrixscroll hook-install
 ```
 
@@ -89,7 +89,7 @@ Use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscr
 
 ## How can I integrate Matrix Scroll into a CI/CD workflow?
 
-1. Install `matrixscroll==0.5.0` and `matrixscroll hook-install` in the repo.
+1. Install `matrixscroll==0.5.1` and `matrixscroll hook-install` in the repo.
 2. Publish commit envelopes to `refs/notes/matrixscroll` before PR review.
 3. Run `SSX360/matrixscroll-verify-action@v1` in GitHub Actions to verify the
    full PR commit range from notes.

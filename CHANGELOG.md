@@ -4,6 +4,15 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-07-02
+
+### Added
+- **`ssx360` and `ssx360-ledger` console scripts** — ship on PyPI with the SDK
+  (local repo had entry points since POC 2 baseline; 0.5.0 wheel omitted them).
+
+### Documentation
+- Pin public install examples and CI workflows to `matrixscroll==0.5.1`.
+
 ## [0.5.0] - 2026-07-02
 
 Post-quantum overlay (v1.1 additive extension).
@@ -205,6 +214,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0
 [0.2.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.2
 [0.2.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.1
