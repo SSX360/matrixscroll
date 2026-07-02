@@ -1,5 +1,7 @@
 # Matrix Scroll
 
+**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try) — offline tamper demo and ten-line quickstart.
+
 **Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md)
 
 [![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
@@ -185,6 +187,8 @@ git commit -m "feat: agent-assisted change"
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
 
+**Try it in the browser:** [matrixscroll.com/try](https://matrixscroll.com/try)
+
 See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 [`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
 
@@ -252,7 +256,8 @@ when they preserve the same pure Ed25519 byte contract.
 
 ## Public proof links
 
-- Browser verifier: <https://ssx360.com/verify>
+- Browser verifier: <https://matrixscroll.com/verify>
+- Try it (quickstart + tamper demo): <https://matrixscroll.com/try>
 - Compare page: <https://ssx360.com/compare>
 - Documentation: <https://ssx360.com/docs>
 - Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
