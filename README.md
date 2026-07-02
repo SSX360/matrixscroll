@@ -4,7 +4,7 @@
 [![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
 [![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
 
-**123 tests** · Hypothesis-verified security properties · [Security properties](docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
+**123 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
 
 **Signed proof of who — or what — wrote every AI-assisted commit.** Matrix Scroll is an
 **open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
@@ -77,7 +77,7 @@ matrixscroll sign-action --type ci_step \
   --actor-type ci
 ```
 
-Action schema: [`schemas/action-envelope.v1.json`](schemas/action-envelope.v1.json)
+Action schema: [`schemas/action-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/action-envelope.v1.json)
 
 ### SSX360 Scroll — Git wrapper (Layer 3, Phase 1)
 
@@ -116,9 +116,9 @@ preview path until device acceptance is complete.
 
 Matrix Scroll v1 binds exclusively to [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032)
 Ed25519: 32-byte seeds, 32-byte public keys, 64-byte detached signatures over
-canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
+canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md) §4). Verifiers reject any
 `signature.algorithm` other than `"ed25519"`. Conformance vectors live in
-[`vectors/`](vectors/); property tests in [`docs/SECURITY_PROPERTIES.md`](docs/SECURITY_PROPERTIES.md).
+[`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/); property tests in [`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md).
 
 ## Honest limits
 
@@ -251,12 +251,12 @@ when they preserve the same pure Ed25519 byte contract.
 - Browser verifier: <https://ssx360.com/verify>
 - Compare page: <https://ssx360.com/compare>
 - Documentation: <https://ssx360.com/docs>
-- Specification: [`SPEC.md`](SPEC.md)
-- Commit envelope schema: [`schemas/commit-envelope.v1.json`](schemas/commit-envelope.v1.json)
+- Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
+- Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
-- Conformance vectors: [`vectors/`](vectors/)
+- Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
-- Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](docs/AGENTIC_AI_SECURITY.md)
+- Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com> · Enterprise: <https://ssx360.com/enterprise>
 - [AP2 Vault Card hardware](https://ssx360.com/hardware)
 - SE050 hardware signing: <https://ssx360.com/enterprise#roadmap>
@@ -356,7 +356,7 @@ acceptance is complete.
 
 Matrix Scroll is a protocol. This Python package is the reference. We welcome
 implementations in Rust, Go, TypeScript, and embedded C. Run them against
-[`vectors/`](vectors/) to self-certify. See `CONTRIBUTING.md`.
+[`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/) to self-certify. See `CONTRIBUTING.md`.
 
 ## Agentic AI guidance proof
 
@@ -388,7 +388,7 @@ the recommended `mcp.json` snippet.
 
 ## Security
 
-See [`SECURITY.md`](SECURITY.md) and [`docs/SECURITY_PROPERTIES.md`](docs/SECURITY_PROPERTIES.md).
+See [`SECURITY.md`](SECURITY.md) and [`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md).
 Report vulnerabilities privately to
 **security@matrixscroll.com** or via a GitHub Security Advisory.
 
