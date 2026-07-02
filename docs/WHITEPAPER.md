@@ -117,7 +117,7 @@ export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.jso
 | Level | Provider | Status |
 |-------|----------|--------|
 | **L1 Emulated** | Software key (`~/.matrixscroll/`) | Shipping |
-| **L2 Hardware** | SSX360 / NXP SE050 secure element | In progress |
+| **L2 Hardware** | SSX360 / NXP SE050 secure element | In firmware validation |
 | **L3 Attested** | L2 + remote attestation | Roadmap |
 
 External hardware key backend criteria are documented in

@@ -31,9 +31,7 @@ Matrix Scroll **maps to** and **produces evidence for** (never “required by”
 - **US Treasury FS-AI RMF (Feb 2026)** — traceability for agent actions in financial software.
 - **NIST SSDF** — provenance, change authorization, and release gate review.
 - **EU AI Act Article 12** — record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
-- **Five Eyes Agentic AI guidance (Apr 2026)** — supplementary mapping only; see [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json).
-
-Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+- **Five Eyes Agentic AI guidance (Apr 2026)** — linked crosswalk only: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
 POC 2 audit readiness: [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
 
@@ -324,7 +322,7 @@ matrixscroll.sign_manifest(...)  /  post-commit hook
          v
 IdentityProvider          -->  Ed25519 signature
 (L1 emulated today,
- SSX360 / SE050 roadmap)
+ SSX360 / SE050 in firmware validation)
          |
          v
 signed document  -->  matrixscroll.verify_manifest(...)
