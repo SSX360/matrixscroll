@@ -26,6 +26,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Matrix Scroll (includes ssx360 CLI)
+        run: pip install -e .
+
       - name: Resolve gate mode
         id: gate
         run: |
@@ -42,23 +49,37 @@ jobs:
           echo "Community tier includes 100 CI verifications/day. Get a key at https://ssx360.com/signup" >&2
           exit 1
 
+      - name: Resolve commit range
+        id: range
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch envelope notes
+        run: git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll || true
+
       - name: Hosted verify (warn mode)
         if: steps.gate.outputs.mode == 'warn'
         continue-on-error: true
         run: |
           set -euo pipefail
-          BASE="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
-          HEAD="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
-          curl -fsS -X POST "https://ssx360.com/api/v1/verify" \
-            -H "Authorization: Bearer ${SSX360_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "{\"base\":\"${BASE}\",\"head\":\"${HEAD}\",\"commits\":[]}" \
-            | tee provenance-summary.json
+          ssx360 check \
+            --hosted \
+            --base "${{ steps.range.outputs.base }}" \
+            --head "${{ steps.range.outputs.head }}" \
+            --source notes \
+            --summary-output provenance-summary.json
           {
             echo "## Matrix Scroll Scroll Gate v2 (hosted)"
             echo ""
             echo "**Mode:** warn — advisory; merge not blocked"
-            echo "**API:** ssx360.com/api/v1/verify"
+            echo "**CLI:** ssx360 check --hosted"
             echo "**Community tier:** 100 verifications/day — [ssx360.com/signup](https://ssx360.com/signup)"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -66,18 +87,12 @@ jobs:
         if: steps.gate.outputs.mode == 'enforce'
         run: |
           set -euo pipefail
-          BASE="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
-          HEAD="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
-          RESP="$(curl -fsS -X POST "https://ssx360.com/api/v1/verify" \
-            -H "Authorization: Bearer ${SSX360_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "{\"base\":\"${BASE}\",\"head\":\"${HEAD}\",\"commits\":[]}")"
-          echo "$RESP" | tee provenance-summary.json
-          OK="$(echo "$RESP" | python -c 'import json,sys; print(json.load(sys.stdin).get("ok", False))')"
-          if [ "$OK" != "True" ] && [ "$OK" != "true" ]; then
-            echo "Scroll Gate enforce failed." >&2
-            exit 1
-          fi
+          ssx360 check \
+            --hosted \
+            --base "${{ steps.range.outputs.base }}" \
+            --head "${{ steps.range.outputs.head }}" \
+            --source notes \
+            --summary-output provenance-summary.json
 
       - name: Upload provenance summary
         if: always()

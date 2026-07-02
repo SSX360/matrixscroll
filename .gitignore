@@ -33,3 +33,6 @@ env/
 # Matrix Scroll local store (never commit a private key)
 .matrixscroll/
 device.json
+
+# TLA+ tools (download locally or in CI)
+tla2tools.jar

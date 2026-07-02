@@ -198,7 +198,7 @@ def _load_serial_class():
     except ImportError as exc:  # pragma: no cover - depends on local install
         raise TransportUnavailable(
             'pyserial is required for MATRIXSCROLL_MODE=hardware. '
-            'Install with pip install "matrixscroll[hardware]==0.4.2".'
+            'Install with pip install "matrixscroll[hardware]==0.5.0".'
         ) from exc
     return serial.Serial
 

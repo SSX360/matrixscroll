@@ -46,7 +46,7 @@ partnership inquiries.
 ## Status
 
 - **Shipping now:** L1 emulated Ed25519 signing, Git post-commit hooks, PyPI
-  `matrixscroll` **0.4.1**, Scroll Gate, the public verifier, the public action,
+  `matrixscroll` **0.5.0**, Scroll Gate, the public verifier, the public action,
   and the SE050 host transport preview
 - **In progress:** RP2350 + SE050 firmware validation, external Ed25519-capable
   key backends, and transparency-log integrations

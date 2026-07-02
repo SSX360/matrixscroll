@@ -103,6 +103,7 @@ def audit_export(
     end_date: str = "",
     signer_id: str = "",
     include_verification: bool = True,
+    framework: str = "",
 ) -> dict[str, Any]:
     """Export audit bundle from the hosted platform (Team+)."""
     params = [f"format={urllib.parse.quote(format)}"]
@@ -114,5 +115,7 @@ def audit_export(
         params.append(f"signer_id={urllib.parse.quote(signer_id.strip())}")
     if include_verification:
         params.append("include_verification=true")
+    if framework.strip():
+        params.append(f"framework={urllib.parse.quote(framework.strip())}")
     query = "&".join(params)
     return _request("GET", f"/api/v1/audit/export?{query}")

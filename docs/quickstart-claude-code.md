@@ -6,7 +6,7 @@ verifiable provenance.
 ## One-time setup
 
 ```bash
-pip install "matrixscroll>=0.4.1"
+pip install "matrixscroll>=0.5.0"
 matrixscroll hook-install
 ```
 

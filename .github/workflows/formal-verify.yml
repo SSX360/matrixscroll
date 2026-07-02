@@ -1,0 +1,39 @@
+name: formal-verify
+
+on:
+  pull_request:
+    paths:
+      - "formal/**"
+      - "matrixscroll/formal.py"
+      - "scripts/verify_formal.py"
+      - ".github/workflows/formal-verify.yml"
+  push:
+    branches: [main]
+    paths:
+      - "formal/**"
+
+permissions:
+  contents: read
+
+jobs:
+  tlc:
+    name: TLC model check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download TLA+ tools
+        run: |
+          curl -fsSL -o tla2tools.jar \
+            https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar
+
+      - name: Run TLC on formal models
+        run: |
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/CanonicalBytes.cfg formal/tla/CanonicalBytes.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/ScrollGate.cfg formal/tla/ScrollGate.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/AuthorityFive.cfg formal/tla/AuthorityFive.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/OrgPlanSync.cfg formal/tla/OrgPlanSync.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/DualSignature.cfg formal/tla/DualSignature.tla
+
+      - name: Python formal registry smoke
+        run: python -m pytest tests/test_formal_specs.py -q

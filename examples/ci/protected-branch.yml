@@ -24,7 +24,7 @@ jobs:
         uses: SSX360/matrixscroll-verify-action@v1
         with:
           manifest: examples/release-manifest.signed.json
-          matrixscroll-version: "0.4.1"
+          matrixscroll-version: "0.5.0"
 
   verify-pr-envelopes:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
           source: notes
           notes-ref: refs/notes/matrixscroll
           fetch-notes: "true"
-          matrixscroll-version: "0.4.1"
+          matrixscroll-version: "0.5.0"
           summary-output: provenance-summary.json
         # Optional policy enforcement:
         # require-mode: emulated
@@ -71,4 +71,4 @@ jobs:
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: bundle
           bundle-dir: evidence/bundle
-          matrixscroll-version: "0.4.1"
+          matrixscroll-version: "0.5.0"

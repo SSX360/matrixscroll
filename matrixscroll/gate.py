@@ -371,7 +371,10 @@ def verify_envelope_range(
     bundle_dir: Path | None = None,
     policy: VerifyPolicy | None = None,
 ) -> dict[str, Any]:
-    """Verify every commit in ``base..head`` has a valid envelope from *source*."""
+    """Verify every commit in ``base..head`` has a valid envelope from *source*.
+
+    Safety invariants: see ``formal/tla/ScrollGate.tla`` (F-G1 enforce merge, F-G3 valid range).
+    """
     root = root or repo_root()
     shas = commits_in_range(base, head, root=root)
     if not shas:

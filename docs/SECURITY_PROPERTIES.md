@@ -2,7 +2,9 @@
 
 Machine-checkable guarantees for the reference SDK (v0.5.0). Properties marked
 **verified** have Hypothesis property tests in `tests/test_security_properties.py`.
-Formal TLA+ models are on the public roadmap.
+**Formal TLA+ models** in [`formal/tla/`](../formal/tla/) are checked by TLC in
+[`.github/workflows/formal-verify.yml`](../.github/workflows/formal-verify.yml).
+See [`formal/PROPERTIES.md`](../formal/PROPERTIES.md) for the full registry.
 
 | ID | Property | Statement | Status |
 | -- | -------- | ----------- | ------ |
@@ -36,9 +38,22 @@ Rust rewrite.
 | **Emulated** | Owner-only file (`~/.matrixscroll/device.json`, mode 0600) | **Shipping today** |
 | **Hardware (SE050)** | NXP secure element on AP2 Vault Card pilot | **Pilot / preview** — same verifier contract, key not exportable from chip |
 
+## Formal methods (TLA+ / PlusCal)
+
+Design-level models live in [`formal/`](../formal/). TLC exhaustively checks safety
+invariants before implementation changes land.
+
+| Model | Safety invariant (sample) | Code |
+| ----- | ------------------------- | ---- |
+| `CanonicalBytes.tla` | Verify ⇒ untampered + matching key | `crypto_backend.py` |
+| `ScrollGate.tla` | Enforce ⇒ no merge unless all valid | `gate.py` |
+| `AuthorityFive.tla` | No purchase/payment without grant | Mandate roadmap |
+| `OrgPlanSync.tla` | Org plan ≥ entitlement after sync | SSX360 `platform-service` |
+
+Run: `python scripts/verify_formal.py` (requires TLC or Docker — see `formal/README.md`).
+
 ## Roadmap (not claimed today)
 
-- TLA+ specification of Scroll Gate merge semantics
 - Third-party cryptographic audit and public threat model
 - npm `@ssx360/verify` browser/Node verifier package
 - IETF informational draft for commit-envelope wire format

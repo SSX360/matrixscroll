@@ -5,7 +5,7 @@ Install the provenance MCP server so agents can sign and verify commit envelopes
 ## Install
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.1"
+pip install "matrixscroll[mcp]==0.5.0"
 ```
 
 The console script `matrixscroll-mcp` is the preferred entry point. `python -m matrixscroll.mcp` also works.
@@ -53,7 +53,7 @@ Use `verify_pr_range` with `source=notes` for offline git-notes verification wit
 For Git hook and CI workflows without MCP, use:
 
 ```bash
-pip install "matrixscroll==0.4.1"
+pip install "matrixscroll==0.5.0"
 matrixscroll hook-install
 ```
 

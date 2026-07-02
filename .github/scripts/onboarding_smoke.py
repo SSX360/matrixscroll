@@ -69,7 +69,7 @@ def main() -> int:
         "ok": False,
         "platform": platform.system().lower(),
         "python": platform.python_version(),
-        "install": "matrixscroll==0.4.1",
+        "install": "matrixscroll==0.5.0",
         "workspace": str(repo),
     }
 
