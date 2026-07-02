@@ -33,7 +33,7 @@ This is a small open-source project maintained by SSX360. We aim to:
 - respond to Discussions when we can; no SLA for community Q&A
 
 Commercial support for teams (policy design, hardware rollout, CI integration)
-is not offered through this repo today. Contact **hello@matrixscroll.com** for
+is not offered through this repo today. Contact **mission@ssx360.com** for
 partnership inquiries.
 
 ## What we cannot help with in issues

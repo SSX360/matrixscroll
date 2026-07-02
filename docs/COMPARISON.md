@@ -81,4 +81,4 @@ No single competitor listed above combines all four today.
 - [Whitepaper](WHITEPAPER.md) — threat model and envelope design
 - [SPEC.md](../SPEC.md) — wire format and verification rules
 
-*Last updated: June 2026. Comparisons reflect public docs and OSS repos; contact security@matrixscroll.com for corrections.*
+*Last updated: June 2026. Comparisons reflect public docs and OSS repos; contact mission@ssx360.com for corrections.*
