@@ -23,6 +23,7 @@ htmlcov/
 .venv/
 venv/
 env/
+.glama-test-venv/
 
 # Editors
 .vscode/
