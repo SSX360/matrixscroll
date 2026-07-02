@@ -1,5 +1,7 @@
 # Matrix Scroll
 
+**Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md)
+
 [![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
 [![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
 [![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
@@ -129,6 +131,8 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   SE050 rollout path. Emulated mode is the default evaluation path.
 - In progress: nRF52840 + SE050 firmware validation for hardware-backed signing, external Ed25519-capable
   hardware key backends, and transparency-log integrations.
+- Compliance language is evidence mapping (SSDF, SLSA, EU AI Act traceability, Five Eyes agentic-AI guidance), not certification or customer endorsement.
+- Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
 
 ## Where it fits
