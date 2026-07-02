@@ -14,7 +14,7 @@
 **open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
 envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
 verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
-secure-element signing is on the roadmap with the same verifier contract.
+secure-element signing is in firmware validation with the same verifier contract.
 
 **Hosted control plane:** identity, billing, audit ledger, and Scroll Gate live at
 [ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
@@ -260,17 +260,16 @@ when they preserve the same pure Ed25519 byte contract.
 
 - Browser verifier: <https://matrixscroll.com/verify>
 - Try it (quickstart + tamper demo): <https://matrixscroll.com/try>
-- Compare page: <https://ssx360.com/compare>
-- Documentation: <https://ssx360.com/docs>
+- Compare page: <https://matrixscroll.com/compare>
+- Documentation: <https://matrixscroll.com/docs>
 - Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
-- Site: <https://matrixscroll.com> · Enterprise: <https://ssx360.com/enterprise>
-- [AP2 Vault Card hardware](https://ssx360.com/hardware)
-- SE050 hardware signing: <https://ssx360.com/enterprise#roadmap>
+- Site: <https://matrixscroll.com> · Control plane: <https://ssx360.com> · Enterprise: <https://ssx360.com/enterprise>
+- SE050 hardware preview: <https://ssx360.com/enterprise#roadmap> (in firmware validation)
 
 ## Python API
 
