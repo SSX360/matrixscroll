@@ -33,6 +33,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,mcp,pqc]"
 
+      - name: Validate Glama PyPI pin
+        run: python scripts/validate_glama_pypi.py
+
       - name: Run unit tests
         run: python -m pytest -q
 

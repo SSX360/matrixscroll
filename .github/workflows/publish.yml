@@ -73,3 +73,6 @@ jobs:
         with:
           packages-dir: dist/
           attestations: true
+
+      - name: Verify Glama PyPI pin
+        run: python scripts/validate_glama_pypi.py
