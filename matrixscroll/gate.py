@@ -38,6 +38,8 @@ class EnvelopeVerifyResult:
     actor_type: str | None = None
     tool: str | None = None
     tool_version: str | None = None
+    pqc_present: bool | None = None
+    pqc_algorithms: list[str] | None = None
     error: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -145,6 +147,14 @@ def verify_commit_envelope_for_sha(
                 )
 
     block = envelope.get("signature") or {}
+    pqc_blocks = envelope.get("pqc_signatures")
+    pqc_algorithms: list[str] | None = None
+    if isinstance(pqc_blocks, list) and pqc_blocks:
+        pqc_algorithms = [
+            str(b.get("algorithm"))
+            for b in pqc_blocks
+            if isinstance(b, dict) and b.get("algorithm")
+        ]
     return EnvelopeVerifyResult(
         ok=True,
         sha=sha,
@@ -152,6 +162,8 @@ def verify_commit_envelope_for_sha(
         mode=block.get("mode"),
         actor_type=provenance.get("actor_type"),
         tool=provenance.get("tool"),
+        pqc_present=bool(pqc_algorithms),
+        pqc_algorithms=pqc_algorithms or None,
         tool_version=provenance.get("tool_version"),
     )
 

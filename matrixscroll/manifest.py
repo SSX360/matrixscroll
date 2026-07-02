@@ -75,3 +75,31 @@ def verify_manifest(manifest: dict[str, Any]) -> bool:
     if algorithm != ALGORITHM:
         return False
     return verify(public_key_bytes, signing_input, signature_bytes)
+
+
+def verify_manifest_pqc(manifest: dict[str, Any]) -> bool:
+    """Verify optional PQC overlay blocks (§11). Returns True if absent or all valid."""
+    from .pqc import verify_pqc_signatures
+
+    return verify_pqc_signatures(manifest)
+
+
+def sign_manifest_with_pqc(
+    manifest: dict[str, Any],
+    provider=None,
+    *,
+    pqc_algorithm: str | None = None,
+) -> dict[str, Any]:
+    """Sign Ed25519 (required) then attach optional PQC overlay."""
+    signed = sign_manifest(manifest, provider)
+    from .pqc import attach_pqc_overlay, configured_pqc_algorithm
+
+    algo = pqc_algorithm or configured_pqc_algorithm()
+    if not algo:
+        return signed
+    return attach_pqc_overlay(signed, algo)
+
+
+def verify_manifest_full(manifest: dict[str, Any]) -> bool:
+    """Verify Ed25519 and optional PQC overlay."""
+    return verify_manifest(manifest) and verify_manifest_pqc(manifest)

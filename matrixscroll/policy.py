@@ -19,6 +19,7 @@ class VerifyPolicy:
     deny_actor_types: set[str] | None = None
     require_delegation_for_actor_types: set[str] | None = None
     verify_agent_scope: bool = False
+    require_pqc: str | bool = False
 
     @classmethod
     def from_json_file(cls, path: str | Path) -> "VerifyPolicy":
@@ -28,6 +29,7 @@ class VerifyPolicy:
         req_actors = data.get("require_actor_types")
         deny_actors = data.get("deny_actor_types")
         req_deleg = data.get("require_delegation_for_actor_types")
+        require_pqc = data.get("require_pqc", False)
         return cls(
             require_mode=data.get("require_mode"),
             trusted_public_keys=set(keys) if keys else None,
@@ -36,6 +38,7 @@ class VerifyPolicy:
             deny_actor_types=set(deny_actors) if deny_actors else None,
             require_delegation_for_actor_types=set(req_deleg) if req_deleg else None,
             verify_agent_scope=bool(data.get("verify_agent_scope", False)),
+            require_pqc=require_pqc,
         )
 
     def is_empty(self) -> bool:
@@ -47,7 +50,55 @@ class VerifyPolicy:
             and self.deny_actor_types is None
             and self.require_delegation_for_actor_types is None
             and not self.verify_agent_scope
+            and not self.require_pqc
         )
+
+
+def _normalize_require_pqc(value: str | bool) -> str:
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    normalized = str(value).strip().lower()
+    if normalized in {"false", "0", "off", "no", ""}:
+        return "false"
+    if normalized in {"true", "1", "on", "yes"}:
+        return "true"
+    if normalized == "emulated_only":
+        return "emulated_only"
+    return "false"
+
+
+def _pqc_required_for_envelope(envelope: dict[str, Any], policy: VerifyPolicy) -> bool:
+    mode = _normalize_require_pqc(policy.require_pqc)
+    if mode == "false":
+        return False
+    block = envelope.get("signature") or {}
+    signer_mode = block.get("mode")
+    if signer_mode == "hardware":
+        return False
+    if mode == "true":
+        return True
+    if mode == "emulated_only":
+        return signer_mode in {"emulated", "tpm", None}
+    return False
+
+
+def verify_pqc_policy(
+    envelope: dict[str, Any],
+    policy: VerifyPolicy | None = None,
+) -> tuple[bool, str | None]:
+    policy = policy or VerifyPolicy()
+    if not _pqc_required_for_envelope(envelope, policy):
+        return True, None
+    from .manifest import verify_manifest_pqc
+
+    blocks = envelope.get("pqc_signatures")
+    if not isinstance(blocks, list) or not blocks:
+        return False, "policy requires pqc_signatures overlay"
+    if not verify_manifest_pqc(envelope):
+        return False, "PQC overlay verification failed"
+    return True, None
 
 
 def verify_envelope_attribution_policy(
@@ -98,5 +149,9 @@ def verify_manifest_with_policy(
         schema = manifest.get("schema")
         if schema not in policy.allowed_schemas:
             return False, f"schema {schema!r} not allowed"
+
+    ok, reason = verify_pqc_policy(manifest, policy)
+    if not ok:
+        return False, reason
 
     return True, None

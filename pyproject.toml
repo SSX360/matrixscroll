@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.4.2"
-description = "Signed provenance for agent-assisted Git commits with offline verification; emulated Ed25519 ships today and the SE050 hardware path remains an optional preview."
+version = "0.5.0"
+description = "Signed provenance for agent-assisted Git commits with offline Ed25519 verification; optional ML-DSA/SLH-DSA software overlay (FIPS 204/205). USB/NFC/SE050 hardware remains Ed25519."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -15,6 +15,11 @@ authors = [
 ]
 keywords = [
     "ed25519",
+    "ml-dsa",
+    "slh-dsa",
+    "post-quantum",
+    "fips-204",
+    "fips-205",
     "signing",
     "provenance",
     "root-of-trust",
@@ -41,10 +46,13 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "cryptography>=42.0",
+    "cryptography>=43.0",
 ]
 
 [project.optional-dependencies]
+pqc = [
+    "liboqs-python>=0.12.0",
+]
 dev = [
     "pytest>=7.4",
     "build>=1.0",

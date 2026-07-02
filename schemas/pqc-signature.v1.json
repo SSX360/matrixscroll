@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/pqc-signature.v1.json",
+  "title": "Matrix Scroll PQC Signature v1",
+  "type": "object",
+  "required": ["schema", "algorithm", "public_key", "value", "signed_at"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.pqc_signature.v1"
+    },
+    "algorithm": {
+      "type": "string",
+      "enum": [
+        "ml-dsa-44",
+        "ml-dsa-65",
+        "ml-dsa-87",
+        "slh-dsa-sha2-128s",
+        "slh-dsa-sha2-128f"
+      ]
+    },
+    "public_key": {
+      "type": "string",
+      "description": "Base64-encoded raw PQC public key bytes"
+    },
+    "value": {
+      "type": "string",
+      "description": "Base64-encoded detached PQC signature"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Informational RFC 3339 UTC timestamp"
+    }
+  }
+}

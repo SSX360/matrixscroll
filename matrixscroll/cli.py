@@ -32,14 +32,20 @@ except ImportError:  # pragma: no cover
 
 
 def _cmd_status(_args: argparse.Namespace) -> int:
-    print(json.dumps(status(), indent=2, sort_keys=True))
+    from .pqc import pqc_status
+
+    payload = status()
+    payload["pqc"] = pqc_status()
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
 def _load_policy(args: argparse.Namespace) -> VerifyPolicy | None:
+    require_pqc = getattr(args, "require_pqc", "") or False
     policy = VerifyPolicy(
         require_mode=args.require_mode or None,
         verify_agent_scope=bool(getattr(args, "verify_agent_scope", False)),
+        require_pqc=require_pqc if require_pqc else False,
     )
     if args.trusted_keys:
         file_policy = VerifyPolicy.from_json_file(args.trusted_keys)
@@ -56,6 +62,8 @@ def _load_policy(args: argparse.Namespace) -> VerifyPolicy | None:
             policy.require_delegation_for_actor_types = file_policy.require_delegation_for_actor_types
         if file_policy.verify_agent_scope:
             policy.verify_agent_scope = True
+        if file_policy.require_pqc:
+            policy.require_pqc = file_policy.require_pqc
     if policy.is_empty():
         return None
     return policy
@@ -79,12 +87,25 @@ def _cmd_verify(args: argparse.Namespace) -> int:
         if not ok:
             print(json.dumps({"ok": False, "error": "cryptographic verification failed"}))
             return 2
+        from .manifest import verify_manifest_pqc
+
+        if not verify_manifest_pqc(manifest):
+            print(json.dumps({"ok": False, "error": "PQC overlay verification failed"}))
+            return 2
     block = manifest.get("signature") or {}
+    pqc_blocks = manifest.get("pqc_signatures")
+    pqc_algorithms = None
+    if isinstance(pqc_blocks, list):
+        pqc_algorithms = [
+            b.get("algorithm") for b in pqc_blocks if isinstance(b, dict) and b.get("algorithm")
+        ]
     res = {
         "ok": True,
         "device_id": block.get("device_id"),
         "mode": block.get("mode"),
         "signed_at": block.get("signed_at"),
+        "pqc_present": bool(pqc_algorithms),
+        "pqc_algorithms": pqc_algorithms or [],
     }
     if getattr(args, "identity", False):
         res["identity"] = resolve_identity(block)
@@ -308,6 +329,36 @@ def _add_policy_args(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Verify provenance.agent_scope linked manifest signatures",
     )
+    parser.add_argument(
+        "--require-pqc",
+        metavar="MODE",
+        default="",
+        help="PQC policy: false, true, or emulated_only (hardware exempt)",
+    )
+
+
+def _cmd_pqc_keygen(args: argparse.Namespace) -> int:
+    from .pqc import load_pqc_keypair, pqc_key_path, pqc_status
+
+    try:
+        algo, pub, _sec = load_pqc_keypair(args.algorithm)
+    except Exception as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 2
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "algorithm": algo,
+                "public_key": __import__("base64").b64encode(pub).decode("ascii"),
+                "path": str(pqc_key_path(algo)),
+                "pqc": pqc_status(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0
 
 
 def _cmd_sign_payment(args: argparse.Namespace) -> int:
@@ -524,6 +575,24 @@ def build_parser() -> argparse.ArgumentParser:
     scroll_commit_p.add_argument("--allow-empty", action="store_true")
     scroll_commit_p.set_defaults(command="scroll-commit")
 
+    pqc_keygen = sub.add_parser(
+        "pqc-keygen",
+        help="Generate or load a post-quantum signing key (ML-DSA / SLH-DSA)",
+    )
+    pqc_keygen.add_argument(
+        "--algorithm",
+        default="ml-dsa-65",
+        choices=[
+            "ml-dsa-44",
+            "ml-dsa-65",
+            "ml-dsa-87",
+            "slh-dsa-sha2-128s",
+            "slh-dsa-sha2-128f",
+        ],
+        help="PQC algorithm per SPEC.md §11",
+    )
+    pqc_keygen.set_defaults(command="pqc-keygen")
+
     return parser
 
 
@@ -551,6 +620,7 @@ def main(argv: list[str] | None = None) -> int:
         "sign-payment": _cmd_sign_payment,
         "sign-action": _cmd_sign_action,
         "scroll-commit": _cmd_scroll_commit,
+        "pqc-keygen": _cmd_pqc_keygen,
     }
     handler = handlers.get(args.command)
     if handler is None:

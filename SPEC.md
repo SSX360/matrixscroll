@@ -196,3 +196,58 @@ Signed release metadata (version, tag, artifact list). JSON Schema:
 
 Signed audit or agent-scope evidence. JSON Schema:
 [`schemas/evidence-pack.v1.json`](schemas/evidence-pack.v1.json).
+
+## 11. Post-quantum overlay (v1.1 extension)
+
+Matrix Scroll v1 **requires** an Ed25519 `signature` block (§5). USB, NFC, and SE050
+hardware signers produce **only** this block today and remain unchanged.
+
+Software signers MAY attach an optional `pqc_signatures` array for FIPS 204 (ML-DSA)
+and FIPS 205 (SLH-DSA) post-quantum overlays. This is an **additive** extension;
+verifiers that do not implement PQC MUST still verify Ed25519 and MAY ignore
+`pqc_signatures`.
+
+### 11.1 PQC signature block
+
+Each element of `pqc_signatures`:
+
+```json
+{
+  "schema": "matrixscroll.pqc_signature.v1",
+  "algorithm": "ml-dsa-65",
+  "public_key": "<base64(raw public key bytes)>",
+  "value": "<base64(detached signature)>",
+  "signed_at": "<RFC 3339 UTC, informational>"
+}
+```
+
+Allowed `algorithm` values: `ml-dsa-44`, `ml-dsa-65`, `ml-dsa-87`,
+`slh-dsa-sha2-128s`, `slh-dsa-sha2-128f`.
+
+Hardware envelopes (`signature.mode` = `"hardware"`) MUST NOT include
+`pqc_signatures` until secure-element firmware supports PQC. Policy engines
+MUST exempt hardware mode from `require_pqc` rules.
+
+### 11.2 Canonical input for PQC (§4.1)
+
+PQC signing and verification remove **both** top-level keys `"signature"` and
+`"pqc_signatures"` before applying §4 encoding rules. Because Ed25519 is applied
+first, the PQC signing input is byte-identical to the Ed25519 signing input.
+
+### 11.3 Verification
+
+1. Verify Ed25519 per §6 (always required).
+2. If `pqc_signatures` is absent, stop (valid for v1-only policy).
+3. For each PQC block: validate `schema`, decode keys, verify against PQC canonical bytes.
+4. If policy requires PQC and verification fails or array is missing (non-hardware), reject.
+
+### 11.4 Policy knobs
+
+| `require_pqc` | Behavior |
+| ------------- | -------- |
+| `false` (default) | PQC optional |
+| `emulated_only` | Require valid PQC when `signature.mode` is `emulated` or `tpm` |
+| `true` | Require valid PQC for all modes except `hardware` |
+
+JSON Schema: [`schemas/pqc-signature.v1.json`](schemas/pqc-signature.v1.json),
+[`schemas/commit-envelope.v1.1.json`](schemas/commit-envelope.v1.1.json).

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/commit-envelope.v1.1.json",
+  "title": "Matrix Scroll Commit Envelope v1.1 (PQC overlay)",
+  "description": "Extends commit-envelope.v1 with optional post-quantum signature overlay. Ed25519 signature block remains required.",
+  "allOf": [
+    { "$ref": "commit-envelope.v1.json" },
+    {
+      "type": "object",
+      "properties": {
+        "pqc_signatures": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "pqc-signature.v1.json" }
+        }
+      }
+    }
+  ]
+}

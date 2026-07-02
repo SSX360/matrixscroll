@@ -1,7 +1,11 @@
 # Cryptographic backend (middle path)
 
-Matrix Scroll v0.4.2+ routes all Ed25519 and security-relevant SHA-256
+Matrix Scroll v0.5.0+ routes all Ed25519 and security-relevant SHA-256
 operations through a single Python module: `matrixscroll/crypto_backend.py`.
+
+Post-quantum overlays (ML-DSA FIPS 204, SLH-DSA FIPS 205) are optional and
+implemented via `matrixscroll/pqc.py` when `matrixscroll[pqc]` (liboqs-python)
+is installed. **USB/NFC/SE050 hardware signers remain Ed25519-only.**
 
 ## Design
 
@@ -22,6 +26,7 @@ moving primitive work onto battle-tested native code shipped inside official
 | Ed25519 key generation | `generate_ed25519_private_key()` | `cryptography.hazmat.primitives.asymmetric.ed25519` |
 | Ed25519 sign / verify | `ed25519_sign`, `ed25519_verify` | Same |
 | SHA-256 (device IDs, gate digests, Rekor bridge) | `sha256`, `sha256_hex` | `cryptography.hazmat.primitives.hashes.SHA256` |
+| ML-DSA / SLH-DSA overlay (optional) | `pqc_sign`, `pqc_verify` | `liboqs-python` via `matrixscroll[pqc]` extra |
 
 Git object hashing (`hashlib.sha1` in `matrixscroll/git.py`) stays on the
 stdlib because it implements Git wire-format identifiers, not provenance

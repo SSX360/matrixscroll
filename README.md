@@ -56,7 +56,7 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ## Also available — CLI & hooks
 
 ```bash
-pip install "matrixscroll==0.4.2"
+pip install "matrixscroll==0.5.0"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -135,8 +135,10 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
   records who or what signed the change before push.
 - Hardware keys and build attestations remain complementary roots and downstream
   proofs; Matrix Scroll covers commit-time provenance.
-- The public contract stays pure Ed25519 over canonical manifest bytes,
-  whether the signer is emulated today or hardware-backed later.
+- The public contract stays pure Ed25519 over canonical manifest bytes for the
+  required `signature` block — whether the signer is emulated today or
+  hardware-backed later. Software signers may optionally attach ML-DSA/SLH-DSA
+  overlays (FIPS 204/205) via `matrixscroll[pqc]` without changing hardware firmware.
 
 ## Common questions
 
@@ -166,7 +168,7 @@ alongside your existing scanners, branch protection, and build attestations.
 ## Quickstart (CLI)
 
 ```bash
-pip install "matrixscroll==0.4.2"
+pip install "matrixscroll==0.5.0"
 matrixscroll hook-install
 matrixscroll hook-status
 
@@ -260,7 +262,7 @@ when they preserve the same pure Ed25519 byte contract.
 ## Python API
 
 ```bash
-pip install "matrixscroll==0.4.2"
+pip install "matrixscroll==0.5.0"
 ```
 
 ```python

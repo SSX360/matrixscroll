@@ -85,6 +85,79 @@ def sha256_hex(data: bytes) -> str:
     return sha256(data).hex()
 
 
+# --- Post-quantum (ML-DSA / SLH-DSA) via liboqs when matrixscroll[pqc] is installed ---
+
+_OQS_ALG: dict[str, str] = {
+    "ml-dsa-44": "ML-DSA-44",
+    "ml-dsa-65": "ML-DSA-65",
+    "ml-dsa-87": "ML-DSA-87",
+    "slh-dsa-sha2-128s": "SLH-DSA-SHA2-128s",
+    "slh-dsa-sha2-128f": "SLH-DSA-SHA2-128f",
+}
+
+_PQC_BACKEND: str | None = None
+
+
+def _probe_pqc() -> str | None:
+    global _PQC_BACKEND
+    if _PQC_BACKEND is not None:
+        return _PQC_BACKEND
+    try:
+        import oqs  # type: ignore[import-untyped]
+
+        _ = oqs.oqs_version()
+        _PQC_BACKEND = "liboqs"
+    except Exception:
+        _PQC_BACKEND = ""
+    return _PQC_BACKEND or None
+
+
+def pqc_available() -> bool:
+    return _probe_pqc() is not None
+
+
+def pqc_backend_info() -> dict[str, str]:
+    backend = _probe_pqc()
+    info: dict[str, str] = {
+        "pqc_available": "true" if backend else "false",
+        "pqc_backend": backend or "none",
+    }
+    if backend:
+        import oqs  # type: ignore[import-untyped]
+
+        info["liboqs_version"] = str(oqs.oqs_version())
+    return info
+
+
+def pqc_sign(algorithm: str, secret_key: bytes, message: bytes) -> bytes:
+    backend = _probe_pqc()
+    if not backend:
+        raise RuntimeError("PQC backend not available")
+    import oqs  # type: ignore[import-untyped]
+
+    oqs_name = _OQS_ALG.get(algorithm)
+    if not oqs_name:
+        raise ValueError(f"unsupported PQC algorithm: {algorithm}")
+    with oqs.Signature(oqs_name, secret_key=secret_key) as sig:
+        return sig.sign(message)
+
+
+def pqc_verify(algorithm: str, public_key: bytes, message: bytes, signature: bytes) -> bool:
+    backend = _probe_pqc()
+    if not backend:
+        return False
+    import oqs  # type: ignore[import-untyped]
+
+    oqs_name = _OQS_ALG.get(algorithm)
+    if not oqs_name:
+        return False
+    try:
+        with oqs.Signature(oqs_name) as sig:
+            return bool(sig.verify(message, signature, public_key))
+    except Exception:
+        return False
+
+
 __all__ = [
     "backend_info",
     "ed25519_private_seed",
@@ -94,6 +167,10 @@ __all__ = [
     "generate_ed25519_private_key",
     "load_ed25519_private_key",
     "load_ed25519_public_key",
+    "pqc_available",
+    "pqc_backend_info",
+    "pqc_sign",
+    "pqc_verify",
     "sha256",
     "sha256_hex",
 ]

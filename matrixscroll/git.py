@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from .manifest import sign_manifest, verify_manifest
+from .manifest import sign_manifest, sign_manifest_with_pqc, verify_manifest
 
 COMMIT_ENVELOPE_SCHEMA = "matrixscroll.commit_envelope.v1"
 HOOK_MARKER = "# matrixscroll-git hook\n"
@@ -279,7 +279,7 @@ def build_commit_envelope(
 
 
 def sign_commit_envelope(envelope: dict[str, Any]) -> dict[str, Any]:
-    return sign_manifest(envelope)
+    return sign_manifest_with_pqc(envelope)
 
 
 def envelope_path(commit_id: str, root: Path | None = None) -> Path:
