@@ -205,6 +205,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0
 [0.2.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.2
 [0.2.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.1
 [0.2.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.0

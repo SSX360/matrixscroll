@@ -45,7 +45,7 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 ```
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.2"
+pip install "matrixscroll[mcp]==0.5.0"
 matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ```
 
@@ -120,7 +120,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](SPEC.md) §4). Verifiers reject any
 
 ## Honest limits
 
-- Shipping now: PyPI `matrixscroll==0.4.2`, Git post-commit hooks,
+- Shipping now: PyPI `matrixscroll==0.5.0`, Git post-commit hooks,
   `matrixscroll sign-action`, `matrixscroll scroll commit` (thin wrapper),
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport preview for the
@@ -195,7 +195,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.4.2"
+    matrixscroll-version: "0.5.0"
     require-mode: emulated
 ```
 
@@ -215,7 +215,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.4.2"
+    matrixscroll-version: "0.5.0"
     summary-output: provenance-summary.json
 ```
 
@@ -223,7 +223,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
 [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-ship in the current release line; examples in this README pin `0.4.2`.
+ship in the current release line; examples in this README pin `0.5.0`.
 
 ## Security: Ed25519 via cryptography
 
@@ -372,7 +372,7 @@ The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_env
 Install and register in Cursor / Claude Desktop / VS Code:
 
 ```bash
-pip install "matrixscroll[mcp]==0.4.2"
+pip install "matrixscroll[mcp]==0.5.0"
 matrixscroll-mcp   # stdio
 ```
 
