@@ -29,6 +29,8 @@ Matrix Scroll **maps to** and **produces evidence for** (never “required by”
 
 Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
+POC 2 audit readiness: [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
+
 ## Install — MCP server (headline path)
 
 Agents sign commits in-loop via the **provenance-only** MCP server:
