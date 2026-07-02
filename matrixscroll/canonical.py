@@ -25,8 +25,12 @@ def _encode(body: dict[str, Any]) -> bytes:
 
 
 def canonical_bytes(payload: dict[str, Any]) -> bytes:
-    """Return deterministic signing bytes per SPEC.md section 4 (Ed25519 v1)."""
-    return _encode(_canonical_body(payload, exclude_pqc=False))
+    """Return deterministic signing bytes per SPEC.md section 4 (Ed25519 v1).
+
+    Excludes ``signature`` and optional ``pqc_signatures`` so Ed25519 verification
+    stays valid after a v1.1 PQC overlay is attached.
+    """
+    return _encode(_canonical_body(payload, exclude_pqc=True))
 
 
 def canonical_bytes_pqc(payload: dict[str, Any]) -> bytes:

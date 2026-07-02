@@ -32,6 +32,7 @@ def sign_manifest(
     info = identity_info(provider)
     signed = copy.deepcopy(manifest)
     signed.pop("signature", None)
+    signed.pop("pqc_signatures", None)
     canonical = canonical_bytes(signed)
     signing_input = provider.signing_input(canonical) if hasattr(provider, "signing_input") else canonical
     signature_value = base64.b64encode(provider.sign(signing_input)).decode("ascii")
