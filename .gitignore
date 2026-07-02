@@ -24,6 +24,7 @@ htmlcov/
 venv/
 env/
 .glama-test-venv/
+.glama-sdist-venv/
 
 # Editors
 .vscode/
