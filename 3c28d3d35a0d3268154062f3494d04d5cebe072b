@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "3c28d3d35a0d3268154062f3494d04d5cebe072b",
+    "author": {
+      "date": "1783098579 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783098579 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: remove internal QA addendum and operator references from public commercial docs\n",
+    "parents": [
+      "a2a55cc7f48431564928eb1480f9a23108cdaecb"
+    ],
+    "tree": "80afdd21d8027b35f02152797a299569544eccdd"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "feat/mcp-trust-scanner",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:23:09Z",
+    "value": "kmrRvR2Ko8/RiQqt4rbCUvmMSulisDkEQ9EbJ1XI9uDU3TdO5wMAWY9ZoVxXyQqqgLFTu+yxN8ubeVpit7GHCw=="
+  }
+}
