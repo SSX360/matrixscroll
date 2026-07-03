@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "044bd9e91a20b4b7cfe7627dbec0755f7f0098b0",
+    "author": {
+      "date": "1782994653 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782994653 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "Persist Master Doctrine and align Honest limits in README.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "9d481325630649ae8d7bfc2a13ccf0b4d5156246"
+    ],
+    "tree": "4ad100a3b98e28d466a51a810ae46cd7752ce11b"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-02T12:17:33Z",
+    "value": "iZan+eBgz3qMljKs6PXIvMfEMa8kQPYXPd693CbMEr+Q7zMVFb+QWBUrr9RCPwcN3D06YpSAnsZXEtUsDar4Cg=="
+  }
+}
