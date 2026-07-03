@@ -422,7 +422,12 @@ def _cmd_scroll_commit(args: argparse.Namespace) -> int:
 def _cmd_mcp_scan(args: argparse.Namespace) -> int:
     import shlex
 
-    from .mcp_trust import fetch_mcp_tools_live, load_tools_json, scan_mcp_server
+    from .mcp_trust import (
+        fetch_mcp_tools_live,
+        load_tools_json,
+        render_scan_report,
+        scan_mcp_server,
+    )
 
     server_name = args.server_name or ""
     server_version = args.server_version or ""
@@ -467,8 +472,48 @@ def _cmd_mcp_scan(args: argparse.Namespace) -> int:
             json.dumps(report["manifest"], indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
-    print(json.dumps(report, indent=2, sort_keys=True))
+    if args.pretty:
+        _print_pretty(render_scan_report(report, color=_ansi_ok()))
+    else:
+        print(json.dumps(report, indent=2, sort_keys=True))
     return 0
+
+
+def _print_pretty(text: str) -> None:
+    """Print, degrading unicode glyphs on consoles that cannot encode them (e.g. cp1252)."""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        fallback = (
+            text.replace("\u2500", "-")
+            .replace("\u25b2", "!")
+            .replace("\u25a0", "*")
+            .replace("\u2014", "--")
+        )
+        enc = sys.stdout.encoding or "utf-8"
+        print(fallback.encode(enc, errors="replace").decode(enc, errors="replace"))
+
+
+def _ansi_ok() -> bool:
+    """Color when stdout is a terminal and NO_COLOR is unset."""
+    import os
+
+    if os.environ.get("NO_COLOR"):
+        return False
+    if os.environ.get("FORCE_COLOR"):
+        return True
+    if not sys.stdout.isatty():
+        return False
+    if sys.platform == "win32":
+        # Enable VT processing on legacy Windows consoles; modern terminals accept ANSI.
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.GetStdHandle(-11)
+        mode = ctypes.c_uint32()
+        if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+            kernel32.SetConsoleMode(handle, mode.value | 0x0004)
+    return True
 
 
 def _cmd_mcp_sign(args: argparse.Namespace) -> int:
@@ -499,7 +544,7 @@ def _cmd_mcp_sign(args: argparse.Namespace) -> int:
 
 
 def _cmd_mcp_verify(args: argparse.Namespace) -> int:
-    from .mcp_trust import verify_mcp_manifest
+    from .mcp_trust import render_verify_result, verify_mcp_manifest
 
     path = Path(args.manifest)
     try:
@@ -515,7 +560,10 @@ def _cmd_mcp_verify(args: argparse.Namespace) -> int:
             print(json.dumps({"ok": False, "error": f"cannot read baseline: {exc}"}))
             return 2
     result = verify_mcp_manifest(manifest, baseline=baseline)
-    print(json.dumps(result, indent=2, sort_keys=True))
+    if args.pretty:
+        _print_pretty(render_verify_result(result, color=_ansi_ok()))
+    else:
+        print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result.get("ok") else 2
 
 
@@ -714,6 +762,7 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_scan.add_argument("--server-url", default="", help="Server URL or transport endpoint")
     mcp_scan.add_argument("--package", default="", help="npm/pypi package coordinate")
     mcp_scan.add_argument("--output", "-o", help="Write unsigned manifest JSON to file")
+    mcp_scan.add_argument("--pretty", action="store_true", help="Human-readable colored report instead of JSON")
     mcp_scan.set_defaults(command="mcp-scan")
 
     mcp_sign = mcp_sub.add_parser("sign", help="Ed25519-sign an unsigned MCP manifest")
@@ -724,6 +773,7 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_verify = mcp_sub.add_parser("verify", help="Verify signed MCP manifest; optional baseline drift check")
     mcp_verify.add_argument("manifest", help="Signed ssx360.mcp-manifest.v1 JSON")
     mcp_verify.add_argument("--baseline", help="Baseline signed manifest for rug-pull drift detection")
+    mcp_verify.add_argument("--pretty", action="store_true", help="Human-readable colored verdict instead of JSON")
     mcp_verify.set_defaults(command="mcp-verify")
 
     return parser

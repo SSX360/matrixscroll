@@ -162,12 +162,16 @@ def diff_mcp_manifests(
         base = base_tools[name]
         cur = cur_tools[name]
         fields: list[str] = []
-        if base.get("description") != cur.get("description"):
-            fields.append("description")
-        if base.get("input_schema_hash") != cur.get("input_schema_hash"):
-            fields.append("input_schema_hash")
+        changes: dict[str, dict[str, Any]] = {}
+        for field in ("description", "input_schema_hash"):
+            if base.get(field) != cur.get(field):
+                fields.append(field)
+                changes[field] = {
+                    "baseline": base.get(field),
+                    "current": cur.get(field),
+                }
         if fields:
-            mutated.append({"name": name, "fields": fields})
+            mutated.append({"name": name, "fields": fields, "changes": changes})
     surface_changed = baseline.get("surface_hash") != current.get("surface_hash")
     return {
         "changed": bool(added or removed or mutated or surface_changed),
@@ -243,6 +247,120 @@ def fetch_mcp_tools_live(
     return anyio.run(
         lambda: _fetch_tools_live(transport, command=command, url=url)
     )
+
+
+_RESET = "\x1b[0m"
+_BOLD = "\x1b[1m"
+_DIM = "\x1b[2m"
+_RED = "\x1b[31m"
+_GREEN = "\x1b[32m"
+_AMBER = "\x1b[38;5;214m"  # SSX360 amber (#F5A623)
+
+
+class _Paint:
+    """Tiny ANSI painter; no-ops when color is off."""
+
+    def __init__(self, enabled: bool):
+        self.enabled = enabled
+
+    def __call__(self, text: str, *codes: str) -> str:
+        if not self.enabled or not codes:
+            return text
+        return "".join(codes) + text + _RESET
+
+
+def _rule(width: int = 62) -> str:
+    return "\u2500" * width
+
+
+def render_scan_report(report: dict[str, Any], *, color: bool = True) -> str:
+    """Human-readable scan summary: server, tool table, surface hash."""
+    p = _Paint(color)
+    manifest = report.get("manifest") or {}
+    server = manifest.get("server") or {}
+    name = server.get("name") or "(unnamed server)"
+    version = server.get("version") or ""
+    tools = manifest.get("tools") or []
+    lines: list[str] = []
+    lines.append(p(_rule(), _DIM))
+    header = f"MCP TRUST SCAN \u2014 {name}"
+    if version:
+        header += f" v{version}"
+    lines.append(p(header, _BOLD, _AMBER))
+    lines.append(p(_rule(), _DIM))
+    lines.append(f"{len(tools)} tools fingerprinted")
+    for tool in tools:
+        short_hash = (tool.get("input_schema_hash") or "")[:19]
+        desc = (tool.get("description") or "").strip()
+        if len(desc) > 48:
+            desc = desc[:45] + "..."
+        lines.append(
+            "  " + p(f"{tool.get('name', ''):<28}", _BOLD) + p(short_hash, _DIM) + "  " + desc
+        )
+    lines.append("")
+    lines.append("surface " + p(manifest.get("surface_hash") or "", _AMBER))
+    lines.append(p(_rule(), _DIM))
+    return "\n".join(lines)
+
+
+def render_verify_result(result: dict[str, Any], *, color: bool = True) -> str:
+    """Human-readable verify output. Drift renders a loud ▲ DRIFT DETECTED block."""
+    p = _Paint(color)
+    lines: list[str] = []
+    ok = bool(result.get("ok"))
+    error = result.get("error")
+    drift = result.get("drift") or {}
+
+    lines.append(p(_rule(), _DIM))
+    if ok:
+        lines.append(p("\u25a0 SURFACE VERIFIED", _BOLD, _GREEN))
+    elif error == "surface_drift":
+        lines.append(p("\u25b2 DRIFT DETECTED \u2014 tool surface changed since baseline", _BOLD, _RED))
+    elif error == "signature_invalid":
+        lines.append(p("\u25b2 SIGNATURE INVALID \u2014 manifest does not match its signature", _BOLD, _RED))
+    else:
+        lines.append(p(f"\u25b2 VERIFY FAILED \u2014 {error}", _BOLD, _RED))
+    lines.append(p(_rule(), _DIM))
+
+    if result.get("surface_hash"):
+        lines.append("surface  " + p(str(result["surface_hash"]), _AMBER))
+    if result.get("device_id"):
+        lines.append("signer   " + p(str(result["device_id"]), _DIM))
+    if result.get("signed_at"):
+        lines.append("signed   " + p(str(result["signed_at"]), _DIM))
+    if result.get("tool_count") is not None:
+        lines.append(f"tools    {result['tool_count']}")
+
+    if drift:
+        lines.append("")
+        base_hash = drift.get("surface_hash_baseline") or ""
+        cur_hash = drift.get("surface_hash_current") or ""
+        if drift.get("changed"):
+            lines.append("baseline " + p(base_hash, _DIM))
+            lines.append("current  " + p(cur_hash, _RED if color else ""))
+        for name in drift.get("added") or []:
+            lines.append(p(f"+ {name}", _GREEN) + p("  (new tool, not in baseline)", _DIM))
+        for name in drift.get("removed") or []:
+            lines.append(p(f"- {name}", _RED) + p("  (tool removed)", _DIM))
+        for entry in drift.get("mutated") or []:
+            lines.append(p(f"~ {entry.get('name')}", _AMBER, _BOLD) + p("  (mutated)", _DIM))
+            changes = entry.get("changes") or {}
+            for field in entry.get("fields") or []:
+                change = changes.get(field) or {}
+                lines.append(p(f"    {field}:", _DIM))
+                lines.append("    " + p(f"- {change.get('baseline')}", _RED))
+                lines.append("    " + p(f"+ {change.get('current')}", _GREEN))
+
+    lines.append(p(_rule(), _DIM))
+    if ok:
+        lines.append(p("PASS", _BOLD, _GREEN) + "  surface matches signed baseline")
+    else:
+        verdict = f"FAIL  {error}"
+        hint = ""
+        if error == "surface_drift":
+            hint = "  \u2014 do not trust this server until you review the diff"
+        lines.append(p(verdict, _BOLD, _RED) + p(hint, _RED))
+    return "\n".join(lines)
 
 
 def load_tools_json(path: str) -> list[dict[str, Any]]:

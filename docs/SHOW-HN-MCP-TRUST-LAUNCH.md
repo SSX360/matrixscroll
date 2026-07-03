@@ -4,7 +4,11 @@
 
 **Target window:** Late July 2026, Tuesday–Thursday, 8:00–10:00 AM ET  
 **Products launching together:** #1 MCP Trust Scanner + #2 GitHub Action allowlist gate  
-**HN title (draft):** Show HN: matrixscroll mcp – sign any MCP server's tool surface and detect rug-pulls offline
+**HN title (FINAL):** Show HN: matrixscroll mcp – sign any MCP server's tool surface and detect rug-pulls offline
+
+Title checked against shipped capability: `mcp scan --connect stdio|sse` fingerprints live
+servers, `mcp sign` produces Ed25519 baselines, `mcp verify --baseline` catches drift offline
+with exit code 2. All three verbs shipped and tested (see `tests/test_mcp_trust.py`).
 
 **Revenue strategy:** SSX360 v4 — see `digital-rain-internal/docs/strategy/SSX360-REVENUE-v4-2026-07-03.md`
 
@@ -28,13 +32,17 @@ Entice surfaces must CTA to Pilot (`$7.5k`), Snapshot (`$5k`), or Team (`$199/mo
 
 ### Product #1 — MCP Trust Scanner
 
-- [ ] `matrixscroll mcp scan|sign|verify` CLI shipped and documented
-- [ ] MCP tools: `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`
-- [ ] CC0 schema `schemas/ssx360.mcp-manifest.v1.json` published
-- [ ] Golden tests: sign/verify roundtrip, description-mutation drift
-- [ ] Web demo: paste server URL or package → trust report + signed manifest snapshot
-- [ ] Re-scan flow demonstrates rug-pull detection (mutated description in demo)
-- [ ] README "Show HN prep" section with copy-paste quickstart
+- [x] `matrixscroll mcp scan|sign|verify` CLI shipped and documented
+- [x] `--connect stdio|sse` live scan of real MCP servers (MCP SDK client)
+- [x] `--pretty` colored terminal output: scan table + ▲ DRIFT DETECTED verdict block
+- [x] MCP tools: `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`
+- [x] CC0 schema `schemas/ssx360.mcp-manifest.v1.json` published
+- [x] Golden tests: sign/verify roundtrip, description-mutation drift, exact-diff renderer (16 tests)
+- [x] Golden artifact: matrixscroll's own MCP server scanned live and signed — `examples/mcp/matrixscroll-mcp.signed.json` (12 tools)
+- [x] Scripted rug-pull demo: `examples/demo/mcp-rugpull-demo.sh` (asciinema-ready)
+- [x] Web demo: paste tools JSON → client-side fingerprint + drift diff at matrixscroll.com/scan
+- [x] Re-scan flow demonstrates rug-pull detection (mutated description in demo)
+- [x] README "catch a rug-pull in 60 seconds" quickstart (install → scan → sign → mutate → catch)
 
 ### Product #2 — GitHub Action
 
@@ -69,26 +77,34 @@ Entice surfaces must CTA to Pilot (`$7.5k`), Snapshot (`$5k`), or Team (`$199/mo
 - [ ] Link to working demo (primary) + GitHub repo (secondary)
 - [ ] No waitlist, no "coming soon" for core scanner
 
-### First comment template
+### First comment (FINAL draft)
 
 ```
-Hi HN — I'm [Name], building Matrix Scroll / SSX360.
+Hi HN — I'm Ryan, building Matrix Scroll / SSX360.
 
 The gap we kept hitting: MCP registries list servers, model providers receipt
-the call, but nobody signs the *tool surface* — names, descriptions, input schemas —
-and verifies it at install time. A server can rug-pull after you trust it.
+the call, but nobody signs the *tool surface* — names, descriptions, input
+schemas — and verifies it at install time. A server you trusted yesterday can
+quietly ship different tool descriptions today, and your agent will follow
+them. The ecosystem has already seen this class of attack: an npm MCP package
+shipped an update that silently added exfiltration behavior after users had
+installed it, and MCP tooling itself has had real CVEs this cycle
+(CVE-2025-6514 in mcp-remote, CVE-2025-49596 in MCP Inspector). Install-time
+trust with no re-verification is the standing assumption, and it's wrong.
 
-This launch:
-• Free CLI: fingerprint → Ed25519 sign → offline verify
-• Re-scan diffs against your baseline manifest
+What this launch does:
+• Free CLI: fingerprint a server's tool surface → Ed25519 sign → verify offline
+• Live scan: `matrixscroll mcp scan --connect stdio --server-command "npx -y <server>"`
+• Re-scan diffs against your signed baseline — a mutated description or input
+  schema exits 2 with an exact diff (rug-pull detection)
 • GitHub Action fails CI on unsigned or drifted manifests
-• CC0 spec: ssx360.mcp-manifest.v1
+• CC0 spec: ssx360.mcp-manifest.v1 — no lock-in, no cloud, no signup
 
 Commit provenance is our core wedge ("they receipt the model call; we receipt
 the merge"). MCP manifest signing extends the same offline verify model to
 what tools your agent can invoke.
 
-Try it: [demo URL]
+Try it in the browser (nothing uploaded): https://matrixscroll.com/scan
 Repo: https://github.com/SSX360/matrixscroll
 
 Happy to answer questions on canonical JSON hashing, how this differs from
@@ -96,7 +112,21 @@ runtime tool-call signing (Signet), and the SEP-1766 pivot plan if official
 MCP signing ships.
 ```
 
-**Do NOT** mention Postmark misattribution or unrelated founder lore.
+**Do NOT** name Postmark/ActiveCampaign as the attacker — the 2025 incident was an
+*unofficial impersonator package*, not the vendor. Say "an npm MCP package" and let
+commenters supply links. No unrelated founder lore.
+
+### Demo GIF / asciinema plan
+
+1. Record on Linux/macOS terminal, 80×24, dark theme, JetBrains Mono:
+   `asciinema rec -c ./examples/demo/mcp-rugpull-demo.sh mcp-rugpull.cast`
+2. The script self-paces (0.6s beats) and ends on the red `▲ DRIFT DETECTED` block —
+   that frame is the thumbnail.
+3. Convert for README/HN: `agg mcp-rugpull.cast mcp-rugpull.gif --theme monokai`
+   (or svg-term for crisp text). Keep under 15s loop.
+4. Embed GIF at top of README section + link the cast on asciinema.org.
+5. Optional second take: live `--connect stdio` scan of matrixscroll's own MCP
+   server (12 tools) to show it works on real servers, not toy JSON.
 
 ---
 
