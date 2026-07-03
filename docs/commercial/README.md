@@ -1,14 +1,13 @@
-# Commercial & operator docs (SDK)
+# Commercial docs (SDK)
 
-Canonical operator runbooks live in **digital-rain** (docs hub):
+Product and platform documentation for the Matrix Scroll SDK and the SSX360 hosted control plane:
 
-| Doc | URL (repo path) |
-|-----|-----------------|
-| Boja 2-week infra plan | `digital-rain/docs/commercial/BOJA_2WEEK_WORKPLAN.md` |
-| Oliver 100-point standard | `digital-rain/docs/commercial/OLIVER_100_POINT_STANDARD.md` |
-| Compliance mappings | `digital-rain/docs/commercial/COMPLIANCE_MAPPINGS.md` |
-| Scroll Gate v2 | [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) (local) |
+| Doc | Description |
+|-----|-------------|
+| [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) | Scroll Gate v2 hosted verification — CI setup, API, SLSA mapping |
+| [PLATFORM_PIVOT.md](./PLATFORM_PIVOT.md) | SSX360 platform migration guide — URL map, product split, pricing tiers |
+| [SSX360_SCROLL.md](./SSX360_SCROLL.md) | Provenance-native Git governance — `scroll commit` and universal actions |
 
-**SDK-specific gates (Boja Week 2):** `python scripts/release-readiness.py` must be a **required** CI check before merge. Version truth: PyPI `0.5.1` ↔ README quickstart pins ↔ consumer action pin. See [100_POINT_ADDENDUM_2026-07.md](./100_POINT_ADDENDUM_2026-07.md).
+Full platform docs: [ssx360.com/docs](https://ssx360.com/docs) · Protocol docs: [matrixscroll.com](https://matrixscroll.com)
 
-**Oliver Machine persona:** README protocol links point to matrixscroll.com; relabel `ssx360` CLI simulators if binary not shipped; no AP2 Vault Card in public proof links.
+Release quality gate: `python scripts/release-readiness.py` verifies version truth across PyPI, README quickstart pins, and the consumer action pin.

@@ -2,7 +2,7 @@
 
 **Status:** Phase 1 thin wrapper + hooks. **Not** a Git replacement.
 
-See also the platform copy in [digital-rain/docs/commercial/SSX360_SCROLL.md](https://github.com/SSX360/digital-rain/blob/main/docs/commercial/SSX360_SCROLL.md).
+Platform docs: [ssx360.com/docs](https://ssx360.com/docs)
 
 ## Module location
 
