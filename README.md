@@ -8,13 +8,13 @@
 [![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
 [![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
 
-**123 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
+**146 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
 
 **Signed proof of who — or what — wrote every AI-assisted commit.** Matrix Scroll is an
 **open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
 envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
 verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
-secure-element signing is on the roadmap with the same verifier contract.
+secure-element signing is in firmware validation with the same verifier contract.
 
 **Hosted control plane:** identity, billing, audit ledger, and Scroll Gate live at
 [ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
@@ -24,14 +24,14 @@ Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx36
 
 ## Compliance evidence mapping
 
-Matrix Scroll **maps to** and **produces evidence for** (never “required by”):
+Matrix Scroll **maps to** and **produces evidence for** (never “required by”; not a certification claim):
 
-- **Five Eyes · Agentic AI (Apr 2026)** — cryptographic attestation that agents
-  run expected, unmodified code.
-- **EU AI Act · high-risk traceability** — verifiable commit-time audit artifacts.
-- **US federal SSDF · self-attestation** — evidence packs for supply-chain review.
-
-Full matrix: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+- **DORA (Jan 2025)** — ICT change-management evidence for software changes.
+- **PCI DSS 4.0 Req 6.5 (Mar 2025)** — change-control evidence for custom software.
+- **US Treasury FS-AI RMF (Feb 2026)** — traceability for agent actions in financial software.
+- **NIST SSDF** — provenance, change authorization, and release gate review.
+- **EU AI Act Article 12** — record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
+- **Five Eyes Agentic AI guidance (Apr 2026)** — linked crosswalk only: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
 POC 2 audit readiness: [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
 
@@ -131,9 +131,9 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport preview for the
   SE050 rollout path. Emulated mode is the default evaluation path.
-- In progress: nRF52840 + SE050 firmware validation for hardware-backed signing, external Ed25519-capable
+- In progress: nRF52840 + SE050 firmware validation — secure-element signing remains preview until device acceptance gates pass; external Ed25519-capable
   hardware key backends, and transparency-log integrations.
-- Compliance language is evidence mapping (SSDF, SLSA, EU AI Act traceability, Five Eyes agentic-AI guidance), not certification or customer endorsement.
+- Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
 - Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
 
@@ -145,7 +145,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   proofs; Matrix Scroll covers commit-time provenance.
 - The public contract stays pure Ed25519 over canonical manifest bytes for the
   required `signature` block — whether the signer is emulated today or
-  hardware-backed later. Software signers may optionally attach ML-DSA/SLH-DSA
+  SE050 secure-element signing later. Software signers may optionally attach ML-DSA/SLH-DSA
   overlays (FIPS 204/205) via `matrixscroll[pqc]` without changing hardware firmware.
 
 ## Common questions
@@ -258,17 +258,16 @@ when they preserve the same pure Ed25519 byte contract.
 
 - Browser verifier: <https://matrixscroll.com/verify>
 - Try it (quickstart + tamper demo): <https://matrixscroll.com/try>
-- Compare page: <https://ssx360.com/compare>
-- Documentation: <https://ssx360.com/docs>
+- Compare page: <https://matrixscroll.com/compare>
+- Documentation: <https://matrixscroll.com/docs>
 - Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
-- Site: <https://matrixscroll.com> · Enterprise: <https://ssx360.com/enterprise>
-- [AP2 Vault Card hardware](https://ssx360.com/hardware)
-- SE050 hardware signing: <https://ssx360.com/enterprise#roadmap>
+- Site: <https://matrixscroll.com> · Control plane: <https://ssx360.com> · Enterprise: <https://ssx360.com/enterprise>
+- SE050 hardware preview: <https://ssx360.com/enterprise#roadmap> (in firmware validation)
 
 ## Python API
 
@@ -323,7 +322,7 @@ matrixscroll.sign_manifest(...)  /  post-commit hook
          v
 IdentityProvider          -->  Ed25519 signature
 (L1 emulated today,
- SSX360 / SE050 roadmap)
+ SSX360 / SE050 in firmware validation)
          |
          v
 signed document  -->  matrixscroll.verify_manifest(...)

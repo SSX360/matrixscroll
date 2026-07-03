@@ -11,7 +11,9 @@ def test_public_metadata_uses_stable_device_url():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert '"Reference Device" = "https://ssx360.com/hardware"' in pyproject or "ssx360.com/hardware" in pyproject
-    assert "[AP2 Vault Card hardware](https://ssx360.com/hardware)" in readme
+    assert "matrixscroll.com/compare" in readme
+    assert "matrixscroll.com/docs" in readme
+    assert "[AP2 Vault Card hardware]" not in readme
 
 
 def test_sdk_public_docs_do_not_link_vercel_preview_urls():

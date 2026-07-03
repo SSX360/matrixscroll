@@ -36,6 +36,9 @@ jobs:
       - name: Validate Glama PyPI pin
         run: python scripts/validate_glama_pypi.py
 
+      - name: Release readiness
+        run: python scripts/release-readiness.py
+
       - name: Run unit tests
         run: python -m pytest -q
 
