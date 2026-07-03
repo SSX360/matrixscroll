@@ -14,6 +14,7 @@ from matrixscroll.mcp_trust import (
     MCP_MANIFEST_SCHEMA,
     build_mcp_manifest,
     diff_mcp_manifests,
+    fetch_mcp_tools_live,
     fingerprint_tool,
     load_tools_json,
     scan_mcp_server,
@@ -98,6 +99,20 @@ class ManifestSignVerifyTests(unittest.TestCase):
             self.assertFalse(result["ok"])
             self.assertEqual(result["error"], "surface_drift")
             self.assertTrue(result["drift"]["changed"])
+
+
+class ConnectScanTests(unittest.TestCase):
+    def test_fetch_mcp_tools_live_stdio_requires_command(self):
+        with self.assertRaises(ValueError):
+            fetch_mcp_tools_live("stdio")
+
+    @mock.patch("anyio.run")
+    def test_fetch_mcp_tools_live_delegates_to_async(self, run_mock):
+        run_mock.return_value = ([{"name": "ping"}], {"name": "demo"})
+        tools, info = fetch_mcp_tools_live("stdio", command=["python", "-m", "demo"])
+        self.assertEqual(tools[0]["name"], "ping")
+        self.assertEqual(info["name"], "demo")
+        run_mock.assert_called_once()
 
 
 class ScanAndLoadTests(unittest.TestCase):

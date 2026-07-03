@@ -420,20 +420,48 @@ def _cmd_scroll_commit(args: argparse.Namespace) -> int:
 
 
 def _cmd_mcp_scan(args: argparse.Namespace) -> int:
-    from .mcp_trust import load_tools_json, scan_mcp_server
+    import shlex
 
-    try:
-        tools = load_tools_json(args.tools)
-    except (OSError, ValueError) as exc:
-        print(json.dumps({"ok": False, "error": f"cannot load tools: {exc}"}))
-        return 2
+    from .mcp_trust import fetch_mcp_tools_live, load_tools_json, scan_mcp_server
+
+    server_name = args.server_name or ""
+    server_version = args.server_version or ""
+    server_url = args.server_url or ""
+    if args.connect:
+        try:
+            command = shlex.split(args.command) if args.command else None
+            tools, server_info = fetch_mcp_tools_live(
+                args.connect,
+                command=command,
+                url=args.url or "",
+            )
+        except (RuntimeError, ValueError, OSError) as exc:
+            print(json.dumps({"ok": False, "error": str(exc)}))
+            return 2
+        if not server_name:
+            server_name = server_info.get("name", "")
+        if not server_version:
+            server_version = server_info.get("version", "")
+        if not server_url and args.connect == "sse" and args.url:
+            server_url = args.url
+    else:
+        if not args.tools:
+            print(json.dumps({"ok": False, "error": "provide --tools or --connect"}))
+            return 2
+        try:
+            tools = load_tools_json(args.tools)
+        except (OSError, ValueError) as exc:
+            print(json.dumps({"ok": False, "error": f"cannot load tools: {exc}"}))
+            return 2
     report = scan_mcp_server(
         tools,
-        server_name=args.server_name or "",
-        server_version=args.server_version or "",
-        server_url=args.server_url or "",
+        server_name=server_name,
+        server_version=server_version,
+        server_url=server_url,
         package=args.package or "",
     )
+    if args.connect:
+        report["connect"] = {"transport": args.connect}
     if args.output:
         Path(args.output).write_text(
             json.dumps(report["manifest"], indent=2, sort_keys=True) + "\n",
@@ -669,7 +697,17 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_sub = mcp_p.add_subparsers(dest="mcp_command")
 
     mcp_scan = mcp_sub.add_parser("scan", help="Fingerprint MCP tool definitions into an unsigned manifest")
-    mcp_scan.add_argument("--tools", required=True, help="JSON file: tool array or {tools: [...]}")
+    mcp_scan.add_argument("--tools", help="JSON file: tool array or {tools: [...]} (offline mode)")
+    mcp_scan.add_argument(
+        "--connect",
+        choices=["stdio", "sse"],
+        help="Connect to a live MCP server via stdio subprocess or SSE URL",
+    )
+    mcp_scan.add_argument(
+        "--command",
+        help="Shell command to spawn MCP server (required for --connect stdio)",
+    )
+    mcp_scan.add_argument("--url", help="SSE endpoint URL (required for --connect sse)")
     mcp_scan.add_argument("--server-name", default="", help="MCP server display name")
     mcp_scan.add_argument("--server-version", default="", help="Server version string")
     mcp_scan.add_argument("--server-url", default="", help="Server URL or transport endpoint")

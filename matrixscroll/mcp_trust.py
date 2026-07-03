@@ -179,6 +179,72 @@ def diff_mcp_manifests(
     }
 
 
+async def _fetch_tools_live(
+    transport: str,
+    *,
+    command: list[str] | None = None,
+    url: str = "",
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Connect to a live MCP server and list its tools (requires ``matrixscroll[mcp]``)."""
+    try:
+        from mcp import ClientSession
+        from mcp.client.stdio import StdioServerParameters, stdio_client
+    except ImportError as exc:
+        raise RuntimeError(
+            "live MCP connect requires optional dependency: pip install 'matrixscroll[mcp]'"
+        ) from exc
+
+    server_info: dict[str, str] = {}
+    if transport == "stdio":
+        if not command:
+            raise ValueError("--command required when --connect stdio")
+        params = StdioServerParameters(command=command[0], args=command[1:])
+        client_ctx = stdio_client(params)
+    elif transport == "sse":
+        from mcp.client.sse import sse_client
+
+        if not url:
+            raise ValueError("--url required when --connect sse")
+        client_ctx = sse_client(url)
+    else:
+        raise ValueError(f"unsupported transport {transport!r}; use stdio or sse")
+
+    async with client_ctx as (read_stream, write_stream):
+        async with ClientSession(read_stream, write_stream) as session:
+            init_result = await session.initialize()
+            info = init_result.serverInfo
+            if info is not None:
+                if info.name:
+                    server_info["name"] = info.name
+                if info.version:
+                    server_info["version"] = info.version
+            tools_result = await session.list_tools()
+            tools: list[dict[str, Any]] = []
+            for tool in tools_result.tools:
+                tools.append(
+                    {
+                        "name": tool.name,
+                        "description": tool.description or "",
+                        "inputSchema": tool.inputSchema,
+                    }
+                )
+            return tools, server_info
+
+
+def fetch_mcp_tools_live(
+    transport: str,
+    *,
+    command: list[str] | None = None,
+    url: str = "",
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Synchronous wrapper for live MCP tool listing."""
+    import anyio
+
+    return anyio.run(
+        lambda: _fetch_tools_live(transport, command=command, url=url)
+    )
+
+
 def load_tools_json(path: str) -> list[dict[str, Any]]:
     """Load MCP tool definitions from a JSON file (array or {tools: [...]})."""
     from pathlib import Path
