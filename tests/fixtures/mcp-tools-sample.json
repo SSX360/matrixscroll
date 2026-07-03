@@ -1,0 +1,24 @@
+[
+  {
+    "name": "search",
+    "description": "Search the web for current information.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string", "description": "Search query" }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "fetch",
+    "description": "Fetch a URL and return readable content.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "format": "uri" }
+      },
+      "required": ["url"]
+    }
+  }
+]

@@ -27,7 +27,7 @@ def _schema_description_coverage(input_schema: dict) -> float:
 class MCPToolDefinitionTests(unittest.IsolatedAsyncioTestCase):
     async def test_tool_schema_description_coverage(self):
         tools = await mcp.list_tools()
-        self.assertGreaterEqual(len(tools), 9)
+        self.assertGreaterEqual(len(tools), 12)
         for tool in tools:
             coverage = _schema_description_coverage(tool.inputSchema or {})
             self.assertGreaterEqual(

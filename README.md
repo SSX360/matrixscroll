@@ -59,6 +59,26 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 `verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`, `list_envelopes`,
 `connect_card` (SE050 hardware preview, roadmap).
 
+**MCP trust tools (manifest surface):** `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`.
+
+### MCP Trust Scanner (Show HN prep)
+
+Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-pull detection.
+
+```bash
+# Fingerprint tool definitions → unsigned manifest
+matrixscroll mcp scan --tools ./tools.json --server-name my-mcp -o manifest.json
+
+# Sign install-time baseline
+matrixscroll mcp sign manifest.json -o manifest.signed.json
+
+# Verify signature; detect drift vs baseline after upgrade
+matrixscroll mcp verify manifest.signed.json --baseline manifest.signed.json
+```
+
+Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
+Launch checklist: [`docs/SHOW-HN-MCP-TRUST-LAUNCH.md`](docs/SHOW-HN-MCP-TRUST-LAUNCH.md)
+
 ## Also available — CLI & hooks
 
 ```bash
@@ -376,8 +396,9 @@ and executable checks in `tests/test_agentic_guidance.py`.
 
 ## Model Context Protocol (MCP) Server
 
-The MCP server exposes **provenance verbs only**: `create_envelope`, `verify_envelope`,
-`verify_pr_range`, `publish_notes`, `status`, and `audit_export`.
+The MCP server exposes **provenance verbs** (`create_envelope`, `verify_envelope`,
+`verify_pr_range`, `publish_notes`, `status`, `audit_export`) and **MCP trust verbs**
+(`scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`).
 
 Install and register in Cursor / Claude Desktop / VS Code:
 

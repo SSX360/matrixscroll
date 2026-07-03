@@ -419,6 +419,78 @@ def _cmd_scroll_commit(args: argparse.Namespace) -> int:
     return 0 if result.get("ok") else 2
 
 
+def _cmd_mcp_scan(args: argparse.Namespace) -> int:
+    from .mcp_trust import load_tools_json, scan_mcp_server
+
+    try:
+        tools = load_tools_json(args.tools)
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": f"cannot load tools: {exc}"}))
+        return 2
+    report = scan_mcp_server(
+        tools,
+        server_name=args.server_name or "",
+        server_version=args.server_version or "",
+        server_url=args.server_url or "",
+        package=args.package or "",
+    )
+    if args.output:
+        Path(args.output).write_text(
+            json.dumps(report["manifest"], indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_mcp_sign(args: argparse.Namespace) -> int:
+    from .mcp_trust import MCP_MANIFEST_SCHEMA, sign_mcp_manifest
+
+    path = Path(args.manifest)
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": f"cannot read manifest: {exc}"}))
+        return 2
+    if manifest.get("schema") != MCP_MANIFEST_SCHEMA:
+        print(json.dumps({"ok": False, "error": f"expected schema {MCP_MANIFEST_SCHEMA}"}))
+        return 2
+    try:
+        signed = sign_mcp_manifest(manifest)
+    except ValueError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        return 2
+    if args.output:
+        Path(args.output).write_text(
+            json.dumps(signed, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        print(json.dumps(signed, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_mcp_verify(args: argparse.Namespace) -> int:
+    from .mcp_trust import verify_mcp_manifest
+
+    path = Path(args.manifest)
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"ok": False, "error": f"cannot read manifest: {exc}"}))
+        return 2
+    baseline = None
+    if args.baseline:
+        try:
+            baseline = json.loads(Path(args.baseline).read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError) as exc:
+            print(json.dumps({"ok": False, "error": f"cannot read baseline: {exc}"}))
+            return 2
+    result = verify_mcp_manifest(manifest, baseline=baseline)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -593,6 +665,28 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pqc_keygen.set_defaults(command="pqc-keygen")
 
+    mcp_p = sub.add_parser("mcp", help="MCP tool-surface trust scanner (ssx360.mcp-manifest.v1)")
+    mcp_sub = mcp_p.add_subparsers(dest="mcp_command")
+
+    mcp_scan = mcp_sub.add_parser("scan", help="Fingerprint MCP tool definitions into an unsigned manifest")
+    mcp_scan.add_argument("--tools", required=True, help="JSON file: tool array or {tools: [...]}")
+    mcp_scan.add_argument("--server-name", default="", help="MCP server display name")
+    mcp_scan.add_argument("--server-version", default="", help="Server version string")
+    mcp_scan.add_argument("--server-url", default="", help="Server URL or transport endpoint")
+    mcp_scan.add_argument("--package", default="", help="npm/pypi package coordinate")
+    mcp_scan.add_argument("--output", "-o", help="Write unsigned manifest JSON to file")
+    mcp_scan.set_defaults(command="mcp-scan")
+
+    mcp_sign = mcp_sub.add_parser("sign", help="Ed25519-sign an unsigned MCP manifest")
+    mcp_sign.add_argument("manifest", help="Unsigned ssx360.mcp-manifest.v1 JSON")
+    mcp_sign.add_argument("--output", "-o", help="Write signed manifest to file")
+    mcp_sign.set_defaults(command="mcp-sign")
+
+    mcp_verify = mcp_sub.add_parser("verify", help="Verify signed MCP manifest; optional baseline drift check")
+    mcp_verify.add_argument("manifest", help="Signed ssx360.mcp-manifest.v1 JSON")
+    mcp_verify.add_argument("--baseline", help="Baseline signed manifest for rug-pull drift detection")
+    mcp_verify.set_defaults(command="mcp-verify")
+
     return parser
 
 
@@ -621,6 +715,9 @@ def main(argv: list[str] | None = None) -> int:
         "sign-action": _cmd_sign_action,
         "scroll-commit": _cmd_scroll_commit,
         "pqc-keygen": _cmd_pqc_keygen,
+        "mcp-scan": _cmd_mcp_scan,
+        "mcp-sign": _cmd_mcp_sign,
+        "mcp-verify": _cmd_mcp_verify,
     }
     handler = handlers.get(args.command)
     if handler is None:
