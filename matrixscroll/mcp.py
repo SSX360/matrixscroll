@@ -88,6 +88,7 @@ mcp = FastMCP(
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCHEMA_PATH = _REPO_ROOT / "schemas" / "commit-envelope.v1.json"
 _ACTION_SCHEMA_PATH = _REPO_ROOT / "schemas" / "action-envelope.v1.json"
+_MCP_MANIFEST_SCHEMA_PATH = _REPO_ROOT / "schemas" / "ssx360.mcp-manifest.v1.json"
 _SPEC_PATH = _REPO_ROOT / "SPEC.md"
 
 
@@ -105,6 +106,14 @@ def action_envelope_schema() -> str:
     if _ACTION_SCHEMA_PATH.is_file():
         return _ACTION_SCHEMA_PATH.read_text(encoding="utf-8")
     return '{"error":"action-envelope.v1.json not found in install root"}'
+
+
+@mcp.resource("matrixscroll://schema/ssx360.mcp-manifest.v1")
+def mcp_manifest_schema() -> str:
+    """Public JSON Schema for MCP tool-surface manifests (ssx360.mcp-manifest.v1, CC0)."""
+    if _MCP_MANIFEST_SCHEMA_PATH.is_file():
+        return _MCP_MANIFEST_SCHEMA_PATH.read_text(encoding="utf-8")
+    return '{"error":"ssx360.mcp-manifest.v1.json not found in install root"}'
 
 
 @mcp.resource("matrixscroll://spec")
@@ -799,6 +808,101 @@ def connect_card(
         }
     except Exception as exc:
         return {"ok": False, "mode": "hardware", "error": "connect_failed", "message": str(exc)}
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def scan_mcp_server(
+    tools: Annotated[
+        list[dict[str, Any]],
+        Field(
+            description="MCP tool definitions (name, description, inputSchema) to fingerprint.",
+        ),
+    ],
+    server_name: Annotated[str, Field(description="Optional MCP server display name.")] = "",
+    server_version: Annotated[str, Field(description="Optional server version.")] = "",
+    server_url: Annotated[str, Field(description="Optional server URL or package registry link.")] = "",
+    package: Annotated[str, Field(description="Optional npm/pypi package coordinate.")] = "",
+) -> dict[str, Any]:
+    """Fingerprint an MCP server's tool surface into an unsigned ssx360.mcp-manifest.v1.
+
+    Use before ``sign_mcp_manifest`` to capture install-time tool names, descriptions,
+    and input schema hashes. Re-scan later and pass results to ``verify_mcp_manifest``
+    with a baseline to detect rug-pull drift. Read-only; no network required when
+    ``tools`` is supplied directly.
+
+    Returns ``{ok, tool_count, surface_hash, manifest}``.
+    """
+    from .mcp_trust import scan_mcp_server as _scan
+
+    return _scan(
+        tools,
+        server_name=server_name,
+        server_version=server_version,
+        server_url=server_url,
+        package=package,
+    )
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def sign_mcp_manifest(
+    manifest: Annotated[
+        dict[str, Any],
+        Field(description="Unsigned ssx360.mcp-manifest.v1 document from scan_mcp_server."),
+    ],
+    save_path: Annotated[
+        str,
+        Field(description="Optional file path to write the signed manifest."),
+    ] = "",
+) -> dict[str, Any]:
+    """Ed25519-sign an MCP tool-surface manifest for offline install verification.
+
+    Use after ``scan_mcp_server``. Prefer ``verify_mcp_manifest`` for checks.
+    Side effects: may write ``save_path``; uses local identity store. No network.
+    Returns ``{ok, signed, device_id, path?, error?}``.
+    """
+    import json
+    from pathlib import Path
+
+    from .mcp_trust import sign_mcp_manifest as _sign
+
+    try:
+        signed = _sign(manifest)
+        if save_path.strip():
+            out = Path(save_path).expanduser()
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "signed": signed,
+            "device_id": (signed.get("signature") or {}).get("device_id"),
+            "path": save_path or None,
+        }
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def verify_mcp_manifest(
+    manifest: Annotated[
+        dict[str, Any],
+        Field(description="Signed ssx360.mcp-manifest.v1 to verify offline."),
+    ],
+    baseline: Annotated[
+        dict[str, Any] | None,
+        Field(
+            description="Optional baseline signed manifest for rug-pull drift detection.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
+    """Verify a signed MCP manifest and optionally diff against an install-time baseline.
+
+    Use in CI or before trusting an MCP server after upgrade. Read-only; no network.
+    Returns ``{ok, surface_hash, tool_count, drift?, error?}``; ``ok`` is false on
+    bad signature or surface drift vs baseline.
+    """
+    from .mcp_trust import verify_mcp_manifest as _verify
+
+    return _verify(manifest, baseline=baseline)
 
 
 def main() -> None:
