@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify matrixscroll release metadata before tagging v0.5.1 and publishing to PyPI."""
+"""Verify matrixscroll release metadata before tagging v0.6.0 and publishing to PyPI."""
 
 from __future__ import annotations
 

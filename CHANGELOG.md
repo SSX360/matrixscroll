@@ -4,6 +4,29 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-07-03
+
+MCP Trust Scanner — sign any MCP server's tool surface and detect rug-pulls offline.
+
+### Added
+- **`matrixscroll mcp scan|sign|verify`** — fingerprint an MCP server's tool
+  surface (names, descriptions, input schemas), Ed25519-sign a manifest, and
+  verify offline against a committed baseline (drift exits 2 with exact diff).
+- **`--connect stdio|sse`** — live scan of running MCP servers via the MCP SDK
+  client (`--server-command` for stdio, URL for SSE).
+- **`--pretty`** — colored terminal output: scan table and `▲ DRIFT DETECTED`
+  verdict block.
+- **MCP tools** — `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`
+  on the matrixscroll MCP server.
+- **CC0 schema** — `schemas/ssx360.mcp-manifest.v1.json` (`ssx360.mcp-manifest.v1`).
+- **Golden artifact** — `examples/mcp/matrixscroll-mcp.signed.json` (matrixscroll's
+  own MCP server, 12 tools, scanned live and signed).
+- **Rug-pull demo** — `examples/demo/mcp-rugpull-demo.sh` (asciinema-ready).
+
+### Documentation
+- README "catch a rug-pull in 60 seconds" quickstart; install pins moved to
+  `matrixscroll==0.6.0`.
+
 ## [0.5.1] - 2026-07-02
 
 ### Added
@@ -214,6 +237,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.6.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.0
 [0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0
 [0.2.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.2
