@@ -429,7 +429,7 @@ def _cmd_mcp_scan(args: argparse.Namespace) -> int:
     server_url = args.server_url or ""
     if args.connect:
         try:
-            command = shlex.split(args.command) if args.command else None
+            command = shlex.split(args.server_command) if args.server_command else None
             tools, server_info = fetch_mcp_tools_live(
                 args.connect,
                 command=command,
@@ -704,7 +704,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Connect to a live MCP server via stdio subprocess or SSE URL",
     )
     mcp_scan.add_argument(
-        "--command",
+        "--server-command",
+        dest="server_command",
         help="Shell command to spawn MCP server (required for --connect stdio)",
     )
     mcp_scan.add_argument("--url", help="SSE endpoint URL (required for --connect sse)")

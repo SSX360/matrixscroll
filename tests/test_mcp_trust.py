@@ -103,8 +103,9 @@ class ManifestSignVerifyTests(unittest.TestCase):
 
 class ConnectScanTests(unittest.TestCase):
     def test_fetch_mcp_tools_live_stdio_requires_command(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             fetch_mcp_tools_live("stdio")
+        self.assertIn("server-command", str(ctx.exception))
 
     @mock.patch("anyio.run")
     def test_fetch_mcp_tools_live_delegates_to_async(self, run_mock):

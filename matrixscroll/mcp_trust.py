@@ -197,7 +197,7 @@ async def _fetch_tools_live(
     server_info: dict[str, str] = {}
     if transport == "stdio":
         if not command:
-            raise ValueError("--command required when --connect stdio")
+            raise ValueError("--server-command required when --connect stdio")
         params = StdioServerParameters(command=command[0], args=command[1:])
         client_ctx = stdio_client(params)
     elif transport == "sse":
