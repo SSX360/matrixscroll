@@ -12,6 +12,10 @@ with exit code 2. All three verbs shipped and tested (see `tests/test_mcp_trust.
 
 **Revenue strategy:** SSX360 v4 — see `digital-rain-internal/docs/strategy/SSX360-REVENUE-v4-2026-07-03.md`
 
+**Status 2026-07-03:** Products #1 and #2 shipped — `matrixscroll==0.6.0` on PyPI,
+manifest gate reusable workflow in `matrixscroll-verify-action`. Remaining items are
+human-only: asciinema recording, DNS / demo URL go-live, and HN post timing.
+
 ---
 
 ## Release timeline (v4 — week anchors)
@@ -43,13 +47,14 @@ Entice surfaces must CTA to Pilot (`$7.5k`), Snapshot (`$5k`), or Team (`$199/mo
 - [x] Web demo: paste tools JSON → client-side fingerprint + drift diff at matrixscroll.com/scan
 - [x] Re-scan flow demonstrates rug-pull detection (mutated description in demo)
 - [x] README "catch a rug-pull in 60 seconds" quickstart (install → scan → sign → mutate → catch)
+- [x] PR #22 merged to main (fed4280); `matrixscroll==0.6.0` released on PyPI 2026-07-03 with the `mcp` subcommand
 
 ### Product #2 — GitHub Action
 
-- [ ] `matrixscroll-verify-action` (or sibling repo) accepts signed MCP manifest path
-- [ ] Unsigned manifest → fail build
-- [ ] Drift vs committed baseline → fail build
-- [ ] Example workflow in matrixscroll README
+- [x] `matrixscroll-verify-action` accepts signed MCP manifest path — reusable workflow `.github/workflows/mcp-manifest-gate.yml` (`workflow_call`)
+- [x] Unsigned manifest → fail build (missing file exit 1, bad signature exit 2)
+- [x] Drift vs committed baseline → fail build (exit 2 with exact diff)
+- [x] Example workflow in matrixscroll README (MCP Trust Scanner section)
 
 ### Site / demo
 

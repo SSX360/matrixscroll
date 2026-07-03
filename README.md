@@ -96,6 +96,18 @@ FAIL  surface_drift — do not trust this server until you review the diff
 Offline mode works too — no server needed: `matrixscroll mcp scan --tools ./tools.json`
 accepts a plain JSON tool array or `{"tools": [...]}` (paste from any `tools/list` response).
 
+Gate it in CI — fail the build on unsigned or drifted manifests with the reusable workflow:
+
+```yaml
+jobs:
+  mcp-gate:
+    uses: SSX360/matrixscroll-verify-action/.github/workflows/mcp-manifest-gate.yml@main
+    with:
+      manifest: mcp/my-server.signed.json
+      baseline: mcp/my-server.baseline.json
+      matrixscroll_version: "0.6.0"
+```
+
 Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](examples/demo/mcp-rugpull-demo.sh)  
 Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscroll-mcp.signed.json`](examples/mcp/matrixscroll-mcp.signed.json)  
 Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
