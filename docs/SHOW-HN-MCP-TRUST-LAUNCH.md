@@ -4,6 +4,22 @@
 **Products launching together:** #1 MCP Trust Scanner + #2 GitHub Action allowlist gate  
 **HN title (draft):** Show HN: matrixscroll mcp – sign any MCP server's tool surface and detect rug-pulls offline
 
+**Revenue strategy:** SSX360 v4 — see `digital-rain-internal/docs/strategy/SSX360-REVENUE-v4-2026-07-03.md`
+
+---
+
+## Release timeline (v4 — week anchors)
+
+| Week | Asset | Notes |
+| --- | --- | --- |
+| **Wk 3** | Show HN `/forge` | Primary HN post — working demo, no waitlist |
+| **Wk 5** | MCP Trust Scanner | CLI `scan\|sign\|verify` + GitHub Action ship with golden tests |
+| **Wk 8** | WEB_WIZARD traces | Public agent-run provenance demos feeding Scanner narrative |
+
+Parallel (not week-gated): FS AI RMF checklist, `ssx360.mcp-manifest.v1` CC0 spec.
+
+Entice surfaces must CTA to Pilot (`$7.5k`), Snapshot (`$5k`), or Team (`$199/mo`) — never displace RJ sales calendar.
+
 ---
 
 ## Pre-launch (T-14 to T-3)
@@ -115,5 +131,7 @@ MCP signing ships.
 
 ## Related docs
 
+- Revenue strategy v4: `digital-rain-internal/docs/strategy/SSX360-REVENUE-v4-2026-07-03.md`
 - Internal decision memo: `digital-rain-internal/docs/strategy/MCP-TRUST-LAYER-DECISION-MEMO-2026-07-03.md`
 - Buyer-safe summary: `digital-rain/docs/operations/MCP-TRUST-LAYER-SUMMARY.md`
+- Buyer-safe revenue summary: `digital-rain/docs/operations/SSX360-REVENUE-v4-SUMMARY.md`
