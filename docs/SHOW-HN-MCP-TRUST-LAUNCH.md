@@ -1,5 +1,7 @@
 # Show HN: MCP Trust Layer Launch Checklist
 
+**North star:** Three ways to pay us, two Show HNs, one free scanner that makes unsigned MCP look reckless — and by September 30 either $20k+ has cleared Stripe or we stop guessing and let the March kill bar do its job early.
+
 **Target window:** Late July 2026, Tuesday–Thursday, 8:00–10:00 AM ET  
 **Products launching together:** #1 MCP Trust Scanner + #2 GitHub Action allowlist gate  
 **HN title (draft):** Show HN: matrixscroll mcp – sign any MCP server's tool surface and detect rug-pulls offline
