@@ -21,7 +21,7 @@ Software emulated keys ship today; NXP SE050 secure-element signing is in firmwa
 
 **Hosted control plane:** identity, billing, authorization ledger, and Scroll Gate live at
 [ssx360.com](https://ssx360.com/). **Agent Trust** ($499/mo) — MCP baselines, drift alerts, authorization ledger.
-[Book an Authorization Pilot](https://ssx360.com/contact?intent=pilot) or visit [ssx360.com/pricing](https://ssx360.com/pricing).
+[Book the $999 Authorization Pilot](https://pilot.ssx360.com) or visit [ssx360.com/pricing](https://ssx360.com/pricing).
 
 ## Compliance evidence mapping
 
