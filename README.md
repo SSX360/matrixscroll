@@ -10,7 +10,7 @@
 
 **146 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
 
-**Signed proof of who — or what — wrote every AI-assisted commit.** Matrix Scroll is an
+**Signed proof of who or what wrote every AI-assisted commit.** Matrix Scroll is an
 **open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
 envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
 verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
