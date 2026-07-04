@@ -14,9 +14,11 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
   3. Pydantic `Field(description=...)` on every parameter (Glama introspection reads `tools/list` JSON Schema).
   4. CI guard: `tests/test_mcp_server.py::MCPToolDefinitionTests` asserts ≥80% schema description coverage.
 - **How to publish / re-sync:**
-  1. Log in to [Glama.ai](https://glama.ai/mcp).
-  2. Sync repository `https://github.com/SSX360/matrixscroll` (auto on push; manual sync if stale).
-  3. Confirm per-tool TDQS ≥ B and server quality **A** on the listing page.
+  1. **Publish to PyPI first**, then bump `glama.json` `packages[].version` (Glama installs the PyPI pin; a pin ahead of PyPI fails the build — see commit `453a3ef`).
+  2. CI guards: `scripts/validate_glama_pypi.py` and `scripts/glama_stdio_smoke.py` (PyPI install + stdio `tools/list`).
+  3. Log in to [Glama.ai](https://glama.ai/mcp).
+  4. Sync repository `https://github.com/SSX360/matrixscroll` (auto on push; manual **Sync Server** if a failed build predates the PyPI release).
+  5. Confirm per-tool TDQS ≥ B and server quality **A** on the listing page.
 
 ## 2. Official MCP Registry (Model Context Protocol)
 - **Status:** Ready for submission.

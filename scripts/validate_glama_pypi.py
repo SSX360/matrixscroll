@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fail CI when glama.json pins a PyPI version that is not published yet."""
+"""Fail CI when glama.json pins a PyPI version that is not published yet.
+
+Glama registry builds install ``packages[].version`` from PyPI (see ``453a3ef``).
+Never bump that pin in the release commit until PyPI publish completes.
+"""
 
 from __future__ import annotations
 

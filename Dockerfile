@@ -17,5 +17,5 @@ COPY . /app
 # Install the package locally with MCP extra dependencies
 RUN uv pip install --system .[mcp]
 
-# Command to launch the Matrix Scroll MCP stdio server
-ENTRYPOINT ["python", "-m", "matrixscroll.mcp"]
+# CMD (not ENTRYPOINT) so Glama/Smithery can override the launch command during introspection.
+CMD ["python", "-m", "matrixscroll.mcp"]
