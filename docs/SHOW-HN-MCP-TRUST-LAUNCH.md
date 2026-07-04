@@ -95,13 +95,14 @@ We are a tiny team and this is week one for Matrixscroll. We built this after re
 
 We wanted a free, offline, and verifiable way to ensure agents only execute against the exact tool surfaces we reviewed. Keys never leave your machine.
 
-Here is a quick asciinema recording of the verification failing loudly on a drifted tool: https://asciinema.org/a/yyfeSTIlsCfsB1Gm
+Here is a quick asciinema recording of the verification failing loudly on a drifted tool: https://asciinema.org/a/rbCRkIcZnjNWmqZF
 ```
 
 ### Demo GIF / asciinema — DONE (2026-07-04)
 
-- Recording: <https://asciinema.org/a/yyfeSTIlsCfsB1Gm> (100×30, ~3s, ends on the red
-  `▲ DRIFT DETECTED` block — that frame is the thumbnail)
+- Recording: <https://asciinema.org/a/rbCRkIcZnjNWmqZF> (100×30, ~37s with human
+  pacing — typed prompts, narration beats, and a ~4s hold on the red
+  `▲ DRIFT DETECTED` block at the end; that frame is the thumbnail)
 - Cast artifact committed: `examples/demo/mcp-rugpull-demo.cast`
 - GIF (agg 1.9.0) committed and embedded in README: `examples/demo/mcp-rugpull-demo.gif`
 - Anonymous uploads expire after 7 days — claim it to the account via

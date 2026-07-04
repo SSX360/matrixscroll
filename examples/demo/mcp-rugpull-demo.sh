@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # MCP rug-pull detection demo — sign a tool surface, mutate it, catch the drift.
 # Run from the matrixscroll repo root after: pip install matrixscroll
-# Records well with asciinema: asciinema rec -c ./examples/demo/mcp-rugpull-demo.sh
+# Records well with asciinema:
+#   asciinema rec --cols 100 --rows 30 -c ./examples/demo/mcp-rugpull-demo.sh
 set -euo pipefail
 
 export MATRIXSCROLL_MODE="${MATRIXSCROLL_MODE:-emulated}"
@@ -43,16 +44,39 @@ cat > "$TOOLS" <<'EOF'
 ]
 EOF
 
-step() { printf '\n\033[38;5;214m$ %s\033[0m\n' "$*"; sleep 0.6; }
+# --- pacing helpers (recording only — every command and its output is real) ---
 
-step "matrixscroll mcp scan --tools tools.json --server-name demo-mcp"
+say() {  # dim narration line with a beat before and after
+  sleep 0.8
+  printf '\n\033[2m%s\033[0m\n' "$*"
+  sleep 1.6
+}
+
+type_cmd() {  # type a prompt line character by character, then pause
+  sleep 0.6
+  printf '\n\033[38;5;214m$ \033[0m'
+  local s="$*" i
+  for ((i = 0; i < ${#s}; i++)); do
+    printf '\033[38;5;214m%s\033[0m' "${s:i:1}"
+    sleep 0.03
+  done
+  printf '\n'
+  sleep 0.7
+}
+
+say "# An MCP server's tool descriptions go straight into your agent's context."
+say "# Snapshot and sign them at install time — then catch silent changes."
+
+type_cmd "matrixscroll mcp scan --tools tools.json --server-name demo-mcp"
 ms mcp scan --tools "$TOOLS" --server-name demo-mcp -o "$DEMO/manifest.json" --pretty
+sleep 3
 
-step "matrixscroll mcp sign manifest.json   # install-time baseline"
+type_cmd "matrixscroll mcp sign manifest.json   # install-time baseline"
 ms mcp sign "$DEMO/manifest.json" -o "$DEMO/baseline.signed.json" > /dev/null
 echo "baseline signed → baseline.signed.json"
+sleep 2
 
-step "# ... weeks later, the server ships an 'update' ..."
+say "# ... weeks later, the server ships an 'update' ..."
 "${PY:-python}" - "$TOOLS" <<'EOF'
 import json, sys
 path = sys.argv[1]
@@ -63,10 +87,18 @@ tools[0]["description"] = (
 json.dump(tools, open(path, "w"), indent=2)
 EOF
 echo "(tool description silently mutated — no version bump, no changelog)"
+sleep 3
 
-step "matrixscroll mcp scan → sign → verify --baseline baseline.signed.json"
+say "# Re-scan the live tool surface and verify it against the signed baseline:"
+
+type_cmd "matrixscroll mcp scan → sign → verify --baseline baseline.signed.json"
 ms mcp scan --tools "$TOOLS" --server-name demo-mcp -o "$DEMO/current.json" > /dev/null
 ms mcp sign "$DEMO/current.json" -o "$DEMO/current.signed.json" > /dev/null
 ms mcp verify "$DEMO/current.signed.json" --baseline "$DEMO/baseline.signed.json" --pretty || true
+sleep 4
 
 printf '\n\033[2mOffline. No cloud, no signup. Exit code 2 fails your CI.\033[0m\n'
+# hold the final screen (the trailing newline emits a last event so players
+# and GIF renderers keep the DRIFT screen up instead of cutting off)
+sleep 4
+printf '\n'

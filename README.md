@@ -65,7 +65,7 @@ matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 
 ![MCP rug-pull detection demo](examples/demo/mcp-rugpull-demo.gif)
 
-[Watch on asciinema](https://asciinema.org/a/yyfeSTIlsCfsB1Gm) · cast file: [`examples/demo/mcp-rugpull-demo.cast`](examples/demo/mcp-rugpull-demo.cast)
+[Watch on asciinema](https://asciinema.org/a/rbCRkIcZnjNWmqZF) · cast file: [`examples/demo/mcp-rugpull-demo.cast`](examples/demo/mcp-rugpull-demo.cast)
 
 Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-pull detection —
 zero cloud, zero signup, exit code 2 fails your CI.
