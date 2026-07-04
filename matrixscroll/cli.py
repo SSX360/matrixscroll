@@ -567,6 +567,25 @@ def _cmd_mcp_verify(args: argparse.Namespace) -> int:
     return 0 if result.get("ok") else 2
 
 
+def _cmd_agent_trace_sign(args: argparse.Namespace) -> int:
+    from .agent_trace import sign_agent_trace
+
+    result = sign_agent_trace(args.trace, envelope_path=args.output or None)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
+
+
+def _cmd_agent_trace_verify(args: argparse.Namespace) -> int:
+    from .agent_trace import verify_agent_trace
+
+    result = verify_agent_trace(
+        args.envelope,
+        trace_path=args.trace or None,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok") else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -776,6 +795,19 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_verify.add_argument("--pretty", action="store_true", help="Human-readable colored verdict instead of JSON")
     mcp_verify.set_defaults(command="mcp-verify")
 
+    agent_p = sub.add_parser("agent-trace", help="Sign and verify WEB_WIZARD JSONL agent run traces")
+    agent_sub = agent_p.add_subparsers(dest="agent_trace_command")
+
+    agent_sign = agent_sub.add_parser("sign", help="Sign a `.jsonl` trace into matrixscroll.agent_trace.v1")
+    agent_sign.add_argument("trace", help="Path to `.traces/<runId>.jsonl`")
+    agent_sign.add_argument("--output", "-o", help="Envelope output path (default: `<trace>.envelope.json`)")
+    agent_sign.set_defaults(command="agent-trace-sign")
+
+    agent_verify = agent_sub.add_parser("verify", help="Verify a signed agent trace envelope")
+    agent_verify.add_argument("envelope", help="Signed envelope JSON path")
+    agent_verify.add_argument("--trace", help="Optional live trace path for byte-level drift check")
+    agent_verify.set_defaults(command="agent-trace-verify")
+
     return parser
 
 
@@ -807,6 +839,8 @@ def main(argv: list[str] | None = None) -> int:
         "mcp-scan": _cmd_mcp_scan,
         "mcp-sign": _cmd_mcp_sign,
         "mcp-verify": _cmd_mcp_verify,
+        "agent-trace-sign": _cmd_agent_trace_sign,
+        "agent-trace-verify": _cmd_agent_trace_verify,
     }
     handler = handlers.get(args.command)
     if handler is None:

@@ -905,6 +905,69 @@ def verify_mcp_manifest(
     return _verify(manifest, baseline=baseline)
 
 
+@mcp.tool(annotations=_WRITE_LOCAL)
+def sign_agent_trace(
+    trace_path: Annotated[
+        str,
+        Field(description="Path to a WEB_WIZARD `.traces/<runId>.jsonl` run log."),
+    ],
+    save_path: Annotated[
+        str,
+        Field(
+            description="Optional envelope output path (default: `<trace>.envelope.json`).",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Sign a browser-agent JSONL trace with the active Ed25519 identity.
+
+    Use when a WEB_WIZARD or Steel run completes. Hashes the full trace bytes,
+    records step count and run_id, and writes an offline-verifiable envelope.
+    Side effects: writes envelope file; uses local identity store. No network.
+    Returns ``{ok, signed, path?, error?}``.
+    """
+    from pathlib import Path
+
+    from .agent_trace import sign_agent_trace as _sign
+
+    try:
+        result = _sign(
+            trace_path,
+            envelope_path=save_path.strip() or None,
+        )
+        return result
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def verify_agent_trace(
+    envelope_path: Annotated[
+        str,
+        Field(description="Signed matrixscroll.agent_trace.v1 envelope JSON."),
+    ],
+    trace_path: Annotated[
+        str,
+        Field(
+            description="Optional live `.jsonl` path to confirm bytes match the signed hash.",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Verify a signed agent trace envelope offline; optional trace byte check.
+
+    Use in CI or auditor handoff. Read-only; no network.
+    Returns ``{ok, run_id?, step_count?, error?}``.
+    """
+    from .agent_trace import verify_agent_trace as _verify
+
+    try:
+        return _verify(
+            envelope_path,
+            trace_path=trace_path.strip() or None,
+        )
+    except Exception as exc:
+        return {"ok": False, "error": "verify_failed", "message": str(exc)}
+
+
 def main() -> None:
     """Run the Matrix Scroll MCP server over stdio."""
     mcp.run(transport="stdio")
