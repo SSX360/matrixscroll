@@ -13,8 +13,9 @@ with exit code 2. All three verbs shipped and tested (see `tests/test_mcp_trust.
 **Revenue strategy:** SSX360 v4 — see `digital-rain-internal/docs/strategy/SSX360-REVENUE-v4-2026-07-03.md`
 
 **Status 2026-07-03:** Products #1 and #2 shipped — `matrixscroll==0.6.0` on PyPI,
-manifest gate reusable workflow in `matrixscroll-verify-action`. Remaining items are
-human-only: asciinema recording, DNS / demo URL go-live, and HN post timing.
+manifest gate reusable workflow in `matrixscroll-verify-action`. Asciinema recording done
+2026-07-04 (see Demo GIF section). Remaining items are human-only: claim the asciinema
+upload, DNS / demo URL go-live, and HN post timing.
 
 ---
 
@@ -82,56 +83,31 @@ Entice surfaces must CTA to Pilot (`$7.5k`), Snapshot (`$5k`), or Team (`$199/mo
 - [ ] Link to working demo (primary) + GitHub repo (secondary)
 - [ ] No waitlist, no "coming soon" for core scanner
 
-### First comment (FINAL draft)
+### First comment (FINAL)
+
+**Post immediately after submitting the main link** — do not wait for the thread to
+gain traction; the first comment anchors the discussion.
 
 ```
-Hi HN — I'm Ryan, building Matrix Scroll / SSX360.
+Hi HN,
 
-The gap we kept hitting: MCP registries list servers, model providers receipt
-the call, but nobody signs the *tool surface* — names, descriptions, input
-schemas — and verifies it at install time. A server you trusted yesterday can
-quietly ship different tool descriptions today, and your agent will follow
-them. The ecosystem has already seen this class of attack: an npm MCP package
-shipped an update that silently added exfiltration behavior after users had
-installed it, and MCP tooling itself has had real CVEs this cycle
-(CVE-2025-6514 in mcp-remote, CVE-2025-49596 in MCP Inspector). Install-time
-trust with no re-verification is the standing assumption, and it's wrong.
+We are a tiny team and this is week one for Matrixscroll. We built this after realizing that while MCP is amazing for agent tooling, the discovery layer has a massive blind spot: there's no cryptographic defense against tool descriptions drifting or mutating after you initially approve them.
 
-What this launch does:
-• Free CLI: fingerprint a server's tool surface → Ed25519 sign → verify offline
-• Live scan: `matrixscroll mcp scan --connect stdio --server-command "npx -y <server>"`
-• Re-scan diffs against your signed baseline — a mutated description or input
-  schema exits 2 with an exact diff (rug-pull detection)
-• GitHub Action fails CI on unsigned or drifted manifests
-• CC0 spec: ssx360.mcp-manifest.v1 — no lock-in, no cloud, no signup
+We wanted a free, offline, and verifiable way to ensure agents only execute against the exact tool surfaces we reviewed. Keys never leave your machine.
 
-Commit provenance is our core wedge ("they receipt the model call; we receipt
-the merge"). MCP manifest signing extends the same offline verify model to
-what tools your agent can invoke.
-
-Try it in the browser (nothing uploaded): https://matrixscroll.com/scan
-Repo: https://github.com/SSX360/matrixscroll
-
-Happy to answer questions on canonical JSON hashing, how this differs from
-runtime tool-call signing (Signet), and the SEP-1766 pivot plan if official
-MCP signing ships.
+Here is a quick asciinema recording of the verification failing loudly on a drifted tool: https://asciinema.org/a/yyfeSTIlsCfsB1Gm
 ```
 
-**Do NOT** name Postmark/ActiveCampaign as the attacker — the 2025 incident was an
-*unofficial impersonator package*, not the vendor. Say "an npm MCP package" and let
-commenters supply links. No unrelated founder lore.
+### Demo GIF / asciinema — DONE (2026-07-04)
 
-### Demo GIF / asciinema plan
-
-1. Record on Linux/macOS terminal, 80×24, dark theme, JetBrains Mono:
-   `asciinema rec -c ./examples/demo/mcp-rugpull-demo.sh mcp-rugpull.cast`
-2. The script self-paces (0.6s beats) and ends on the red `▲ DRIFT DETECTED` block —
-   that frame is the thumbnail.
-3. Convert for README/HN: `agg mcp-rugpull.cast mcp-rugpull.gif --theme monokai`
-   (or svg-term for crisp text). Keep under 15s loop.
-4. Embed GIF at top of README section + link the cast on asciinema.org.
-5. Optional second take: live `--connect stdio` scan of matrixscroll's own MCP
-   server (12 tools) to show it works on real servers, not toy JSON.
+- Recording: <https://asciinema.org/a/yyfeSTIlsCfsB1Gm> (100×30, ~3s, ends on the red
+  `▲ DRIFT DETECTED` block — that frame is the thumbnail)
+- Cast artifact committed: `examples/demo/mcp-rugpull-demo.cast`
+- GIF (agg 1.9.0) committed and embedded in README: `examples/demo/mcp-rugpull-demo.gif`
+- Anonymous uploads expire after 7 days — claim it to the account via
+  <https://asciinema.org/connect/b4dff431-4dff-4e33-9901-30c95ba1d6f4> before launch.
+- Optional second take: live `--connect stdio` scan of matrixscroll's own MCP
+  server (12 tools) to show it works on real servers, not toy JSON.
 
 ---
 
