@@ -10,17 +10,18 @@
 
 **146 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
 
-**Signed proof of who or what wrote every AI-assisted commit.** Matrix Scroll is an
-**open protocol for cryptographically signed, AI-assisted code provenance** — Ed25519 commit
-envelopes for Git (and universal action envelopes for CI, IaC, and migrations),
-verified offline in CLI, browser, and CI. Software emulated keys ship today; NXP SE050
-secure-element signing is in firmware validation with the same verifier contract.
+**Agent Authorization Authority — offline-verifiable proof for every machine action.** Matrix Scroll is an
+**open protocol for cryptographically signed agent authorization** — Ed25519 records for Git commits (L1),
+MCP tool surfaces (L2), and agent runs / NHI actions (L3), verified offline in CLI, browser, and CI.
+Software emulated keys ship today; NXP SE050 secure-element signing is in firmware validation with the same verifier contract.
 
-**Hosted control plane:** identity, billing, audit ledger, and Scroll Gate live at
-[ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
-[book a provenance pilot](https://ssx360.com/contact?intent=pilot) or visit
-[ssx360.com/enterprise](https://ssx360.com/enterprise).
-Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
+*They receipt the model call. We receipt everything the machine does.*
+
+**Authorization ladder:** L1 Code (commits) · L2 Tools (MCP manifests) · L3 Actions (agent runs) · L4 Money (AP2 — demo) · L5 Silicon (2029+)
+
+**Hosted control plane:** identity, billing, authorization ledger, and Scroll Gate live at
+[ssx360.com](https://ssx360.com/). **Agent Trust** ($499/mo) — MCP baselines, drift alerts, authorization ledger.
+[Book an Authorization Pilot](https://ssx360.com/contact?intent=pilot) or visit [ssx360.com/pricing](https://ssx360.com/pricing).
 
 ## Compliance evidence mapping
 
