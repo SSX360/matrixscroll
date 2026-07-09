@@ -32,6 +32,19 @@ env/
 *.swp
 .DS_Store
 
+# Secrets and credentials (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+credentials/
+
+# Editor / agent local state
+.cursor/
+.playwright-cli/
+
 # Matrix Scroll local store (never commit a private key)
 .matrixscroll/
 device.json

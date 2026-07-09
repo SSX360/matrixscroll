@@ -82,9 +82,8 @@ def _parse_glama_badges(html):
 
 
 def get_glama_registry_status():
-    """Return Glama listing status for matrixscroll and digital-rain."""
+    """Return Glama listing status for matrixscroll."""
     matrixscroll = fetch_json("https://glama.ai/api/mcp/v1/servers/SSX360/matrixscroll")
-    digital_rain = fetch_json("https://glama.ai/api/mcp/v1/servers/SSX360/digital-rain")
     listing_html = fetch_html("https://glama.ai/mcp/servers/SSX360/matrixscroll")
 
     quality = license_grade = maintenance = None
@@ -97,8 +96,6 @@ def get_glama_registry_status():
         "matrixscroll_quality": quality,
         "matrixscroll_license": license_grade,
         "matrixscroll_maintenance": maintenance,
-        "digital_rain_listed": isinstance(digital_rain, dict) and "error" not in digital_rain,
-        "digital_rain_id": digital_rain.get("id") if isinstance(digital_rain, dict) else None,
     }
 
 
@@ -150,10 +147,6 @@ def main():
         print(f"    - matrixscroll quality:   {glama_status.get('matrixscroll_quality', 'unknown')}")
         print(f"    - matrixscroll license:   {glama_status.get('matrixscroll_license', 'unknown')}")
         print(f"    - matrixscroll maint.:    {glama_status.get('matrixscroll_maintenance', 'unknown')}")
-        if glama_status.get("digital_rain_listed"):
-            print("    - digital-rain-mcp:       STILL LISTED (email support@glama.ai, id xwxknl3sgw)")
-        else:
-            print("    - digital-rain-mcp:       not listed (ok)")
 
     print("\n[*] Querying Glama Registry favorites...")
     glama = get_glama_favorites()

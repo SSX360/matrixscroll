@@ -1,7 +1,7 @@
 # POC 2 audit readiness checklist
 
 **Target:** External security / design review · June 2026  
-**Repos:** [SSX360/matrixscroll](https://github.com/SSX360/matrixscroll), [SSX360/digital-rain](https://github.com/SSX360/digital-rain)
+**Repo:** [SSX360/matrixscroll](https://github.com/SSX360/matrixscroll)
 
 ## 1. Cryptography
 

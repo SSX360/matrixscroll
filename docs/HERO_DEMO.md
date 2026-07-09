@@ -1,6 +1,6 @@
-# Hero demo script (60–90 seconds)
+# Demo script (60–90 seconds)
 
-Record this flow once. It is the highest-value GTM asset for the quarter.
+Record this flow once for product demos, conference talks, or onboarding videos.
 
 ## Cast
 

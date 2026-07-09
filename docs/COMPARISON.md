@@ -77,7 +77,6 @@ No single competitor listed above combines all four today.
 
 ## Further reading
 
-- Full research brief (internal): `research/competitive-landscape-2026-06.md` in the SSX360 launch kit
 - [Whitepaper](WHITEPAPER.md) — threat model and envelope design
 - [SPEC.md](../SPEC.md) — wire format and verification rules
 

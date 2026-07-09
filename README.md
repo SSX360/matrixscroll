@@ -116,8 +116,7 @@ jobs:
 Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](examples/demo/mcp-rugpull-demo.sh)  
 Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscroll-mcp.signed.json`](examples/mcp/matrixscroll-mcp.signed.json)  
 Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
-Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan)  
-Launch checklist: [`docs/SHOW-HN-MCP-TRUST-LAUNCH.md`](docs/SHOW-HN-MCP-TRUST-LAUNCH.md)
+Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan)
 
 ## Also available — CLI & hooks
 
