@@ -4,6 +4,14 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-07-22
+
+### Documentation
+- **L2 Hardware prototype (2026-07-21)** — Pico 2 W / RP2350 + GMT130 ST7789
+  LCD/LED bring-up locked; SE050 M1 PoC remains bench-validated (not GA).
+  README compliance table, `docs/hardware-provider.md`, and roadmap updated.
+  Docs-only release; install pin `matrixscroll==0.6.1`.
+
 ## [0.6.0] - 2026-07-03
 
 MCP Trust Scanner — sign any MCP server's tool surface and detect rug-pulls offline.
@@ -237,6 +245,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.6.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.1
 [0.6.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.0
 [0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0

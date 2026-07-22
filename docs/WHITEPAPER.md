@@ -73,7 +73,7 @@ Full wire format: [`SPEC.md`](../SPEC.md). Schema: [`schemas/commit-envelope.v1.
 ### 1. Install
 
 ```bash
-pip install "matrixscroll==0.6.0"
+pip install "matrixscroll==0.6.1"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -89,7 +89,7 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
 
 Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/config.json` to block commits when signing fails. See [`docs/quickstart-git.md`](quickstart-git.md).
 
-**Windows:** support landed in matrixscroll **0.2.1**; pin **0.6.0** in pilot environments.
+**Windows:** support landed in matrixscroll **0.2.1**; pin **0.6.1** in pilot environments.
 
 ### 3. CI gate
 
@@ -97,12 +97,12 @@ Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/conf
 - uses: SSX360/matrixscroll-verify-action@v1
   with:
     manifest: path/to/signed-manifest.json
-    matrixscroll-version: "0.6.0"
+    matrixscroll-version: "0.6.1"
     require-mode: emulated
     trusted-keys: trusted-keys.json
 ```
 
-Policy flags (`--require-mode`, `--trusted-keys`) ship in the current release; this whitepaper pins `0.6.0` for copy-and-paste examples.
+Policy flags (`--require-mode`, `--trusted-keys`) ship in the current release; this whitepaper pins `0.6.1` for copy-and-paste examples.
 
 ### 4. Optional scope manifest
 
@@ -117,7 +117,7 @@ export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.jso
 | Level | Provider | Status |
 |-------|----------|--------|
 | **L1 Emulated** | Software key (`~/.matrixscroll/`) | Shipping |
-| **L2 Hardware** | SSX360 / NXP SE050 secure element | In firmware validation |
+| **L2 Hardware** | SSX360 / NXP SE050 + Pico 2 W / GMT130 | Prototype (bench) — not GA |
 | **L3 Attested** | L2 + remote attestation | Roadmap |
 
 External hardware key backend criteria are documented in

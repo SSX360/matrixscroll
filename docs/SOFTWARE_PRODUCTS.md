@@ -5,7 +5,7 @@ manifest bytes today.
 
 | Product | Status | Access | Notes |
 |---------|--------|--------|-------|
-| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.0` | Hooks, envelopes, Scroll Gate, policy CLI |
+| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.1` | Hooks, envelopes, Scroll Gate, policy CLI |
 | **Scroll Gate CI** | GA | [`matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) | PR range + manifest verify |
 | **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
 | **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
@@ -18,7 +18,7 @@ manifest bytes today.
 ## Developer install
 
 ```bash
-pip install "matrixscroll==0.6.0"
+pip install "matrixscroll==0.6.1"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -34,13 +34,14 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.0"
+    matrixscroll-version: "0.6.1"
     summary-output: provenance-summary.json
 ```
 
 ## Honest limits
 
-- L1 emulated signing is the default root of trust until hardware preview
+- L1 emulated signing is the default root of trust until the L2 Hardware
+  prototype is selected for pilot evaluation (`MATRIXSCROLL_MODE=hardware`)
   sign-off is complete.
 - The SE050 path is a trust upgrade, not a dependency for adoption.
 - Existing security keys are complementary today and become first-class Matrix
