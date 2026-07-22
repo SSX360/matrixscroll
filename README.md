@@ -13,15 +13,19 @@
 **Agent Authorization Authority — offline-verifiable proof for every machine action.** Matrix Scroll is an
 **open protocol for cryptographically signed agent authorization** — Ed25519 records for Git commits (L1),
 MCP tool surfaces (L2), and agent runs / NHI actions (L3), verified offline in CLI, browser, and CI.
-Software emulated keys ship today; NXP SE050 secure-element signing is in firmware validation with the same verifier contract.
+Software emulated keys ship today; NXP SE050 secure-element signing is a
+bench-validated PoC (Jul 2026) with the same verifier contract. The Pico 2 W /
+GMT130 display bring-up is a locked L2 Hardware prototype (Jul 2026) — not GA.
 
 *They receipt the model call. We receipt everything the machine does.*
 
 **Authorization ladder:** L1 Code (commits) · L2 Tools (MCP manifests) · L3 Actions (agent runs) · L4 Money (AP2 — demo) · L5 Silicon (2029+)
 
 **Hosted control plane:** identity, billing, authorization ledger, and Scroll Gate live at
-[ssx360.com](https://ssx360.com/). **Agent Trust** ($499/mo) — MCP baselines, drift alerts, authorization ledger.
-[Book the $999 Authorization Pilot](https://pilot.ssx360.com) or visit [ssx360.com/pricing](https://ssx360.com/pricing).
+[ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
+[book a provenance pilot](https://ssx360.com/contact?intent=pilot) or visit
+[ssx360.com/enterprise](https://ssx360.com/enterprise).
+Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
 
 ## Compliance evidence mapping
 
@@ -52,13 +56,13 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 ```
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.0"
+pip install "matrixscroll[mcp]==0.6.1"
 matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
 ```
 
 **MCP tools (provenance verbs only):** `create_envelope`, `sign_action`, `verify_envelope`,
 `verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`, `list_envelopes`,
-`connect_card` (SE050 hardware preview, roadmap).
+`connect_card` (SE050 hardware prototype — pilot evaluation; not GA).
 
 **MCP trust tools (manifest surface):** `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`.
 
@@ -72,7 +76,7 @@ Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-
 zero cloud, zero signup, exit code 2 fails your CI.
 
 ```bash
-pip install matrixscroll
+pip install "matrixscroll==0.6.1"
 
 # 1. Scan a live MCP server (stdio) — fingerprints every tool: name, description, input schema
 matrixscroll mcp scan --connect stdio --server-command "npx -y some-mcp-server" \
@@ -110,7 +114,7 @@ jobs:
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
-      matrixscroll_version: "0.6.0"
+      matrixscroll_version: "0.6.1"
 ```
 
 Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](examples/demo/mcp-rugpull-demo.sh)  
@@ -122,7 +126,7 @@ Launch checklist: [`docs/SHOW-HN-MCP-TRUST-LAUNCH.md`](docs/SHOW-HN-MCP-TRUST-LA
 ## Also available — CLI & hooks
 
 ```bash
-pip install "matrixscroll==0.6.0"
+pip install "matrixscroll==0.6.1"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -170,11 +174,13 @@ that produced it.
 Keep GitHub Advanced Security, Semgrep, Snyk, branch protection, and artifact
 attestations. Matrix Scroll adds signed commit-time authorship proof before
 merge, and it keeps the same offline verification contract across the CLI,
-browser, CI, and the SE050 preview path.
+browser, CI, and the SE050 hardware prototype path.
 
 The reference SDK ships pure Ed25519 over canonical manifest bytes today. The
-SSX360 / NXP SE050 path is the compatible next trust layer and remains a
-preview path until device acceptance is complete.
+SSX360 / NXP SE050 path is the compatible next trust layer: M1 signing PoC and
+RP2350 + GMT130 display prototype are bench-validated; live SE050 on the
+display bring-up UF2 remains fail-closed until the NXP backend is restored.
+This is **prototype / pilot evaluation**, not a GA hardware product.
 
 ## RFC 8032 (Ed25519) alignment
 
@@ -186,13 +192,16 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
 
 ## Honest limits
 
-- Shipping now: PyPI `matrixscroll==0.6.0`, Git post-commit hooks,
+- Shipping now: PyPI `matrixscroll==0.6.1`, Git post-commit hooks,
   `matrixscroll sign-action`, `matrixscroll scroll commit` (thin wrapper),
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
-  verifier, the GitHub Action, and a USB CDC host transport preview for the
-  SE050 rollout path. Emulated mode is the default evaluation path.
-- In progress: nRF52840 + SE050 firmware validation — secure-element signing remains preview until device acceptance gates pass; external Ed25519-capable
-  hardware key backends, and transparency-log integrations.
+  verifier, the GitHub Action, and a USB CDC host transport for the SE050
+  hardware prototype path. Emulated mode is the default evaluation path.
+- Prototype (bench): Pico 2 W / RP2350 + GMT130 ST7789 LCD/LED bring-up locked
+  (2026-07-21); NXP SE050 M1 signing PoC accepted (Jul 2026) on contractor
+  firmware — not GA; display bring-up UF2 keeps `pubkey`/`sign` fail-closed
+  until Plug & Trust restore. External Ed25519-capable hardware key backends
+  and transparency-log integrations remain roadmap.
 - Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
 - Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
@@ -222,8 +231,9 @@ verify that proof offline in the CLI, browser, or CI before merge.
 Emulated mode ships today and keeps the signing key on disk with owner-only
 permissions so teams can evaluate the full workflow now. Hardware mode keeps
 the same verifier contract and commit envelope schema, but moves the private
-key into the SE050 secure element so the host cannot export it; that path
-remains preview-only until device acceptance is complete.
+key into the SE050 secure element so the host cannot export it. That path is
+a bench-validated L2 Hardware prototype (Pico 2 W + SE050 M1 PoC) available
+for pilot evaluation — not GA.
 
 ### How can I integrate Matrix Scroll into a CI/CD workflow?
 
@@ -236,7 +246,7 @@ alongside your existing scanners, branch protection, and build attestations.
 ## Quickstart (CLI)
 
 ```bash
-pip install "matrixscroll==0.6.0"
+pip install "matrixscroll==0.6.1"
 matrixscroll hook-install
 matrixscroll hook-status
 
@@ -265,7 +275,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.0"
+    matrixscroll-version: "0.6.1"
     require-mode: emulated
 ```
 
@@ -285,7 +295,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.0"
+    matrixscroll-version: "0.6.1"
     summary-output: provenance-summary.json
 ```
 
@@ -293,7 +303,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
 [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-ship in the current release line; examples in this README pin `0.6.0`.
+ship in the current release line; examples in this README pin `0.6.1`.
 
 ## Security: Ed25519 via cryptography
 
@@ -327,12 +337,12 @@ when they preserve the same pure Ed25519 byte contract.
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com> · Control plane: <https://ssx360.com> · Enterprise: <https://ssx360.com/enterprise>
-- SE050 hardware preview: <https://ssx360.com/enterprise#roadmap> (in firmware validation)
+- SE050 hardware prototype: <https://ssx360.com/enterprise#roadmap> (bench-validated; not GA)
 
 ## Python API
 
 ```bash
-pip install "matrixscroll==0.6.0"
+pip install "matrixscroll==0.6.1"
 ```
 
 ```python
@@ -382,7 +392,7 @@ matrixscroll.sign_manifest(...)  /  post-commit hook
          v
 IdentityProvider          -->  Ed25519 signature
 (L1 emulated today,
- SSX360 / SE050 in firmware validation)
+ SSX360 / SE050 prototype — bench-validated)
          |
          v
 signed document  -->  matrixscroll.verify_manifest(...)
@@ -390,21 +400,23 @@ signed document  -->  matrixscroll.verify_manifest(...)
 ```
 
 Switch providers with `MATRIXSCROLL_MODE`. Hardware mode includes a USB CDC
-host transport preview and a mock path for CI; real SE050 signing still
-depends on device firmware validation. External-key backends stay out of the
-mainline until they can sign the same canonical bytes with Ed25519.
+host transport and a mock path for CI. The L2 Hardware prototype (Pico 2 W /
+GMT130 display + SE050 M1 PoC) is bench-validated; live SE050 signing on the
+display bring-up UF2 stays fail-closed until the NXP backend is restored.
+External-key backends stay out of the mainline until they can sign the same
+canonical bytes with Ed25519.
 
 For rollout order, start with `MATRIXSCROLL_MODE=emulated` for evaluation,
 layer in external Ed25519-capable signers only when they stay verifier
-compatible, and treat `hardware` as the SE050 preview path until device
-acceptance is complete.
+compatible, and treat `hardware` as the SE050 prototype path for pilot
+evaluation — not GA.
 
 ## Compliance levels
 
 | Level | Provider | Backed by | Status |
 | ----- | -------- | --------- | ------ |
 | **L1** Emulated | `EmulatedProvider` | Software key, file-backed (0600) | Shipping |
-| **L2** Hardware | `HardwareProvider` | NXP SE050 secure element (SSX360) | In progress |
+| **L2** Hardware | `HardwareProvider` | NXP SE050 + Pico 2 W / RP2350 + GMT130 (SSX360) | Prototype (bench) |
 | **L3** Attested | future | L2 + remote attestation | Roadmap |
 
 `status()` exposes the active level via the `mode` and `available` fields.
@@ -443,7 +455,7 @@ The MCP server exposes **provenance verbs** (`create_envelope`, `verify_envelope
 Install and register in Cursor / Claude Desktop / VS Code:
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.0"
+pip install "matrixscroll[mcp]==0.6.1"
 matrixscroll-mcp   # stdio
 ```
 

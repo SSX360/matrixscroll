@@ -19,7 +19,7 @@ These answers are different, and mature teams usually want both.
 | Main unit | Commit envelope | Package, container, or predicate |
 | Actor / tool in record | Yes | Usually no |
 | Offline verify | Yes | Varies by workflow |
-| Hardware path | In progress | External to the standard flow |
+| Hardware path | Prototype (bench) | External to the standard flow; not GA |
 
 ## Where Matrix Scroll fits
 

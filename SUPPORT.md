@@ -46,8 +46,10 @@ partnership inquiries.
 ## Status
 
 - **Shipping now:** L1 emulated Ed25519 signing, Git post-commit hooks, PyPI
-  `matrixscroll` **0.6.0**, Scroll Gate, the public verifier, the public action,
-  and the SE050 host transport preview
-- **In progress:** RP2350 + SE050 firmware validation, external Ed25519-capable
-  key backends, and transparency-log integrations
+  `matrixscroll` **0.6.1**, Scroll Gate, the public verifier, the public action,
+  and the SE050 USB CDC host transport
+- **Prototype (bench):** L2 Hardware — Pico 2 W / RP2350 + GMT130 display locked
+  (Jul 2026); SE050 M1 signing PoC accepted — pilot evaluation, not GA
+- **Roadmap:** external Ed25519-capable key backends, transparency-log integrations,
+  NXP backend restore on the display bring-up UF2
 - **Not in scope:** IAM, sandbox, prompt-injection filter, or agent runtime
