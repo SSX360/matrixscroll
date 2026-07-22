@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "102b708591e5df969087881cfa6cbad85c2901ad",
+    "author": {
+      "date": "1783145162 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783145162 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: record MCP rug-pull asciinema demo, embed GIF in README, finalize Show HN first comment\n",
+    "parents": [
+      "827442e9e204a1746bb52fb4c77243303c66f207"
+    ],
+    "tree": "7688606747d1aad718f5f6b82df290dc08fb6a25"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T06:06:02Z",
+    "value": "Bw4rsi96osBpoahNn84JoJnDbRL7fb2b+9TFBARH5nlyTV/tWrb88oJVuF0zoLS7I1stewqFg9TfYaD75q5PCw=="
+  }
+}
