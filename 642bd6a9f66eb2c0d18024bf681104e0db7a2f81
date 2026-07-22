@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "642bd6a9f66eb2c0d18024bf681104e0db7a2f81",
+    "author": {
+      "date": "1784693658 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1784693684 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Release matrixscroll 0.6.1 docs-only L2 Hardware prototype sync.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "f92da2e938d08a6505e23bed443efbcb77ee2618"
+    ],
+    "tree": "1898dff034fe97373096ec84f13e003cf97b31f0"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "HEAD",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-22T04:14:44Z",
+    "value": "nFgRLtEZxjUsJom+u4T50wj0edMHI0RQ+VEocmr0bZpl4ybvw+71jWEUqVJjEszbXIX6wjrpf16s0z6M3pZaBg=="
+  }
+}
