@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "c9d73de51eb81ba31cfe288efdcbca06e93fb6b7",
+    "author": {
+      "date": "1783151418 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783151418 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "feat: sign and verify WEB_WIZARD agent traces (agent_trace.v1)\n",
+    "parents": [
+      "27fc7922dde24221401b6a83e8252a4ac5bea127"
+    ],
+    "tree": "cb70596feef1c43ddedc0ea4ff84e8a465afb596"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T07:50:19Z",
+    "value": "/cVpBEpaxq4OUZ2FyhkOZSnWLDNQeCIoA/UvwXC+zdvkFB8i0xdDZYWD1+DJnTp0sz5ZR5lyfJ7WKoicVMngDA=="
+  }
+}
