@@ -1,7 +1,7 @@
 # SSX360 hardware provider
 
 **Status:** L2 Hardware prototype (bench-validated, 2026-07-21). Mock transport
-and USB CDC host transport ship in `matrixscroll[hardware]==0.6.1`. Pico 2 W
+and USB CDC host transport ship in `matrixscroll[hardware]==0.6.2`. Pico 2 W
 (RP2350) + GMT130 ST7789 LCD/LED bring-up is locked. NXP SE050 M1 signing PoC
 is accepted on contractor firmware; the display bring-up UF2 keeps
 `pubkey`/`sign` fail-closed until Plug & Trust + object ID restore. **Not GA.**
@@ -25,7 +25,7 @@ matrixscroll status
 ## Quickstart (USB CDC prototype)
 
 ```bash
-pip install "matrixscroll[hardware]==0.6.1"
+pip install "matrixscroll[hardware]==0.6.2"
 export MATRIXSCROLL_MODE=hardware
 export MATRIXSCROLL_SE050_PORT=/dev/ttyACM0
 matrixscroll status

@@ -7,7 +7,7 @@
   "maintainers": ["SSX360"],
   "homepage": "https://ssx360.com",
   "repository": "https://github.com/SSX360/matrixscroll",
-  "documentation": "https://ssx360.com/docs#mcp",
+  "documentation": "https://matrixscroll.com/docs/",
   "transport": {
     "type": "stdio"
   },

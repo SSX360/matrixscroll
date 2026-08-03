@@ -34,7 +34,7 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.1"
+          matrixscroll-version: "0.6.2"
           require-mode: emulated
 ```
 
@@ -82,7 +82,7 @@ Auditors ask how many commits in a release were agent-authored. Emit the counts:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.1"
+          matrixscroll-version: "0.6.2"
           summary-output: provenance-summary.json
 ```
 

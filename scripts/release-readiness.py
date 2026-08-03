@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Verify matrixscroll release metadata before tagging v0.6.1 and publishing to PyPI."""
+"""Verify matrixscroll release metadata before tagging and publishing to PyPI.
+
+Exit 0 when the staged release is fully published, 2 when it is staged but not on
+PyPI yet (expected on a release PR), and 1 when the metadata is inconsistent.
+"""
 
 from __future__ import annotations
 
@@ -56,7 +60,6 @@ def main() -> int:
     versions = {
         "pyproject.toml": read_version_from_pyproject(),
         "__init__.py": read_version_from_init(),
-        "glama.json": read_version_from_glama(),
     }
     unique = set(versions.values())
     print("Local version pins:")
@@ -69,6 +72,35 @@ def main() -> int:
 
     target = unique.pop()
     print(f"OK: local release target is {target}")
+
+    try:
+        pypi_latest, pypi_releases = fetch_pypi_versions()
+    except OSError as exc:
+        print(f"WARN: could not reach PyPI ({exc})", file=sys.stderr)
+        return 2
+    print(f"PyPI latest: {pypi_latest}")
+
+    # glama.json is deliberately a release behind while a release is staged.
+    # Glama installs packages[].version from PyPI, and so does the stdio smoke
+    # step in ci-unit.yml, so pinning an unpublished version breaks both.
+    # validate_glama_pypi.py enforces that; requiring an exact match with the
+    # release target here contradicted it and deadlocked every release PR.
+    glama_version = read_version_from_glama()
+    print(f"glama.json pin: {glama_version}")
+    if glama_version == target:
+        print(f"OK: glama.json already at the release target {target}")
+    elif glama_version in pypi_releases:
+        print(
+            f"OK: glama.json lags at published {glama_version} while {target} is staged; "
+            f"bump it to {target} after PyPI publish completes"
+        )
+    else:
+        print(
+            f"FAIL: glama.json pins {glama_version}, which is neither the release "
+            f"target {target} nor a published release",
+            file=sys.stderr,
+        )
+        return 1
 
     readme_pins = read_readme_pins()
     print(f"README install pins: {sorted(readme_pins) or ['(none)']}")
@@ -83,20 +115,14 @@ def main() -> int:
         return 1
     print(f"OK: README quickstart pins match {target}")
 
-    try:
-        pypi_latest, pypi_releases = fetch_pypi_versions()
-        print(f"PyPI latest: {pypi_latest}")
-        if target in pypi_releases:
-            print(f"OK: {target} is published on PyPI")
-        else:
-            print(
-                f"WARN: {target} is not on PyPI yet. Publish with "
-                f"matrixscroll/.github/workflows/publish.yml and tag v{target}.",
-                file=sys.stderr,
-            )
-            return 2
-    except OSError as exc:
-        print(f"WARN: could not reach PyPI ({exc})", file=sys.stderr)
+    if target in pypi_releases:
+        print(f"OK: {target} is published on PyPI")
+    else:
+        print(
+            f"WARN: {target} is not on PyPI yet. Publish with "
+            f"matrixscroll/.github/workflows/publish.yml and tag v{target}.",
+            file=sys.stderr,
+        )
         return 2
 
     print("Release readiness: PASS")
