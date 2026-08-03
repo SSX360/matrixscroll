@@ -1,0 +1,141 @@
+site_name: Matrix Scroll
+site_description: Signed provenance for agent-assisted Git commits with offline Ed25519 verification.
+site_url: https://matrixscroll.com/docs/
+repo_url: https://github.com/SSX360/matrixscroll
+repo_name: SSX360/matrixscroll
+edit_uri: edit/main/docs/
+copyright: Code Apache-2.0. Specification text CC0 1.0.
+
+# MkDocs Material rather than Sphinx. Matrix Scroll is a CLI and library with a
+# public marketing surface; author velocity and presentation matter more than
+# Sphinx's cross-referencing depth. mkdocstrings supplies the API reference that
+# Sphinx autodoc would otherwise provide.
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_source: true
+            show_signature_annotations: true
+            separate_signature: true
+            members_order: source
+            filters: ["!^_"]
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+
+# Diátaxis: four buckets, each answering a different question.
+#   Tutorial    - learning, guaranteed success
+#   How-to      - a goal the reader already has
+#   Reference   - description, generated from code where possible
+#   Explanation - understanding, the place for strategy and comparisons
+nav:
+  - Home: index.md
+  - Tutorial:
+      - Sign and verify your first commit: tutorial/first-commit.md
+  - How-to:
+      - Gate a protected branch in GitHub Actions: how-to/gate-protected-branch.md
+      - Publish envelopes to git notes: how-to/publish-git-notes.md
+      - Scan an MCP server for drift: how-to/scan-mcp-server.md
+  - Reference:
+      - CLI commands: reference/cli.md
+      - Exit codes: reference/exit-codes.md
+      - Commit envelope schema: reference/commit-envelope.md
+      - Python API: reference/python-api.md
+  - Explanation:
+      - Why commit-time provenance: explanation/commit-time-vs-artifact-time.md
+      - How Matrix Scroll relates to AP2: explanation/ap2.md
+      - Trust boundaries and the hardware roadmap: explanation/trust-boundaries.md
+      - The writing workflow: explanation/writing-workflow.md
+      - Style supplement: explanation/style-supplement.md
+
+# Diátaxis is applied incrementally, as the Diátaxis site itself recommends. The
+# legacy flat docs below are still the authoritative source for their subjects
+# and are still served from GitHub; they are excluded from the built site until
+# each one is migrated into a bucket above. They link to repo-root paths that do
+# not exist inside docs_dir, so including them breaks --strict.
+#
+# To migrate one: move it under tutorial/, how-to/, reference/, or explanation/,
+# rewrite its outbound links, add it to nav, and delete its line here.
+exclude_docs: |
+  ADOPTER_KIT.md
+  AGENTIC_AI_SECURITY.md
+  AIMS_INTEROP.md
+  CI_HARD_GATE.md
+  COMMIT_TIME_VS_ARTIFACT_TIME.md
+  COMPARISON.md
+  CRYPTO_BACKEND.md
+  CRYPTO_ROADMAP.md
+  DOCTRINE.md
+  FIVE_MINUTES.md
+  GITTUF_INTEROP.md
+  GIT_AI_NOTES_INTEROP.md
+  HERO_DEMO.md
+  OPENSSF_SANDBOX_DECISION.md
+  POC2_AUDIT.md
+  ROADMAP_2026-07.md
+  SE050_POC_SCOPE.md
+  SE050_USB_PROTOCOL.md
+  SECURITY_PROPERTIES.md
+  SLSA_SOURCE_TRACK_MAPPING.md
+  SOFTWARE_PRODUCTS.md
+  WHITEPAPER.md
+  delegation-attestation-rfc.md
+  hardware-provider.md
+  quickstart-agent.md
+  quickstart-claude-code.md
+  quickstart-git.md
+  quickstart-mcp.md
+  registries-guide.md
+  rekor-guac-bridge-design.md
+  yubikey-bridge.md
+  yubikey-smoke.md
+  commercial/
+  superpowers/
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/SSX360/matrixscroll
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/matrixscroll/

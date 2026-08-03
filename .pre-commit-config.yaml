@@ -1,0 +1,49 @@
+# Deterministic prose gate. See docs/explanation/writing-workflow.md for why
+# Vale runs before the LLM pass and again as the CI gate.
+#
+# The upstream hook declares `language: golang`, so pre-commit builds the Vale
+# binary from source on first run and a Go toolchain must be present. If that is
+# unacceptable in your environment, install the Vale binary yourself and swap
+# these hooks for `repo: local` / `language: system` entries.
+#
+# The `errata-ai` organization was renamed to `vale-cli`. Old `errata-ai/vale`
+# URLs still resolve by redirect; the canonical name is used here.
+repos:
+  - repo: https://github.com/vale-cli/vale
+    rev: v3.17.0
+    hooks:
+      # Pre-download Google, write-good, ai-tells, and ai-tells-commits so the
+      # linting hook below never fails on a cold cache.
+      - id: vale
+        name: vale (sync styles)
+        args: [sync]
+        pass_filenames: false
+        always_run: true
+
+      # Block the commit on errors only. Warnings and suggestions stay visible
+      # but do not stop work; CI applies the same threshold.
+      - id: vale
+        name: vale (prose)
+        args: [--output=line, --minAlertLevel=error]
+        types_or: [markdown, rst, plain-text]
+        exclude: |
+          (?x)^(
+            CHANGELOG\.md|
+            docs/superpowers/.*|
+            \.vale/styles/(Google|write-good|ai-tells|ai-tells-commits)/.*
+          )$
+
+      # Commit messages are provenance records for a provenance tool. Lint them.
+      - id: vale
+        name: vale (commit message)
+        stages: [commit-msg]
+        args: [--output=line, --minAlertLevel=error, --ext=.md]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: check-yaml
+      - id: check-merge-conflict

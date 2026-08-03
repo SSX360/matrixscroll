@@ -1,0 +1,70 @@
+# Matrix Scroll
+
+Signed provenance for agent-assisted Git commits, with offline Ed25519
+verification.
+
+When an agent, a CI workflow, or a person produces a commit, Matrix Scroll
+attaches a signed envelope recording the actor, the tool, and an optional scope.
+Anyone can verify that envelope later, in the CLI, in the browser, or in CI,
+without trusting the session that produced the commit.
+
+Matrix Scroll is an open protocol. It is free, permanently, and is not
+monetized.
+
+```bash
+pip install "matrixscroll==0.6.1"
+```
+
+## Start here
+
+<div class="grid cards" markdown>
+
+- **[Tutorial](tutorial/first-commit.md)**
+
+    Sign and verify your first commit in 5 minutes. One guaranteed path,
+    emulated mode, nothing to configure.
+
+- **[How-to guides](how-to/gate-protected-branch.md)**
+
+    Gate a protected branch, publish envelopes to git notes, scan an MCP server
+    for drift.
+
+- **[Reference](reference/cli.md)**
+
+    CLI commands, exit codes, the commit-envelope schema, and the Python API
+    generated from source.
+
+- **[Explanation](explanation/commit-time-vs-artifact-time.md)**
+
+    Why commit-time provenance, how this relates to AP2, and exactly what the
+    trust boundaries are.
+
+</div>
+
+## How the four sections differ
+
+This documentation follows [Diátaxis](https://diataxis.fr/). The tutorial teaches
+and guarantees success. The how-to guides assume you already have a goal. The
+reference describes and does not explain. The explanation is where the arguments
+and comparisons live.
+
+If you are evaluating whether to adopt Matrix Scroll, read the explanation
+section. If you are trying to get something working, read the how-to guides.
+
+## Honest limits
+
+- **Shipping now.** PyPI `matrixscroll==0.6.1`, Git post-commit hooks,
+  `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
+  verification (partial SLSA L1-2), the browser verifier, the GitHub Action, and
+  a USB CDC host transport. Emulated mode is the default evaluation path.
+- **Prototype, bench only.** NXP SE050 M1 signing proof of concept, and the Pico
+  2 W / RP2350 + GMT130 display bring-up locked 2026-07-21. Live SE050 signing on
+  the display bring-up stays fail-closed pending an NXP Plug and Trust restore.
+  Not generally available. See
+  [Trust boundaries](explanation/trust-boundaries.md).
+- **Roadmap.** External Ed25519-capable hardware key backends and
+  transparency-log integration.
+- **Not.** Identity and access management, sandboxing, prompt filtering, or an
+  agent runtime.
+
+Compliance language throughout is evidence mapping, not a certification claim.

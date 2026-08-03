@@ -1,0 +1,22 @@
+extends: existence
+message: "Mystical or brand-voice register on a developer surface: '%s'. Developer docs get one concrete declarative sentence. Move this to the marketing site or delete it."
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: warning
+ignorecase: true
+tokens:
+  # The house tagline and its family. Concrete on the site, mystical in a README.
+  - "receipt(s)? (the|every) [a-z]+"
+  - "everything the machine does"
+  - "the machine (speaks|remembers|knows|forgets)"
+  - "digital rain"
+  - "the scroll (knows|remembers|records)"
+  # Generic mystical register
+  - "\\bsource of truth for the (soul|machine|age)"
+  - "\\b(dawn|era|age) of (the )?agent"
+  - "\\bin a world where\\b"
+  - "\\bimagine a\\b"
+  - "\\bthe (silent|invisible|hidden) (watcher|ledger|witness)"
+  - "\\bcryptographic (soul|conscience|memory)"
+  - "\\b(guardian|sentinel|watchtower|oracle) (of|for) "
+  - "\\bwhat if (your|the) "
+  - "\\bthis changes everything\\b"

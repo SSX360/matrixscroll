@@ -1,0 +1,9 @@
+# Documentation build. Pinned to the versions the Diátaxis tree was verified
+# against on 2026-08-02 with `mkdocs build --strict`.
+#
+# Material for MkDocs warns that MkDocs 2.0 will remove the plugin system with
+# no migration path. Treat a major-version bump here as a breaking change and
+# re-verify the strict build before accepting it.
+mkdocs==1.6.1
+mkdocs-material>=9.5,<10
+mkdocstrings[python]>=0.26,<1

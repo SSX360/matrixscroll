@@ -1,25 +1,28 @@
 # Matrix Scroll
 
-**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try) — offline tamper demo and ten-line quickstart.
-
-**Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md)
+Signed provenance for agent-assisted Git commits, with offline Ed25519 verification.
 
 [![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
-[![Scroll Gate v2 (hosted)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/provenance-gate.yml)
-[![codecov](https://codecov.io/gh/SSX360/matrixscroll/graph/badge.svg)](https://codecov.io/gh/SSX360/matrixscroll)
+[![PyPI](https://img.shields.io/pypi/v/matrixscroll)](https://pypi.org/project/matrixscroll/)
+[![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-**146 tests** · Hypothesis-verified security properties · [Security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) · [TLA+ formal models](formal/README.md)
+Matrix Scroll is an open protocol for cryptographically signed agent
+authorization: Ed25519 records for Git commits (L1), MCP tool surfaces (L2), and
+agent runs and non-human-identity actions (L3), verified offline in the CLI, the
+browser, and CI. It is free, permanently, and is not monetized.
 
-**Agent Authorization Authority — offline-verifiable proof for every machine action.** Matrix Scroll is an
-**open protocol for cryptographically signed agent authorization** — Ed25519 records for Git commits (L1),
-MCP tool surfaces (L2), and agent runs / NHI actions (L3), verified offline in CLI, browser, and CI.
-Software emulated keys ship today; NXP SE050 secure-element signing is a
-bench-validated PoC (Jul 2026) with the same verifier contract. The Pico 2 W /
-GMT130 display bring-up is a locked L2 Hardware prototype (Jul 2026) — not GA.
+Software emulated keys ship today. NXP SE050 secure-element signing is a
+bench-validated proof of concept (Jul 2026) sharing the same verifier contract,
+and the Pico 2 W / GMT130 display bring-up is a locked L2 Hardware prototype
+(Jul 2026). Neither is generally available.
 
-*They receipt the model call. We receipt everything the machine does.*
+**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try) runs an offline
+tamper demo in the browser. **Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md).
+**146 tests**, Hypothesis-verified [security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md),
+and [TLA+ formal models](formal/README.md).
 
-**Authorization ladder:** L1 Code (commits) · L2 Tools (MCP manifests) · L3 Actions (agent runs) · L4 Money (AP2 — demo) · L5 Silicon (2029+)
+**Authorization ladder:** L1 Code (commits), L2 Tools (MCP manifests), L3 Actions (agent runs), L4 Money (AP2, demo), L5 Silicon (2029+)
 
 **Hosted control plane:** identity, billing, authorization ledger, and Scroll Gate live at
 [ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
@@ -31,16 +34,16 @@ Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx36
 
 Matrix Scroll **maps to** and **produces evidence for** (never “required by”; not a certification claim):
 
-- **DORA (Jan 2025)** — ICT change-management evidence for software changes.
-- **PCI DSS 4.0 Req 6.5 (Mar 2025)** — change-control evidence for custom software.
-- **US Treasury FS-AI RMF (Feb 2026)** — traceability for agent actions in financial software.
-- **NIST SSDF** — provenance, change authorization, and release gate review.
-- **EU AI Act Article 12** — record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
-- **Five Eyes Agentic AI guidance (Apr 2026)** — linked crosswalk only: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+- **DORA (Jan 2025)**: ICT change-management evidence for software changes.
+- **PCI DSS 4.0 Req 6.5 (Mar 2025)**: change-control evidence for custom software.
+- **US Treasury FS-AI RMF (Feb 2026)**: traceability for agent actions in financial software.
+- **NIST SSDF**: provenance, change authorization, and release gate review.
+- **EU AI Act Article 12**: record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
+- **Five Eyes Agentic AI guidance (Apr 2026)**: linked crosswalk only: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
 
 POC 2 audit readiness: [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
 
-## Install — MCP server (headline path)
+## Install the MCP server (headline path)
 
 Agents sign commits in-loop via the **provenance-only** MCP server:
 
@@ -57,28 +60,28 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 
 ```bash
 pip install "matrixscroll[mcp]==0.6.1"
-matrixscroll-mcp   # stdio — register in Cursor / Claude Desktop / VS Code
+matrixscroll-mcp   # stdio. Register in Cursor / Claude Desktop / VS Code
 ```
 
 **MCP tools (provenance verbs only):** `create_envelope`, `sign_action`, `verify_envelope`,
 `verify_pr_range` (Scroll Gate), `publish_notes`, `status`, `audit_export`, `list_envelopes`,
-`connect_card` (SE050 hardware prototype — pilot evaluation; not GA).
+`connect_card` (SE050 hardware prototype, pilot evaluation, not GA).
 
 **MCP trust tools (manifest surface):** `scan_mcp_server`, `sign_mcp_manifest`, `verify_mcp_manifest`.
 
-### MCP Trust Scanner — catch a rug-pull in 60 seconds
+### MCP Trust Scanner: catch a rug-pull in 60 seconds
 
 ![MCP rug-pull detection demo](examples/demo/mcp-rugpull-demo.gif)
 
 [Watch on asciinema](https://asciinema.org/a/rbCRkIcZnjNWmqZF) · cast file: [`examples/demo/mcp-rugpull-demo.cast`](examples/demo/mcp-rugpull-demo.cast)
 
-Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-pull detection —
-zero cloud, zero signup, exit code 2 fails your CI.
+Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-pull detection.
+Zero cloud, zero signup, exit code 2 fails your CI.
 
 ```bash
 pip install "matrixscroll==0.6.1"
 
-# 1. Scan a live MCP server (stdio) — fingerprints every tool: name, description, input schema
+# 1. Scan a live MCP server (stdio). Fingerprints every tool: name, description, input schema
 matrixscroll mcp scan --connect stdio --server-command "npx -y some-mcp-server" \
   -o manifest.json --pretty
 
@@ -102,10 +105,10 @@ A mutated tool description or input schema fails loudly:
 FAIL  surface_drift — do not trust this server until you review the diff
 ```
 
-Offline mode works too — no server needed: `matrixscroll mcp scan --tools ./tools.json`
+Offline mode works too, no server needed: `matrixscroll mcp scan --tools ./tools.json`
 accepts a plain JSON tool array or `{"tools": [...]}` (paste from any `tools/list` response).
 
-Gate it in CI — fail the build on unsigned or drifted manifests with the reusable workflow:
+Gate it in CI. Fail the build on unsigned or drifted manifests with the reusable workflow:
 
 ```yaml
 jobs:
@@ -122,7 +125,7 @@ Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscrol
 Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
 Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan)
 
-## Also available — CLI & hooks
+## Also available: CLI and hooks
 
 ```bash
 pip install "matrixscroll==0.6.1"
@@ -146,7 +149,7 @@ matrixscroll sign-action --type ci_step \
 
 Action schema: [`schemas/action-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/action-envelope.v1.json)
 
-### SSX360 Scroll — Git wrapper (Layer 3, Phase 1)
+### SSX360 Scroll: Git wrapper (Layer 3, Phase 1)
 
 Git under the hood; governance on top. **Not a Git replacement.**
 
@@ -198,7 +201,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   hardware prototype path. Emulated mode is the default evaluation path.
 - Prototype (bench): Pico 2 W / RP2350 + GMT130 ST7789 LCD/LED bring-up locked
   (2026-07-21); NXP SE050 M1 signing PoC accepted (Jul 2026) on contractor
-  firmware — not GA; display bring-up UF2 keeps `pubkey`/`sign` fail-closed
+  firmware, not GA; display bring-up UF2 keeps `pubkey`/`sign` fail-closed
   until Plug & Trust restore. External Ed25519-capable hardware key backends
   and transparency-log integrations remain roadmap.
 - Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
@@ -212,7 +215,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
 - Hardware keys and build attestations remain complementary roots and downstream
   proofs; Matrix Scroll covers commit-time provenance.
 - The public contract stays pure Ed25519 over canonical manifest bytes for the
-  required `signature` block — whether the signer is emulated today or
+  required `signature` block, whether the signer is emulated today or
   SE050 secure-element signing later. Software signers may optionally attach ML-DSA/SLH-DSA
   overlays (FIPS 204/205) via `matrixscroll[pqc]` without changing hardware firmware.
 
@@ -232,7 +235,7 @@ permissions so teams can evaluate the full workflow now. Hardware mode keeps
 the same verifier contract and commit envelope schema, but moves the private
 key into the SE050 secure element so the host cannot export it. That path is
 a bench-validated L2 Hardware prototype (Pico 2 W + SE050 M1 PoC) available
-for pilot evaluation — not GA.
+for pilot evaluation, not GA.
 
 ### How can I integrate Matrix Scroll into a CI/CD workflow?
 
@@ -308,7 +311,7 @@ ship in the current release line; examples in this README pin `0.6.1`.
 
 Ed25519 signing, verification, and key generation use the [`cryptography`](https://pypi.org/project/cryptography/)
 package (required dependency, `>=42.0`). Official wheels ship native crypto
-backends (OpenSSL + Rust components) — no Rust toolchain for users. All
+backends (OpenSSL + Rust components), so no Rust toolchain for users. All
 primitives are centralized in `matrixscroll/crypto_backend.py`; see
 [`docs/CRYPTO_BACKEND.md`](docs/CRYPTO_BACKEND.md).
 
@@ -391,7 +394,7 @@ matrixscroll.sign_manifest(...)  /  post-commit hook
          v
 IdentityProvider          -->  Ed25519 signature
 (L1 emulated today,
- SSX360 / SE050 prototype — bench-validated)
+ SSX360 / SE050 prototype, bench-validated)
          |
          v
 signed document  -->  matrixscroll.verify_manifest(...)
@@ -408,7 +411,7 @@ canonical bytes with Ed25519.
 For rollout order, start with `MATRIXSCROLL_MODE=emulated` for evaluation,
 layer in external Ed25519-capable signers only when they stay verifier
 compatible, and treat `hardware` as the SE050 prototype path for pilot
-evaluation — not GA.
+evaluation, not GA.
 
 ## Compliance levels
 
@@ -458,13 +461,46 @@ pip install "matrixscroll[mcp]==0.6.1"
 matrixscroll-mcp   # stdio
 ```
 
-See the [Install — MCP server](#install--mcp-server-headline-path) section above for
+See the [Install the MCP server](#install-the-mcp-server-headline-path) section above for
 the recommended `mcp.json` snippet.
 
 ## License
 
 - Code: **Apache-2.0** (`LICENSE`).
 - Specification text (`SPEC.md`, `vectors/`): **CC0 1.0** - public domain.
+
+## Verify this release
+
+Every release is published from GitHub Actions through PyPI Trusted Publishing,
+and every file carries a PEP 740 attestation recorded in the Sigstore
+transparency log. You do not have to take our word for who built the wheel; you
+can check it.
+
+Ask PyPI directly:
+
+```bash
+curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
+  https://pypi.org/integrity/matrixscroll/0.6.1/matrixscroll-0.6.1-py3-none-any.whl/provenance
+```
+
+The response names the publisher, and it should say exactly this:
+
+```json
+{"kind": "GitHub", "repository": "SSX360/matrixscroll",
+ "workflow": "publish.yml", "environment": "pypi"}
+```
+
+Transparency-log entry for the 0.6.1 wheel: log index `2215985472`. If the
+publisher, the workflow, or the digest differs from what you expect, do not
+install the file.
+
+The human-readable view is on the
+[PyPI project page](https://pypi.org/project/matrixscroll/0.6.1/), where files
+built with attestations are marked as verified.
+
+This matters more here than for most packages. A tool that sells offline
+verifiability should be verifiable by the same standard it asks of everyone
+else.
 
 ## Security
 

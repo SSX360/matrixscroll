@@ -1,0 +1,32 @@
+# Accepted house terms.
+#
+# Do NOT add compliance framework names here. A vocabulary entry suppresses
+# every rule against that token, which would silently disable
+# SSX360.ComplianceHedge. Vale.Spelling is off in .vale.ini, so framework names
+# do not need to be listed.
+SSX360
+Matrix Scroll
+matrixscroll
+Scroll Gate
+Ed25519
+Sigstore
+SLSA
+Rekor
+GUAC
+Diátaxis
+mkdocstrings
+MkDocs
+Hypothesis
+liboqs
+argparse
+canonicalization
+deserialization
+provenance
+verifier
+verifiers
+unsigned
+prehashed
+[Aa]gentic
+[Nn]on-human
+[Mm]andate chain
+[Ee]nvelope[s]?

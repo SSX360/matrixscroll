@@ -1,0 +1,14 @@
+extends: existence
+message: "House rule: no em-dash or en-dash-as-separator in user-facing copy. Use a hyphen, comma, period, or parentheses."
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: error
+nonword: true
+tokens:
+  # Em-dash anywhere.
+  - '\x{2014}'
+  # En-dash used as a separator (surrounded by spaces). A bare en-dash between
+  # digits is a numeric range (SLSA L1-2, 2024-2025) and stays legal.
+  - '\s\x{2013}\s'
+  # Horizontal bar and figure dash, which paste in from word processors.
+  - '\x{2015}'
+  - '\x{2012}'

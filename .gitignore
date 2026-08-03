@@ -56,3 +56,12 @@ tla2tools.jar
 formal/tla/states/
 formal/tla/*_TTrace_*.tla
 formal/tla/*_TTrace_*.bin
+
+# MkDocs build output
+site/
+
+# Vale packages fetched by `vale sync`; do not commit
+.vale/styles/Google/
+.vale/styles/write-good/
+.vale/styles/ai-tells/
+.vale/styles/ai-tells-commits/

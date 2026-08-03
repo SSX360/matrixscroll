@@ -1,0 +1,45 @@
+name: prose
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.rst'
+      - '.vale.ini'
+      - '.vale/**'
+      - '.github/workflows/vale.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+      - '**/*.rst'
+      - '.vale.ini'
+      - '.vale/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  vale:
+    name: vale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The `errata-ai` org was renamed to `vale-cli`. `errata-ai/vale-action@v2`
+      # still resolves by redirect; `vale-cli/vale-action@v2` is canonical.
+      #
+      # fail_on_error is REQUIRED. reviewdog exits 0 by default even when it
+      # reports errors, so without this the job is decorative.
+      - uses: vale-cli/vale-action@v2
+        with:
+          version: 3.17.0
+          files: '["README.md", "SPEC.md", "SECURITY.md", "CONTRIBUTING.md", "docs"]'
+          reporter: github-pr-check
+          fail_on_error: true
+          filter_mode: nofilter
+          vale_flags: "--minAlertLevel=error"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
