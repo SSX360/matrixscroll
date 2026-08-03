@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.6.1"
-description = "Signed provenance for agent-assisted Git commits with offline Ed25519 verification; optional ML-DSA/SLH-DSA software overlay (FIPS 204/205). USB/NFC/SE050 hardware remains Ed25519."
+version = "0.6.2"
+description = "Sign who authorized an AI agent's actions and verify it offline. Ed25519 envelopes for Git commits and MCP tool surfaces, with an optional ML-DSA/SLH-DSA overlay (FIPS 204/205)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -73,24 +73,27 @@ matrixscroll-mcp = "matrixscroll.mcp:main"
 ssx360 = "matrixscroll.ssx360_cli:main"
 ssx360-ledger = "matrixscroll.ssx360_cli:ledger_main"
 
+# Every link points at its final destination. The previous set routed
+# Documentation and Verifier through ssx360.com redirects that land on
+# matrixscroll.com, and "Reference Device" pointed at a page that no longer
+# exists. Compare duplicated Documentation.
 [project.urls]
-Homepage = "https://ssx360.com"
-Documentation = "https://ssx360.com/docs"
+Homepage = "https://matrixscroll.com"
+Documentation = "https://matrixscroll.com/docs/"
+Specification = "https://matrixscroll.com/spec/"
+Verifier = "https://matrixscroll.com/verify/"
 Repository = "https://github.com/SSX360/matrixscroll"
 Source = "https://github.com/SSX360/matrixscroll"
 Issues = "https://github.com/SSX360/matrixscroll/issues"
-Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
 Whitepaper = "https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md"
-Verifier = "https://ssx360.com/verify"
-Compare = "https://ssx360.com/docs"
 Changelog = "https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md"
 Discussions = "https://github.com/SSX360/matrixscroll/discussions"
 Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "GitHub Action" = "https://github.com/SSX360/matrixscroll-verify-action"
-"PyPI Provenance" = "https://pypi.org/project/matrixscroll/0.6.1/"
-"Reference Device" = "https://ssx360.com/hardware"
 Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
 "Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
+"Hardware Status" = "https://github.com/SSX360/matrixscroll/blob/main/docs/hardware-provider.md"
+Maintainer = "https://ssx360.com/about"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]

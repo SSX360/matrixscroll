@@ -4,6 +4,32 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-08-03
+
+Documentation and packaging metadata only. No code, CLI or wire-format changes,
+and no new dependencies.
+
+### Fixed
+- **Packaging URLs pointed at pages that had moved or gone.** `Documentation` and
+  `Verifier` routed through `ssx360.com` redirects that land on
+  `matrixscroll.com`, `Reference Device` pointed at a culled `/hardware` page,
+  and `Compare` duplicated `Documentation`. Every link now resolves directly, and
+  `Homepage` is the protocol site rather than the maintainer's.
+- **The README described a hosted control plane with billing.** SSX360 is an
+  independent audit practice that sells assessments, not a platform, so the
+  README now says who maintains the protocol and why that separation exists. The
+  links to the retired `/enterprise`, `/signup` and `/compare` pages are gone.
+
+### Documentation
+- **State the post-quantum limit where people actually read it.** The summary and
+  keywords claim FIPS 204 and FIPS 205, but nothing on the PyPI page said the
+  overlay is an algorithm implementation through liboqs rather than a
+  CMVP-validated module, or repeated liboqs's own warning against production use.
+  Honest limits now carries both.
+- Summary rewritten to lead with what the protocol does rather than the hardware
+  signing path, which is a bench prototype and not a product.
+- Install pin `matrixscroll==0.6.2`.
+
 ## [0.6.1] - 2026-07-22
 
 ### Documentation

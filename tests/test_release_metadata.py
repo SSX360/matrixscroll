@@ -7,12 +7,30 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_public_metadata_uses_stable_device_url():
+    """Public links must resolve directly, not through a redirect or to a dead page.
+
+    This test used to pin `ssx360.com/hardware` and `matrixscroll.com/compare`.
+    Both were retired, so the assertions were holding the metadata on two URLs
+    that no longer resolved. Pin the properties instead of the literals: the
+    hardware reference points at the status doc in this repo, and the protocol
+    surfaces are addressed on matrixscroll.com with their canonical paths.
+    """
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert '"Reference Device" = "https://ssx360.com/hardware"' in pyproject or "ssx360.com/hardware" in pyproject
-    assert "matrixscroll.com/compare" in readme
-    assert "matrixscroll.com/docs" in readme
+    assert "docs/hardware-provider.md" in pyproject
+    assert "matrixscroll.com/docs/" in pyproject
+    assert "matrixscroll.com/spec/" in pyproject
+    assert "matrixscroll.com/verify/" in pyproject
+    assert "matrixscroll.com/docs/" in readme
+
+    # Retired surfaces. Linking them again would send a reader to a redirect.
+    for gone in ("ssx360.com/hardware", "ssx360.com/enterprise", "ssx360.com/signup"):
+        assert gone not in pyproject, gone
+        assert gone not in readme, gone
+    for gone in ("matrixscroll.com/compare", "matrixscroll.com/ecosystem", "matrixscroll.com/roadmap"):
+        assert gone not in readme, gone
+
     assert "[AP2 Vault Card hardware]" not in readme
 
 

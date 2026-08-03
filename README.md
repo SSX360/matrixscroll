@@ -17,18 +17,18 @@ bench-validated proof of concept (Jul 2026) sharing the same verifier contract,
 and the Pico 2 W / GMT130 display bring-up is a locked L2 Hardware prototype
 (Jul 2026). Neither is generally available.
 
-**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try) runs an offline
+**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try/) runs an offline
 tamper demo in the browser. **Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md).
 **146 tests**, Hypothesis-verified [security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md),
 and [TLA+ formal models](formal/README.md).
 
 **Authorization ladder:** L1 Code (commits), L2 Tools (MCP manifests), L3 Actions (agent runs), L4 Money (AP2, demo), L5 Silicon (2029+)
 
-**Hosted control plane:** identity, billing, authorization ledger, and Scroll Gate live at
-[ssx360.com](https://ssx360.com/). Enterprise teams evaluating protected-branch enforcement should
-[book a provenance pilot](https://ssx360.com/contact?intent=pilot) or visit
-[ssx360.com/enterprise](https://ssx360.com/enterprise).
-Provisioned pilot and team accounts sign in at [ssx360.com/signup](https://ssx360.com/signup).
+**Who maintains it:** [SSX360](https://ssx360.com/about), an independent audit
+practice for agent authorization. It sells assessments and never sells this
+protocol, because gating the protocol would remove the reason anyone trusts the
+audit built beside it. Teams that want an independent assessment of their own
+mandate chain can [request a call](https://ssx360.com/contact).
 
 ## Compliance evidence mapping
 
@@ -59,7 +59,7 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 ```
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.1"
+pip install "matrixscroll[mcp]==0.6.2"
 matrixscroll-mcp   # stdio. Register in Cursor / Claude Desktop / VS Code
 ```
 
@@ -79,7 +79,7 @@ Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-
 Zero cloud, zero signup, exit code 2 fails your CI.
 
 ```bash
-pip install "matrixscroll==0.6.1"
+pip install "matrixscroll==0.6.2"
 
 # 1. Scan a live MCP server (stdio). Fingerprints every tool: name, description, input schema
 matrixscroll mcp scan --connect stdio --server-command "npx -y some-mcp-server" \
@@ -117,18 +117,18 @@ jobs:
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
-      matrixscroll_version: "0.6.1"
+      matrixscroll_version: "0.6.2"
 ```
 
 Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](examples/demo/mcp-rugpull-demo.sh)  
 Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscroll-mcp.signed.json`](examples/mcp/matrixscroll-mcp.signed.json)  
 Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
-Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan)
+Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan/)
 
 ## Also available: CLI and hooks
 
 ```bash
-pip install "matrixscroll==0.6.1"
+pip install "matrixscroll==0.6.2"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -194,7 +194,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
 
 ## Honest limits
 
-- Shipping now: PyPI `matrixscroll==0.6.1`, Git post-commit hooks,
+- Shipping now: PyPI `matrixscroll==0.6.2`, Git post-commit hooks,
   `matrixscroll sign-action`, `matrixscroll scroll commit` (thin wrapper),
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport for the SE050
@@ -204,6 +204,13 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   firmware, not GA; display bring-up UF2 keeps `pubkey`/`sign` fail-closed
   until Plug & Trust restore. External Ed25519-capable hardware key backends
   and transparency-log integrations remain roadmap.
+- The post-quantum overlay implements the ML-DSA and SLH-DSA algorithms specified
+  in FIPS 204 and FIPS 205, through liboqs. That is an algorithm implementation,
+  not a CMVP-validated cryptographic module, and it is never described as FIPS
+  validated, certified or compliant. liboqs itself states that it should not be
+  relied on in production or to protect sensitive data, which is a limit worth
+  repeating rather than burying. The overlay is attached alongside the Ed25519
+  signature and never replaces it.
 - Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
 - Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
@@ -248,7 +255,7 @@ alongside your existing scanners, branch protection, and build attestations.
 ## Quickstart (CLI)
 
 ```bash
-pip install "matrixscroll==0.6.1"
+pip install "matrixscroll==0.6.2"
 matrixscroll hook-install
 matrixscroll hook-status
 
@@ -259,7 +266,7 @@ git commit -m "feat: agent-assisted change"
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
 
-**Try it in the browser:** [matrixscroll.com/try](https://matrixscroll.com/try)
+**Try it in the browser:** [matrixscroll.com/try](https://matrixscroll.com/try/)
 
 See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 [`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
@@ -277,7 +284,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.1"
+    matrixscroll-version: "0.6.2"
     require-mode: emulated
 ```
 
@@ -297,7 +304,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.1"
+    matrixscroll-version: "0.6.2"
     summary-output: provenance-summary.json
 ```
 
@@ -305,7 +312,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
 [`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-ship in the current release line; examples in this README pin `0.6.1`.
+ship in the current release line; examples in this README pin `0.6.2`.
 
 ## Security: Ed25519 via cryptography
 
@@ -328,23 +335,23 @@ when they preserve the same pure Ed25519 byte contract.
 
 ## Public proof links
 
-- Browser verifier: <https://matrixscroll.com/verify>
-- Try it (quickstart + tamper demo): <https://matrixscroll.com/try>
-- Compare page: <https://matrixscroll.com/compare>
-- Documentation: <https://matrixscroll.com/docs>
+- Browser verifier: <https://matrixscroll.com/verify/>
+- Try it (quickstart + tamper demo): <https://matrixscroll.com/try/>
+- Documentation: <https://matrixscroll.com/docs/>
 - Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
-- Site: <https://matrixscroll.com> · Control plane: <https://ssx360.com> · Enterprise: <https://ssx360.com/enterprise>
-- SE050 hardware prototype: <https://ssx360.com/enterprise#roadmap> (bench-validated; not GA)
+- Site: <https://matrixscroll.com> · Browser verifier: <https://matrixscroll.com/verify/>
+- Hardware prototype status: [`docs/hardware-provider.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/hardware-provider.md) (bench-validated; not GA)
+- Maintainer, and how independence is kept: <https://ssx360.com/about>
 
 ## Python API
 
 ```bash
-pip install "matrixscroll==0.6.1"
+pip install "matrixscroll==0.6.2"
 ```
 
 ```python
@@ -457,7 +464,7 @@ The MCP server exposes **provenance verbs** (`create_envelope`, `verify_envelope
 Install and register in Cursor / Claude Desktop / VS Code:
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.1"
+pip install "matrixscroll[mcp]==0.6.2"
 matrixscroll-mcp   # stdio
 ```
 
@@ -480,7 +487,7 @@ Ask PyPI directly:
 
 ```bash
 curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
-  https://pypi.org/integrity/matrixscroll/0.6.1/matrixscroll-0.6.1-py3-none-any.whl/provenance
+  https://pypi.org/integrity/matrixscroll/0.6.2/matrixscroll-0.6.2-py3-none-any.whl/provenance
 ```
 
 The response names the publisher, and it should say exactly this:
@@ -490,12 +497,12 @@ The response names the publisher, and it should say exactly this:
  "workflow": "publish.yml", "environment": "pypi"}
 ```
 
-Transparency-log entry for the 0.6.1 wheel: log index `2215985472`. If the
+Transparency-log entry for the 0.6.2 wheel: log index `2215985472`. If the
 publisher, the workflow, or the digest differs from what you expect, do not
 install the file.
 
 The human-readable view is on the
-[PyPI project page](https://pypi.org/project/matrixscroll/0.6.1/), where files
+[PyPI project page](https://pypi.org/project/matrixscroll/0.6.2/), where files
 built with attestations are marked as verified.
 
 This matters more here than for most packages. A tool that sells offline
@@ -510,5 +517,5 @@ Report vulnerabilities privately to
 
 ---
 
-**Protocol:** https://ssx360.com/docs · **Verify:** https://ssx360.com/verify  
-**Control plane:** https://ssx360.com · **Pilot:** mission@ssx360.com · **Sign in:** https://ssx360.com/signup
+**Docs:** https://matrixscroll.com/docs/ · **Spec:** https://matrixscroll.com/spec/ · **Verify:** https://matrixscroll.com/verify/  
+**Maintainer:** https://ssx360.com/about · **Contact:** mission@ssx360.com
