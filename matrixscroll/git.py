@@ -18,6 +18,47 @@ COMMIT_ENVELOPE_SCHEMA = "matrixscroll.commit_envelope.v1"
 HOOK_MARKER = "# matrixscroll-git hook\n"
 DEFAULT_CONFIG = {"enforce": False, "actor_type": "human", "tool": "git-cli", "publish_notes": False}
 
+# Environment markers that identify a non-human author. Agents are checked
+# before CI so that an agent driving a commit inside a pipeline is still
+# recorded as an agent.
+AGENT_MARKERS: tuple[tuple[str, str], ...] = (
+    ("CURSOR_AGENT", "cursor"),
+    ("CLAUDECODE", "claude-code"),
+    ("CLAUDE_CODE", "claude-code"),
+    ("AIDER_CHAT", "aider"),
+    ("CODEX_SANDBOX", "codex"),
+    ("DEVIN_SESSION_ID", "devin"),
+)
+CI_MARKERS: tuple[tuple[str, str], ...] = (
+    ("GITHUB_ACTIONS", "github-actions"),
+    ("GITLAB_CI", "gitlab-ci"),
+    ("CIRCLECI", "circleci"),
+    ("BUILDKITE", "buildkite"),
+    ("JENKINS_URL", "jenkins"),
+    ("CI", "ci"),
+)
+_FALSEY = {"", "0", "false", "no", "off"}
+
+
+def _marker_set(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() not in _FALSEY
+
+
+def detect_actor() -> tuple[str, str] | None:
+    """Infer ``(actor_type, tool)`` from the environment, or return ``None``.
+
+    Detection only ever moves attribution away from ``human``. It never claims
+    a human wrote a commit, so a false positive costs accuracy of the tool
+    name, while the absence of detection cannot manufacture a human record.
+    """
+    for name, tool in AGENT_MARKERS:
+        if _marker_set(name):
+            return "agent", tool
+    for name, tool in CI_MARKERS:
+        if _marker_set(name):
+            return "ci", tool
+    return None
+
 
 def _run_git(*args: str, cwd: Path | None = None, strip: bool = True) -> str:
     result = subprocess.run(
@@ -260,9 +301,17 @@ def build_commit_envelope(
         }
 
     config = load_config(root)
+    # A config file cannot downgrade a detected agent or CI run to "human":
+    # config.json is written once at hook-install time and would otherwise
+    # keep signing machine-authored commits as human authorship.
+    detected = detect_actor()
+    actor_type, tool = detected or (
+        config.get("actor_type", "human"),
+        config.get("tool", "git-cli"),
+    )
     provenance = {
-        "actor_type": os.environ.get("MATRIXSCROLL_ACTOR_TYPE", config.get("actor_type", "human")),
-        "tool": os.environ.get("MATRIXSCROLL_TOOL", config.get("tool", "git-cli")),
+        "actor_type": os.environ.get("MATRIXSCROLL_ACTOR_TYPE", actor_type),
+        "tool": os.environ.get("MATRIXSCROLL_TOOL", tool),
     }
     tool_version = os.environ.get("MATRIXSCROLL_TOOL_VERSION", "")
     if tool_version:

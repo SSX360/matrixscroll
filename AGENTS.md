@@ -20,6 +20,14 @@ writing or editing any user-facing text. The condensed version:
   so every time.
 - Never delete or soften an "Honest limits" section.
 
+## Commit attribution
+
+Commit envelopes detect `actor_type` and `tool` from the environment, so a
+commit you make is recorded as `agent` with your tool name. Do not set
+`MATRIXSCROLL_ACTOR_TYPE=human` to make a range look human-authored, and do not
+edit or re-sign an envelope that is already published. See
+[`docs/explanation/actor-attribution.md`](docs/explanation/actor-attribution.md).
+
 Run `vale --minAlertLevel=error` before you start and again before you finish.
 The linter gets the last word, never the model. The full guide is the
 `ssx360-prose` Skill and

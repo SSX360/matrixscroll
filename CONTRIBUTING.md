@@ -35,12 +35,27 @@ For PRs that include agent-assisted commits, publish signed commit envelopes to 
 
 ```bash
 matrixscroll hook-install
-export MATRIXSCROLL_ACTOR_TYPE=agent   # or human / ci as appropriate
-export MATRIXSCROLL_TOOL=agent-runner  # or your editor / agent tool name
 git commit -m "feat: your change"
 matrixscroll envelope-publish-notes --base origin/main --head HEAD
 git push origin refs/notes/matrixscroll
 ```
+
+`actor_type` and `tool` are detected from the environment. A commit made in a
+Cursor, Claude Code, Aider, Codex, or Devin session is recorded as `agent` with
+that tool; a commit made by a CI runner is recorded as `ci`. Everything else is
+`human` and `git-cli`.
+
+Set `MATRIXSCROLL_ACTOR_TYPE` and `MATRIXSCROLL_TOOL` only when the detection
+list does not cover your harness, and only to describe what actually made the
+commit. Never set `MATRIXSCROLL_ACTOR_TYPE=human` inside an agent session. The
+envelope exists to record which of a human, an agent, or CI wrote a change, so a
+signed envelope carrying the wrong actor is the exact falsification this project
+detects.
+
+Detection and its limits are covered in
+[`docs/explanation/actor-attribution.md`](docs/explanation/actor-attribution.md),
+which also explains why envelopes already published with the wrong actor are
+left in place.
 
 CI verifies the PR range with `matrixscroll envelope-verify-range --source notes`.
 Until repository variable `ENFORCE_PROVENANCE=true` is set, missing notes produce a **warning**

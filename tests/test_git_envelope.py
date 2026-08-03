@@ -9,11 +9,21 @@ import pytest
 
 from matrixscroll import sign_manifest, verify_manifest
 from matrixscroll.git import (
+    AGENT_MARKERS,
+    CI_MARKERS,
     COMMIT_ENVELOPE_SCHEMA,
     build_commit_envelope,
     compute_commit_id,
+    detect_actor,
     sign_commit_envelope,
 )
+
+
+def _clear_actor_markers(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name, _ in (*AGENT_MARKERS, *CI_MARKERS):
+        monkeypatch.delenv(name, raising=False)
+    for name in ("MATRIXSCROLL_ACTOR_TYPE", "MATRIXSCROLL_TOOL"):
+        monkeypatch.delenv(name, raising=False)
 
 
 def test_compute_commit_id_matches_git_format():
@@ -106,7 +116,7 @@ def test_parse_commit_matches_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     assert parsed["message"].startswith("init")
 
 
-def test_build_commit_envelope_in_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def _init_repo(tmp_path: Path) -> None:
     import subprocess
 
     subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
@@ -115,11 +125,62 @@ def test_build_commit_envelope_in_repo(tmp_path: Path, monkeypatch: pytest.Monke
     sample = tmp_path / "hello.txt"
     sample.write_text("hello\n", encoding="utf-8")
     subprocess.run(["git", "add", "hello.txt"], cwd=tmp_path, check=True)
+
+
+def test_build_commit_envelope_in_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    _init_repo(tmp_path)
     monkeypatch.chdir(tmp_path)
     envelope = build_commit_envelope(message="init\n", root=tmp_path)
     assert envelope["schema"] == COMMIT_ENVELOPE_SCHEMA
     assert envelope["commit"]["tree"]
     assert envelope["provenance"]["tool"]
+
+
+def test_detect_actor_returns_none_for_plain_human_shell(monkeypatch: pytest.MonkeyPatch):
+    _clear_actor_markers(monkeypatch)
+    assert detect_actor() is None
+
+
+def test_detect_actor_prefers_agent_over_ci(monkeypatch: pytest.MonkeyPatch):
+    _clear_actor_markers(monkeypatch)
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert detect_actor() == ("ci", "github-actions")
+    monkeypatch.setenv("CURSOR_AGENT", "1")
+    assert detect_actor() == ("agent", "cursor")
+
+
+def test_detect_actor_ignores_falsey_markers(monkeypatch: pytest.MonkeyPatch):
+    _clear_actor_markers(monkeypatch)
+    monkeypatch.setenv("CI", "false")
+    assert detect_actor() is None
+
+
+def test_agent_session_overrides_stale_human_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    _clear_actor_markers(monkeypatch)
+    _init_repo(tmp_path)
+    config_dir = tmp_path / ".git" / "matrixscroll"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "config.json").write_text(
+        json.dumps({"actor_type": "human", "tool": "git-cli"}), encoding="utf-8"
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CURSOR_AGENT", "1")
+
+    envelope = build_commit_envelope(message="init\n", root=tmp_path)
+
+    assert envelope["provenance"] == {"actor_type": "agent", "tool": "cursor"}
+
+
+def test_explicit_env_override_still_wins(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    _clear_actor_markers(monkeypatch)
+    _init_repo(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CURSOR_AGENT", "1")
+    monkeypatch.setenv("MATRIXSCROLL_TOOL", "custom-harness")
+
+    envelope = build_commit_envelope(message="init\n", root=tmp_path)
+
+    assert envelope["provenance"] == {"actor_type": "agent", "tool": "custom-harness"}
 
 
 def test_example_commit_envelope_schema_constant():

@@ -84,6 +84,7 @@ nav:
       - Python API: reference/python-api.md
   - Explanation:
       - Why commit-time provenance: explanation/commit-time-vs-artifact-time.md
+      - How an envelope decides who wrote a commit: explanation/actor-attribution.md
       - How Matrix Scroll relates to AP2: explanation/ap2.md
       - Trust boundaries and the hardware roadmap: explanation/trust-boundaries.md
       - The writing workflow: explanation/writing-workflow.md
