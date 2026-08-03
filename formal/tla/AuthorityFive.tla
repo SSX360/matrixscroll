@@ -3,7 +3,9 @@
 \* Substitution, Renewal) — aligned with autonomous commerce governance essays.
 \* Maps F-A1..F-A5; target implementation: matrixscroll mandate schemas (roadmap).
 
-EXTENDS FiniteSets, Sequences
+\* Naturals is required explicitly: the standard Sequences module only takes a
+\* LOCAL INSTANCE of it, so Nat and the arithmetic operators are not re-exported.
+EXTENDS FiniteSets, Sequences, Naturals
 
 CONSTANTS MaxSpend
 
@@ -14,6 +16,8 @@ VARIABLES
     vendor,          \* active vendor id
     altVendor,       \* substitution target
     actionLog        \* audit trail
+
+vars == <<grants, spent, purchaseOpen, vendor, altVendor, actionLog>>
 
 AuthorityFields == {"search", "purchase", "payment", "substitution", "renewal"}
 
@@ -111,26 +115,45 @@ Next ==
 
 Spec ==
     /\ Init
-    /\ [][Next]_<<grants, spent, purchaseOpen, vendor, altVendor, actionLog>>
+    /\ [][Next]_vars
+
+\* Finite-model bound: actionLog is an append-only audit trail, so the reachable
+\* state space is infinite. Cap the trace length for TLC.
+StateConstraint ==
+    Len(actionLog) <= 4
 
 \* --- Safety: nothing bad (unauthorized commerce) ---
+\*
+\* An authority governs the moment an action is *taken*, not every state that
+\* follows it. Revoking a grant after an authorized action must not retroactively
+\* make the earlier action illegal, so F-A1..F-A5 constrain steps, not states.
 
 Inv_TypeOK == TypeOK
 
-Inv_NoPurchaseWithoutGrant ==
-    purchaseOpen => grants["purchase"]
+\* F-A1: a purchase context only ever opens while the purchase authority is held
+Prop_NoPurchaseWithoutGrant ==
+    [][ (~purchaseOpen /\ purchaseOpen') => grants["purchase"] ]_vars
 
-Inv_NoPaymentWithoutPaymentGrant ==
-    (spent > 0) => grants["payment"]
+\* F-A2: spend only ever increases while the payment authority is held
+Prop_NoPaymentWithoutPaymentGrant ==
+    [][ (spent' > spent) => grants["payment"] ]_vars
 
 Inv_NoPaymentWithoutPurchaseContext ==
     (spent > 0) => purchaseOpen
 
-Inv_NoSubstitutionWithoutGrant ==
-    vendor = "v2" => grants["substitution"]
+\* F-A3: the vendor is only ever swapped while the substitution authority is held
+Prop_NoSubstitutionWithoutGrant ==
+    [][ (vendor # "v2" /\ vendor' = "v2") => grants["substitution"] ]_vars
 
-Inv_SearchNeverImpliesPurchase ==
-    ~grants["purchase"] => ~purchaseOpen
+\* F-A4: a renewal is only ever recorded while the renewal authority is held.
+\* DoRenewal is the only action that appends "renew" to the audit trail.
+Prop_NoRenewalWithoutGrant ==
+    [][ (actionLog' = Append(actionLog, "renew")) => grants["renewal"] ]_vars
+
+\* F-A5: no authority other than purchase escalates into a purchase. In this model
+\* that is the contrapositive of F-A1, stated from the escalation side.
+Prop_SearchNeverImpliesPurchase ==
+    [][ (~grants["purchase"] /\ ~purchaseOpen) => ~purchaseOpen' ]_vars
 
 Inv_SpendWithinMax ==
     spent <= MaxSpend

@@ -51,3 +51,8 @@ device.json
 
 # TLA+ tools (download locally or in CI)
 tla2tools.jar
+
+# TLC run artifacts
+formal/tla/states/
+formal/tla/*_TTrace_*.tla
+formal/tla/*_TTrace_*.bin

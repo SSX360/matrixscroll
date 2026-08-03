@@ -1,7 +1,9 @@
 ---- MODULE ScrollGate ----
 EXTENDS FiniteSets
 
-\* PlusCal algorithm — translate with TLA+ Toolbox to refresh formal/tla/ScrollGate.tla
+\* Non-normative PlusCal sketch of the gate. formal/tla/ScrollGate.tla is
+\* hand-maintained and is the module CI checks; it is not generated from this file.
+\* This sketch omits the gatePass/evaluated cache invalidation modelled there.
 
 \*--algorithm ScrollGate
 variables status \in [Commits -> {"missing", "valid", "invalid", "tampered"}],

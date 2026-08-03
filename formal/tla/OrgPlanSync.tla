@@ -8,8 +8,18 @@ CONSTANTS Plans, PlanRank
 
 VARIABLES entitlement, orgPlan, scopesLevel, webhookPending
 
+vars == <<entitlement, orgPlan, scopesLevel, webhookPending>>
+
 \* Plans = {community, trial, team, enterprise}
 \* PlanRank maps plan name -> 0..3
+\*
+\* A TLC .cfg cannot assign a record literal to a CONSTANT, so the concrete
+\* values live here and OrgPlanSync.cfg binds them with a definition override.
+\* Plan names are TLA+ strings, not model values, because Init and ScopesForPlan
+\* compare against string literals such as "community".
+PlansDef == {"community", "trial", "team", "enterprise"}
+
+PlanRankDef == [community |-> 0, trial |-> 1, team |-> 2, enterprise |-> 3]
 
 PlanAtLeast(p, minimum) ==
     PlanRank[p] >= PlanRank[minimum]
@@ -66,7 +76,7 @@ Next ==
 
 Spec ==
     /\ Init
-    /\ [][Next]_<<entitlement, orgPlan, scopesLevel, webhookPending>>
+    /\ [][Next]_vars
 
 Inv_TypeOK == TypeOK
 
@@ -74,9 +84,10 @@ Inv_TypeOK == TypeOK
 Inv_OrgNeverBelowEntitlement ==
     ~webhookPending => PlanAtLeast(orgPlan, entitlement)
 
-\* F-O2: sync is monotonic (org only rises on HigherPlan)
-Inv_OrgMonotonic ==
-    TRUE \* enforced by only HigherPlan updates in non-bug paths
+\* F-O2: sync is monotonic — no step ever downgrades the organization plan.
+\* Previously stated as the vacuous literal TRUE, which asserted nothing.
+Prop_OrgMonotonic ==
+    [][ PlanRank[orgPlan'] >= PlanRank[orgPlan] ]_vars
 
 \* F-O3: scopes track plan tier
 Inv_ScopesMatchPlan ==

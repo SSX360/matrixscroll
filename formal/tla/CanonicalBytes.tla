@@ -1,6 +1,6 @@
 ---- MODULE CanonicalBytes ----
 \* Formal model: Ed25519 sign / verify / tamper (maps F-P1..F-P4, docs/SECURITY_PROPERTIES.md P1-P4).
-\* PlusCal source: formal/pluscal/CanonicalBytes.tla
+\* Hand-written TLA+; there is no PlusCal source for this module.
 
 EXTENDS FiniteSets
 

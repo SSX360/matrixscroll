@@ -6,6 +6,15 @@ EXTENDS FiniteSets
 
 VARIABLES ed25519Ok, pqcAttached, pqcVerified, policyRequirePqc, gateOk
 
+vars == <<ed25519Ok, pqcAttached, pqcVerified, policyRequirePqc, gateOk>>
+
+TypeOK ==
+    /\ ed25519Ok \in BOOLEAN
+    /\ pqcAttached \in BOOLEAN
+    /\ pqcVerified \in BOOLEAN
+    /\ policyRequirePqc \in BOOLEAN
+    /\ gateOk \in BOOLEAN
+
 Init ==
     /\ ed25519Ok = FALSE
     /\ pqcAttached = FALSE
@@ -13,20 +22,26 @@ Init ==
     /\ policyRequirePqc \in BOOLEAN
     /\ gateOk = FALSE
 
+\* gateOk caches the outcome of the last gate run. Every action below mutates an
+\* input to that decision — a signature, the overlay, or the policy itself — so
+\* each one invalidates the cache, as Tamper does in CanonicalBytes.
 SignEd25519 ==
     /\ ed25519Ok' = TRUE
-    /\ UNCHANGED <<pqcAttached, pqcVerified, policyRequirePqc, gateOk>>
+    /\ gateOk' = FALSE
+    /\ UNCHANGED <<pqcAttached, pqcVerified, policyRequirePqc>>
 
 AttachPqc ==
     /\ ed25519Ok
     /\ pqcAttached' = TRUE
     /\ pqcVerified' = FALSE
-    /\ UNCHANGED <<ed25519Ok, policyRequirePqc, gateOk>>
+    /\ gateOk' = FALSE
+    /\ UNCHANGED <<ed25519Ok, policyRequirePqc>>
 
 VerifyPqc ==
     /\ pqcAttached
     /\ pqcVerified' = TRUE
-    /\ UNCHANGED <<ed25519Ok, pqcAttached, policyRequirePqc, gateOk>>
+    /\ gateOk' = FALSE
+    /\ UNCHANGED <<ed25519Ok, pqcAttached, policyRequirePqc>>
 
 EvalGate ==
     /\ gateOk' = IF policyRequirePqc
@@ -34,15 +49,19 @@ EvalGate ==
                   ELSE ed25519Ok
     /\ UNCHANGED <<ed25519Ok, pqcAttached, pqcVerified, policyRequirePqc>>
 
+\* Tampering rewrites the canonical bytes, so both signatures over them stop
+\* verifying. The overlay stays structurally attached to the envelope.
 TamperEd25519 ==
     /\ ed25519Ok
     /\ ed25519Ok' = FALSE
+    /\ pqcVerified' = FALSE
     /\ gateOk' = FALSE
-    /\ UNCHANGED <<pqcAttached, pqcVerified, policyRequirePqc>>
+    /\ UNCHANGED <<pqcAttached, policyRequirePqc>>
 
 TogglePolicy ==
     /\ policyRequirePqc' = ~policyRequirePqc
-    /\ UNCHANGED <<ed25519Ok, pqcAttached, pqcVerified, gateOk>>
+    /\ gateOk' = FALSE
+    /\ UNCHANGED <<ed25519Ok, pqcAttached, pqcVerified>>
 
 Next ==
     \/ SignEd25519
@@ -54,13 +73,18 @@ Next ==
 
 Spec ==
     /\ Init
-    /\ [][Next]_<<ed25519Ok, pqcAttached, pqcVerified, policyRequirePqc, gateOk>>
+    /\ [][Next]_vars
+
+Inv_TypeOK == TypeOK
 
 Inv_Ed25519Required ==
     gateOk => ed25519Ok
 
-Inv_PqcOverlayNeverSkipsEd25519 ==
-    pqcAttached => ed25519Ok
+\* A PQC overlay is only ever attached to an envelope that already carries a
+\* verifying Ed25519 signature. Attachment is structural and survives later
+\* tampering, so this constrains the attach step rather than every state.
+Prop_PqcOverlayNeverSkipsEd25519 ==
+    [][ (~pqcAttached /\ pqcAttached') => ed25519Ok ]_vars
 
 Inv_RequirePqcImpliesVerified ==
     (policyRequirePqc /\ gateOk) => (pqcAttached /\ pqcVerified)
