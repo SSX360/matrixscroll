@@ -1,6 +1,6 @@
 # YubiKey research smoke notes
 
-The PIV prototype is intentionally **not** part of the public Matrix Scroll
+The PIV prototype is deliberately excluded from the public Matrix Scroll
 rollout because the current path does not preserve the v1 Ed25519 signing
 contract.
 

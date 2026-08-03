@@ -1,7 +1,7 @@
 # External key backends and YubiKey notes
 
-**Status:** Research and rollout criteria only. Not part of the public signing
-contract today.
+**Status:** research and rollout criteria only. The public signing contract
+excludes this path today.
 
 ## Public rule
 
@@ -13,12 +13,12 @@ hardware backend qualifies for the public SDK only if it can:
 3. return a public key that fits the current `device_id` derivation
 4. verify through the existing SDK with no alternate algorithm or verifier path
 
-## Why the earlier PIV bridge is not shipping
+## Why the earlier PIV bridge stays out of the SDK
 
 YubiKey PIV is strong for authentication and enterprise device trust, but the
 current PIV signing surfaces are centered on RSA or ECDSA rather than the pure
-Ed25519 contract Matrix Scroll v1 already ships. That makes a PIV bridge a
-different trust shape, not a drop-in Matrix Scroll backend.
+Ed25519 contract Matrix Scroll v1 already implements. That makes a PIV bridge a
+different trust shape rather than a drop-in Matrix Scroll backend.
 
 For that reason:
 

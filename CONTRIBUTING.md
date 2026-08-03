@@ -46,11 +46,10 @@ that tool; a commit made by a CI runner is recorded as `ci`. Everything else is
 `human` and `git-cli`.
 
 Set `MATRIXSCROLL_ACTOR_TYPE` and `MATRIXSCROLL_TOOL` only when the detection
-list does not cover your harness, and only to describe what actually made the
-commit. Never set `MATRIXSCROLL_ACTOR_TYPE=human` inside an agent session. The
-envelope exists to record which of a human, an agent, or CI wrote a change, so a
-signed envelope carrying the wrong actor is the exact falsification this project
-detects.
+list does not cover your agent runner, and only to describe what actually made
+the commit. Never set `MATRIXSCROLL_ACTOR_TYPE=human` inside an agent session.
+The envelope exists to record who wrote a change. A signed envelope carrying the
+wrong actor is the exact falsification this project detects.
 
 Detection and its limits are covered in
 [`docs/explanation/actor-attribution.md`](docs/explanation/actor-attribution.md),

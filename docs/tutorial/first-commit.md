@@ -1,9 +1,8 @@
 # Sign and verify your first commit in 5 minutes
 
-By the end of this tutorial you will have signed a Git commit with an Ed25519
-key, verified the signature offline, and watched verification fail when the
-commit is altered. Everything runs on your machine. No account, no network, no
-hardware.
+This tutorial signs a Git commit with an Ed25519 key, verifies the signature
+offline, alters the commit, and shows verification fail. Everything runs on your
+machine, with no account, network, or hardware required.
 
 This tutorial uses emulated mode, which keeps the signing key in a file on disk.
 That is the supported evaluation path and the default.
@@ -120,9 +119,9 @@ crashed tool.
 
 ## What you built
 
-You signed a commit, verified it offline, and made verification fail on demand.
-The verifier used no network and trusted nothing about the session that produced
-the commit.
+You signed a commit, verified it offline, then made verification fail on demand
+by altering the commit. The verifier used no network and trusted nothing about
+the session that produced the commit.
 
 ## Where to go next
 

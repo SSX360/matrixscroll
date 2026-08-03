@@ -15,7 +15,7 @@ leaving it unsigned: the signature attests to a false claim.
 
 The `refs/notes/matrixscroll` history in `SSX360/digital-rain` carries three
 envelopes with `actor_type: human` and `tool: cursor-agent`. The tool name came
-from the environment; the actor type came from the stale config file. Those
+from the environment. The actor type came from the stale config file. Those
 three records name the defect precisely.
 
 ## What happens now
@@ -23,7 +23,7 @@ three records name the defect precisely.
 `build_commit_envelope()` inspects the environment before it reads the config
 file:
 
-1. `MATRIXSCROLL_ACTOR_TYPE` and `MATRIXSCROLL_TOOL`, if set. An agent harness
+1. `MATRIXSCROLL_ACTOR_TYPE` and `MATRIXSCROLL_TOOL`, if set. An agent runner
    this package does not recognize declares itself here.
 2. Agent markers: `CURSOR_AGENT`, `CLAUDECODE`, `CLAUDE_CODE`, `AIDER_CHAT`,
    `CODEX_SANDBOX`, `DEVIN_SESSION_ID`. A match produces `agent` and the
@@ -53,8 +53,8 @@ They will not be corrected, for two reasons.
 Envelopes are signed over their canonical bytes with the `signature` block
 excluded. Editing `provenance.actor_type` in place either invalidates the
 signature or, if the record is re-signed, produces a validly signed false
-statement. The second outcome is worse than the inaccuracy it replaces, because
-a verifier reports it as sound.
+statement that a verifier then reports as sound, which is a worse outcome than
+the inaccuracy it replaces.
 
 Schema v1 defines no superseding or amending record, and git notes cannot supply
 one. Verification reads a note with a single `json.loads()` call over the whole
@@ -62,7 +62,7 @@ blob, so a second note attached to the same commit under `cat_sort_uniq` yields
 two concatenated JSON objects and fails to parse. A correcting note would break
 verification for the commit it corrects.
 
-The correction is therefore forward-only. Envelopes written after this change
+The correction is forward-only. Envelopes written after this change
 carry detected attribution. Earlier envelopes stay as written, and this page is
 the record of why they are wrong.
 
