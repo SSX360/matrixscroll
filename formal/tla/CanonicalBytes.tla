@@ -35,9 +35,12 @@ Tamper ==
     /\ verifyOk' = FALSE
     /\ UNCHANGED <<activeKey, verifyKey>>
 
+\* Verification is a pure function of (message, signature, key), so a prior result
+\* does not survive a change of verifying key. Reset as Tamper does.
 SetVerifyKey(k) ==
     /\ verifyKey' = k
-    /\ UNCHANGED <<phase, activeKey, verifyOk>>
+    /\ verifyOk' = FALSE
+    /\ UNCHANGED <<phase, activeKey>>
 
 RunVerify ==
     /\ phase \in {"signed", "tampered"}
