@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "d06e938c5c70d55f6c3c036258b3b37a16563c22",
+    "author": {
+      "date": "1785750436 -0400",
+      "email": "ryanjamesyork@gmail.com",
+      "name": "SSX360 Ops"
+    },
+    "committer": {
+      "date": "1785750436 -0400",
+      "email": "ryanjamesyork@gmail.com",
+      "name": "SSX360 Ops"
+    },
+    "message": "Detect the commit actor instead of defaulting to human\n\nThe commit envelope exists to record whether a human, an agent, or CI wrote a\nchange. build_commit_envelope() read actor_type from .git/matrixscroll/config.json,\nwhich hook-install writes once with human and git-cli and never revisits, so\nagent commits in a hook-installed clone were signed as human authorship. The\nnotes ref in SSX360/digital-rain carries three envelopes reading actor_type\nhuman with tool cursor-agent, which is the defect stated outright.\n\nbuild_commit_envelope() now inspects the environment first and only falls back\nto the config file. Agent markers are checked before CI markers so an agent\ndriving a commit inside a pipeline is still recorded as an agent, and detection\noutranks the config file because a file written at install time must not be\nable to claim human authorship for a machine. Detection can only move\nattribution away from human, so a false positive costs the accuracy of a tool\nname and can never manufacture a human record.\n\nHistorical notes are left alone. Re-signing an envelope in place would produce\na validly signed false record, schema v1 defines no superseding record, and\nverification reads a note with one json.loads() over the whole blob so an\nappended correcting note would fail to parse. The reasoning is written up in\ndocs/explanation/actor-attribution.md.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "0f08cb6c955fcfdb523d7b16e579fafe8af3d3d8"
+    ],
+    "tree": "384440b9d5705dc10eeb2508fc3a21b70a11b8f4"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "cursor"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T09:47:16Z",
+    "value": "Y1Yvd8E2gN5CGxhCvXXkkzWzelkiOBGAZ5D/XUWjoQMZ/Ty0vFYDe/kqVsPVLazKSeI/Wq39Xt+9iJRvdMySBg=="
+  }
+}
