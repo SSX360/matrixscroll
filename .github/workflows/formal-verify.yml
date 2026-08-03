@@ -11,6 +11,10 @@ on:
     branches: [main]
     paths:
       - "formal/**"
+      - "matrixscroll/formal.py"
+      - "scripts/verify_formal.py"
+      - "tests/test_formal_specs.py"
+      - ".github/workflows/formal-verify.yml"
 
 permissions:
   contents: read
@@ -34,6 +38,16 @@ jobs:
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/AuthorityFive.cfg formal/tla/AuthorityFive.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/OrgPlanSync.cfg formal/tla/OrgPlanSync.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/DualSignature.cfg formal/tla/DualSignature.tla
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
 
       - name: Python formal registry smoke
         run: python -m pytest tests/test_formal_specs.py -q
