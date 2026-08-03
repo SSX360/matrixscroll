@@ -42,12 +42,25 @@ jobs:
             echo "mode=warn" >> "$GITHUB_OUTPUT"
           fi
 
+      # Dependabot and fork pull requests never receive repository secrets, so a
+      # hard requirement here fails an advisory gate for reasons the PR cannot fix.
       - name: Require SSX360 API key
-        if: env.SSX360_API_KEY == ''
+        if: steps.gate.outputs.mode == 'enforce' && env.SSX360_API_KEY == ''
         run: |
-          echo "SSX360_API_KEY secret is required for Scroll Gate v2." >&2
+          echo "SSX360_API_KEY secret is required for Scroll Gate v2 enforce mode." >&2
           echo "Community tier includes 100 CI verifications/day. Get a key at https://ssx360.com/signup" >&2
           exit 1
+
+      - name: Skip hosted verify (no API key)
+        if: steps.gate.outputs.mode == 'warn' && env.SSX360_API_KEY == ''
+        run: |
+          {
+            echo "## Matrix Scroll Scroll Gate v2 (hosted)"
+            echo ""
+            echo "**Skipped:** no \`SSX360_API_KEY\` available to this run."
+            echo "Dependabot and fork pull requests cannot read repository secrets."
+            echo "Offline provenance is still checked by \`verify-manifest\` / \`scroll-gate-smoke\`."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Resolve commit range
         id: range
@@ -65,7 +78,7 @@ jobs:
         run: git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll || true
 
       - name: Hosted verify (warn mode)
-        if: steps.gate.outputs.mode == 'warn'
+        if: steps.gate.outputs.mode == 'warn' && env.SSX360_API_KEY != ''
         continue-on-error: true
         run: |
           set -euo pipefail
