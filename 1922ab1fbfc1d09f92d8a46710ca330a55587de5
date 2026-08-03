@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "1922ab1fbfc1d09f92d8a46710ca330a55587de5",
+    "author": {
+      "date": "1785735997 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1785735997 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Fix Inv_WrongKeyRejects violation in CanonicalBytes model\n\nSetVerifyKey left a stale verifyOk from a prior verification, so the model could sit in phase signed with activeKey # verifyKey and verifyOk TRUE. Verification is a pure function of message, signature and key, so a result cannot survive a key change. Reset verifyOk as Tamper already does.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "642bd6a9f66eb2c0d18024bf681104e0db7a2f81"
+    ],
+    "tree": "299c98b2ecb259a5e7583c39e29de227f8f6c145"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T05:46:37Z",
+    "value": "e9AKITP22+4GxSEaE8aqusip4bbowNnrM1D6V1LdYVtSplG5EeKkEHr10dsU9eOLj64BeCW76zeP0o0b2V19AQ=="
+  }
+}
