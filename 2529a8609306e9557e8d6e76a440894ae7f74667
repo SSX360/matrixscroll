@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "2529a8609306e9557e8d6e76a440894ae7f74667",
+    "author": {
+      "date": "1785738037 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1785738037 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Sync formal property registry with the TLA+ modules\n\nPROPERTIES.md and matrixscroll/formal.py had drifted from the specs they\nindex. F-P4 was listed as Inv_CanonicalStable, F-G2 as\nInv_WarnMayMergeDespiteFail and F-L3 as Live_GrantedActionEventuallyAllowed,\nnone of which exist in any module. F-A4 named an Inv_NoRenewalWithoutGrant\nthat was never written, so the renewal authority went unchecked; it is now\nstated and checked as Prop_NoRenewalWithoutGrant. F-A3, F-O2 and the whole\nDualSignature module were missing from the registry entirely.\n\nAdd tests asserting that every registered property is defined in its module,\nis actually checked by the matching .cfg under the right keyword, and appears\nin PROPERTIES.md. The existing tests only exercised the dataclass, so a\nrename or a dropped property could not fail them, which is how this drift\nsurvived.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "a502b9324e08a1c9b4dd7d58ae235a6737d97210"
+    ],
+    "tree": "049d692fb26e1ac574384cce977a62cabc353efa"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T06:20:37Z",
+    "value": "GIWr7xlAsoOr2BAoX9aGfuv5VoJXUQknhxSkn/57rRarm900RRvf1V7r2C3fB53eIUprKyXERACoh3JKb31KBQ=="
+  }
+}
