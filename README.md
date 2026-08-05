@@ -113,7 +113,7 @@ Gate it in CI. Fail the build on unsigned or drifted manifests with the reusable
 ```yaml
 jobs:
   mcp-gate:
-    uses: SSX360/matrixscroll-verify-action/.github/workflows/mcp-manifest-gate.yml@main
+    uses: SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
@@ -248,8 +248,9 @@ for pilot evaluation, not GA.
 
 Install the SDK and hooks in your repo, publish commit envelopes to
 `refs/notes/matrixscroll` before PR review, and use
-`SSX360/matrixscroll-verify-action@v1` to verify the full PR commit range in
-GitHub Actions. Protected branches can then require Matrix Scroll proof
+`SSX360/matrixscroll/.github/actions/verify@action-v1` to verify the full PR
+commit range in GitHub Actions. Protected branches can then require Matrix
+Scroll proof
 alongside your existing scanners, branch protection, and build attestations.
 
 ## Quickstart (CLI)
@@ -279,7 +280,7 @@ See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
 - uses: actions/checkout@v4
   with:
     fetch-depth: 0
-- uses: SSX360/matrixscroll-verify-action@v1
+- uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
@@ -299,7 +300,7 @@ git push origin refs/notes/matrixscroll
 - uses: actions/checkout@v4
   with:
     fetch-depth: 0
-- uses: SSX360/matrixscroll-verify-action@v1
+- uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
@@ -342,7 +343,7 @@ when they preserve the same pure Ed25519 byte contract.
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
 - Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
-- GitHub Action: <https://github.com/SSX360/matrixscroll-verify-action>
+- GitHub Action: <https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
 - Site: <https://matrixscroll.com> · Browser verifier: <https://matrixscroll.com/verify/>
 - Hardware prototype status: [`docs/hardware-provider.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/hardware-provider.md) (bench-validated; not GA)

@@ -33,7 +33,7 @@ Example body:
 
 | v1 (local) | v2 (hosted) |
 |------------|-------------|
-| `matrixscroll-verify-action@v1` | `curl` or `@v2` action against ssx360.com |
+| `matrixscroll/.github/actions/verify@action-v1` | `curl` or `@v2` action against ssx360.com |
 | Local git notes only | Network audit + usage metering |
 | No API key | `SSX360_API_KEY` required |
 

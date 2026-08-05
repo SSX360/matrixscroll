@@ -94,7 +94,7 @@ Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/conf
 ### 3. CI gate
 
 ```yaml
-- uses: SSX360/matrixscroll-verify-action@v1
+- uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     manifest: path/to/signed-manifest.json
     matrixscroll-version: "0.6.2"

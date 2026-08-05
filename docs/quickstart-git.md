@@ -85,14 +85,14 @@ matrixscroll envelope-verify-range --base origin/main --head HEAD --source notes
 matrixscroll envelope-verify-range --base origin/main --head HEAD --source bundle --bundle ./evidence/bundle
 ```
 
-Use [`SSX360/matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) for GitHub Actions.
+Use [`SSX360/matrixscroll/.github/actions/verify@action-v1`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) for GitHub Actions.
 
 ## How can I integrate Matrix Scroll into a CI/CD workflow?
 
 1. Install `matrixscroll==0.6.2` and `matrixscroll hook-install` in the repo.
 2. Publish commit envelopes to `refs/notes/matrixscroll` before PR review.
-3. Run `SSX360/matrixscroll-verify-action@v1` in GitHub Actions to verify the
-   full PR commit range from notes.
+3. Run `SSX360/matrixscroll/.github/actions/verify@action-v1` in GitHub Actions
+   to verify the full PR commit range from notes.
 4. Require that job on protected branches so CI blocks unsigned or unverifiable
    PR commits before merge.
 

@@ -1,0 +1,94 @@
+name: MCP manifest gate
+
+on:
+  workflow_call:
+    inputs:
+      manifest:
+        description: Path to signed ssx360.mcp-manifest.v1 JSON in the calling repo
+        required: true
+        type: string
+      baseline:
+        description: Committed baseline manifest for rug-pull drift detection
+        required: false
+        type: string
+        default: ""
+      matrixscroll_version:
+        description: matrixscroll package version pin
+        required: false
+        type: string
+        default: "0.6.2"
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: Path to signed ssx360.mcp-manifest.v1 JSON
+        required: false
+        default: examples/mcp/matrixscroll-mcp.signed.json
+      baseline:
+        description: Baseline manifest for rug-pull drift detection
+        required: false
+        default: examples/mcp/matrixscroll-mcp.baseline.json
+      matrixscroll_version:
+        description: matrixscroll package version pin
+        required: false
+        default: "0.6.2"
+
+permissions:
+  contents: read
+
+jobs:
+  mcp-manifest:
+    runs-on: ubuntu-latest
+    env:
+      # Both event types populate `inputs`, and both declare their own defaults
+      # above. A literal fallback here would push this repo's example paths onto
+      # a caller that deliberately omitted `baseline` to skip drift detection.
+      MANIFEST: ${{ inputs.manifest }}
+      BASELINE: ${{ inputs.baseline }}
+      MS_VERSION: ${{ inputs.matrixscroll_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install matrixscroll
+        run: |
+          python -m pip install --upgrade pip
+          pip install "matrixscroll==${MS_VERSION}"
+
+      - name: Verify signed MCP manifest against baseline
+        run: |
+          set -euo pipefail
+          if [ ! -f "$MANIFEST" ]; then
+            echo "::error::Missing signed MCP manifest at $MANIFEST"
+            echo "Sign one with: matrixscroll mcp scan ... | matrixscroll mcp sign - --output $MANIFEST"
+            exit 1
+          fi
+          ARGS=(mcp verify "$MANIFEST")
+          if [ -n "$BASELINE" ]; then
+            if [ ! -f "$BASELINE" ]; then
+              echo "::error::Baseline manifest not found at $BASELINE"
+              exit 1
+            fi
+            ARGS+=(--baseline "$BASELINE")
+          fi
+          set +e
+          OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)"
+          RC=$?
+          set -e
+          echo "$OUTPUT"
+          {
+            echo "## MCP manifest gate"
+            echo ""
+            if [ "$RC" -eq 0 ]; then
+              echo "**Status:** passed. Signature valid, no tool-surface drift."
+            else
+              echo "**Status:** FAILED. Unsigned manifest, bad signature, or tool-surface drift (exit $RC)."
+            fi
+            echo ""
+            echo '```json'
+            echo "$OUTPUT"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$RC"

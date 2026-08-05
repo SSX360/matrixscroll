@@ -1,0 +1,183 @@
+name: Matrix Scroll Verify
+description: Verify a signed Matrix Scroll manifest or PR commit envelope range in CI.
+branding:
+  icon: shield
+  color: green
+
+inputs:
+  manifest:
+    description: Path to signed manifest JSON file (single-manifest mode)
+    required: false
+    default: ""
+  head-ref:
+    description: Head ref for commit-range verification (enables PR gate mode)
+    required: false
+    default: ""
+  base-ref:
+    description: Base ref for commit-range verification
+    required: false
+    default: ""
+  source:
+    description: Envelope source for range mode (local, notes, bundle)
+    required: false
+    default: "notes"
+  bundle-dir:
+    description: Bundle directory when source=bundle
+    required: false
+    default: ""
+  notes-ref:
+    description: Git notes ref for envelope transport
+    required: false
+    default: "refs/notes/matrixscroll"
+  fetch-notes:
+    description: Fetch notes ref from origin before range verification
+    required: false
+    default: "true"
+  python-version:
+    description: Python version for installing matrixscroll
+    required: false
+    default: "3.12"
+  matrixscroll-version:
+    description: matrixscroll package version pin (recommended 0.6.2)
+    required: false
+    default: "0.6.2"
+  require-mode:
+    description: Optional policy require-mode (v0.2.1+)
+    required: false
+    default: ""
+  trusted-keys:
+    description: Optional path to trusted public keys JSON (v0.2.1+)
+    required: false
+    default: ""
+  summary-output:
+    description: Optional path to write full range verification JSON summary
+    required: false
+    default: ""
+  verify-agent-scope:
+    description: Verify linked agent_scope manifest signatures (range mode)
+    required: false
+    default: "false"
+
+outputs:
+  ok:
+    description: Whether verification passed
+    value: ${{ steps.verify.outputs.ok }}
+  device_id:
+    description: Signer device id from manifest (single-manifest mode)
+    value: ${{ steps.verify.outputs.device_id }}
+  mode:
+    description: Provider mode from manifest signature block (single-manifest mode)
+    value: ${{ steps.verify.outputs.mode }}
+  verified_count:
+    description: Number of verified commits (range mode)
+    value: ${{ steps.verify.outputs.verified_count }}
+  agent_count:
+    description: Number of agent-authored verified commits (range mode)
+    value: ${{ steps.verify.outputs.agent_count }}
+  human_count:
+    description: Number of human-authored verified commits (range mode)
+    value: ${{ steps.verify.outputs.human_count }}
+  modes:
+    description: Comma-separated signature modes seen in range mode
+    value: ${{ steps.verify.outputs.modes }}
+  summary_path:
+    description: Path to written summary JSON when summary-output is set
+    value: ${{ steps.verify.outputs.summary_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install matrixscroll
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ -n "${{ inputs.matrixscroll-version }}" ]; then
+          pip install "matrixscroll==${{ inputs.matrixscroll-version }}"
+        else
+          pip install matrixscroll
+        fi
+
+    - name: Fetch envelope notes
+      if: inputs.head-ref != '' && inputs.fetch-notes == 'true' && inputs.source == 'notes'
+      shell: bash
+      run: |
+        set -euo pipefail
+        git fetch origin "${{ inputs.notes-ref }}:${{ inputs.notes-ref }}"
+
+    - name: Verify
+      id: verify
+      shell: bash
+      run: |
+        set -euo pipefail
+        HEAD_REF="${{ inputs.head-ref }}"
+        MANIFEST="${{ inputs.manifest }}"
+
+        if [ -n "$HEAD_REF" ]; then
+          ARGS=(envelope-verify-range --head "$HEAD_REF")
+          if [ -n "${{ inputs.base-ref }}" ]; then
+            ARGS+=(--base "${{ inputs.base-ref }}")
+          fi
+          ARGS+=(--source "${{ inputs.source }}")
+          ARGS+=(--notes-ref "${{ inputs.notes-ref }}")
+          if [ -n "${{ inputs.bundle-dir }}" ]; then
+            ARGS+=(--bundle "${{ inputs.bundle-dir }}")
+          fi
+          if [ -n "${{ inputs.summary-output }}" ]; then
+            ARGS+=(--summary-output "${{ inputs.summary-output }}")
+          fi
+          if [ -n "${{ inputs.require-mode }}" ]; then
+            ARGS+=(--require-mode "${{ inputs.require-mode }}")
+          fi
+          if [ -n "${{ inputs.trusted-keys }}" ]; then
+            ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
+          fi
+          if [ "${{ inputs.verify-agent-scope }}" = "true" ]; then
+            ARGS+=(--verify-agent-scope)
+          fi
+          OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
+          RC="${RC:-0}"
+          echo "$OUTPUT"
+          OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
+          VERIFIED="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("verified_count", 0))' <<< "$OUTPUT")"
+          AGENT="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("agent_count", 0))' <<< "$OUTPUT")"
+          HUMAN="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("human_count", 0))' <<< "$OUTPUT")"
+          MODES="$(python -c 'import json,sys; print(",".join(json.loads(sys.stdin.read()).get("modes", [])))' <<< "$OUTPUT")"
+          echo "ok=$OK" >> "$GITHUB_OUTPUT"
+          echo "verified_count=$VERIFIED" >> "$GITHUB_OUTPUT"
+          echo "agent_count=$AGENT" >> "$GITHUB_OUTPUT"
+          echo "human_count=$HUMAN" >> "$GITHUB_OUTPUT"
+          echo "modes=$MODES" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.summary-output }}" ]; then
+            echo "summary_path=${{ inputs.summary-output }}" >> "$GITHUB_OUTPUT"
+          fi
+          MS_SUMMARY="$OUTPUT" python -c 'import json, os; summary = json.loads(os.environ["MS_SUMMARY"]); status = "passed" if summary.get("ok") else "failed"; lines = ["## Matrix Scroll provenance gate", "", "**Status:** %s" % status, "**Commits verified:** %s / %s" % (summary.get("verified_count", 0), summary.get("total", 0)), "**Agent commits:** %s" % summary.get("agent_count", 0), "**Human commits:** %s" % summary.get("human_count", 0), "**Modes:** %s" % (", ".join(summary.get("modes") or []) or "none")]; failures = ["- `%s`: %s" % (row.get("sha", "")[:8], row.get("error", "unknown")) for row in summary.get("results", []) if not row.get("ok")][:20]; lines += ["", "### Failures", ""] + failures if failures else []; print(chr(10).join(lines))' >> "$GITHUB_STEP_SUMMARY"
+          exit "$RC"
+        fi
+
+        if [ -z "$MANIFEST" ]; then
+          echo "Either manifest or head-ref must be provided" >&2
+          exit 1
+        fi
+
+        ARGS=(verify "$MANIFEST")
+        if [ -n "${{ inputs.require-mode }}" ]; then
+          ARGS+=(--require-mode "${{ inputs.require-mode }}")
+        fi
+        if [ -n "${{ inputs.trusted-keys }}" ]; then
+          ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
+        fi
+        OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
+        RC="${RC:-0}"
+        echo "$OUTPUT"
+        OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
+        DEVICE_ID="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("device_id") or "")' <<< "$OUTPUT")"
+        MODE="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("mode") or "")' <<< "$OUTPUT")"
+        echo "ok=$OK" >> "$GITHUB_OUTPUT"
+        echo "device_id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
+        echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+        exit "$RC"

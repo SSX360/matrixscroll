@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify signed release manifest
-        uses: SSX360/matrixscroll-verify-action@v1
+        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           manifest: examples/release-manifest.signed.json
           matrixscroll-version: "0.6.2"
@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Verify PR commit envelope range
-        uses: SSX360/matrixscroll-verify-action@v1
+        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
@@ -65,7 +65,7 @@ jobs:
 
       - name: Verify bundle artifact (optional fallback)
         if: false  # enable when teams upload envelope bundles as CI artifacts
-        uses: SSX360/matrixscroll-verify-action@v1
+        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}

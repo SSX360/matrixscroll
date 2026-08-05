@@ -41,13 +41,12 @@ def get_github_stats(token=None):
         headers["Authorization"] = f"token {token}"
         
     repo_data = fetch_json("https://api.github.com/repos/SSX360/matrixscroll", headers)
-    action_data = fetch_json("https://api.github.com/repos/SSX360/matrixscroll-verify-action", headers)
-    
+
+    # The verify action lives in this repo under .github/actions/verify, so it no
+    # longer carries separate star and fork counts.
     stats = {
         "repo_stars": repo_data.get("stargazers_count", 0) if "error" not in repo_data else "Error",
         "repo_forks": repo_data.get("forks_count", 0) if "error" not in repo_data else "Error",
-        "action_stars": action_data.get("stargazers_count", 0) if "error" not in action_data else "Error",
-        "action_forks": action_data.get("forks_count", 0) if "error" not in action_data else "Error",
     }
     
     if token:
@@ -134,8 +133,6 @@ def main():
     gh = get_github_stats(token)
     print(f"    - CLI/SDK Stars:          {gh['repo_stars']}")
     print(f"    - CLI/SDK Forks:          {gh['repo_forks']}")
-    print(f"    - Verify Action Stars:    {gh['action_stars']}")
-    print(f"    - Verify Action Forks:    {gh['action_forks']}")
     print(f"    - Unique Clones (14d):    {gh['clones_14d']}")
     print(f"    - Unique Views (14d):     {gh['views_14d']}")
 

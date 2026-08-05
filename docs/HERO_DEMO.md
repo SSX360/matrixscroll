@@ -6,7 +6,7 @@ Record this flow once for product demos, conference talks, or onboarding videos.
 
 - **Agent:** Cursor or Claude Code in a bound workspace
 - **Producer:** `matrixscroll` hooks / MCP `create_envelope`
-- **Enforcer:** Scroll Gate (`SSX360/matrixscroll-verify-action@v1`)
+- **Enforcer:** Scroll Gate (`SSX360/matrixscroll/.github/actions/verify@action-v1`)
 - **Verifier:** [matrixscroll.com/verify/](https://matrixscroll.com/verify/) (offline, no portal trust)
 
 ## Beat sheet

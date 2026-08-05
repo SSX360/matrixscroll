@@ -1,0 +1,81 @@
+{
+  "scanned_at": "2026-07-03T16:55:29Z",
+  "schema": "ssx360.mcp-manifest.v1",
+  "server": {
+    "name": "matrixscroll-mcp",
+    "package": "pypi:matrixscroll",
+    "version": "1.28.0"
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T16:55:41Z",
+    "value": "EMkRw5D/dtwXypmNNN0VWSmxmCcTp2sdX8oyGdQAYRw1MPaoEI4wozyFhRimk8gokgXmekUeMEz/ZXVrEhRZBw=="
+  },
+  "surface_hash": "sha256:e5494ecfca737991c50a658914a26602c83e3cd8f7fba8ee628222bd16f69d38",
+  "tools": [
+    {
+      "description": "Export a compliance or procurement audit bundle with optional verification proofs.\n\n    Use when auditors need envelope bundles (JSON, GUAC JSONL, or evidence-pack).\n    Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.\n    Prefer ``list_envelopes`` to browse hosted metadata without exporting files.\n\n    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export.\n    Local fallback: exports from git notes or on-disk envelopes when no API key.\n    Side effects: writes files under ``output_dir`` locally; hosted mode returns\n    download metadata. Returns ``{ok, bundle?, download_url?, error?}``.\n\n    Parameters:\n        start_date / end_date: ISO 8601 UTC bounds (hosted filter).\n        signer_id: Filter by device_id or public-key fingerprint.\n        format: json, guac, or evidence-pack serialization.\n        include_verification: Attach per-envelope verification replay data.\n        workspace / base / head / output_dir: Local fallback range and output path.\n    ",
+      "input_schema_hash": "sha256:645a271911052e6dcd3d88ea50b348fd418f63e00a297c035ab147552833cace",
+      "name": "audit_export"
+    },
+    {
+      "description": "Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.\n\nUse before hardware signing pilots to confirm the reader responds on the serial port. Do not use for everyday signing \u2014 use create_envelope (emulated mode) instead. Do not use for verification \u2014 call verify_envelope after envelopes exist. Prefer status to check local identity without opening USB.\n\nSide effects: opens a short-lived serial session; does not export private keys. No SSX360_API_KEY required. Returns {ok, mode, reader_name, available?, error?}.\n\nParameters:\n    reader_name: Serial port, e.g. COM3 or /dev/ttyACM0 (or env default).\n    pin: Optional secure-element PIN; prefer MATRIXSCROLL_PIV_PIN in CI.\n    timeout: Transport timeout in milliseconds (default 3000).",
+      "input_schema_hash": "sha256:2d4145cf0c5fc071300ce485362f1bc2a2addc3525d664270e0e7889e0594655",
+      "name": "connect_card"
+    },
+    {
+      "description": "Create a signed Git commit envelope with Ed25519 provenance metadata.\n\n    Use after staging changes and before or after ``git commit`` when you need\n    commit-time actor/tool proof. Prefer ``sign_action`` for non-Git evidence\n    (CI steps, IaC, migrations). Do not use for verification \u2014 call\n    ``verify_envelope`` or ``verify_pr_range`` instead.\n\n    Side effects: may write ``.matrixscroll/envelopes/<sha>.json`` when ``save``\n    is true. Requires a Git repo and Matrix Scroll identity store. No network.\n    Returns ``{ok, sha, envelope, path, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        commit_sha: Existing commit to envelope (defaults to staged/next commit).\n        actor_type: Provenance actor, e.g. agent, human, ci.\n        tool: Producing tool name, e.g. cursor, claude-code.\n        agent_scope: Optional bounded scope path/glob for agent commits.\n        sign: Ed25519-sign the envelope (default True).\n        save: Persist under .matrixscroll/envelopes (default True).\n    ",
+      "input_schema_hash": "sha256:4e69c3fb6479ace99e7a7c6413974d11cc67328f7217bcde483d0b338047b06f",
+      "name": "create_envelope"
+    },
+    {
+      "description": "List commit envelopes stored on ssx360.com for the authenticated organization.\n\n    Use for paginated org triage and agent memory. Requires SSX360_API_KEY.\n    Do not use for offline Git repos \u2014 call ``status`` and ``verify_envelope``.\n    Do not use for bulk export \u2014 call ``audit_export`` instead.\n\n    Read-only: no local Git writes. Returns ``{ok, envelopes, total?, error?}``.\n\n    Parameters:\n        limit: Maximum envelopes per page (1\u2013200, default 50).\n        offset: Pagination skip index (zero-based).\n        signer_filter: Optional device_id or public-key prefix.\n    ",
+      "input_schema_hash": "sha256:b421679accbf50b0a39babaf3714b345fd4304fff90ab7379a7adb2daf0eec9d",
+      "name": "list_envelopes"
+    },
+    {
+      "description": "Publish local signed envelopes to git notes for CI Scroll Gate verification.\n\n    Use after ``create_envelope`` when CI reads ``refs/notes/matrixscroll``.\n    Do not use for offline single-commit checks \u2014 call ``verify_envelope``.\n    Do not use for hosted org audit \u2014 call ``audit_export`` with SSX360_API_KEY.\n\n    Side effects: updates the local git notes ref only; push\n    ``refs/notes/matrixscroll`` to remote separately. Returns\n    ``{ok, published, notes_ref, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        base: Range start ref (exclusive) for envelopes to publish.\n        head: Range end ref (inclusive) for envelopes to publish.\n        notes_ref: Git notes ref to write (default refs/notes/matrixscroll).\n    ",
+      "input_schema_hash": "sha256:8ce04895f7fe4c6a13c07cb676e9643d51a28fd04d5a9ae76b06f70b7ce09805",
+      "name": "publish_notes"
+    },
+    {
+      "description": "Fingerprint an MCP server's tool surface into an unsigned ssx360.mcp-manifest.v1.\n\n    Use before ``sign_mcp_manifest`` to capture install-time tool names, descriptions,\n    and input schema hashes. Re-scan later and pass results to ``verify_mcp_manifest``\n    with a baseline to detect rug-pull drift. Read-only; no network required when\n    ``tools`` is supplied directly.\n\n    Returns ``{ok, tool_count, surface_hash, manifest}``.\n    ",
+      "input_schema_hash": "sha256:cb5f64dbab2af0a06a6009476d1cc386272d57dcdc2b83dd3333ade477702163",
+      "name": "scan_mcp_server"
+    },
+    {
+      "description": "Sign a universal provenance action envelope with the active Ed25519 identity.\n\n    Use for CI steps, IaC changes, DB migrations, API calls, contract deploys,\n    or agent delegation grants. Prefer ``create_envelope`` for Git commits.\n    Do not use for verification \u2014 call ``verify_envelope`` on exported JSON.\n\n    Side effects: writes ``save_path`` when set; uses local identity store.\n    No network unless you later upload the signed artifact yourself.\n    Returns ``{ok, signed, device_id, mode, path?, error?}``.\n\n    Parameters:\n        action_type: Provenance label (git_commit, ci_step, iac_change, etc.).\n        payload: JSON object to sign (no top-level signature block).\n        key_path: Optional MATRIXSCROLL_HOME override for CI ephemeral keys.\n        save_path: Optional file path to write the signed document.\n    ",
+      "input_schema_hash": "sha256:a71daf27d5ff86ac4e69219cae8c5dc8ad5d7670b6b56382d823a141dc8cc813",
+      "name": "sign_action"
+    },
+    {
+      "description": "Ed25519-sign an MCP tool-surface manifest for offline install verification.\n\n    Use after ``scan_mcp_server``. Prefer ``verify_mcp_manifest`` for checks.\n    Side effects: may write ``save_path``; uses local identity store. No network.\n    Returns ``{ok, signed, device_id, path?, error?}``.\n    ",
+      "input_schema_hash": "sha256:b3c40a8f7e00a7bdedf4faf16d11ec9834642342cae1bff622fb08a459f9c3d6",
+      "name": "sign_mcp_manifest"
+    },
+    {
+      "description": "Report hook install state, local envelope count, and Matrix Scroll config.\n\n    Call first in a new repo before any verify/sign tool. Read-only: no Git or\n    filesystem writes, no network. Do not use for signature checks \u2014 call\n    ``verify_envelope`` or ``verify_pr_range`` instead.\n\n    Returns ``{ok, config, hook_installed, envelope_count, mode?, device_id?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n    ",
+      "input_schema_hash": "sha256:81f8e41c66d6b1a40c7558b3b4c0f261302d295232fc219e00aa51cdf0c8c78f",
+      "name": "status"
+    },
+    {
+      "description": "Verify one signed commit envelope offline against RFC 8032 Ed25519 rules.\n\n    Use for a single commit SHA or explicit envelope JSON file. Prefer\n    ``verify_pr_range`` for PR/branch ranges and ``audit_export`` for procurement\n    bundles spanning many commits. Do not use when you only need hook status \u2014\n    call ``status`` instead.\n\n    Read-only: no network or SSX360_API_KEY required. Does not modify Git state.\n    Returns ``{ok, sha, actor_type, mode, error?, envelope?}``; ``ok`` is false\n    on signature, policy, expiry, or missing-envelope errors.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        commit_sha: Commit SHA to verify (uses local envelope file).\n        envelope / envelope_path: Optional explicit path to envelope JSON.\n        require_mode: Policy filter, e.g. emulated or hardware (empty skips).\n        trusted_keys / trusted_keys_file: JSON file listing trusted public keys.\n        check_expiry: Reject envelopes with expired delegation timestamps.\n        require_actor_types / deny_actor_types: Actor policy allow/deny lists.\n    ",
+      "input_schema_hash": "sha256:f459faf072b0c915eb1779e8a2693d9e4059655d28a08dc824c2972dfbf1d477",
+      "name": "verify_envelope"
+    },
+    {
+      "description": "Verify a signed MCP manifest and optionally diff against an install-time baseline.\n\n    Use in CI or before trusting an MCP server after upgrade. Read-only; no network.\n    Returns ``{ok, surface_hash, tool_count, drift?, error?}``; ``ok`` is false on\n    bad signature or surface drift vs baseline.\n    ",
+      "input_schema_hash": "sha256:3e824602c03448975882a630126d967ba43d858d66f952fbe8c1e7a26f9bada1",
+      "name": "verify_mcp_manifest"
+    },
+    {
+      "description": "Scroll Gate: verify signed/unsigned commits across a PR commit range.\n\n    Use for merge gates and PR review (many commits). Prefer ``verify_envelope``\n    for one commit offline. Prefer ``audit_export`` when auditors need bundles,\n    not pass/fail on a range.\n\n    Hosted mode (default): calls ssx360.com; requires SSX360_API_KEY.\n    Set ``source=local|notes|bundle`` to verify offline without an API key.\n    Read-only for Git refs; hosted mode emits usage to ssx360.com.\n    Returns ``{ok, verified_count, unsigned_shas?, failures?, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        base: Range start ref (exclusive), e.g. origin/main.\n        head: Range end ref (inclusive), e.g. HEAD or PR head SHA.\n        source: Envelope transport \u2014 hosted, local, notes, or bundle.\n        notes_ref: Git notes ref when source=notes.\n        bundle_dir: Bundle directory when source=bundle.\n        require_mode: Policy require_mode filter.\n        trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.\n        require_actor_types / deny_actor_types: Actor policy lists.\n    ",
+      "input_schema_hash": "sha256:cd4186e326bb6c02b41f2dc9b005f124b24ad853d62d912868e461c8301953a0",
+      "name": "verify_pr_range"
+    }
+  ]
+}

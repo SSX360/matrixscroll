@@ -39,7 +39,7 @@ Use artifact-layer tools when you need:
 ## How to use them together
 
 1. Sign agent-assisted commits with Matrix Scroll.
-2. Verify commit ranges in PRs with `SSX360/matrixscroll-verify-action@v1`.
+2. Verify commit ranges in PRs with `SSX360/matrixscroll/.github/actions/verify@action-v1`.
 3. Keep Sigstore, GitHub attestations, or SLSA on the release path.
 
 That gives teams both commit-time attribution and artifact-time provenance.

@@ -12,7 +12,7 @@ to get help and what to expect.
 | Threat model and design | [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md) |
 | Compare to adjacent tools | [`docs/COMPARISON.md`](docs/COMPARISON.md) |
 | Browser verify (no install) | [matrixscroll.com/verify](https://matrixscroll.com/verify/) |
-| CI verification | [matrixscroll-verify-action](https://github.com/SSX360/matrixscroll-verify-action) |
+| CI verification | [Matrix Scroll Verify action](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) |
 | Security vulnerability | **security@matrixscroll.com** (see [`SECURITY.md`](SECURITY.md)) |
 
 ## GitHub

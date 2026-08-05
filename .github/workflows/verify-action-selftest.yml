@@ -1,0 +1,45 @@
+name: verify-action selftest
+
+# Resolves the composite action and the reusable MCP gate through their public
+# `SSX360/matrixscroll/...@action-v1` references, the same path an external
+# consumer takes, rather than through a local `./` path. Dispatch after moving
+# the `action-v1` tag to confirm the tag serves a working action.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifest-mode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify a signed example manifest
+        id: verify
+        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
+        with:
+          manifest: examples/release-manifest.signed.json
+          matrixscroll-version: "0.6.2"
+
+      - name: Assert outputs
+        run: |
+          set -euo pipefail
+          echo "ok=${{ steps.verify.outputs.ok }}"
+          echo "device_id=${{ steps.verify.outputs.device_id }}"
+          echo "mode=${{ steps.verify.outputs.mode }}"
+          # The action prints Python's bool, so "True" today. Accept the JSON
+          # spelling too rather than fail for the wrong reason if that changes.
+          case "${{ steps.verify.outputs.ok }}" in
+            True|true) ;;
+            *) echo "verification did not report ok" >&2; exit 1 ;;
+          esac
+
+  mcp-gate:
+    uses: SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1
+    with:
+      manifest: examples/mcp/matrixscroll-mcp.signed.json
+      baseline: examples/mcp/matrixscroll-mcp.baseline.json
+      matrixscroll_version: "0.6.2"
