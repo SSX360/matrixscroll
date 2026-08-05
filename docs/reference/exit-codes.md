@@ -23,6 +23,20 @@ a broken tool, because they call for different responses.
 
 `matrixscroll mcp verify` exits `2` on tool-surface drift against a baseline.
 
+`matrixscroll envelope-verify-range` and `ssx360 check` exit `2` when the range
+holds no commits, because a gate that verified nothing has proved nothing. The
+JSON carries `"empty_range": true` so a caller can separate that from a signature
+failure. Pass `--allow-empty-range` where an empty range is expected, such as a
+re-run of a commit that already merged.
+
+## Every failure is JSON
+
+Any exception that escapes a subcommand is caught at the top of
+`matrixscroll.cli.main`, printed as `{"ok": false, "error": "..."}` on stdout,
+and exits `1`. A CI step that parses the output never has to read a Python
+traceback and guess. An argparse usage error still exits `2` from argparse
+itself, and `--help` still exits `0`.
+
 ## Never treat 1 and 2 the same
 
 A script that does `if ! matrixscroll envelope-verify "$SHA"; then` cannot

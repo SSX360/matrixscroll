@@ -49,6 +49,20 @@ is the source of truth.
 | `--require-mode emulated\|hardware` | Reject signatures not produced by that provider. |
 | `--trusted-keys <path>` | Restrict acceptance to a key allowlist. |
 | `--summary-output <path>` | Write agent and human commit counts as JSON. |
+| `--allow-empty-range` | Report `ok` for a range holding no commits. Off by default. |
+
+A range holding no commits exits `2` and reports `"empty_range": true`. "Every
+commit here is signed" is a claim about the empty set when the range is empty,
+and a mistyped `--base`, a shallow clone, or a force-push that collapsed the
+range all produce one. Pass `--allow-empty-range` where an empty range is
+expected, such as a re-run of an already-merged commit. `empty_range` is on every
+summary, so a reader can tell "nothing to verify" apart from "everything
+verified" whichever way `ok` came out.
+
+Each row under `results` carries `agent_scope` and `agent_scope_verified` when
+the envelope declares a scope manifest, so a caller that passed
+`--verify-agent-scope` can confirm the policy ran rather than trust that it did.
+The summary totals those rows as `agent_scope_verified_count`.
 
 ## MCP trust
 

@@ -40,6 +40,8 @@ class EnvelopeVerifyResult:
     tool_version: str | None = None
     pqc_present: bool | None = None
     pqc_algorithms: list[str] | None = None
+    agent_scope: str | None = None
+    agent_scope_verified: bool | None = None
     error: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -128,8 +130,9 @@ def verify_commit_envelope_for_sha(
 
     provenance = envelope.get("provenance") or {}
     policy = policy or VerifyPolicy()
-    if policy.verify_agent_scope or provenance.get("agent_scope"):
-        scope_uri = provenance.get("agent_scope")
+    scope_uri = provenance.get("agent_scope") or None
+    scope_verified: bool | None = None
+    if policy.verify_agent_scope or scope_uri:
         if not scope_uri:
             if policy.verify_agent_scope:
                 return EnvelopeVerifyResult(
@@ -139,12 +142,20 @@ def verify_commit_envelope_for_sha(
             try:
                 path = _resolve_manifest_path(scope_uri, root)
             except FileNotFoundError as exc:
-                return EnvelopeVerifyResult(ok=False, sha=sha, error=str(exc))
+                return EnvelopeVerifyResult(
+                    ok=False, sha=sha, error=str(exc), agent_scope=scope_uri,
+                    agent_scope_verified=False,
+                )
             ok, reason = _verify_linked_manifest(path)
             if not ok:
                 return EnvelopeVerifyResult(
-                    ok=False, sha=sha, error=reason or "agent_scope manifest invalid"
+                    ok=False,
+                    sha=sha,
+                    error=reason or "agent_scope manifest invalid",
+                    agent_scope=scope_uri,
+                    agent_scope_verified=False,
                 )
+            scope_verified = True
 
     block = envelope.get("signature") or {}
     pqc_blocks = envelope.get("pqc_signatures")
@@ -165,6 +176,8 @@ def verify_commit_envelope_for_sha(
         pqc_present=bool(pqc_algorithms),
         pqc_algorithms=pqc_algorithms or None,
         tool_version=provenance.get("tool_version"),
+        agent_scope=scope_uri,
+        agent_scope_verified=scope_verified,
     )
 
 
@@ -350,8 +363,13 @@ def format_range_summary(summary: dict[str, Any]) -> str:
         f"**Agent commits:** {summary.get('agent_count', 0)}",
         f"**Human commits:** {summary.get('human_count', 0)}",
         f"**Modes:** {', '.join(summary.get('modes') or []) or 'none'}",
-        "",
     ]
+    if summary.get("empty_range"):
+        lines.append(
+            "**Range:** empty. No commit was checked, so this run proves nothing "
+            "about the code under review."
+        )
+    lines.append("")
     failures = [r for r in summary.get("results", []) if not r.get("ok")]
     if failures:
         lines.append("### Failures")
@@ -370,16 +388,28 @@ def verify_envelope_range(
     notes_ref: str = DEFAULT_NOTES_REF,
     bundle_dir: Path | None = None,
     policy: VerifyPolicy | None = None,
+    allow_empty: bool = False,
 ) -> dict[str, Any]:
     """Verify every commit in ``base..head`` has a valid envelope from *source*.
+
+    An empty range returns ``ok: false`` unless *allow_empty* is set. A gate that
+    asks "is every commit in this range signed" and receives ``true`` for a range
+    holding nothing has been told a fact about the empty set, not about the code
+    under review. A mistyped ``base``, a shallow clone and a force-push that
+    collapses a range all produce an empty range, and each of those is a
+    configuration failure the gate should surface rather than absorb.
+
+    ``empty_range`` is present on every return, so a caller that has a reason to
+    accept an empty range can tell "nothing to verify" apart from "everything
+    verified" without inspecting counts.
 
     Safety invariants: see ``formal/tla/ScrollGate.tla`` (F-G1 enforce merge, F-G3 valid range).
     """
     root = root or repo_root()
     shas = commits_in_range(base, head, root=root)
     if not shas:
-        return {
-            "ok": True,
+        summary = {
+            "ok": bool(allow_empty),
             "base": base,
             "head": head,
             "source": source,
@@ -387,10 +417,20 @@ def verify_envelope_range(
             "verified_count": 0,
             "agent_count": 0,
             "human_count": 0,
+            "agent_scope_verified_count": 0,
             "modes": [],
+            "empty_range": True,
+            "allow_empty_range": bool(allow_empty),
             "note": "no commits in range",
             "results": [],
         }
+        if not allow_empty:
+            summary["error"] = (
+                f"no commits in range {base or '(root)'}..{head}, so nothing was "
+                "verified. Check base and head, and confirm the clone has enough "
+                "history. Pass allow_empty to accept an empty range."
+            )
+        return summary
 
     results: list[EnvelopeVerifyResult] = []
     for sha in shas:
@@ -422,6 +462,7 @@ def verify_envelope_range(
     ok_count = sum(1 for r in results if r.ok)
     agent_count = sum(1 for r in results if r.ok and r.actor_type == "agent")
     human_count = sum(1 for r in results if r.ok and r.actor_type == "human")
+    scope_count = sum(1 for r in results if r.ok and r.agent_scope_verified)
     modes = sorted({r.mode for r in results if r.ok and r.mode})
     all_ok = ok_count == len(shas)
 
@@ -434,6 +475,9 @@ def verify_envelope_range(
         "verified_count": ok_count,
         "agent_count": agent_count,
         "human_count": human_count,
+        "agent_scope_verified_count": scope_count,
         "modes": modes,
+        "empty_range": False,
+        "allow_empty_range": bool(allow_empty),
         "results": [r.to_dict() for r in results],
     }

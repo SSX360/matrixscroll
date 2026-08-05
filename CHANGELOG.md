@@ -6,7 +6,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-Repository layout only. No code, CLI or wire-format changes.
+Repository layout, plus two fail-open fixes in the SDK. `envelope-verify-range`
+changes what it returns for an empty commit range, which is a behaviour change
+for any gate that reads `ok`. No wire-format change: the commit envelope schema
+is untouched.
 
 ### Added
 - **The Matrix Scroll Verify action now lives in this repo** at
@@ -27,6 +30,37 @@ Repository layout only. No code, CLI or wire-format changes.
   the action default and the published PyPI release. It runs on `workflow_call`
   and `workflow_dispatch` only, so it does not add a job to every SDK pull
   request.
+
+### Fixed
+- **An empty commit range reported `ok: true`.** `gate.verify_envelope_range`
+  answered "is every commit in this range signed" with `true` for a range
+  holding no commits, which is true of the empty set and useless to a gate. A
+  mistyped `--base`, a shallow clone, and a force-push that collapses a range all
+  produce an empty range, and each read as a pass. An empty range now returns
+  `ok: false` and exits `2`. Pass `--allow-empty-range` to `envelope-verify-range`
+  or `ssx360 check`, or `allow_empty=True` to the Python function, where an empty
+  range is expected. Every summary now carries `empty_range`, so a caller can
+  tell "nothing to verify" apart from "everything verified" whichever way `ok`
+  came out. The MCP `verify_pr_range` verb fails closed with no opt-out; its
+  input schema is unchanged.
+- **An unhandled exception printed a Python traceback instead of JSON.**
+  `matrixscroll.cli.main` had no top-level handler, so a missing `--trusted-keys`
+  file produced a traceback on stdout and left a CI step parsing it. Anything
+  that escapes a subcommand is now `{"ok": false, "error": "..."}` with exit `1`,
+  the tool-failure code in
+  [`docs/reference/exit-codes.md`](docs/reference/exit-codes.md). Verification
+  failures still exit `2`, argparse usage errors still exit `2`, and `--help`
+  still exits `0`.
+
+### Added
+- **Range rows report agent scope.** Each row under `results` carries
+  `agent_scope` and `agent_scope_verified` when the envelope declares a scope
+  manifest, and the summary totals them as `agent_scope_verified_count`. A caller
+  that set `--verify-agent-scope` can now confirm the policy ran instead of
+  trusting that it did.
+- **`Inv_EmptyRangeNeverPasses` (F-G5)** in `formal/tla/ScrollGate.tla`.
+  `Inv_ValidRangeImpliesPass` gained a `~RangeEmpty` guard, because `AllValid`
+  quantifies over `Commits` and was vacuously true for the empty set.
 
 ## [0.6.2] - 2026-08-03
 

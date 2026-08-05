@@ -288,6 +288,7 @@ def _cmd_envelope_verify_range(args: argparse.Namespace) -> int:
             notes_ref=args.notes_ref,
             bundle_dir=bundle_dir,
             policy=policy,
+            allow_empty=bool(getattr(args, "allow_empty_range", False)),
         )
     except (RuntimeError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))
@@ -670,6 +671,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help="Write full JSON summary to this file",
     )
+    env_verify_range.add_argument(
+        "--allow-empty-range",
+        action="store_true",
+        help="Report ok for a range holding no commits (default: exit 2)",
+    )
     _add_policy_args(env_verify_range)
     env_verify_range.set_defaults(command="envelope-verify-range")
 
@@ -811,7 +817,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
+def _dispatch(argv: list[str] | None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
@@ -847,6 +853,33 @@ def main(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 1
     return handler(args)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run a subcommand and return its exit status.
+
+    Anything that escapes a subcommand becomes ``{"ok": false, "error": ...}`` on
+    stdout and exit status 1. A caller parsing this output cannot tell a Python
+    traceback apart from silence, and a gate that cannot read a result has no
+    business reporting one. Status 1 is the tool-failure code from
+    ``docs/reference/exit-codes.md``; verification failures keep returning 2 from
+    the subcommand that decided them.
+
+    ``SystemExit`` passes through untouched, so ``--help`` still exits 0 and an
+    argparse usage error still exits 2.
+    """
+    try:
+        return _dispatch(argv)
+    except BrokenPipeError:  # pragma: no cover - depends on the reading process
+        return 1
+    except Exception as exc:  # noqa: BLE001 - the whole point is the catch-all
+        print(
+            json.dumps(
+                {"ok": False, "error": f"{type(exc).__name__}: {exc}"},
+                sort_keys=True,
+            )
+        )
+        return 1
 
 
 if __name__ == "__main__":

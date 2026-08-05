@@ -129,6 +129,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
         base = base or pr_base
         head = head or pr_head
 
+    allow_empty = bool(getattr(args, "allow_empty_range", False))
     use_hosted = args.hosted or bool(os.environ.get("SSX360_API_KEY", "").strip())
     if use_hosted:
         from matrixscroll.cloud import verify_range
@@ -136,8 +137,24 @@ def _cmd_check(args: argparse.Namespace) -> int:
         try:
             commits = _collect_commits_for_hosted(base or "origin/main", head, args.source)
             if not commits:
-                print(json.dumps({"ok": True, "base": base, "head": head, "note": "no commits in range"}))
-                return 0
+                empty = {
+                    "ok": allow_empty,
+                    "base": base,
+                    "head": head,
+                    "total": 0,
+                    "verified_count": 0,
+                    "empty_range": True,
+                    "allow_empty_range": allow_empty,
+                    "note": "no commits in range",
+                }
+                if not allow_empty:
+                    empty["error"] = (
+                        f"no commits in range {base or 'origin/main'}..{head}, so "
+                        "nothing was verified. Pass --allow-empty-range to accept "
+                        "an empty range."
+                    )
+                print(json.dumps(empty, sort_keys=True))
+                return 0 if allow_empty else 2
             summary = verify_range(base=base or "origin/main", head=head, commits=commits)
         except Exception as exc:
             print(json.dumps({"ok": False, "error": str(exc)}))
@@ -157,6 +174,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
             notes_ref=args.notes_ref,
             bundle_dir=None,
             policy=None,
+            allow_empty=allow_empty,
         )
     except (RuntimeError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))
@@ -273,6 +291,11 @@ def build_parser(prog: str = "ssx360") -> argparse.ArgumentParser:
         help="Force hosted verification via ssx360.com/api/v1/verify",
     )
     check.add_argument("--summary-output", help="Write JSON summary to file")
+    check.add_argument(
+        "--allow-empty-range",
+        action="store_true",
+        help="Report ok for a range holding no commits (default: exit 2)",
+    )
     check.set_defaults(handler=_cmd_check)
 
     ledger = sub.add_parser("ledger", help="Export compliance evidence packs")

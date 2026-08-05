@@ -30,6 +30,7 @@ FORMAL_PROPERTIES: tuple[FormalProperty, ...] = (
     FormalProperty("F-G1", "safety", "ScrollGate.tla", "Prop_EnforceNoMergeUnlessAllValid", "gate.verify_envelope_range"),
     FormalProperty("F-G3", "safety", "ScrollGate.tla", "Inv_ValidRangeImpliesPass", "gate.verify_envelope_range"),
     FormalProperty("F-G4", "safety", "ScrollGate.tla", "Inv_TamperFailsGate", "gate.verify_commit_envelope_for_sha"),
+    FormalProperty("F-G5", "safety", "ScrollGate.tla", "Inv_EmptyRangeNeverPasses", "gate.verify_envelope_range"),
     FormalProperty("F-A1", "safety", "AuthorityFive.tla", "Prop_NoPurchaseWithoutGrant", "mandate.intent (roadmap)"),
     FormalProperty("F-A2", "safety", "AuthorityFive.tla", "Prop_NoPaymentWithoutPaymentGrant", "mandate.cart (roadmap)"),
     FormalProperty("F-A3", "safety", "AuthorityFive.tla", "Prop_NoSubstitutionWithoutGrant", "vendor swap policy (roadmap)"),

@@ -71,8 +71,12 @@ class MCPProvenanceTests(unittest.TestCase):
         ).stdout.strip()
         envelope = sign_commit_envelope(build_commit_envelope(commit_sha=sha, root=self.repo))
         save_envelope(envelope, self.repo)
-        summary = verify_envelope_range(sha, sha, source="local", root=self.repo)
+        # `sha..sha` is an empty range, so the envelope saved above was never
+        # read. The assertion below used to hold for that reason alone.
+        summary = verify_envelope_range("", sha, source="local", root=self.repo)
         self.assertTrue(summary["ok"])
+        self.assertEqual(summary["verified_count"], 1)
+        self.assertFalse(summary["empty_range"])
 
 
 if __name__ == "__main__":

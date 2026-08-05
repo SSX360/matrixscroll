@@ -186,13 +186,73 @@ def test_fetch_notes_calls_git(isolated_env, tmp_path: Path, monkeypatch: pytest
     assert calls == [["fetch", "origin", f"{DEFAULT_NOTES_REF}:{DEFAULT_NOTES_REF}"]]
 
 
-def test_verify_envelope_range_empty(isolated_env, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_verify_envelope_range_empty_fails_closed(isolated_env, tmp_path: Path):
+    """An empty range is not a pass. Before this behaviour it returned ok: true."""
     repo = _init_repo(tmp_path / "repo")
     sha = _commit_file(repo, "a.txt", "first")
     summary = verify_envelope_range(sha, sha, source="local", root=repo)
+    assert not summary["ok"]
+    assert summary["total"] == 0
+    assert summary["empty_range"] is True
+    assert summary["allow_empty_range"] is False
+    assert "nothing was verified" in summary["error"]
+
+
+def test_verify_envelope_range_empty_opt_out(isolated_env, tmp_path: Path):
+    repo = _init_repo(tmp_path / "repo")
+    sha = _commit_file(repo, "a.txt", "first")
+    summary = verify_envelope_range(sha, sha, source="local", root=repo, allow_empty=True)
     assert summary["ok"]
     assert summary["total"] == 0
-    assert summary.get("note") == "no commits in range"
+    assert summary["empty_range"] is True
+    assert summary["allow_empty_range"] is True
+    assert "error" not in summary
+
+
+def test_verified_range_is_distinguishable_from_empty(isolated_env, tmp_path: Path):
+    """The two ok: true cases carry different structures, which is the point."""
+    repo = _init_repo(tmp_path / "repo")
+    sha = _commit_file(repo, "a.txt", "first")
+    _sign_and_save(repo, sha)
+
+    verified = verify_envelope_range("", sha, source="local", root=repo)
+    empty = verify_envelope_range(sha, sha, source="local", root=repo, allow_empty=True)
+    assert verified["ok"] and empty["ok"]
+    assert verified["empty_range"] is False
+    assert empty["empty_range"] is True
+
+
+def test_range_rows_report_agent_scope(isolated_env, tmp_path: Path):
+    """verify-agent-scope is recheckable downstream once the row carries the URI."""
+    repo = _init_repo(tmp_path / "repo")
+    scope = repo / "scope.json"
+    from matrixscroll._core import sign_manifest
+
+    scope.write_text(
+        json.dumps(sign_manifest({"schema": "matrixscroll.agent_scope.v1", "task": "issue-123"})),
+        encoding="utf-8",
+    )
+    sha = _commit_file(repo, "a.txt", "first")
+    envelope = build_commit_envelope(commit_sha=sha, root=repo)
+    envelope["provenance"]["agent_scope"] = "scope.json"
+    save_envelope(sign_commit_envelope(envelope), repo)
+
+    summary = verify_envelope_range("", sha, source="local", root=repo)
+    assert summary["ok"]
+    assert summary["agent_scope_verified_count"] == 1
+    row = summary["results"][0]
+    assert row["agent_scope"] == "scope.json"
+    assert row["agent_scope_verified"] is True
+
+
+def test_range_rows_omit_agent_scope_when_absent(isolated_env, tmp_path: Path):
+    repo = _init_repo(tmp_path / "repo")
+    sha = _commit_file(repo, "a.txt", "first")
+    _sign_and_save(repo, sha)
+
+    summary = verify_envelope_range("", sha, source="local", root=repo)
+    assert summary["agent_scope_verified_count"] == 0
+    assert "agent_scope" not in summary["results"][0]
 
 
 def test_format_range_summary():
@@ -201,3 +261,13 @@ def test_format_range_summary():
     md = format_range_summary({"ok": True, "verified_count": 2, "total": 2, "agent_count": 1, "human_count": 1, "modes": ["emulated"], "results": []})
     assert "Matrix Scroll provenance gate" in md
     assert "Agent commits" in md
+
+
+def test_format_range_summary_names_the_empty_range():
+    from matrixscroll.gate import format_range_summary
+
+    md = format_range_summary(
+        {"ok": False, "verified_count": 0, "total": 0, "empty_range": True, "results": []}
+    )
+    assert "**Status:** failed" in md
+    assert "No commit was checked" in md
