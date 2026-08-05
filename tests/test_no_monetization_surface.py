@@ -17,14 +17,14 @@ PACKAGE = ROOT / "matrixscroll"
 
 # Every phrase here shipped in matrixscroll 0.6.2 through the `claim`
 # enrollment flow, which polled an authority endpoint for a Stripe
-# subscription before it would issue an identity certificate.
+# subscription before it would issue an identity certificate. The signup and
+# pricing URLs live one PR over, in the api_key_required payloads.
 FORBIDDEN_SOURCE_PHRASES = (
     "stripe",
     "pending_subscription",
     "subscription",
-    "ssx360.com/signup",
-    "ssx360.com/#pricing",
     "per seat",
+    "upgrade at",
 )
 
 
