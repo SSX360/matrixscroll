@@ -6,7 +6,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-Repository layout only. No code, CLI or wire-format changes.
+Carries a breaking CLI removal, so the next release is a minor bump to 0.7.0.
+The wire format does not change: envelopes, manifests and signatures written by
+0.6.2 verify unchanged.
 
 ### Added
 - **The Matrix Scroll Verify action now lives in this repo** at
@@ -27,6 +29,27 @@ Repository layout only. No code, CLI or wire-format changes.
   the action default and the published PyPI release. It runs on `workflow_call`
   and `workflow_dispatch` only, so it does not add a job to every SDK pull
   request.
+
+### Removed
+- **Breaking: `matrixscroll claim` and `matrixscroll identity` are gone**, along
+  with the `--identity` flag on `matrixscroll verify` and
+  `matrixscroll envelope-verify`, and the private `matrixscroll._claim` module
+  behind all four. `claim` posted to `/api/enroll/start` and
+  `/api/enroll/complete` on the host in `MATRIXSCROLL_AUTHORITY_URL`, opened a
+  browser to a paid sign-in, then polled for a Stripe subscription before the
+  service would issue `~/.matrixscroll/identity_certificate.json`. Matrix Scroll
+  is the open protocol and stays free, so a paid enrollment step never belonged
+  in it. The enrollment endpoints return 500 and the certificate directory at
+  `matrixscroll.com/id/<device_id>.json` returns 404, so every one of these
+  commands already failed against a service that no longer answers.
+  - Nothing replaces them, because nothing was lost. A device identity is the
+    Ed25519 key pair under `MATRIXSCROLL_HOME`, `matrixscroll status` prints it,
+    and every signature already carries `device_id`, `public_key` and `mode`.
+  - `--identity` printed a human label resolved from a certificate that only the
+    retired service could issue. With no issuer it returned
+    `Self-signed - <device_id> (identity not verified)` on every input.
+  - Verification behaviour is unchanged. Signature checking, policy evaluation
+    and exit codes never read a certificate.
 
 ## [0.6.2] - 2026-08-03
 

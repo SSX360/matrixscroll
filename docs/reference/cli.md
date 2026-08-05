@@ -16,8 +16,12 @@ is the source of truth.
 | Command | Purpose |
 | --- | --- |
 | `matrixscroll status` | Print the active identity as JSON. See [`status()` fields](python-api.md#status-fields). |
-| `matrixscroll identity` | Inspect the key store location and permissions. |
-| `matrixscroll claim` | Claim a device identity. |
+
+A device identity is the Ed25519 key pair under `MATRIXSCROLL_HOME`, created on
+first use. There is no account, no registration step, and no directory to
+publish it to. `matrixscroll claim` and `matrixscroll identity` were the client
+half of a retired enrollment service and are gone as of 0.7.0. See the
+[changelog](https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md).
 
 ## Signing and verifying
 
