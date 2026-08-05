@@ -9,3 +9,4 @@
 /tests/test_vectors.py @SSX360
 /SECURITY.md @SSX360
 /.github/workflows/ @SSX360
+/.github/actions/ @SSX360

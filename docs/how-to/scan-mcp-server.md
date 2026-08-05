@@ -45,7 +45,7 @@ The file may be a plain JSON array or an object with a `tools` key.
 ```yaml
 jobs:
   mcp-gate:
-    uses: SSX360/matrixscroll-verify-action/.github/workflows/mcp-manifest-gate.yml@main
+    uses: SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json

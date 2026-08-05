@@ -15,7 +15,7 @@ who want to trial Matrix Scroll without changing their core workflow.
 2. Run `matrixscroll hook-install`.
 3. Make one agent-assisted commit and verify it locally.
 4. Publish notes with `matrixscroll envelope-publish-notes`.
-5. Add `SSX360/matrixscroll-verify-action@v1` to PR CI.
+5. Add `SSX360/matrixscroll/.github/actions/verify@action-v1` to PR CI.
 
 ## Suggested evaluation workflow
 
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: SSX360/matrixscroll-verify-action@v1
+      - uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}

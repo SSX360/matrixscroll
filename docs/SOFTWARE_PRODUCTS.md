@@ -6,7 +6,7 @@ manifest bytes today.
 | Product | Status | Access | Notes |
 |---------|--------|--------|-------|
 | **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.2` | Hooks, envelopes, Scroll Gate, policy CLI |
-| **Scroll Gate CI** | GA | [`matrixscroll-verify-action@v1`](https://github.com/SSX360/matrixscroll-verify-action) | PR range + manifest verify |
+| **Scroll Gate CI** | GA | [`matrixscroll/.github/actions/verify@action-v1`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) | PR range + manifest verify |
 | **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
 | **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
 | **GUAC export CLI** | MVP | `matrixscroll envelope-export-guac` | Same manifest contract |
@@ -29,7 +29,7 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ## CI
 
 ```yaml
-- uses: SSX360/matrixscroll-verify-action@v1
+- uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}

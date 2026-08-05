@@ -4,6 +4,30 @@ All notable changes to the Matrix Scroll Python SDK are documented here. The
 format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Repository layout only. No code, CLI or wire-format changes.
+
+### Added
+- **The Matrix Scroll Verify action now lives in this repo** at
+  [`.github/actions/verify`](.github/actions/verify), and the reusable MCP
+  manifest gate at `.github/workflows/mcp-manifest-gate.yml`. Both were
+  published from the separate `SSX360/matrixscroll-verify-action` repository,
+  which is now archived. Inputs, outputs and exit codes are unchanged.
+
+### Changed
+- **Call sites move to the new reference.** Replace
+  `SSX360/matrixscroll-verify-action@v1` with
+  `SSX360/matrixscroll/.github/actions/verify@action-v1`, and
+  `SSX360/matrixscroll-verify-action/.github/workflows/mcp-manifest-gate.yml@main`
+  with `SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1`.
+  The `action-v1` tag tracks the current action release line and is separate
+  from the SDK's `v0.6.x` tags.
+- The reusable MCP gate now defaults `matrixscroll_version` to `0.6.2`, matching
+  the action default and the published PyPI release. It runs on `workflow_call`
+  and `workflow_dispatch` only, so it does not add a job to every SDK pull
+  request.
+
 ## [0.6.2] - 2026-08-03
 
 Documentation and packaging metadata only. No code, CLI or wire-format changes,

@@ -56,7 +56,7 @@ git push origin refs/notes/matrixscroll
 - uses: actions/checkout@v4
   with:
     fetch-depth: 0
-- uses: SSX360/matrixscroll-verify-action@v1
+- uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
