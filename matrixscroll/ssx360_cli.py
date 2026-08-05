@@ -8,12 +8,18 @@ hosted ssx360.com APIs when ``SSX360_API_KEY`` is set.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
 from typing import Any
+
+# Matches the const in schemas/ssx360.evidence-pack.v1.json. Anything that
+# changes here changes there, and tests/test_evidence_pack_export.py fails when
+# the two drift apart.
+EVIDENCE_PACK_SCHEMA = "ssx360.evidence-pack.v1"
 
 COMPLIANCE_FRAMEWORKS = {
     "SOC2": {
@@ -43,7 +49,8 @@ COMPLIANCE_FRAMEWORKS = {
         "evidence": [
             "Commit provenance envelope",
             "Protected-branch enforcement result",
-            "Signed JSON compliance ledger",
+            # The ledger is an index. Its entries are signed, it is not.
+            "JSON ledger indexing the signed envelopes",
         ],
     },
 }
@@ -65,6 +72,45 @@ def _normalize_framework(value: str) -> str:
         known = ", ".join(sorted(COMPLIANCE_FRAMEWORKS))
         raise ValueError(f"Unknown framework {value!r}; expected one of: {known}")
     return normalized
+
+
+def _framework_annotation(framework: str) -> dict[str, Any]:
+    """Annotation keys the exporter adds on top of whatever it is describing."""
+    return {
+        "framework": framework,
+        "framework_mapping": COMPLIANCE_FRAMEWORKS[framework],
+        "disclaimer": (
+            "SSX360 produces structured evidence that maps to the selected framework. "
+            "This export does not constitute certification or attestation."
+        ),
+    }
+
+
+def _is_signed(document: Any) -> bool:
+    return isinstance(document, dict) and isinstance(document.get("signature"), dict)
+
+
+def _annotate(
+    document: dict[str, Any],
+    annotations: dict[str, Any],
+    *,
+    container_key: str = "evidence_pack",
+    wrapper: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Attach annotations to a document without ever writing into it.
+
+    ``canonical_bytes`` covers every top-level key except ``signature`` and
+    ``pqc_signatures``, so merging a key into a signed body destroys the
+    signature. A signed document therefore goes under ``container_key``
+    verbatim and the annotations become its siblings, which keeps the exported
+    bytes identical to the ones the signer covered. An unsigned document takes
+    the annotations directly, which is the shape 0.6.2 already wrote.
+
+    The document is never mutated either way.
+    """
+    if _is_signed(document):
+        return {**(wrapper or {}), **annotations, container_key: copy.deepcopy(document)}
+    return {**document, **annotations}
 
 
 def _resolve_pr_refs(pr_number: int) -> tuple[str, str]:
@@ -142,10 +188,13 @@ def _cmd_check(args: argparse.Namespace) -> int:
         except Exception as exc:
             print(json.dumps({"ok": False, "error": str(exc)}))
             return 1
+        ok = bool(summary.get("ok"))
         if pr_number is not None:
-            summary["pr"] = pr_number
+            # Same rule as the evidence pack: the hosted body is somebody
+            # else's document, so the PR number goes beside it, not into it.
+            summary = _annotate(summary, {"pr": pr_number}, container_key="result")
         print(json.dumps(summary, indent=2, sort_keys=True))
-        return 0 if summary.get("ok") else 2
+        return 0 if ok else 2
 
     from matrixscroll import gate as gate_mod
 
@@ -161,8 +210,9 @@ def _cmd_check(args: argparse.Namespace) -> int:
     except (RuntimeError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))
         return 1
+    ok = bool(summary.get("ok"))
     if pr_number is not None:
-        summary["pr"] = pr_number
+        summary = _annotate(summary, {"pr": pr_number}, container_key="result")
     if args.summary_output:
         from pathlib import Path
 
@@ -171,18 +221,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
             encoding="utf-8",
         )
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if summary.get("ok") else 2
-
-
-def _attach_framework(pack: dict[str, Any], framework: str) -> dict[str, Any]:
-    mapping = COMPLIANCE_FRAMEWORKS[framework]
-    pack["framework"] = framework
-    pack["framework_mapping"] = mapping
-    pack["disclaimer"] = (
-        "SSX360 produces structured evidence that maps to the selected framework. "
-        "This export does not constitute certification or attestation."
-    )
-    return pack
+    return 0 if ok else 2
 
 
 def _cmd_ledger_export(args: argparse.Namespace) -> int:
@@ -204,7 +243,15 @@ def _cmd_ledger_export(args: argparse.Namespace) -> int:
         except Exception as exc:
             print(json.dumps({"ok": False, "error": str(exc)}))
             return 1
-        pack = _attach_framework(pack, framework)
+        pack = _annotate(
+            pack,
+            _framework_annotation(framework),
+            wrapper={
+                "ok": bool(pack.get("ok", True)),
+                "schema": EVIDENCE_PACK_SCHEMA,
+                "source": "hosted",
+            },
+        )
         text = json.dumps(pack, indent=2, sort_keys=True) + "\n"
         if output_path:
             from pathlib import Path
@@ -228,15 +275,15 @@ def _cmd_ledger_export(args: argparse.Namespace) -> int:
     except RuntimeError as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))
         return 1
-    pack = _attach_framework(
+    pack = _annotate(
         {
             "ok": True,
-            "schema": "ssx360.evidence-pack.v1",
+            "schema": EVIDENCE_PACK_SCHEMA,
             "source": "local",
             "bundle": result,
             "exported_at": __import__("datetime").datetime.utcnow().isoformat() + "Z",
         },
-        framework,
+        _framework_annotation(framework),
     )
     manifest = out_dir / f"evidence-pack-{framework.lower()}.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)

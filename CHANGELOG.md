@@ -28,6 +28,34 @@ Repository layout only. No code, CLI or wire-format changes.
   and `workflow_dispatch` only, so it does not add a job to every SDK pull
   request.
 
+### Fixed
+- **The evidence pack exporter wrote into the body it had just received.**
+  `ssx360 ledger export` added `framework`, `framework_mapping` and
+  `disclaimer` as top-level keys on the hosted response, and `ssx360 check --pr`
+  added `pr` the same way. Canonical bytes cover every top-level key except
+  `signature` and `pqc_signatures`, so either one would break an Ed25519
+  signature over the response. The hosted API returns 404 today, so nothing
+  shipped was corrupted, but the shape was a trap. Both paths now nest a signed
+  body verbatim under `evidence_pack` (export) or `result` (check) and hang the
+  annotations beside it. An unsigned body keeps the flat 0.6.2 shape, so the
+  local export output is unchanged.
+- **`schemas/` reached the sdist but never the wheel.** Anyone running
+  `pip install matrixscroll` received no schema files and could not validate
+  against them. The wheel now carries them at `matrixscroll/schemas/`, and
+  `matrixscroll._schemas.schema_path` resolves that location first, falling back
+  to the repository root for source checkouts. The MCP schema resources read
+  through it, so they now serve real content from an installed package instead
+  of a not-found placeholder.
+
+### Added
+- **`schemas/ssx360.evidence-pack.v1.json`**, the schema for the document the
+  exporter actually writes. The emitted `schema` value is unchanged at
+  `ssx360.evidence-pack.v1`, so nothing consuming a 0.6.2 export breaks. The
+  older `schemas/evidence-pack.v1.json` keeps its own identifier,
+  `matrixscroll.evidence_pack.v1`, and SPEC.md section 10.3 now states plainly
+  that the two are separate documents and that no command writes the second one
+  yet.
+
 ## [0.6.2] - 2026-08-03
 
 Documentation and packaging metadata only. No code, CLI or wire-format changes,

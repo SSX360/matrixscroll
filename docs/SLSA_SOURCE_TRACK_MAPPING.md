@@ -21,7 +21,9 @@ Matrix Scroll commit envelopes map to **SLSA Source Track** levels for agent-ass
 
 - Signed commit envelope (`matrixscroll.identity.v1`)
 - Scroll Gate CI result on protected branches
-- Optional `ssx360.evidence-pack.v1` export for assessors
+- Optional `ssx360.evidence-pack.v1` export for assessors, an unsigned index
+  over the signed envelopes it lists
+  ([`schemas/ssx360.evidence-pack.v1.json`](../schemas/ssx360.evidence-pack.v1.json))
 
 ## Related docs
 

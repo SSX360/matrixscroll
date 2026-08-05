@@ -98,6 +98,13 @@ Maintainer = "https://ssx360.com/about"
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]
 
+# The schemas live at the repository root because SPEC.md and the docs link
+# them there. Map that directory next to the module so `pip install matrixscroll`
+# receives them too. `matrixscroll._schemas` reads this location first and falls
+# back to the repository root for source checkouts.
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "matrixscroll/schemas"
+
 [tool.hatch.build.targets.sdist]
 include = [
     "/matrixscroll",

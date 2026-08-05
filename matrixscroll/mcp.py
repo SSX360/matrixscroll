@@ -19,6 +19,7 @@ from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from . import mcp_core as core
+from ._schemas import schema_path
 from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
 from .cloud.client import list_envelopes as cloud_list_envelopes
 from .cloud.client import verify_range as cloud_verify_range
@@ -86,9 +87,9 @@ mcp = FastMCP(
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCHEMA_PATH = _REPO_ROOT / "schemas" / "commit-envelope.v1.json"
-_ACTION_SCHEMA_PATH = _REPO_ROOT / "schemas" / "action-envelope.v1.json"
-_MCP_MANIFEST_SCHEMA_PATH = _REPO_ROOT / "schemas" / "ssx360.mcp-manifest.v1.json"
+_SCHEMA_PATH = schema_path("commit-envelope.v1.json")
+_ACTION_SCHEMA_PATH = schema_path("action-envelope.v1.json")
+_MCP_MANIFEST_SCHEMA_PATH = schema_path("ssx360.mcp-manifest.v1.json")
 _SPEC_PATH = _REPO_ROOT / "SPEC.md"
 
 
