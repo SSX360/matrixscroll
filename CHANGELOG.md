@@ -6,7 +6,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-Repository layout only. No code, CLI or wire-format changes.
+Repository layout and the CI verify action. No SDK, CLI or wire-format changes.
 
 ### Added
 - **The Matrix Scroll Verify action now lives in this repo** at
@@ -27,6 +27,25 @@ Repository layout only. No code, CLI or wire-format changes.
   the action default and the published PyPI release. It runs on `workflow_call`
   and `workflow_dispatch` only, so it does not add a job to every SDK pull
   request.
+
+### Fixed
+- **The verify action could hand a caller a blank `ok` when the verifier
+  crashed.** It parsed `matrixscroll` output with inline `json.loads` calls in
+  shell steps running under `set -euo pipefail`. Output that is not JSON, a
+  Python traceback from a missing `trusted-keys` file or an argparse usage
+  message from an SDK pin too old for a flag, aborted the step before it wrote a
+  single output. A workflow gating on `ok` then read an empty string rather than
+  `False`, and an empty string is easy to write a condition that treats as
+  success. All eight outputs are now written on every path by
+  [`.github/actions/verify/parse_verify_output.py`](.github/actions/verify/parse_verify_output.py),
+  `ok` stays `True` or `False`, the captured verifier output reaches the job
+  summary with secret-shaped strings masked, and the step exits 1 for a broken
+  verifier or 2 for a failed verification. `summary_path` is reported only when
+  the file exists, `require-mode` is rechecked against the parsed result, and
+  action inputs reach the shell as environment variables rather than expression
+  interpolation. Inputs, outputs and exit codes are unchanged.
+  `tests/test_verify_action_parser.py` and `tests/test_verify_action_step.py`
+  cover the crash, the silent verifier and the legitimate failure.
 
 ## [0.6.2] - 2026-08-03
 

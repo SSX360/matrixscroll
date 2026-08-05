@@ -132,6 +132,44 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | 1 | Configuration error |
 | 2 | Verification failed |
 
+## How the action fails
+
+Any state that is not an affirmative verified result writes `ok=False` and fails
+the step. That covers a verifier that crashes with a Python traceback, a verifier
+that prints nothing, JSON that claims success without the fields backing the
+claim, a `require-mode` the parsed result does not satisfy, and a call that sets
+neither `manifest` nor `head-ref`.
+
+All eight outputs carry a value on every path. `ok` is `True` or `False`, spelled
+the way Python prints a bool. `verified_count`, `agent_count` and `human_count`
+default to `0`, and `device_id`, `mode`, `modes` and `summary_path` default to an
+empty string. A caller never
+reads a blank `ok`, which is the one value a workflow condition can quietly treat
+as success.
+
+When you set `continue-on-error: true` on the step, read the output rather than
+the step result:
+
+```yaml
+- name: Block the merge unless provenance verified
+  if: steps.verify.outputs.ok != 'True'
+  run: exit 1
+```
+
+Output that is not JSON goes to the log and the job summary so you can read the
+underlying error. Secret-shaped strings are masked first, and long output keeps
+its tail, where a traceback puts the exception.
+[`parse_verify_output.py`](parse_verify_output.py) holds this logic, and
+`tests/test_verify_action_parser.py` plus `tests/test_verify_action_step.py` pin
+it.
+
+`require-mode` is checked twice: the SDK applies it during verification, and the
+action rechecks the signature mode in the result it parsed. `verify-agent-scope`
+is checked by the SDK alone, because the range summary carries no per-commit
+scope field for the action to recheck. Both flags now fail closed when the pinned
+SDK is too old to recognise them, which previously surfaced as an argparse usage
+message and a blank output.
+
 ## Operator guidance
 
 For reproducible runs, SHA-pin this action rather than tracking `action-v1`, and

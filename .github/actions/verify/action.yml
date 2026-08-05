@@ -94,10 +94,12 @@ runs:
 
     - name: Install matrixscroll
       shell: bash
+      env:
+        MS_VERSION: ${{ inputs.matrixscroll-version }}
       run: |
         set -euo pipefail
-        if [ -n "${{ inputs.matrixscroll-version }}" ]; then
-          pip install "matrixscroll==${{ inputs.matrixscroll-version }}"
+        if [ -n "$MS_VERSION" ]; then
+          pip install "matrixscroll==$MS_VERSION"
         else
           pip install matrixscroll
         fi
@@ -105,79 +107,113 @@ runs:
     - name: Fetch envelope notes
       if: inputs.head-ref != '' && inputs.fetch-notes == 'true' && inputs.source == 'notes'
       shell: bash
+      env:
+        MS_NOTES_REF: ${{ inputs.notes-ref }}
       run: |
         set -euo pipefail
-        git fetch origin "${{ inputs.notes-ref }}:${{ inputs.notes-ref }}"
+        git fetch origin "$MS_NOTES_REF:$MS_NOTES_REF"
 
+    # Runs even when an earlier step failed. A runner without Python, a refused
+    # SDK install and an unfetchable notes ref all used to skip this step
+    # entirely, which left every output blank. A blank `ok` is the one state a
+    # calling gate can mistake for a pass, so this step always gets to write one.
     - name: Verify
       id: verify
+      if: always()
       shell: bash
+      env:
+        MS_MANIFEST: ${{ inputs.manifest }}
+        MS_HEAD_REF: ${{ inputs.head-ref }}
+        MS_BASE_REF: ${{ inputs.base-ref }}
+        MS_SOURCE: ${{ inputs.source }}
+        MS_BUNDLE_DIR: ${{ inputs.bundle-dir }}
+        MS_NOTES_REF: ${{ inputs.notes-ref }}
+        MS_REQUIRE_MODE: ${{ inputs.require-mode }}
+        MS_TRUSTED_KEYS: ${{ inputs.trusted-keys }}
+        MS_SUMMARY_OUTPUT: ${{ inputs.summary-output }}
+        MS_VERIFY_AGENT_SCOPE: ${{ inputs.verify-agent-scope }}
+      # No `set -e` on purpose. Aborting the step on the first non-zero status is
+      # what used to skip the output writes. Every failure path here runs to the
+      # end, writes the outputs, and then exits with a deliberate status.
       run: |
-        set -euo pipefail
-        HEAD_REF="${{ inputs.head-ref }}"
-        MANIFEST="${{ inputs.manifest }}"
+        set -uo pipefail
 
-        if [ -n "$HEAD_REF" ]; then
-          ARGS=(envelope-verify-range --head "$HEAD_REF")
-          if [ -n "${{ inputs.base-ref }}" ]; then
-            ARGS+=(--base "${{ inputs.base-ref }}")
+        emit_fallback_outputs() {
+          # Last line of defence. If the parser never ran, or died before it
+          # could write, the eight outputs still get fail-closed values.
+          if ! grep -q '^ok=' "$GITHUB_OUTPUT" 2>/dev/null; then
+            {
+              echo "ok=False"
+              echo "device_id="
+              echo "mode="
+              echo "verified_count=0"
+              echo "agent_count=0"
+              echo "human_count=0"
+              echo "modes="
+              echo "summary_path="
+            } >> "$GITHUB_OUTPUT"
           fi
-          ARGS+=(--source "${{ inputs.source }}")
-          ARGS+=(--notes-ref "${{ inputs.notes-ref }}")
-          if [ -n "${{ inputs.bundle-dir }}" ]; then
-            ARGS+=(--bundle "${{ inputs.bundle-dir }}")
-          fi
-          if [ -n "${{ inputs.summary-output }}" ]; then
-            ARGS+=(--summary-output "${{ inputs.summary-output }}")
-          fi
-          if [ -n "${{ inputs.require-mode }}" ]; then
-            ARGS+=(--require-mode "${{ inputs.require-mode }}")
-          fi
-          if [ -n "${{ inputs.trusted-keys }}" ]; then
-            ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
-          fi
-          if [ "${{ inputs.verify-agent-scope }}" = "true" ]; then
-            ARGS+=(--verify-agent-scope)
-          fi
-          OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
-          RC="${RC:-0}"
-          echo "$OUTPUT"
-          OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
-          VERIFIED="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("verified_count", 0))' <<< "$OUTPUT")"
-          AGENT="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("agent_count", 0))' <<< "$OUTPUT")"
-          HUMAN="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("human_count", 0))' <<< "$OUTPUT")"
-          MODES="$(python -c 'import json,sys; print(",".join(json.loads(sys.stdin.read()).get("modes", [])))' <<< "$OUTPUT")"
-          echo "ok=$OK" >> "$GITHUB_OUTPUT"
-          echo "verified_count=$VERIFIED" >> "$GITHUB_OUTPUT"
-          echo "agent_count=$AGENT" >> "$GITHUB_OUTPUT"
-          echo "human_count=$HUMAN" >> "$GITHUB_OUTPUT"
-          echo "modes=$MODES" >> "$GITHUB_OUTPUT"
-          if [ -n "${{ inputs.summary-output }}" ]; then
-            echo "summary_path=${{ inputs.summary-output }}" >> "$GITHUB_OUTPUT"
-          fi
-          MS_SUMMARY="$OUTPUT" python -c 'import json, os; summary = json.loads(os.environ["MS_SUMMARY"]); status = "passed" if summary.get("ok") else "failed"; lines = ["## Matrix Scroll provenance gate", "", "**Status:** %s" % status, "**Commits verified:** %s / %s" % (summary.get("verified_count", 0), summary.get("total", 0)), "**Agent commits:** %s" % summary.get("agent_count", 0), "**Human commits:** %s" % summary.get("human_count", 0), "**Modes:** %s" % (", ".join(summary.get("modes") or []) or "none")]; failures = ["- `%s`: %s" % (row.get("sha", "")[:8], row.get("error", "unknown")) for row in summary.get("results", []) if not row.get("ok")][:20]; lines += ["", "### Failures", ""] + failures if failures else []; print(chr(10).join(lines))' >> "$GITHUB_STEP_SUMMARY"
-          exit "$RC"
-        fi
+        }
 
-        if [ -z "$MANIFEST" ]; then
-          echo "Either manifest or head-ref must be provided" >&2
+        PARSER="$GITHUB_ACTION_PATH/parse_verify_output.py"
+        if command -v python3 >/dev/null 2>&1; then
+          PY=python3
+        elif command -v python >/dev/null 2>&1; then
+          PY=python
+        else
+          echo "::error title=Matrix Scroll verify::No Python interpreter on PATH, so the manifest cannot be verified." >&2
+          emit_fallback_outputs
           exit 1
         fi
 
-        ARGS=(verify "$MANIFEST")
-        if [ -n "${{ inputs.require-mode }}" ]; then
-          ARGS+=(--require-mode "${{ inputs.require-mode }}")
+        OUTPUT_FILE="$(mktemp)"
+
+        if [ -n "$MS_HEAD_REF" ]; then
+          export MS_MODE=range
+          ARGS=(envelope-verify-range --head "$MS_HEAD_REF")
+          if [ -n "$MS_BASE_REF" ]; then
+            ARGS+=(--base "$MS_BASE_REF")
+          fi
+          ARGS+=(--source "$MS_SOURCE")
+          ARGS+=(--notes-ref "$MS_NOTES_REF")
+          if [ -n "$MS_BUNDLE_DIR" ]; then
+            ARGS+=(--bundle "$MS_BUNDLE_DIR")
+          fi
+          if [ -n "$MS_SUMMARY_OUTPUT" ]; then
+            ARGS+=(--summary-output "$MS_SUMMARY_OUTPUT")
+          fi
+          if [ -n "$MS_REQUIRE_MODE" ]; then
+            ARGS+=(--require-mode "$MS_REQUIRE_MODE")
+          fi
+          if [ -n "$MS_TRUSTED_KEYS" ]; then
+            ARGS+=(--trusted-keys "$MS_TRUSTED_KEYS")
+          fi
+          if [ "$MS_VERIFY_AGENT_SCOPE" = "true" ]; then
+            ARGS+=(--verify-agent-scope)
+          fi
+        elif [ -n "$MS_MANIFEST" ]; then
+          export MS_MODE=manifest
+          ARGS=(verify "$MS_MANIFEST")
+          if [ -n "$MS_REQUIRE_MODE" ]; then
+            ARGS+=(--require-mode "$MS_REQUIRE_MODE")
+          fi
+          if [ -n "$MS_TRUSTED_KEYS" ]; then
+            ARGS+=(--trusted-keys "$MS_TRUSTED_KEYS")
+          fi
+        else
+          export MS_MODE=manifest
+          export MS_CONFIG_ERROR="Either manifest or head-ref must be provided."
+          MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC=1 "$PY" "$PARSER"
+          RC=$?
+          emit_fallback_outputs
+          exit "$RC"
         fi
-        if [ -n "${{ inputs.trusted-keys }}" ]; then
-          ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
-        fi
-        OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
-        RC="${RC:-0}"
-        echo "$OUTPUT"
-        OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
-        DEVICE_ID="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("device_id") or "")' <<< "$OUTPUT")"
-        MODE="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("mode") or "")' <<< "$OUTPUT")"
-        echo "ok=$OK" >> "$GITHUB_OUTPUT"
-        echo "device_id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
-        echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+        matrixscroll "${ARGS[@]}" >"$OUTPUT_FILE" 2>&1
+        CLI_RC=$?
+        cat "$OUTPUT_FILE"
+
+        MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC="$CLI_RC" "$PY" "$PARSER"
+        RC=$?
+        emit_fallback_outputs
         exit "$RC"
