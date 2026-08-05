@@ -1,13 +1,15 @@
-# Commercial docs (SDK)
+# Hosted-path docs
 
-Product and platform documentation for the Matrix Scroll SDK and the SSX360 hosted control plane:
+Matrix Scroll signs and verifies locally with no account. These two pages cover
+the parts that reach the SSX360 API, so you can read exactly what leaves your
+machine before you set `SSX360_API_KEY`.
 
 | Doc | Description |
 |-----|-------------|
-| [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) | Scroll Gate v2 hosted verification — CI setup, API, SLSA mapping |
-| [PLATFORM_PIVOT.md](./PLATFORM_PIVOT.md) | SSX360 platform migration guide — URL map, product split, pricing tiers |
-| [SSX360_SCROLL.md](./SSX360_SCROLL.md) | Provenance-native Git governance — `scroll commit` and universal actions |
+| [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) | Hosted verification: CI setup, the API call, and the SLSA gap table |
+| [SSX360_SCROLL.md](./SSX360_SCROLL.md) | Governed Git commits and universal action envelopes, both local |
 
-Full platform docs: [ssx360.com/docs](https://ssx360.com/docs) · Protocol docs: [matrixscroll.com](https://matrixscroll.com)
+Protocol docs: [matrixscroll.com/docs](https://matrixscroll.com/docs/)
 
-Release quality gate: `python scripts/release-readiness.py` verifies version truth across PyPI, README quickstart pins, and the consumer action pin.
+Release quality gate: `python scripts/release-readiness.py` verifies version
+truth across PyPI, README quickstart pins, and the consumer action pin.

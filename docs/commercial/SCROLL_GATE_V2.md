@@ -1,16 +1,23 @@
-# Scroll Gate v2 — hosted verification
+# Scroll Gate hosted verification
 
-Scroll Gate **v2** calls the SSX360 hosted API. Local-only verification remains in the Matrix Scroll SDK and MCP (`verify_envelope`, offline `source=local|notes|bundle`).
+Scroll Gate is the hosted verification path. It posts a commit range to the
+SSX360 API and returns a pass or fail for the merge gate. Local verification
+covers the same range with the same Ed25519 check: `verify_envelope`,
+`matrixscroll envelope-verify-range --source local|notes|bundle`, and the MCP
+`verify_pr_range` tool with `source=notes` all run offline, on your machine,
+against git notes or on-disk envelopes.
 
-## Requirements
+## What each path needs
 
-- **`SSX360_API_KEY`** — required for CI and hosted MCP Scroll Gate
-- Community tier includes **100 CI verifications/day**
-- Get a key at [ssx360.com/signup](https://ssx360.com/signup)
+| Path | Requirement |
+|------|-------------|
+| `matrixscroll envelope-verify-range --source notes` | The repository and `matrixscroll`. |
+| MCP `verify_pr_range` with `source=local`, `notes`, or `bundle` | The repository and `matrixscroll[mcp]`. |
+| Hosted verify in CI, MCP `source=hosted`, `list_envelopes`, `audit_export` | `SSX360_API_KEY`. |
 
 ## GitHub Actions
 
-Add repository secret `SSX360_API_KEY` (Settings → Secrets → Actions).
+Add the repository secret `SSX360_API_KEY` under Settings, Secrets, Actions.
 
 The workflow in `.github/workflows/provenance-gate.yml` posts to:
 
@@ -29,53 +36,61 @@ Example body:
 }
 ```
 
-## Migration from v1
+## Moving from the local action to the hosted API
 
-| v1 (local) | v2 (hosted) |
+| Local action | Hosted API |
 |------------|-------------|
-| `matrixscroll/.github/actions/verify@action-v1` | `curl` or `@v2` action against ssx360.com |
-| Local git notes only | Network audit + usage metering |
+| `matrixscroll/.github/actions/verify@action-v1` | `curl` or the `@v2` action against the SSX360 API |
+| Reads git notes on the runner | Network audit trail and usage metering |
 | No API key | `SSX360_API_KEY` required |
+
+Both paths run the same signature check. The hosted path adds a server-side
+record of the result.
 
 ## MCP
 
-Set `SSX360_API_KEY` in your MCP server environment. The default `verify_pr_range` source is `hosted`. Use `source=notes` for offline git-notes verification without a key.
+Set `SSX360_API_KEY` in your MCP server environment to use the hosted path. The
+default `verify_pr_range` source is `hosted`. Pass `source=notes` for offline
+git-notes verification.
 
----
+## SLSA mapping, partial today
 
-## SLSA mapping (honest — partial today)
+Scroll Gate checks commit-time provenance against
+[SLSA](https://slsa.dev/) Build Level 1 and 2 concepts. SSX360 does not claim
+SLSA Build Level 3 and holds no SLSA certification. This is evidence mapping,
+not a certification claim.
 
-Scroll Gate provides **governance-as-a-service** aligned with [SLSA](https://slsa.dev/) Build Level 1–2 concepts. SSX360 does **not** claim full SLSA Build Level 3 or certification.
-
-| SLSA concept | SSX360 / Scroll Gate today | Gap |
+| SLSA concept | Scroll Gate today | Gap |
 |--------------|----------------------------|-----|
-| **Version control** | Git + signed commit envelopes on every governed commit | Scroll client MVP still rolling out |
-| **Retained history** | Git immutable objects + optional hosted envelope storage (Team+) | Community: local/git-notes only |
-| **Authenticated source** | Ed25519 commit envelopes bind actor, tool, scope | Default **emulated** keys; SE050 hardware is pilot |
-| **Hosted build platform** | ⚠️ Partial — `ci_step` action envelopes + hosted verify API | Not a replacement for GitHub Actions / Cloud Build |
-| **Non-falsifiable provenance** | ❌ Not claimed at L3+ | Requires hardware-backed signing + builder attestations (Layer 4) |
+| **Version control** | Git plus signed commit envelopes on every governed commit | Scroll client MVP still rolling out |
+| **Retained history** | Git immutable objects, plus server-side envelope storage on the hosted path | The offline path retains history in git notes only |
+| **Authenticated source** | Ed25519 commit envelopes bind actor, tool, scope | Default **emulated** keys; SE050 hardware is a bench prototype |
+| **Hosted build platform** | Partial: `ci_step` action envelopes plus the hosted verify API | Does not replace GitHub Actions or Cloud Build |
+| **Non-falsifiable provenance** | Not claimed at L3 or above | Requires hardware-backed signing plus builder attestations |
 
 ### What hosted verify proves today
 
-When Scroll Gate passes for a PR range:
+When Scroll Gate passes for a pull request range:
 
-1. Each commit in range has a **cryptographically valid** envelope (or policy allows warn-mode gaps).
-2. Signatures verify against trusted keys / team policy when configured.
-3. Verification is **logged** on ssx360.com for Team+ audit export (usage-metered on Community).
+1. Each commit in range carries a cryptographically valid envelope, or policy
+   allows the gap in warn mode.
+2. Signatures verify against trusted keys and team policy when configured.
+3. The hosted path records each verification server-side so an audit export can
+   replay it. The offline path records nothing off your machine.
 
-This maps to **SLSA Source L1–L2** style controls (versioned, authenticated change history) for **commit provenance**, not full **build artifact** provenance.
+That covers SLSA Source L1 and L2 style controls, meaning a versioned and
+authenticated change history, for **commit** provenance. Build artifact
+provenance is a separate track this gate does not cover.
 
 ### Roadmap toward stronger SLSA alignment
 
 | Phase | Deliverable | SLSA relevance |
 |-------|-------------|----------------|
 | Phase 1 (now) | `sign-action --type ci_step`, hosted verify | CI step attestation alongside commits |
-| Phase 2 | Scroll `push` + mandatory notes | Stronger retained provenance chain |
-| Phase 3 | Builder attestations (Layer 4 doc) | Toward L3 build provenance — not committed |
+| Phase 2 | Scroll `push` plus mandatory notes | Stronger retained provenance chain |
+| Phase 3 | Builder attestations | Toward L3 build provenance, uncommitted |
 
-Portal reference: [ssx360.com/docs/slsa](https://ssx360.com/docs/slsa)
+## Related
 
-## Docs
-
-- Platform docs: [ssx360.com/docs](https://ssx360.com/docs)
-- Migration guide: [PLATFORM_PIVOT.md](./PLATFORM_PIVOT.md)
+- [Universal action envelopes and `scroll commit`](./SSX360_SCROLL.md)
+- [SLSA Source Track mapping](../SLSA_SOURCE_TRACK_MAPPING.md)

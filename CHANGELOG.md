@@ -6,6 +6,25 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- **`docs/commercial/` documents the hosted path instead of selling it.**
+  `SCROLL_GATE_V2.md` and `SSX360_SCROLL.md` keep their paths and their
+  technical content, including the SLSA gap table. Gone from both: the
+  Community and Team tier framing, the seat counts, the daily verification
+  quota, and the sign-up links. Each page now leads with what runs offline and
+  needs no key, and names `SSX360_API_KEY` only where a call actually leaves the
+  machine. `docs/commercial/**` also loses its `.vale.ini` exemption, so the
+  full prose rule set applies to it.
+
+### Removed
+- **`docs/commercial/PLATFORM_PIVOT.md`.** It was a pricing sheet: a Community,
+  Team and Enterprise tier table, `$99-299/org/mo`, seats, and an "Upgrade at"
+  link. Matrix Scroll is the open protocol and stays free, so a tier table in
+  its documentation tree was a defect. Nothing outside the file linked to it.
+  Its one piece of durable content, a map from retired matrixscroll.com paths to
+  their replacements, is stale and belongs in the private control-plane repo if
+  it is worth keeping at all.
+
 ## [0.6.3] - 2026-08-10
 
 Repository layout and documentation. No code, CLI or wire-format changes.
