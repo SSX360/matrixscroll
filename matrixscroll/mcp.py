@@ -43,8 +43,7 @@ _HOSTED_NETWORK = ToolAnnotations(
     openWorldHint=True,
 )
 
-SIGNUP_URL = "https://ssx360.com/signup"
-DOCS_URL = "https://ssx360.com/docs"
+DOCS_URL = "https://matrixscroll.com/docs/"
 
 
 def _require_api_key(feature: str) -> dict[str, Any] | None:
@@ -57,11 +56,11 @@ def _require_api_key(feature: str) -> dict[str, Any] | None:
         "ok": False,
         "error": "api_key_required",
         "message": (
-            f"{feature} requires SSX360_API_KEY. "
-            "Community tier includes 100 CI verifications/day. "
-            f"Get a key at {SIGNUP_URL}"
+            f"{feature} reaches the hosted SSX360 API and needs SSX360_API_KEY. "
+            "Verification itself needs no key: call `verify_envelope`, or "
+            "`verify_pr_range` with source local, notes, or bundle. "
+            f"See {DOCS_URL}"
         ),
-        "signup_url": SIGNUP_URL,
         "docs_url": DOCS_URL,
     }
 

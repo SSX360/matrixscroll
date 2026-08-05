@@ -51,8 +51,9 @@ jobs:
       - name: Require SSX360 API key
         if: env.SSX360_API_KEY == ''
         run: |
-          echo "SSX360_API_KEY secret is required for hosted integration tests." >&2
-          echo "Community tier includes 100 CI verifications/day. Get a key at https://ssx360.com/signup" >&2
+          echo "The hosted Scroll Gate smoke job needs the SSX360_API_KEY secret." >&2
+          echo "Offline verification needs no key:" >&2
+          echo "  matrixscroll envelope-verify-range --base <base> --head <head> --source notes" >&2
           exit 1
 
       - name: Hosted verify (warn mode)
