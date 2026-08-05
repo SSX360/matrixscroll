@@ -30,7 +30,12 @@ jobs:
           echo "ok=${{ steps.verify.outputs.ok }}"
           echo "device_id=${{ steps.verify.outputs.device_id }}"
           echo "mode=${{ steps.verify.outputs.mode }}"
-          test "${{ steps.verify.outputs.ok }}" = "True"
+          # The action prints Python's bool, so "True" today. Accept the JSON
+          # spelling too rather than fail for the wrong reason if that changes.
+          case "${{ steps.verify.outputs.ok }}" in
+            True|true) ;;
+            *) echo "verification did not report ok" >&2; exit 1 ;;
+          esac
 
   mcp-gate:
     uses: SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1

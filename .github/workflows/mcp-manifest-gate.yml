@@ -39,10 +39,12 @@ jobs:
   mcp-manifest:
     runs-on: ubuntu-latest
     env:
-      # workflow_dispatch runs in this repo self-test against the committed example.
-      MANIFEST: ${{ inputs.manifest || 'examples/mcp/matrixscroll-mcp.signed.json' }}
-      BASELINE: ${{ inputs.baseline || 'examples/mcp/matrixscroll-mcp.baseline.json' }}
-      MS_VERSION: ${{ inputs.matrixscroll_version || '0.6.2' }}
+      # Both event types populate `inputs`, and both declare their own defaults
+      # above. A literal fallback here would push this repo's example paths onto
+      # a caller that deliberately omitted `baseline` to skip drift detection.
+      MANIFEST: ${{ inputs.manifest }}
+      BASELINE: ${{ inputs.baseline }}
+      MS_VERSION: ${{ inputs.matrixscroll_version }}
     steps:
       - uses: actions/checkout@v4
 
