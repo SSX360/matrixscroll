@@ -132,11 +132,14 @@ runs:
         MS_TRUSTED_KEYS: ${{ inputs.trusted-keys }}
         MS_SUMMARY_OUTPUT: ${{ inputs.summary-output }}
         MS_VERIFY_AGENT_SCOPE: ${{ inputs.verify-agent-scope }}
-      # No `set -e` on purpose. Aborting the step on the first non-zero status is
-      # what used to skip the output writes. Every failure path here runs to the
-      # end, writes the outputs, and then exits with a deliberate status.
       run: |
-        set -uo pipefail
+        # `shell: bash` runs as `bash --noprofile --norc -e -o pipefail`, so
+        # errexit is already on when this script starts. Turning it off is the
+        # point: aborting on the first non-zero status is what used to skip the
+        # output writes and hand the caller a blank `ok`. Every failure path here
+        # runs to the end, writes the outputs, then exits with a chosen status.
+        set +e
+        set -u -o pipefail
 
         emit_fallback_outputs() {
           # Last line of defence. If the parser never ran, or died before it

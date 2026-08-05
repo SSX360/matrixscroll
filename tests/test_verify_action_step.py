@@ -132,7 +132,11 @@ def step(tmp_path):
         script = tmp_path / "step.sh"
         script.write_text(verify_step_body(), encoding="utf-8")
         completed = subprocess.run(
-            [str(BASH), str(script)],
+            # The exact invocation the runner uses for `shell: bash`. The flags
+            # matter: errexit is on before the step body starts, and an earlier
+            # version of this fix looked correct under a plain `bash script.sh`
+            # while still aborting before its output writes on the runner.
+            [str(BASH), "--noprofile", "--norc", "-e", "-o", "pipefail", str(script)],
             env=env,
             capture_output=True,
             text=True,
