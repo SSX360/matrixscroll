@@ -498,9 +498,18 @@ The response names the publisher, and it should say exactly this:
  "workflow": "publish.yml", "environment": "pypi"}
 ```
 
-Transparency-log entry for the 0.6.3 wheel: log index `2407660831`. If the
-publisher, the workflow, or the digest differs from what you expect, do not
-install the file.
+The same response carries the Sigstore transparency-log entry for the exact file
+you downloaded, at
+`attestation_bundles[].attestations[].verification_material.transparency_entries[].logIndex`.
+The `inclusionProof.logIndex` beside it is the position in the Merkle tree and a
+different number, so take the outer one. This README cannot print either: a log
+entry exists only once PyPI has the wheel, and the wheel already contains this
+README.
+
+Check the digest against the file on disk too. Base64-decode `envelope.statement`
+on the same attestation and compare `subject[].digest.sha256` with
+`sha256sum` of your download. If the publisher, the workflow, or the digest
+differs from what you expect, do not install the file.
 
 The human-readable view is on the
 [PyPI project page](https://pypi.org/project/matrixscroll/0.6.3/), where files
