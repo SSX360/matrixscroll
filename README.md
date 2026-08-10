@@ -498,7 +498,7 @@ The response names the publisher, and it should say exactly this:
  "workflow": "publish.yml", "environment": "pypi"}
 ```
 
-Transparency-log entry for the 0.6.3 wheel: log index `2215985472`. If the
+Transparency-log entry for the 0.6.2 wheel: log index `2215985472`. If the
 publisher, the workflow, or the digest differs from what you expect, do not
 install the file.
 
