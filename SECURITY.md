@@ -40,8 +40,8 @@ Out of scope:
 
 | Version | Status |
 | ------- | ------ |
-| 0.2.x   | Active development; security fixes on patch releases. |
-| 0.1.x   | Legacy; upgrade to 0.2.x for Git hooks and commit envelopes. |
+| 0.6.x   | Active development. Security fixes are released as patch versions. The published release is 0.6.2. |
+| 0.5.x and earlier | Legacy. Upgrade to 0.6.x for the post-quantum overlay and the in-repo verify action. |
 
 Pre-1.0 there is no extended support window. Pin to a known-good version
 in production until 1.0.

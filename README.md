@@ -5,7 +5,7 @@ Signed provenance for agent-assisted Git commits, with offline Ed25519 verificat
 [![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
 [![PyPI](https://img.shields.io/pypi/v/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
 Matrix Scroll is an open protocol for cryptographically signed agent
 authorization: Ed25519 records for Git commits (L1), MCP tool surfaces (L2), and
@@ -17,10 +17,10 @@ bench-validated proof of concept (Jul 2026) sharing the same verifier contract,
 and the Pico 2 W / GMT130 display bring-up is a locked L2 Hardware prototype
 (Jul 2026). Neither is generally available.
 
-**Try it:** [matrixscroll.com/try](https://matrixscroll.com/try/) runs an offline
-tamper demo in the browser. **Codebase direction:** [`docs/DOCTRINE.md`](docs/DOCTRINE.md).
+**Try it:** [matrixscroll.com/verify](https://matrixscroll.com/verify/) runs an offline
+tamper demo in the browser. **Codebase direction:** [`docs/DOCTRINE.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/DOCTRINE.md).
 **146 tests**, Hypothesis-verified [security properties](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md),
-and [TLA+ formal models](formal/README.md).
+and [TLA+ formal models](https://github.com/SSX360/matrixscroll/blob/main/formal/README.md).
 
 **Authorization ladder:** L1 Code (commits), L2 Tools (MCP manifests), L3 Actions (agent runs), L4 Money (AP2, demo), L5 Silicon (2029+)
 
@@ -39,9 +39,9 @@ Matrix Scroll **maps to** and **produces evidence for** (never “required by”
 - **US Treasury FS-AI RMF (Feb 2026)**: traceability for agent actions in financial software.
 - **NIST SSDF**: provenance, change authorization, and release gate review.
 - **EU AI Act Article 12**: record-keeping readiness (high-risk obligations Dec 2027), not a live mandate claim.
-- **Five Eyes Agentic AI guidance (Apr 2026)**: linked crosswalk only: [`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json)
+- **Five Eyes Agentic AI guidance (Apr 2026)**: linked crosswalk only: [`controls/agentic_ai_controls.json`](https://github.com/SSX360/matrixscroll/blob/main/controls/agentic_ai_controls.json)
 
-POC 2 audit readiness: [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
+POC 2 audit readiness: [`docs/POC2_AUDIT.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/POC2_AUDIT.md)
 
 ## Install the MCP server (headline path)
 
@@ -71,9 +71,9 @@ matrixscroll-mcp   # stdio. Register in Cursor / Claude Desktop / VS Code
 
 ### MCP Trust Scanner: catch a rug-pull in 60 seconds
 
-![MCP rug-pull detection demo](examples/demo/mcp-rugpull-demo.gif)
+![MCP rug-pull detection demo](https://raw.githubusercontent.com/SSX360/matrixscroll/main/examples/demo/mcp-rugpull-demo.gif)
 
-[Watch on asciinema](https://asciinema.org/a/rbCRkIcZnjNWmqZF) · cast file: [`examples/demo/mcp-rugpull-demo.cast`](examples/demo/mcp-rugpull-demo.cast)
+[Watch on asciinema](https://asciinema.org/a/rbCRkIcZnjNWmqZF) · cast file: [`examples/demo/mcp-rugpull-demo.cast`](https://github.com/SSX360/matrixscroll/blob/main/examples/demo/mcp-rugpull-demo.cast)
 
 Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-pull detection.
 Zero cloud, zero signup, exit code 2 fails your CI.
@@ -120,9 +120,9 @@ jobs:
       matrixscroll_version: "0.6.2"
 ```
 
-Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](examples/demo/mcp-rugpull-demo.sh)  
-Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscroll-mcp.signed.json`](examples/mcp/matrixscroll-mcp.signed.json)  
-Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](schemas/ssx360.mcp-manifest.v1.json)  
+Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](https://github.com/SSX360/matrixscroll/blob/main/examples/demo/mcp-rugpull-demo.sh)  
+Golden artifact (this repo's own MCP server, signed): [`examples/mcp/matrixscroll-mcp.signed.json`](https://github.com/SSX360/matrixscroll/blob/main/examples/mcp/matrixscroll-mcp.signed.json)  
+Schema (CC0): [`schemas/ssx360.mcp-manifest.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/ssx360.mcp-manifest.v1.json)  
 Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan/)
 
 ## Also available: CLI and hooks
@@ -157,10 +157,10 @@ Git under the hood; governance on top. **Not a Git replacement.**
 matrixscroll scroll commit -m "feat: governed commit"
 ```
 
-See [`docs/commercial/SSX360_SCROLL.md`](docs/commercial/SSX360_SCROLL.md).
+See [`docs/commercial/SSX360_SCROLL.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/commercial/SSX360_SCROLL.md).
 
-See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
-[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+See [`docs/quickstart-git.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-git.md) and
+[`examples/demo/agent-commit-demo.sh`](https://github.com/SSX360/matrixscroll/blob/main/examples/demo/agent-commit-demo.sh).
 
 ---
 
@@ -267,10 +267,10 @@ git commit -m "feat: agent-assisted change"
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
 
-**Try it in the browser:** [matrixscroll.com/try](https://matrixscroll.com/try/)
+**Try it in the browser:** [matrixscroll.com/verify](https://matrixscroll.com/verify/)
 
-See [`docs/quickstart-git.md`](docs/quickstart-git.md) and run
-[`examples/demo/agent-commit-demo.sh`](examples/demo/agent-commit-demo.sh).
+See [`docs/quickstart-git.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-git.md) and run
+[`examples/demo/agent-commit-demo.sh`](https://github.com/SSX360/matrixscroll/blob/main/examples/demo/agent-commit-demo.sh).
 
 ## CI verify
 
@@ -309,8 +309,8 @@ git push origin refs/notes/matrixscroll
     summary-output: provenance-summary.json
 ```
 
-See [`docs/quickstart-git.md`](docs/quickstart-git.md) and
-[`examples/ci/protected-branch.yml`](examples/ci/protected-branch.yml).
+See [`docs/quickstart-git.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/quickstart-git.md) and
+[`examples/ci/protected-branch.yml`](https://github.com/SSX360/matrixscroll/blob/main/examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
 ship in the current release line; examples in this README pin `0.6.2`.
@@ -321,7 +321,7 @@ Ed25519 signing, verification, and key generation use the [`cryptography`](https
 package (required dependency, `>=42.0`). Official wheels ship native crypto
 backends (OpenSSL + Rust components), so no Rust toolchain for users. All
 primitives are centralized in `matrixscroll/crypto_backend.py`; see
-[`docs/CRYPTO_BACKEND.md`](docs/CRYPTO_BACKEND.md).
+[`docs/CRYPTO_BACKEND.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/CRYPTO_BACKEND.md).
 
 ## Why it is different from Sigstore
 
@@ -337,11 +337,11 @@ when they preserve the same pure Ed25519 byte contract.
 ## Public proof links
 
 - Browser verifier: <https://matrixscroll.com/verify/>
-- Try it (quickstart + tamper demo): <https://matrixscroll.com/try/>
+- MCP Trust Scanner (browser, offline): <https://matrixscroll.com/scan/>
 - Documentation: <https://matrixscroll.com/docs/>
 - Specification: [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
 - Commit envelope schema: [`schemas/commit-envelope.v1.json`](https://github.com/SSX360/matrixscroll/blob/main/schemas/commit-envelope.v1.json)
-- Whitepaper: [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
+- Whitepaper: [`docs/WHITEPAPER.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md)
 - Conformance vectors: [`vectors/`](https://github.com/SSX360/matrixscroll/tree/main/vectors/)
 - GitHub Action: <https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify>
 - Agentic AI controls: [`docs/AGENTIC_AI_SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/AGENTIC_AI_SECURITY.md)
@@ -451,9 +451,9 @@ implementations in Rust, Go, TypeScript, and embedded C. Run them against
 ## Agentic AI guidance proof
 
 The repo includes a machine-readable control matrix at
-[`controls/agentic_ai_controls.json`](controls/agentic_ai_controls.json), an
+[`controls/agentic_ai_controls.json`](https://github.com/SSX360/matrixscroll/blob/main/controls/agentic_ai_controls.json), an
 example bounded-agent evidence manifest at
-[`examples/agentic_ai_evidence_manifest.json`](examples/agentic_ai_evidence_manifest.json),
+[`examples/agentic_ai_evidence_manifest.json`](https://github.com/SSX360/matrixscroll/blob/main/examples/agentic_ai_evidence_manifest.json),
 and executable checks in `tests/test_agentic_guidance.py`.
 
 ## Model Context Protocol (MCP) Server
@@ -512,7 +512,7 @@ else.
 
 ## Security
 
-See [`SECURITY.md`](SECURITY.md) and [`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md).
+See [`SECURITY.md`](https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md) and [`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md).
 Report vulnerabilities privately to
 **security@matrixscroll.com** or via a GitHub Security Advisory.
 
