@@ -16,7 +16,7 @@ on:
         description: matrixscroll package version pin
         required: false
         type: string
-        default: "0.6.2"
+        default: "0.6.3"
   workflow_dispatch:
     inputs:
       manifest:
@@ -30,7 +30,7 @@ on:
       matrixscroll_version:
         description: matrixscroll package version pin
         required: false
-        default: "0.6.2"
+        default: "0.6.3"
 
 permissions:
   contents: read

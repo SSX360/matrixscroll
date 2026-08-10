@@ -13,7 +13,7 @@ writing or editing any user-facing text. The condensed version:
 - Naming DORA, PCI DSS, the EU AI Act, SOC 2, NIST, the SSDF, or the FS-AI RMF
   obliges the file to carry "evidence mapping, not a certification claim".
   Never assert that anything is certified or compliant.
-- The shipping version is `0.6.2`, per `pyproject.toml` and
+- The shipping version is `0.6.3`, per `pyproject.toml` and
   `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly in every install
   example.
 - Hardware (SE050, Pico 2 W) is a bench prototype, not generally available. Say

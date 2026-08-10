@@ -10,8 +10,8 @@ This action moved here from `SSX360/matrixscroll-verify-action`, which is now
 archived. Inputs, outputs and exit codes are unchanged, so an existing call site
 only needs its `uses:` reference rewritten.
 
-**Pin SDK:** `matrixscroll-version: "0.6.2"` (recommended). The action installs
-**0.6.2** when the input is omitted.
+**Pin SDK:** `matrixscroll-version: "0.6.3"` (recommended). The action installs
+**0.6.3** when the input is omitted.
 
 **Release line policy:** current line **0.6.x**; the previous minor release line
 stays supported for **90 days** after a new minor is published. Pin explicitly in
@@ -23,7 +23,7 @@ workflows when you need reproducible Scroll Gate runs during that window.
 - uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     manifest: release.signed.json
-    matrixscroll-version: "0.6.2"
+    matrixscroll-version: "0.6.3"
 ```
 
 ## PR commit range (Scroll Gate)
@@ -49,7 +49,7 @@ Workflow:
     source: notes
     notes-ref: refs/notes/matrixscroll
     fetch-notes: "true"
-    matrixscroll-version: "0.6.2"
+    matrixscroll-version: "0.6.3"
     summary-output: provenance-summary.json
     verify-agent-scope: "true"
 ```
@@ -78,13 +78,13 @@ jobs:
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
-      matrixscroll_version: "0.6.2"
+      matrixscroll_version: "0.6.3"
 ```
 
 Produce the manifest and baseline once with the SDK:
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.2"
+pip install "matrixscroll[mcp]==0.6.3"
 matrixscroll mcp scan --connect stdio --server-command "npx -y <server>" -o unsigned.json
 matrixscroll mcp sign unsigned.json -o mcp/my-server.signed.json
 cp mcp/my-server.signed.json mcp/my-server.baseline.json  # commit both
@@ -105,7 +105,7 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | `notes-ref` | range | `refs/notes/matrixscroll` | Git notes ref for envelope transport |
 | `fetch-notes` | range | `true` | Fetch the notes ref from origin first |
 | `python-version` | both | `3.12` | Python version used to install the SDK |
-| `matrixscroll-version` | both | `0.6.2` | SDK version pin |
+| `matrixscroll-version` | both | `0.6.3` | SDK version pin |
 | `require-mode` | both | `""` | Policy require-mode (v0.2.1+) |
 | `trusted-keys` | both | `""` | Path to trusted public keys JSON (v0.2.1+) |
 | `summary-output` | range | `""` | Path for the full range verification JSON |
@@ -148,7 +148,7 @@ endorsements.
 - Protocol docs: <https://matrixscroll.com/docs/>
 - Browser verifier: <https://matrixscroll.com/verify/>
 - Envelope specification: <https://matrixscroll.com/spec/>
-- PyPI release provenance: <https://pypi.org/project/matrixscroll/0.6.2/>
+- PyPI release provenance: <https://pypi.org/project/matrixscroll/0.6.3/>
 
 ## License
 

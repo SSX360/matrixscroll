@@ -6,7 +6,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-Repository layout only. No code, CLI or wire-format changes.
+## [0.6.3] - 2026-08-10
+
+Repository layout and documentation. No code, CLI or wire-format changes.
 
 ### Added
 - **The Matrix Scroll Verify action now lives in this repo** at
@@ -23,10 +25,25 @@ Repository layout only. No code, CLI or wire-format changes.
   with `SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1`.
   The `action-v1` tag tracks the current action release line and is separate
   from the SDK's `v0.6.x` tags.
-- The reusable MCP gate now defaults `matrixscroll_version` to `0.6.2`, matching
+- The reusable MCP gate now defaults `matrixscroll_version` to `0.6.3`, matching
   the action default and the published PyPI release. It runs on `workflow_call`
   and `workflow_dispatch` only, so it does not add a job to every SDK pull
   request.
+
+### Fixed
+- **PyPI dropped every relative link in the README.** Its sanitiser removes any
+  `href` it cannot resolve, so 17 documentation links arrived on the project
+  page as plain text and the MCP rug-pull demo GIF arrived as its alt text,
+  leaving that section without its only visual. All of them are absolute
+  `github.com` and `raw.githubusercontent.com` URLs now.
+- **Three README links promised a tamper demo at a page that redirects.**
+  `matrixscroll.com/try` routes to `/docs/`. The demo is the browser verifier
+  at `/verify/`, which carries the Tamper sample control, so the inline links
+  point there. The `Try it` entry under Public proof links repeated the
+  verifier line above it and is now the MCP Trust Scanner at `/scan/`.
+- **`SECURITY.md` offered support for 0.2.x and 0.1.x.** A reader installing
+  the published release found their version missing from the table on the page
+  the PyPI sidebar links as the security policy.
 
 ## [0.6.2] - 2026-08-03
 
@@ -295,6 +312,8 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3
+[0.6.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.2
 [0.6.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.1
 [0.6.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.0
 [0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1

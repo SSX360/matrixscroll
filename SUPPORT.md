@@ -46,7 +46,7 @@ partnership inquiries.
 ## Status
 
 - **Shipping now:** L1 emulated Ed25519 signing, Git post-commit hooks, PyPI
-  `matrixscroll` **0.6.2**, Scroll Gate, the public verifier, the public action,
+  `matrixscroll` **0.6.3**, Scroll Gate, the public verifier, the public action,
   and the SE050 USB CDC host transport
 - **Prototype (bench):** L2 Hardware — Pico 2 W / RP2350 + GMT130 display locked
   (Jul 2026); SE050 M1 signing PoC accepted — pilot evaluation, not GA

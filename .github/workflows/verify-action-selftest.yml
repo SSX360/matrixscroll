@@ -22,7 +22,7 @@ jobs:
         uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           manifest: examples/release-manifest.signed.json
-          matrixscroll-version: "0.6.2"
+          matrixscroll-version: "0.6.3"
 
       - name: Assert outputs
         run: |
@@ -42,4 +42,4 @@ jobs:
     with:
       manifest: examples/mcp/matrixscroll-mcp.signed.json
       baseline: examples/mcp/matrixscroll-mcp.baseline.json
-      matrixscroll_version: "0.6.2"
+      matrixscroll_version: "0.6.3"

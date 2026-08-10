@@ -64,7 +64,7 @@ is audit-proof.
 
 ## Claims that must stay true
 
-- **Version.** The shipping version is `0.6.2`. It is set in `pyproject.toml`
+- **Version.** The shipping version is `0.6.3`. It is set in `pyproject.toml`
   and confirmed by `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly
   in every install example. Never assert a version you have not checked.
 - **Hardware.** SE050 and the Pico 2 W display bring-up are bench prototypes, not
