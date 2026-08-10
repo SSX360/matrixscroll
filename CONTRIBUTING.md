@@ -88,21 +88,25 @@ vectors are welcome.
 Bump the version in `pyproject.toml`, `matrixscroll/__init__.py`, `CHANGELOG.md`,
 the README pins, and the default `matrixscroll-version` in
 `.github/actions/verify/action.yml` together in one PR. Run
-`scripts/release-readiness.py` before you open it: that script compares those
-pins and exits non-zero on any disagreement.
+`scripts/release-readiness.py` before you open it. That script covers
+`pyproject.toml`, `matrixscroll/__init__.py`, the README pins and `glama.json`,
+and exits non-zero when they disagree. It never reads `CHANGELOG.md` or
+`action.yml`, so check those two yourself.
 
 Leave `glama.json` at the previous version. Glama installs the pin it names from
 PyPI, so `scripts/validate_glama_pypi.py` fails while that version is unpublished.
 
-Once `publish.yml` has finished and pypi.org serves the new version, open a
-second PR bumping `glama.json`, and move the floating action tag:
+Once `publish.yml` has finished and pypi.org serves the new version, open and
+merge a second PR bumping `glama.json`. Then move the floating action tag:
 
 ```bash
 git fetch origin && git tag -f action-v1 origin/main && git push -f origin action-v1
 ```
 
-Take the tag from `origin/main`. A local `main` that predates the merge moves
-`action-v1` onto the wrong commit and says nothing.
+Both halves of that matter. Fetch first, because a local `main` that predates
+the merge moves `action-v1` onto the wrong commit and Git reports nothing.
+Merge the `glama.json` PR first, because `origin/main` otherwise still points at
+the commit before it.
 
 Consumers pin `SSX360/matrixscroll/.github/actions/verify@action-v1`, so that tag
 decides which SDK version their workflows install. Leave it behind and
