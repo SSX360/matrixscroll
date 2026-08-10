@@ -85,22 +85,29 @@ vectors are welcome.
 
 ## Cutting a release
 
-Bump `pyproject.toml`, `CHANGELOG.md`, the README pins, and the default
-`matrixscroll-version` in `.github/actions/verify/action.yml` together in one PR.
+Bump the version in `pyproject.toml`, `matrixscroll/__init__.py`, `CHANGELOG.md`,
+the README pins, and the default `matrixscroll-version` in
+`.github/actions/verify/action.yml` together in one PR. Run
+`scripts/release-readiness.py` before you open it: that script compares those
+pins and exits non-zero on any disagreement.
+
 Leave `glama.json` at the previous version. Glama installs the pin it names from
 PyPI, so `scripts/validate_glama_pypi.py` fails while that version is unpublished.
 
-Once `publish.yml` has finished and pypi.org serves the new version, move the
-floating action tag:
+Once `publish.yml` has finished and pypi.org serves the new version, open a
+second PR bumping `glama.json`, and move the floating action tag:
 
 ```bash
-git tag -f action-v1 main && git push -f origin action-v1
+git fetch origin && git tag -f action-v1 origin/main && git push -f origin action-v1
 ```
 
+Take the tag from `origin/main`. A local `main` that predates the merge moves
+`action-v1` onto the wrong commit and says nothing.
+
 Consumers pin `SSX360/matrixscroll/.github/actions/verify@action-v1`, so that tag
-decides which SDK version their workflows install. Leaving it behind kept
-matrixscroll.com on the previous release and failed its version lint on
-August 10, 2026. Bump `glama.json` in a follow-up PR at the same time.
+decides which SDK version their workflows install. Leave it behind and
+matrixscroll.com stays on the previous release and fails its version lint, which
+is what happened on August 10, 2026.
 
 ## Security
 
