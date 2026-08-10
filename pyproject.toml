@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.6.2"
+version = "0.6.3"
 description = "Sign who authorized an AI agent's actions and verify it offline. Ed25519 envelopes for Git commits and MCP tool surfaces, with an optional ML-DSA/SLH-DSA overlay (FIPS 204/205)."
 readme = "README.md"
 requires-python = ">=3.10"

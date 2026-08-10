@@ -19,7 +19,7 @@ git --version
 ## Step 1: Install Matrix Scroll
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 ```
 
 Confirm the install:

@@ -42,7 +42,7 @@
 | ------- | --- | ------------- |
 | SSX360 | https://ssx360.com | Vercel production |
 | Matrix Scroll | https://matrixscroll.com | Vercel production |
-| PyPI | https://pypi.org/project/matrixscroll/0.6.2/ | v0.6.0 (ssx360 CLIs on PyPI) |
+| PyPI | https://pypi.org/project/matrixscroll/0.6.3/ | v0.6.0 (ssx360 CLIs on PyPI) |
 
 ## 7. Reviewer artifacts
 

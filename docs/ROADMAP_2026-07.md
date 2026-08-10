@@ -8,7 +8,7 @@ what ships now before widening the story.
 ## Baseline on June 21, 2026
 
 - GitHub: early public repo, product-first docs, and offline verification
-- Current public release: `matrixscroll==0.6.2`
+- Current public release: `matrixscroll==0.6.3`
 - Public trust contract: pure Ed25519 over canonical manifest bytes
 - Hardware path: SSX360 SE050 reference implementation in progress
 
@@ -21,7 +21,7 @@ what ships now before widening the story.
 
 ## Next 7 days
 
-- keep install pins on `matrixscroll==0.6.2` unless a docs-only `0.6.2` publish
+- keep install pins on `matrixscroll==0.6.3` unless a docs-only `0.6.3` publish
 - align site, README, action docs, and PyPI around one honest hardware ladder
 - remove broken links and stale release drift from public copy
 

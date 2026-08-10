@@ -12,7 +12,7 @@ Matrix Scroll is an open protocol. It is free, permanently, and is not
 monetized.
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 ```
 
 ## Start here
@@ -53,7 +53,7 @@ section. If you are trying to get something working, read the how-to guides.
 
 ## Honest limits
 
-- **Shipping now.** PyPI `matrixscroll==0.6.2`, Git post-commit hooks,
+- **Shipping now.** PyPI `matrixscroll==0.6.3`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
   verification (partial SLSA L1-2), the browser verifier, the GitHub Action, and
   a USB CDC host transport. Emulated mode is the default evaluation path.

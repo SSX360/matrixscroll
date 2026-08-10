@@ -59,7 +59,7 @@ Agents sign commits in-loop via the **provenance-only** MCP server:
 ```
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.2"
+pip install "matrixscroll[mcp]==0.6.3"
 matrixscroll-mcp   # stdio. Register in Cursor / Claude Desktop / VS Code
 ```
 
@@ -79,7 +79,7 @@ Sign the tool surface. Verify at install. Offline Ed25519 manifests for MCP rug-
 Zero cloud, zero signup, exit code 2 fails your CI.
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 
 # 1. Scan a live MCP server (stdio). Fingerprints every tool: name, description, input schema
 matrixscroll mcp scan --connect stdio --server-command "npx -y some-mcp-server" \
@@ -117,7 +117,7 @@ jobs:
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
-      matrixscroll_version: "0.6.2"
+      matrixscroll_version: "0.6.3"
 ```
 
 Full scripted demo: [`examples/demo/mcp-rugpull-demo.sh`](https://github.com/SSX360/matrixscroll/blob/main/examples/demo/mcp-rugpull-demo.sh)  
@@ -128,7 +128,7 @@ Browser demo: [matrixscroll.com/scan](https://matrixscroll.com/scan/)
 ## Also available: CLI and hooks
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -194,7 +194,7 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
 
 ## Honest limits
 
-- Shipping now: PyPI `matrixscroll==0.6.2`, Git post-commit hooks,
+- Shipping now: PyPI `matrixscroll==0.6.3`, Git post-commit hooks,
   `matrixscroll sign-action`, `matrixscroll scroll commit` (thin wrapper),
   `matrixscroll envelope-verify`, Scroll Gate PR verification (partial SLSA L1–2),
   verifier, the GitHub Action, and a USB CDC host transport for the SE050
@@ -256,7 +256,7 @@ alongside your existing scanners, branch protection, and build attestations.
 ## Quickstart (CLI)
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 matrixscroll hook-install
 matrixscroll hook-status
 
@@ -285,7 +285,7 @@ See [`docs/quickstart-git.md`](https://github.com/SSX360/matrixscroll/blob/main/
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.2"
+    matrixscroll-version: "0.6.3"
     require-mode: emulated
 ```
 
@@ -305,7 +305,7 @@ git push origin refs/notes/matrixscroll
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.2"
+    matrixscroll-version: "0.6.3"
     summary-output: provenance-summary.json
 ```
 
@@ -313,7 +313,7 @@ See [`docs/quickstart-git.md`](https://github.com/SSX360/matrixscroll/blob/main/
 [`examples/ci/protected-branch.yml`](https://github.com/SSX360/matrixscroll/blob/main/examples/ci/protected-branch.yml).
 
 The `--require-mode`, `--trusted-keys`, and actor or delegation policy checks
-ship in the current release line; examples in this README pin `0.6.2`.
+ship in the current release line; examples in this README pin `0.6.3`.
 
 ## Security: Ed25519 via cryptography
 
@@ -352,7 +352,7 @@ when they preserve the same pure Ed25519 byte contract.
 ## Python API
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 ```
 
 ```python
@@ -465,7 +465,7 @@ The MCP server exposes **provenance verbs** (`create_envelope`, `verify_envelope
 Install and register in Cursor / Claude Desktop / VS Code:
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.2"
+pip install "matrixscroll[mcp]==0.6.3"
 matrixscroll-mcp   # stdio
 ```
 
@@ -488,7 +488,7 @@ Ask PyPI directly:
 
 ```bash
 curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
-  https://pypi.org/integrity/matrixscroll/0.6.2/matrixscroll-0.6.2-py3-none-any.whl/provenance
+  https://pypi.org/integrity/matrixscroll/0.6.3/matrixscroll-0.6.3-py3-none-any.whl/provenance
 ```
 
 The response names the publisher, and it should say exactly this:
@@ -503,7 +503,7 @@ publisher, the workflow, or the digest differs from what you expect, do not
 install the file.
 
 The human-readable view is on the
-[PyPI project page](https://pypi.org/project/matrixscroll/0.6.2/), where files
+[PyPI project page](https://pypi.org/project/matrixscroll/0.6.3/), where files
 built with attestations are marked as verified.
 
 This matters more here than for most packages. A tool that sells offline

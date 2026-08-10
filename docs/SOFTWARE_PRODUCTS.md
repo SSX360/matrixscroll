@@ -5,7 +5,7 @@ manifest bytes today.
 
 | Product | Status | Access | Notes |
 |---------|--------|--------|-------|
-| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.2` | Hooks, envelopes, Scroll Gate, policy CLI |
+| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.3` | Hooks, envelopes, Scroll Gate, policy CLI |
 | **Scroll Gate CI** | GA | [`matrixscroll/.github/actions/verify@action-v1`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) | PR range + manifest verify |
 | **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
 | **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
@@ -18,7 +18,7 @@ manifest bytes today.
 ## Developer install
 
 ```bash
-pip install "matrixscroll==0.6.2"
+pip install "matrixscroll==0.6.3"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -34,7 +34,7 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.2"
+    matrixscroll-version: "0.6.3"
     summary-output: provenance-summary.json
 ```
 

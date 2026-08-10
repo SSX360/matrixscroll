@@ -31,10 +31,10 @@ See [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md). Set `SSX360_API_KEY` in GitHub Act
 ## SDK 0.6.0
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.2"
+pip install "matrixscroll[mcp]==0.6.3"
 ```
 
-New in 0.4.1: `sign-action`, `scroll commit`, expanded MCP `sign_action`. Module `matrixscroll.cloud` — HTTP client for ssx360.com APIs. Pin **0.6.2** for the current public release.
+New in 0.4.1: `sign-action`, `scroll commit`, expanded MCP `sign_action`. Module `matrixscroll.cloud` — HTTP client for ssx360.com APIs. Pin **0.6.3** for the current public release.
 
 ## MCP environment
 
