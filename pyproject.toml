@@ -64,7 +64,7 @@ hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.7"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
-    "mcp>=1.0.0,<2.0.0",
+    "mcp>=1.0.0,<3.0.0",
 ]
 
 [project.scripts]
