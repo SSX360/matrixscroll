@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "035549d8c13ab775b01d5841f0c8a0f1744358bd",
+    "author": {
+      "date": "1786465105 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786465105 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Resolve review gaps with executable checks\n",
+    "parents": [
+      "04dc013db863d473bb38c04dbe20dc943d9c4a12"
+    ],
+    "tree": "57c7f4ff042a3f4e7b3548517ee7c569d8b33a9a"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/resolve-repository-branches",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T16:18:25Z",
+    "value": "KIGMHg3Rd2ABZrV40f0DSssSfQfCPrxYt8cuicChbqN6d0cZMxRn2pIi3rdTcxDxuf6kCbybpbsIXv/NBQ3YAQ=="
+  }
+}
