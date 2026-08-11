@@ -2,7 +2,7 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "MCP server for RFC 8032 Ed25519 commit envelopes, signed action records, offline tool-surface checks, audit export, and the SSX360 SE050 USB signer. Hosted features require an SSX360 API key.",
   "maintainers": ["SSX360"],
   "homepage": "https://ssx360.com",
@@ -15,7 +15,7 @@
     {
       "registry": "pypi",
       "name": "matrixscroll",
-      "version": "0.6.3",
+      "version": "0.6.4",
       "extras": ["mcp"],
       "command": "matrixscroll-mcp"
     }
