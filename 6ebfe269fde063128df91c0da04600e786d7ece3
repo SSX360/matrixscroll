@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "6ebfe269fde063128df91c0da04600e786d7ece3",
+    "author": {
+      "date": "1786460085 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786460085 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Update trusted PyPI publisher\n",
+    "parents": [
+      "dd6bd4db55b5e4e151d0acc997be5d035738dd24"
+    ],
+    "tree": "3afc3e065c52078c3ab69118ee969feb26fc181a"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "codex"
+  },
+  "repository": {
+    "branch": "agent/update-pypi-publisher-v1.14.2",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T14:54:45Z",
+    "value": "JDsym32EEIA3F6zT39f8+M1L5zoj+LSyrJSHSsfj10VfW8j5r74l9maoyu+NQhx9W45C4RRwLwD+hDajYt9sCw=="
+  }
+}
