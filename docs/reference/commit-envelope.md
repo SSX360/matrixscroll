@@ -21,11 +21,13 @@ The `required` array in `commit-envelope.v1.json` names four blocks.
 | `provenance` | Declared `actor_type` (`human`, `agent`, or `ci`) and `tool`. Optional `tool_version`, `agent_scope`, and `session_id`. |
 | `repository` | Repository `name`, with optional `remote_url` and `branch`. |
 
-The `signature` block sits outside that array, because the schema also has to
-describe an envelope before it is signed. Verification is a different bar: a
-missing `signature` block fails with exit `2`. When present it requires `schema`,
-`algorithm`, `device_id`, `public_key`, `mode`, `signed_at`, and `value`, and it
-is excluded from the bytes that get signed.
+The `signature` block sits outside that array, because the schema also describes
+an envelope before it is signed. Verification is stricter than the schema: a
+missing `signature` block returns exit `2`.
+
+A present `signature` block requires `schema`, `algorithm`, `device_id`,
+`public_key`, `mode`, `signed_at` and `value`. Its bytes are excluded from the
+bytes that get signed.
 
 ## Optional blocks
 
@@ -40,8 +42,8 @@ pointing at a signed evidence manifest, rather than as a top-level block.
 ## Signature block
 
 `signature.algorithm` must be `"ed25519"`. A verifier rejects every other value.
-Keys are 32 bytes, seeds are 32 bytes, and signatures are 64-byte detached
-signatures, per [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032).
+Keys and seeds are 32 bytes. Signatures are 64 bytes and detached, per
+[RFC 8032](https://www.rfc-editor.org/rfc/rfc8032).
 
 ## Conformance
 

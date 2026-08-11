@@ -7,20 +7,25 @@ Signed provenance for agent-assisted Git commits, with offline Ed25519 verificat
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
-When an agent, a CI workflow, or a person produces a commit, Matrix Scroll writes
-a signed envelope recording the actor, the tool, and an optional declared scope.
-Anyone can verify that envelope afterwards in the CLI or in CI. Verification
-needs no network and no trust in the editor session that produced the commit.
+Git records who committed. It does not record whether a person wrote the change or
+an agent generated it, and `user.name` is a local setting rather than a proof.
+Once agents hold commit access, that missing field is the gap in your audit trail.
 
-Matrix Scroll is an open protocol. It is free, permanently, and nobody monetizes
+Matrix Scroll records the field. A post-commit hook writes a signed envelope for
+each commit, naming the declared actor as `human`, `agent` or `ci`, plus the tool
+that produced the change and an optional scope. Anyone can verify that envelope
+afterwards from the CLI or from CI. Verification needs no network and no trust in
+the editor session that produced the commit.
+
+Matrix Scroll is an open protocol and it is free, permanently. Nobody monetizes
 it. The audit practice that maintains it, [SSX360](https://ssx360.com/about),
-sells assessments and never sells this protocol, because gating the protocol
-would remove the reason anyone trusts the audit built beside it.
+sells assessments and never sells this protocol. Gating the protocol would remove
+the reason anyone trusts the audit built beside it.
 
 ## Contents
 
 - [Install](#install)
-- [Quickstart](#quickstart)
+- [Sign a commit and verify it offline](#sign-a-commit-and-verify-it-offline)
 - [Exit codes](#exit-codes)
 - [Verify a release artifact](#verify-a-release-artifact)
 - [Where the documentation lives](#where-the-documentation-lives)
@@ -32,6 +37,8 @@ would remove the reason anyone trusts the audit built beside it.
 - [Gate a pull request in CI](#gate-a-pull-request-in-ci)
 - [MCP tool-surface trust](#mcp-tool-surface-trust)
 - [Python API](#python-api)
+- [Port it to another language](#port-it-to-another-language)
+- [Check these claims yourself](#check-these-claims-yourself)
 - [Security](#security)
 - [License](#license)
 
@@ -45,15 +52,19 @@ Version `0.6.3` is the current release on
 [PyPI](https://pypi.org/project/matrixscroll/0.6.3/). Pin it. The package needs
 Python 3.10 or later and one required dependency, `cryptography>=43.0`.
 
-Optional extras add capability without changing the verifier contract:
-`matrixscroll[mcp]` for the MCP server, `matrixscroll[pqc]` for the post-quantum
-overlay, `matrixscroll[hardware]` for the USB serial transport.
+Optional extras add capability without changing the verifier contract.
 
-## Quickstart
+| Extra | Adds |
+| --- | --- |
+| `matrixscroll[mcp]` | The `matrixscroll-mcp` stdio server |
+| `matrixscroll[pqc]` | The ML-DSA and SLH-DSA overlay, through liboqs |
+| `matrixscroll[hardware]` | The USB serial transport for the SE050 bench prototype |
 
-This sequence signs a commit and verifies it offline. Each block below holds
-either the commands you run or the output you read. No block mixes the two, so
-pasting one whole is safe.
+## Sign a commit and verify it offline
+
+In about two minutes you will have a signed commit and an offline proof of who
+made it. Each block below holds either the commands you run or the output you
+read. No block mixes the two, so pasting one whole is safe.
 
 Create a throwaway repository and install the hooks:
 
@@ -106,8 +117,8 @@ exit=0
 
 ### Watch verification fail
 
-A signature is only worth something when it stops validating. Edit the envelope
-that the hook wrote and verify it again:
+Editing the envelope makes verification fail with exit `2`. That is the property
+worth testing, so change the record the hook wrote and verify it again:
 
 ```bash
 SHA="$(git rev-parse HEAD)"
@@ -185,7 +196,7 @@ table, including what each verifier rejects:
 
 Every release is published from GitHub Actions through PyPI Trusted Publishing,
 and every file carries a PEP 740 attestation recorded in the Sigstore
-transparency log. You do not have to take our word for who built the wheel; you
+transparency log. You do not have to take our word for who built the wheel. You
 can check it.
 
 Ask PyPI directly:
@@ -269,7 +280,7 @@ offline tamper demo with no signup.
   backends and transparency-log integrations remain roadmap.
 - The post-quantum overlay carries the ML-DSA and SLH-DSA algorithms specified
   in FIPS 204 and FIPS 205, through liboqs. That is an algorithm in code, not a
-  CMVP-validated cryptographic module, and it is never described as FIPS
+  CMVP-validated cryptographic module. Nothing here describes it as FIPS
   validated, certified or compliant. liboqs itself states that it should not be
   relied on in production or to protect sensitive data, which is a limit worth
   repeating rather than burying. The overlay is attached alongside the Ed25519
@@ -286,9 +297,10 @@ offline tamper demo with no signup.
 
 ## What an envelope proves
 
-An envelope proves that the holder of a specific Ed25519 private key asserted a
-specific actor, tool, and scope for a specific commit, and that the assertion has
-not been altered since. That is the whole claim, and it is narrow on purpose.
+An envelope proves one narrow thing. The holder of a specific Ed25519 private key
+made a claim about a specific commit, and nothing has altered that claim since.
+The claim names `provenance.actor_type` and `provenance.tool`, plus an optional
+declared scope. That is the whole guarantee.
 
 In emulated mode the private seed lives at `~/.matrixscroll/device.json`, or
 wherever `MATRIXSCROLL_HOME` points. The directory is created `0700`, and the
@@ -300,8 +312,8 @@ attribution without making it impossible, and
 [Trust boundaries](https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/trust-boundaries.md)
 states the rest of the boundary in detail.
 
-Matrix Scroll has no opinion on the diff. Scanners, code review, and branch
-protection stay necessary.
+Matrix Scroll has no opinion on the diff. Scanners, code review, branch protection
+and artifact attestation all stay necessary.
 
 ## What you can sign
 
@@ -354,12 +366,13 @@ The other action types are `git_commit`, `iac_change`, `db_migration`,
 
 ## How it differs from Sigstore
 
-Sigstore, GitHub artifact attestations, and SLSA answer a build question, namely
-what was built in CI and from what source. Matrix Scroll answers an authorship
-question, namely who or what signed a commit before it was pushed. Both answers
-stay useful together. Matrix Scroll signs commit envelopes at commit time, while
-artifact-attestation systems sign build outputs later in the delivery chain, and
-this repository's own releases use both.
+Sigstore, GitHub artifact attestations and SLSA answer a build question. They tell
+you what was built in CI and from what source. Matrix Scroll answers an authorship
+question instead, namely who or what signed a commit before it was pushed.
+
+Both layers run together. Matrix Scroll signs commit envelopes at commit time, and
+artifact-attestation systems sign build outputs later in the delivery chain. This
+repository's own releases use both.
 
 Keep GitHub Advanced Security, Semgrep, Snyk, branch protection, and artifact
 attestations. Matrix Scroll adds commit-time authorship proof before merge, with
@@ -367,27 +380,28 @@ the same offline verification contract across the CLI, the browser, CI, and the
 SE050 hardware prototype path.
 
 Matrix Scroll v1 binds exclusively to
-[RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) Ed25519: 32-byte seeds,
-32-byte public keys, and 64-byte detached signatures over canonical UTF-8 JSON
+[RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) Ed25519. Seeds and public keys
+are 32 bytes each. Signatures are 64 bytes and detached, over canonical UTF-8 JSON
 bytes, per [`SPEC.md`](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md)
 section 4. A verifier rejects any `signature.algorithm` other than `"ed25519"`.
+
 Existing hardware roots can become Matrix Scroll signing backends once they
-preserve that byte contract, so external key backends stay out of the mainline
-until they can sign the same canonical bytes.
+preserve that byte contract. External key backends stay out of the mainline until
+they can sign the same canonical bytes.
 
 ## Compliance evidence mapping
 
-Matrix Scroll **maps to** and **produces evidence for** the frameworks below.
-This is evidence mapping, not a certification claim. No control here is required
-by any framework named below.
+Matrix Scroll maps to and produces evidence for the frameworks below. This is
+evidence mapping, not a certification claim. No control here is required by any
+framework named below.
 
 - **DORA (Jan 2025).** ICT change-management evidence for software changes.
 - **PCI DSS 4.0 Req 6.5 (Mar 2025).** Change-control evidence for custom
   software.
 - **US Treasury FS-AI RMF (Feb 2026).** Traceability for agent actions in
   financial software.
-- **NIST SSDF.** Evidence for provenance, change authorization, and release gate
-  review.
+- **NIST SSDF.** Evidence for provenance and change authorization, plus release
+  gate review.
 - **EU AI Act Article 12.** Record-keeping readiness, with high-risk obligations
   starting Dec 2027. Not a live mandate claim.
 - **Agentic AI guidance from the Five Eyes, Apr 2026.** A linked crosswalk only,
@@ -547,7 +561,7 @@ Signing and verification go through Ed25519 primitives from the
 so users need no Rust toolchain. Generated reference:
 [Python API](https://github.com/SSX360/matrixscroll/blob/main/docs/reference/python-api.md).
 
-## A reference SDK, and room for others
+## Port it to another language
 
 Matrix Scroll is a protocol, and this Python package is its reference SDK. Ports
 in Rust, Go, TypeScript, and embedded C are welcome. Run any port against
@@ -556,16 +570,17 @@ self-certify, and read
 [`CONTRIBUTING.md`](https://github.com/SSX360/matrixscroll/blob/main/CONTRIBUTING.md)
 first.
 
-You can check the claims on this page without trusting it. `pytest -q` collects
-172 tests in
-[`tests/`](https://github.com/SSX360/matrixscroll/tree/main/tests), of which 9
-skip when the optional liboqs backend is absent. The property-based suite is
-described in
-[`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md),
-the TLA+ models in
-[`formal/README.md`](https://github.com/SSX360/matrixscroll/blob/main/formal/README.md),
-and the codebase direction in
-[`docs/DOCTRINE.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/DOCTRINE.md).
+## Check these claims yourself
+
+Nothing on this page asks for your trust. `pytest -q` collects 172 tests in
+[`tests/`](https://github.com/SSX360/matrixscroll/tree/main/tests), of which 9 skip
+when the optional liboqs backend is absent.
+
+| Evidence | Where |
+| --- | --- |
+| Property-based security properties | [`docs/SECURITY_PROPERTIES.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/SECURITY_PROPERTIES.md) |
+| TLA+ models | [`formal/README.md`](https://github.com/SSX360/matrixscroll/blob/main/formal/README.md) |
+| Codebase direction | [`docs/DOCTRINE.md`](https://github.com/SSX360/matrixscroll/blob/main/docs/DOCTRINE.md) |
 
 ## Security
 

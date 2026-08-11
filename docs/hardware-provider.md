@@ -74,8 +74,8 @@ UF2 remains fail-closed for live SE050.
 
 ## Device
 
-The reference hardware is a bench prototype and is not generally available, so no
-product page exists. `matrixscroll.com/device` used to be linked here and returns
+The reference hardware is a bench prototype, not generally available. No product
+page exists. `matrixscroll.com/device` used to be linked here and now returns
 404. The current bench scope lives in
 [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md) and
 [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md).

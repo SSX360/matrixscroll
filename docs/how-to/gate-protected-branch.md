@@ -42,12 +42,12 @@ jobs:
 the base commit, and range verification fails with a confusing history error
 rather than a provenance error.
 
-## 2. Know how the notes ref arrives
+## 2. Let the action fetch the notes ref
 
-`actions/checkout` does not fetch `refs/notes/*`. The action handles that for
-you: with `source: notes`, it runs
+`actions/checkout` does not fetch `refs/notes/*`. The action does it for you. With
+`source: notes` it runs
 `git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll` before
-verifying, because its `fetch-notes` input defaults to `true`. Change the ref with
+verifying, because `fetch-notes` defaults to `true`. Change the ref with
 `notes-ref` if you publish elsewhere.
 
 Set `fetch-notes: false` only when an earlier step already fetched the ref, or

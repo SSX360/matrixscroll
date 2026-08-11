@@ -3,10 +3,11 @@
 Signed provenance for agent-assisted Git commits, with offline Ed25519
 verification.
 
-When an agent, a CI workflow, or a person produces a commit, Matrix Scroll
-attaches a signed envelope recording the actor, the tool, and an optional scope.
-Anyone can verify that envelope later from the CLI or from CI. Verification needs
-no network and no trust in the session that produced the commit.
+Matrix Scroll attaches a signed envelope to each commit. The envelope names the
+declared actor as `human`, `agent` or `ci`, plus the tool that produced the change
+and an optional scope. Anyone can verify that envelope later from the CLI or from
+CI. Verification needs no network and no trust in the session that produced the
+commit.
 
 Matrix Scroll is an open protocol. It is free, permanently, and is not
 monetized.

@@ -2,7 +2,7 @@
 
 This tutorial signs a Git commit with an Ed25519 key and verifies the signature
 offline. You then alter the signed record and watch verification fail. Everything
-runs on your machine, with no account, network, or hardware required.
+runs on your machine. You need no account and no hardware.
 
 This tutorial uses emulated mode, which keeps the signing key in a file on disk.
 That is the supported evaluation path and the default.
@@ -116,9 +116,7 @@ It is `0`. That is the value a CI gate reads.
 
 ## Step 6: Watch verification fail
 
-The point of a signature is that it stops being valid when something changes. The
-envelope is signed over its canonical bytes with the `signature` block excluded,
-so editing any other field breaks it. Rewrite the recorded actor from `agent` to
+Now break the signature on purpose. Rewrite the recorded actor from `agent` to
 `human`, which is exactly the lie a signature has to catch:
 
 ```bash
@@ -135,12 +133,14 @@ Verification fails and the exit code is `2`:
 {"ok": false, "error": "cryptographic verification failed"}
 ```
 
-Matrix Scroll uses `2` for verification failure, never `1`, so a gate can tell a
-failed proof apart from a crashed tool.
+Verification failure always returns `2`. See
+[Exit codes](../reference/exit-codes.md) for what each code means to a CI gate,
+and [Commit envelope schema](../reference/commit-envelope.md) for why editing any
+field outside `signature` breaks the signature.
 
-Amending the commit does not demonstrate this. `git commit --amend` fires the
-post-commit hook again, so the hook signs a fresh envelope for the new SHA and
-verification passes with exit `0`.
+Do not try this with `git commit --amend`. Amending fires the post-commit hook
+again, so a fresh envelope gets signed for the new SHA and verification passes
+with exit `0`.
 
 ## What you built
 

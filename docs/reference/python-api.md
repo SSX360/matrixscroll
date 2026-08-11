@@ -44,8 +44,8 @@ docstring is wrong, and the fix belongs in the module.
 `hardware` is the L2 prototype path.
 
 The `matrixscroll status` command prints these seven fields plus a `pqc` block
-reporting the post-quantum backend. The library function returns the seven fields
-only, because `pqc_status()` in `matrixscroll.pqc` is a separate call.
+reporting the post-quantum backend. `status()` returns the seven fields only.
+`pqc_status()` in `matrixscroll.pqc` is a separate call.
 
 ## Canonical encoding
 

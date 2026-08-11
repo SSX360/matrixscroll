@@ -17,7 +17,7 @@ is the source of truth.
 | --- | --- |
 | `matrixscroll status` | Print the active identity, plus a `pqc` block, as JSON. See [`status()` fields](python-api.md#status-fields). |
 | `matrixscroll identity` | Report whether this key carries a verified-identity certificate. Exits `0` when valid, `2` when absent or expired. |
-| `matrixscroll claim` | Bind this key to a verified SSX360 identity. Needs a network and an account, and is the only command here that does. |
+| `matrixscroll claim` | Bind this key to a verified SSX360 identity. The only command here that needs network access and an account. |
 | `matrixscroll pqc-keygen --algorithm <algo>` | Generate or load an ML-DSA or SLH-DSA key. Needs the `pqc` extra. |
 
 ## Signing and verifying
@@ -34,7 +34,7 @@ is the source of truth.
 | Command | Purpose |
 | --- | --- |
 | `matrixscroll hook-install` | Install the `post-commit` and `pre-push` hooks in the current repository. `matrixscroll hook` is an alias. |
-| `matrixscroll hook-status` | Report which hooks are installed, how many envelopes exist, and the recorded config. |
+| `matrixscroll hook-status` | Report the repository root, the installed hooks, the envelope count and the recorded config. |
 | `matrixscroll envelope` | Build and sign an envelope for `HEAD` without the hook. |
 | `matrixscroll envelope-verify <sha>` | Verify the envelope bound to one commit, or a path to an envelope file. |
 | `matrixscroll envelope-verify-range` | Verify every commit between two refs. This is what the CI gate calls. |
