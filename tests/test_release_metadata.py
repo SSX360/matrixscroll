@@ -94,3 +94,11 @@ def test_pypi_metadata_does_not_overclaim_hardware_availability():
         text = path.read_text(encoding="utf-8").lower()
         for phrase in forbidden:
             assert phrase not in text, f"{phrase!r} found in {path.name}"
+
+
+def test_dependabot_does_not_widen_the_incompatible_mcp_major():
+    """MCP 2.x removed the FastMCP API used by the published server."""
+    config = (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+
+    assert 'versions: [">=2"]' in config
+    assert 'exclude-patterns: ["mcp"]' in config
