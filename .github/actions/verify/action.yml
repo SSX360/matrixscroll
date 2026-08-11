@@ -97,6 +97,8 @@ runs:
   steps:
     - name: Set up Python
       id: setup
+      # Keep the public composite action on the Node 20-compatible release for
+      # Forgejo and Gitea runners. Repository-owned GitHub workflows use v7.
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}

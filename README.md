@@ -189,9 +189,9 @@ The Python package includes a CLI and Git hooks for workflows that do not use MC
 pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 
-export MATRIXSCROLL_ACTOR_TYPE=agent
-export MATRIXSCROLL_TOOL=agent-runner
-git commit -m "feat: agent-assisted change"
+export MATRIXSCROLL_ACTOR_TYPE=ci
+export MATRIXSCROLL_TOOL=release-runner
+git commit -m "feat: automate release"
 
 matrixscroll envelope-verify "$(git rev-parse HEAD)"
 ```
