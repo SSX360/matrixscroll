@@ -40,7 +40,7 @@ Example body:
 
 | Local action | Hosted API |
 |------------|-------------|
-| `matrixscroll/.github/actions/verify@action-v1` | `curl` or the `@v2` action against the SSX360 API |
+| `SSX360/matrixscroll/.github/actions/verify@action-v1` | `curl` against the SSX360 API |
 | Reads git notes on the runner | Records each verification on the SSX360 API |
 | No API key | `SSX360_API_KEY` required |
 
@@ -55,16 +55,17 @@ git-notes verification.
 
 ## SLSA mapping, partial today
 
-Scroll Gate checks commit-time provenance against
-[SLSA](https://slsa.dev/) Build Level 1 and 2 concepts. SSX360 does not claim
-SLSA Build Level 3 and holds no SLSA certification. This is evidence mapping,
-not a certification claim.
+Scroll Gate checks commit-time provenance against [SLSA](https://slsa.dev/) v1.2
+Source Track Levels 1 and 2, the track
+[`SLSA_SOURCE_TRACK_MAPPING.md`](../SLSA_SOURCE_TRACK_MAPPING.md) maps this
+package to. It claims no SLSA Build Track level, and SSX360 holds no SLSA
+certification. This is evidence mapping, not a certification claim.
 
 | SLSA concept | Scroll Gate today | Gap |
 |--------------|----------------------------|-----|
 | **Version control** | Git plus signed commit envelopes on every governed commit | Scroll client MVP still rolling out |
 | **Retained history** | Git immutable objects, plus server-side envelope storage on the hosted path | The offline path retains history in git notes only |
-| **Authenticated source** | Ed25519 commit envelopes bind actor, tool, scope | Default **emulated** keys; SE050 hardware is a bench prototype |
+| **Authenticated source** | Ed25519 commit envelopes bind actor, tool, scope | Default **emulated** keys; SE050 hardware is a bench prototype, not generally available |
 | **Hosted build platform** | Partial: `ci_step` action envelopes plus the hosted verify API | Does not replace GitHub Actions or Cloud Build |
 | **Non-falsifiable provenance** | Not claimed at L3 or above | Requires hardware-backed signing plus builder attestations |
 

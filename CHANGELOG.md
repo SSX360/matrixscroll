@@ -11,10 +11,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `SCROLL_GATE_V2.md` and `SSX360_SCROLL.md` keep their paths and their
   technical content, including the SLSA gap table. Gone from both: the
   Community and Team tier framing, the seat counts, the daily verification
-  quota, and the sign-up links. Each page now leads with what runs offline and
-  needs no key, and names `SSX360_API_KEY` only where a call actually leaves the
-  machine. `docs/commercial/**` also loses its `.vale.ini` exemption, so the
-  full prose rule set applies to it.
+  quota, and the sign-up links. Each page names what runs offline with no key,
+  and names `SSX360_API_KEY` only where a call actually leaves the machine.
+  `docs/commercial/**` also loses its `.vale.ini` exemption, so the full prose
+  rule set applies to it.
 
 ### Removed
 - **`docs/commercial/PLATFORM_PIVOT.md`.** It was a pricing sheet: a Community,
