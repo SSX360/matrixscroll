@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "0f08cb6c955fcfdb523d7b16e579fafe8af3d3d8",
+    "author": {
+      "date": "1785729201 -0400",
+      "email": "ryanjamesyork@gmail.com",
+      "name": "SSX360 Ops"
+    },
+    "committer": {
+      "date": "1785749275 -0400",
+      "email": "ryanjamesyork@gmail.com",
+      "name": "SSX360 Ops"
+    },
+    "message": "Add Vale prose gate and Diataxis docs tree\n\nLayer Google, write-good, and tbhb/vale-ai-tells v1.28.0 under a custom SSX360\nstyle with seven rules: banned marketing vocabulary, the em-dash ban, the\nnegative-parallelism tic, brand register on developer surfaces, verbose-term\nsubstitution, certification overclaims, and a whole-file compliance-hedge check\nwritten as a Tengo script because Vale's conditional extension compares literal\ncaptures and cannot express it.\n\nWire the gate into pre-commit (sync, prose, and commit-msg hooks) and into\nGitHub Actions via vale-cli/vale-action with fail_on_error, which reviewdog\nneeds to stop exiting 0 on reported errors.\n\nRestructure docs under Diataxis with MkDocs Material and mkdocstrings. Legacy\nflat docs stay authoritative and are excluded from the strict build until\nmigrated. mkdocs build --strict passes.\n\nPin remaining install examples to 0.6.1, matching pyproject.toml and the PyPI\nJSON API. Trim the README to four resolving badges, drop the tagline from the\ndeveloper surface, clear 25 em-dashes, and document how to verify the release\nagainst its PEP 740 attestation.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "8c2ceb936066e6eff9de3c7ab52218cc6573c5c6"
+    ],
+    "tree": "05d856cac3dd9df6e7fc50674f1d22bcb5251c00"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "cursor"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T09:46:45Z",
+    "value": "XA7z8KYD0x/55o8/8U6+TdJdDYzvGmGyIOibm/j2b/1lu9lTFpWJVfbrM7d/rKJx2CmEC0JgMnXEUcGCIdqOCA=="
+  }
+}

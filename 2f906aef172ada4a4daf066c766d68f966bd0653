@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "2f906aef172ada4a4daf066c766d68f966bd0653",
+    "author": {
+      "date": "1783188365 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783188365 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: point README pilot CTA at pilot.ssx360.com\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "c36292c01a7b0b547f4be66666f073bd1c362bcb"
+    ],
+    "tree": "7dd7581e2dc70d5e6753c8a63c767d4f55fbf553"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T18:06:06Z",
+    "value": "HY+nZyflKG+0kca6PfeBmMHyiXGwjUjQ3l495bSEyTZAqgFpdxsHHRj9cp3qjB5JznP8YQkdS3jcfrNPpRZpBQ=="
+  }
+}

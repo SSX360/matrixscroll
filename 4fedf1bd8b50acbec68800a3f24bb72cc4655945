@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "4fedf1bd8b50acbec68800a3f24bb72cc4655945",
+    "author": {
+      "date": "1782525171 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782525171 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "docs: add canonical MCP quickstart and Glama manifest.\n\nPin matrixscroll[mcp]==0.2.6 with copy-paste mcp.json for Cursor, VS Code, and Claude Desktop; expand glama.json with stdio transport and matrixscroll-mcp entry point.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "cfe1ca9f7a54ff344b6f52733a7c906388fb636c"
+    ],
+    "tree": "215846c3e9e427d3e934c3a9ac3dd1d91fba1dba"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-27T01:52:51Z",
+    "value": "Zwnt9QMsh+E57Ue8vVMaTM6pz0WFIZOAr3nOpfUuQzlpR2h5Qn9TcqutkM5oH8dww9R/OGTiHTvs2R4n1+5BCA=="
+  }
+}

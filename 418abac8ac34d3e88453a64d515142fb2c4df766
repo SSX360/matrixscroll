@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "418abac8ac34d3e88453a64d515142fb2c4df766",
+    "author": {
+      "date": "1783154009 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783154009 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "fix(glama): resync after PyPI pin race and harden MCP build smoke\n\nGlama installs matrixscroll from the PyPI version in glama.json. The 0.6.0\nrelease bumped that pin before PyPI publish, so the registry build failed with\nmatrixscroll==0.6.0 not found (same class as 453a3ef). PyPI 0.6.0 is live now;\nthis push retriggers Glama sync.\n\nAdd CI stdio MCP smoke against the pinned PyPI release, switch Dockerfile to\nCMD for Glama introspection compatibility, and document publish ordering.\n",
+    "parents": [
+      "c9d73de51eb81ba31cfe288efdcbca06e93fb6b7"
+    ],
+    "tree": "c6b03ae2cd5bcbf7a95e09510ca55373386894fb"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T08:33:29Z",
+    "value": "aJMUmVnU2XfoKqRJJFfQVM9TRBT9pyZaQqgUx9zm6baephxuxMu9wWb3JkyVcactT6nX0U0IJI49mYrqfaYYDQ=="
+  }
+}

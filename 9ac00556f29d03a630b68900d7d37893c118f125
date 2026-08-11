@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "9ac00556f29d03a630b68900d7d37893c118f125",
+    "author": {
+      "date": "1783002074 -0400",
+      "email": "security@matrixscroll.com",
+      "name": "Ryan James David York"
+    },
+    "committer": {
+      "date": "1783002097 -0400",
+      "email": "security@matrixscroll.com",
+      "name": "Ryan James David York"
+    },
+    "message": "Point buyer-facing support and doc correction contacts to mission@ssx360.com.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "044bd9e91a20b4b7cfe7627dbec0755f7f0098b0"
+    ],
+    "tree": "544b50b2d35775ce767f2770114840035cdbdabe"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "feat/mcp-trust-scanner",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:23:08Z",
+    "value": "KkJOGE/pdkiN3E+9qnN8NkBV9Kqvx/hYoLPUdKbD1Xh7u0eihWg/Btn2MVF+j15iehwpjT3dvCsOgBAut09dCg=="
+  }
+}

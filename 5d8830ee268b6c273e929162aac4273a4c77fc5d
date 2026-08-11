@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "5d8830ee268b6c273e929162aac4273a4c77fc5d",
+    "author": {
+      "date": "1783100196 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783100196 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "fix(ci): check out repo in publish workflow so Glama pin verify can run\n",
+    "parents": [
+      "39e1cf70faaf369b12ad71ebb56ef623c6cc3995"
+    ],
+    "tree": "bac4475eccbe2f6713a4e2c04a78e71fde331f41"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:36:36Z",
+    "value": "8HVrFvWLahYtNYiNiM0mSD+plBpIeCviWZNjsLamOL2yTTzhSC4hMMajSEQ1xeJ7K4kL9yZ4E9nNbV/6bAbmBQ=="
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "a502b9324e08a1c9b4dd7d58ae235a6737d97210",
+    "author": {
+      "date": "1785737995 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1785737995 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Restate step-scoped TLA+ properties and fix unrunnable models\n\nTLC aborted at the first failing model, so only CanonicalBytes had been\nchecked since 2026-07-02. AuthorityFive did not parse, because the standard\nSequences module takes only a LOCAL INSTANCE of Naturals and so does not\nre-export Nat or the arithmetic operators. OrgPlanSync did not load, because\na .cfg cannot assign a record literal to a CONSTANT. Both run for the first\ntime now.\n\nThree guarantees were written as state invariants but describe a single\nstep, so an unrelated later action retroactively violated them:\n\n- F-G1 was broken by a warn-mode advisory merge followed by ToggleMode.\n- F-A1 and F-A5 were broken by revoking a grant after an authorized action.\n- F-D2 was broken by tampering after the PQC overlay was attached.\n\nThese are now temporal action properties declared with PROPERTY. Each was\nchecked against a negative control: an injected enforce-mode merge bypass,\nthe model's own EscalatePurchaseFromSearch, and DriftBug are all still\ncaught.\n\nWhere a model cached a verification result, the actions that mutate the\ninputs to that result now invalidate it. This matches 1922ab1 in\nCanonicalBytes and the implementation, which recomputes every gate decision\nfrom current repo state and per-call policy rather than caching one.\n\nF-G3 additionally gains an explicit evaluated flag, because envelope\nvalidity cannot imply a gate result that was never computed.\n\nF-O2 was the literal TRUE and F-A4 was absent entirely; both are now stated\nand checked. AuthorityFive bounds its append-only actionLog with a state\nconstraint so the model is finite. The PlusCal header comments no longer\nclaim to be the source of the hand-maintained modules.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "0eb135b5e8be6ffa26632b7638d89b5b6b454718"
+    ],
+    "tree": "9e5cff2f787708388c5b6e40c0e1eb7f3cf1e9e6"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T06:19:56Z",
+    "value": "ES1TCPMEVPHDRkgtcR8dQoYxqAbB7+tOtsT82rYOlQOZJAR9JKk9gZFZpCvC29z6qpFyYI/qrtm2APyvJMweAw=="
+  }
+}

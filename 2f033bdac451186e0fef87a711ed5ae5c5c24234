@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "2f033bdac451186e0fef87a711ed5ae5c5c24234",
+    "author": {
+      "date": "1783003380 -0400",
+      "email": "security@matrixscroll.com",
+      "name": "Ryan James David York"
+    },
+    "committer": {
+      "date": "1783003380 -0400",
+      "email": "security@matrixscroll.com",
+      "name": "Ryan James David York"
+    },
+    "message": "Point Try it link to matrixscroll.com/try for console.dev launch.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "9ac00556f29d03a630b68900d7d37893c118f125"
+    ],
+    "tree": "5965f564785364559641fa486517f9bc53a4c635"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "feat/mcp-trust-scanner",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:23:09Z",
+    "value": "QD0Yw+7Y555SYNzQrpZneVOWTXInZbkb5ejVS0kzzN1L9HW18YrmUcyijaqJjiS4OKF3t1kjPtI3j2FHHS+XCw=="
+  }
+}

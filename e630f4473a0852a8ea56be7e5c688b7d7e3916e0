@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "e630f4473a0852a8ea56be7e5c688b7d7e3916e0",
+    "author": {
+      "date": "1782610778 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782610778 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "fix: align claim CLI copy with provisioned account sign-in\n",
+    "parents": [
+      "c717217d3c9cbd5c0f379fdeeac4cf16d983a123"
+    ],
+    "tree": "640fa303ef2826957e03bba19a8e10704b90d298"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-28T01:39:38Z",
+    "value": "pmEPaaHzQ9oeICADujRm59Hf7+6A1LeR5yrE5XYcWuCnCR+dP9+eyfEFbKcmRTQLi2yRH/UGTVnYTNnTirLKDg=="
+  }
+}
