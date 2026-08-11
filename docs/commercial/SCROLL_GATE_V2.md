@@ -41,7 +41,7 @@ Example body:
 | Local action | Hosted API |
 |------------|-------------|
 | `matrixscroll/.github/actions/verify@action-v1` | `curl` or the `@v2` action against the SSX360 API |
-| Reads git notes on the runner | Network audit trail and usage metering |
+| Reads git notes on the runner | Records each verification on the SSX360 API |
 | No API key | `SSX360_API_KEY` required |
 
 Both paths run the same signature check. The hosted path adds a server-side
