@@ -38,7 +38,8 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
 ## 4. Cursor Directory
 - **Status:** ready for submission.
 - **Submission steps:**
-  1. Go to the [Cursor Directory submission page](https://cursor.sh/mcp or general submission form).
+  1. Open the Cursor Directory submission form. Confirm the current URL first: the
+     `cursor.sh/mcp` address this guide used to name now returns 404.
   2. Provide the listing details:
      - **Name:** Matrix Scroll MCP
      - **Command:** `python -m matrixscroll.mcp`

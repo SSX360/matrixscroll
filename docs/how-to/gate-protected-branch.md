@@ -42,10 +42,17 @@ jobs:
 the base commit, and range verification fails with a confusing history error
 rather than a provenance error.
 
-## 2. Fetch the notes ref
+## 2. Know how the notes ref arrives
 
-GitHub Actions does not fetch `refs/notes/*` by default. Add this step before
-verification if your envelopes live in notes:
+`actions/checkout` does not fetch `refs/notes/*`. The action handles that for
+you: with `source: notes`, it runs
+`git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll` before
+verifying, because its `fetch-notes` input defaults to `true`. Change the ref with
+`notes-ref` if you publish elsewhere.
+
+Set `fetch-notes: false` only when an earlier step already fetched the ref, or
+when you want the job to fail rather than reach the network. Then do the fetch
+yourself:
 
 ```yaml
       - name: Fetch provenance notes
@@ -91,8 +98,10 @@ evidence outlives the workflow run.
 
 ## Troubleshooting
 
-**Every commit fails with a missing-envelope error.** The notes ref was not
-fetched. Add the fetch step from step 2.
+**Every commit fails with a missing-envelope error.** The notes ref never
+arrived, or the envelopes were never published. Confirm that `source` is `notes`
+and `fetch-notes` is not `false`, then confirm the author ran
+`matrixscroll envelope-publish-notes` and pushed `refs/notes/matrixscroll`.
 
 **Verification passes locally and fails in CI.** The runner installed a
 different version. Pin `matrixscroll-version` explicitly rather than relying on

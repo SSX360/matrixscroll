@@ -1,6 +1,6 @@
 # SSX360 hardware provider
 
-**Status:** L2 Hardware prototype (bench-validated, 2026-07-21). Mock transport
+**Status:** L2 Hardware bench prototype, not generally available (2026-07-21). Mock transport
 and USB CDC host transport ship in `matrixscroll[hardware]==0.6.3`. Pico 2 W
 (RP2350) + GMT130 ST7789 LCD/LED bring-up is locked. NXP SE050 M1 signing PoC
 is accepted on contractor firmware; the display bring-up UF2 keeps
@@ -74,4 +74,8 @@ UF2 remains fail-closed for live SE050.
 
 ## Device
 
-Reference hardware: [matrixscroll.com/device](https://matrixscroll.com/device)
+The reference hardware is a bench prototype and is not generally available, so no
+product page exists. `matrixscroll.com/device` used to be linked here and returns
+404. The current bench scope lives in
+[`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md) and
+[`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md).

@@ -1,6 +1,6 @@
 # CLI commands
 
-Four console scripts ship with the package: `matrixscroll`, `matrixscroll-mcp`,
+The package installs the console scripts `matrixscroll`, `matrixscroll-mcp`,
 `ssx360`, and `ssx360-ledger`.
 
 !!! note "Partial stub"
@@ -15,9 +15,10 @@ is the source of truth.
 
 | Command | Purpose |
 | --- | --- |
-| `matrixscroll status` | Print the active identity as JSON. See [`status()` fields](python-api.md#status-fields). |
-| `matrixscroll identity` | Inspect the key store location and permissions. |
-| `matrixscroll claim` | Claim a device identity. |
+| `matrixscroll status` | Print the active identity, plus a `pqc` block, as JSON. See [`status()` fields](python-api.md#status-fields). |
+| `matrixscroll identity` | Report whether this key carries a verified-identity certificate. Exits `0` when valid, `2` when absent or expired. |
+| `matrixscroll claim` | Bind this key to a verified SSX360 identity. Needs a network and an account, and is the only command here that does. |
+| `matrixscroll pqc-keygen --algorithm <algo>` | Generate or load an ML-DSA or SLH-DSA key. Needs the `pqc` extra. |
 
 ## Signing and verifying
 
@@ -32,11 +33,14 @@ is the source of truth.
 
 | Command | Purpose |
 | --- | --- |
-| `matrixscroll hook-install` | Install the post-commit hook in the current repository. |
-| `matrixscroll hook-status` | Report whether the hook is installed and active. |
-| `matrixscroll envelope-verify <sha>` | Verify the envelope bound to one commit. |
+| `matrixscroll hook-install` | Install the `post-commit` and `pre-push` hooks in the current repository. `matrixscroll hook` is an alias. |
+| `matrixscroll hook-status` | Report which hooks are installed, how many envelopes exist, and the recorded config. |
+| `matrixscroll envelope` | Build and sign an envelope for `HEAD` without the hook. |
+| `matrixscroll envelope-verify <sha>` | Verify the envelope bound to one commit, or a path to an envelope file. |
 | `matrixscroll envelope-verify-range` | Verify every commit between two refs. This is what the CI gate calls. |
 | `matrixscroll envelope-publish-notes` | Write envelopes into `refs/notes/matrixscroll`. |
+| `matrixscroll envelope-fetch-notes` | Fetch the envelope notes ref from a remote. |
+| `matrixscroll envelope-export` | Export a range of local envelopes into a filesystem bundle. |
 | `matrixscroll scroll commit` | Thin governed wrapper over `git commit`. Not a Git replacement. |
 
 ### `matrixscroll envelope-verify-range`
@@ -65,14 +69,14 @@ See [Scan an MCP server for drift](../how-to/scan-mcp-server.md).
 | Command | Purpose |
 | --- | --- |
 | `matrixscroll envelope-export-guac` | Export envelopes in GUAC ingest format. |
-| `matrixscroll envelope-publish-rekor` | Publish to a Rekor transparency log. Dry-run only. |
+| `matrixscroll envelope-publish-rekor` | Publish envelopes to a Rekor transparency log. Dry-run by default. Pass `--rekor-cli` with a `--rekor-url` to upload. |
 | `matrixscroll agent-trace` | Sign and verify agent run traces (`agent_trace.v1`). |
 
 ## Environment variables
 
 | Variable | Effect |
 | --- | --- |
-| `MATRIXSCROLL_MODE` | Select the provider: `emulated` (default) or `hardware`. |
+| `MATRIXSCROLL_MODE` | Select the provider. `emulated` is the default and the supported evaluation path. `hardware` targets the SE050 bench prototype, which is not generally available. `yubikey` and `tpm` are experimental previews that run a mock path. |
 | `MATRIXSCROLL_HOME` | Override the key-store directory. Defaults to `~/.matrixscroll`. |
 | `MATRIXSCROLL_ACTOR_TYPE` | Record the actor on the next commit: `human`, `agent`, or `ci`. |
 | `MATRIXSCROLL_TOOL` | Record the tool that produced the commit. |
