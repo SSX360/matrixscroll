@@ -40,7 +40,7 @@ jobs:
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/DualSignature.cfg formal/tla/DualSignature.tla
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
