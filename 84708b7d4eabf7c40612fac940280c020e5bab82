@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "84708b7d4eabf7c40612fac940280c020e5bab82",
+    "author": {
+      "date": "1786455700 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786455700 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "docs: apply the technical-docs house style to the prose on this branch\n\nThe owner asked for the technical-docs skill on this work. It was not installed\nwhen the branch started, so this pass applies it to the prose already changed\nhere. No factual correction moved, and Vale did not go up.\n\nWhat the skill caught that the earlier guide allowed:\n\n- The README opened on the mechanism. It now opens on the reader's gap. Git\n  records who committed, not whether a person or an agent wrote the change.\n- Parallel three-item lists, in prose and in one table cell. The\n  `matrixscroll hook-status` cell named three outputs and now names the four it\n  prints, the shape that tripped Vale for PR 33 after a style sync.\n- Section openers that led with a maxim or a duration instead of the point.\n- Sentences carrying three clauses, in the Sigstore comparison, the RFC 8032\n  paragraph and the envelope-proof paragraph.\n- Explanation inside a tutorial. `docs/tutorial/first-commit.md` explained\n  canonical-byte signing mid-step. It now links to the reference pages.\n- Rationale inside reference. `exit-codes.md`, `commit-envelope.md` and\n  `python-api.md` carried reasons where a reference page carries facts.\n- A how-to heading that named knowledge rather than a task.\n- Bold used for emphasis on \"maps to\" and \"produces evidence for\".\n- Headings that described nothing, namely Quickstart and A reference SDK.\n- Parallel prose that belonged in tables, namely the optional extras and the\n  evidence links at the end.\n\nVale holds at 257 errors across the same 72 tracked prose files, and the eight\nfiles changed here report 0. A fresh sdist and wheel both pass\n`twine check`. The quickstart runs end to end, and 29 assertions confirm the\nearlier factual corrections are intact.\n\nLeft alone on purpose: five em dashes in `docs/CRYPTO_BACKEND.md` and\n`docs/CI_HARD_GATE.md`, which predate this branch and sit in legacy files that\n`.vale.ini` holds to a reduced rule set.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "e822fd00bdda6880cffce8dbab6557f3b9a2c469"
+    ],
+    "tree": "08051bf1714968626736facbe732f2d42656ccd6"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "cursor"
+  },
+  "repository": {
+    "branch": "docs/readme-pypi-first-read",
+    "name": "matrixscroll-sdk",
+    "remote_url": "https://github.com/SSX360/matrixscroll"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-BB6E-6DB4",
+    "mode": "emulated",
+    "public_key": "pio5q0TXMN1KF3fAe2EZ31kzSXWNUzHU0fr40sxdnY8=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T13:41:40Z",
+    "value": "W+ZMj7dcWsjOBgigufhW7PGeJpYyoezhVnarD6Tq0W9H1TOYMDj9qMBpK6vg5lGcMQR9k762F1zs8KrBeoJ6CQ=="
+  }
+}
