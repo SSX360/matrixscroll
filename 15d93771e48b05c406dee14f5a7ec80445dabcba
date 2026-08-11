@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "15d93771e48b05c406dee14f5a7ec80445dabcba",
+    "author": {
+      "date": "1786461133 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786461133 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Update Glama pin for Matrix Scroll 0.6.4\n",
+    "parents": [
+      "9188dbfa4cde94803772e13c00fb64079896d270"
+    ],
+    "tree": "2bd8934e823348a623f8d031031470bcb09da1b0"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "codex"
+  },
+  "repository": {
+    "branch": "agent/post-release-matrixscroll-0.6.4",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T15:12:14Z",
+    "value": "pS0mRq/mb4q/qv7CT9vB4c7RMAvO0iXt31XCBC1KNjBfzB7n/IFaxpN1W6Y7pW3t+57YXU61LziV6nUgcBdZCQ=="
+  }
+}
