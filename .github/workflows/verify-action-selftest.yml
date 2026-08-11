@@ -30,7 +30,7 @@ jobs:
       matrix:
         # Keep this at the last published SDK during a release PR. The
         # post-publish metadata PR advances it with the floating action tag.
-        sdk: ["0.6.4"]
+        sdk: ["0.7.0"]
     steps:
       - uses: actions/checkout@v4
         with:
