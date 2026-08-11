@@ -30,6 +30,8 @@ interpolated into a shell command:
 ``MS_REQUIRE_MODE``        value of the ``require-mode`` action input
 ``MS_SUMMARY_OUTPUT``      value of the ``summary-output`` action input
 ``MS_VERIFY_AGENT_SCOPE``  value of the ``verify-agent-scope`` action input
+``MS_ALLOW_EMPTY_RANGE``   whether an empty range was explicitly accepted
+``MS_SUMMARY_PREEXISTED``  whether the requested summary path already existed
 ``MS_CONFIG_ERROR``        set when the action rejected its own inputs
 """
 
@@ -176,7 +178,7 @@ def sanitize(value: Any) -> str:
 
 def as_count(value: Any) -> str:
     """Render a count, refusing anything that is not an integer."""
-    if isinstance(value, bool) or not isinstance(value, int):
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         return "0"
     return str(value)
 
@@ -258,6 +260,12 @@ def main() -> int:
     verify_agent_scope = (
         os.environ.get("MS_VERIFY_AGENT_SCOPE") or ""
     ).strip().lower() == "true"
+    allow_empty_range = (
+        os.environ.get("MS_ALLOW_EMPTY_RANGE") or ""
+    ).strip().lower() == "true"
+    summary_preexisted = (
+        os.environ.get("MS_SUMMARY_PREEXISTED") or ""
+    ).strip().lower() == "true"
     config_error = (os.environ.get("MS_CONFIG_ERROR") or "").strip()
     heading = (
         "## Matrix Scroll provenance gate"
@@ -318,9 +326,10 @@ def main() -> int:
     # checkable. Valid JSON missing them is a broken verifier, not a pass.
     if ok:
         if kind == "range":
+            count_names = ("verified_count", "total", "agent_count", "human_count")
             missing = [
                 key
-                for key in ("verified_count", "total", "agent_count", "human_count")
+                for key in count_names
                 if not isinstance(payload.get(key), int)
                 or isinstance(payload.get(key), bool)
             ]
@@ -329,9 +338,37 @@ def main() -> int:
                     "the verifier reported success without these fields: "
                     + ", ".join(missing)
                 )
+            else:
+                counts = {key: payload[key] for key in count_names}
+                negative = [key for key, value in counts.items() if value < 0]
+                if negative:
+                    problems.append(
+                        "the verifier reported negative counts for: "
+                        + ", ".join(negative)
+                    )
+                if counts["verified_count"] != counts["total"]:
+                    problems.append(
+                        "the verifier reported success without verifying every commit"
+                    )
+                if counts["agent_count"] + counts["human_count"] > counts["verified_count"]:
+                    problems.append(
+                        "agent_count plus human_count exceeds verified_count"
+                    )
+                if counts["total"] == 0:
+                    if not allow_empty_range or payload.get("empty_range") is not True:
+                        problems.append(
+                            "the verifier reported success for an empty range without "
+                            "the explicit allow-empty-range opt-in"
+                        )
+                elif payload.get("empty_range") is True:
+                    problems.append(
+                        "the verifier labelled a non-empty successful range as empty"
+                    )
         else:
             missing = [
-                key for key in ("device_id", "mode") if not sanitize(payload.get(key))
+                key
+                for key in ("device_id", "mode")
+                if not isinstance(payload.get(key), str) or not payload[key].strip()
             ]
             if missing:
                 problems.append(
@@ -349,7 +386,7 @@ def main() -> int:
         outputs["modes"] = ",".join(modes)
         # Claim the summary path only when the file is really there. The old
         # step echoed the input back whether or not the CLI ever wrote it.
-        if summary_output and Path(summary_output).is_file():
+        if summary_output and not summary_preexisted and Path(summary_output).is_file():
             outputs["summary_path"] = sanitize(summary_output)
         elif summary_output:
             reporter.note(
@@ -377,7 +414,10 @@ def main() -> int:
                 f"{outputs['mode'] or 'with no mode'}"
             )
 
-    passed = ok and not problems
+    if status != EXIT_OK:
+        problems.append(f"the verifier exited with status {status} despite its JSON result")
+
+    passed = status == EXIT_OK and ok and not problems
     outputs["ok"] = TRUE if passed else FALSE
     write_outputs(outputs)
 

@@ -46,15 +46,17 @@ TRACEBACK = (
 )
 
 
-def verify_step_body() -> str:
-    """Read the ``run:`` block of the step with ``id: verify`` out of action.yml.
+def action_step_body(name: str) -> str:
+    """Read one named step's ``run:`` block out of action.yml.
 
     Deliberately dependency-free. Pulling in a YAML parser for one block would
     add a test dependency the SDK does not otherwise need.
     """
     lines = ACTION_YML.read_text(encoding="utf-8").splitlines()
     start = next(
-        index for index, line in enumerate(lines) if line.strip() == "id: verify"
+        index
+        for index, line in enumerate(lines)
+        if line.strip() == f"- name: {name}"
     )
     run_at = next(
         index
@@ -67,6 +69,12 @@ def verify_step_body() -> str:
             break
         body.append(line[8:] if line.startswith("        ") else line)
     text = "\n".join(body)
+    return text
+
+
+def verify_step_body() -> str:
+    """Return the shell body that invokes and parses the verifier."""
+    text = action_step_body("Verify")
     assert "emit_fallback_outputs" in text, "extracted the wrong block from action.yml"
     return text
 
@@ -86,6 +94,9 @@ def step(tmp_path):
         summary_output: str = "",
         allow_empty_range: str = "false",
         verify_agent_scope: str = "false",
+        setup_outcome: str = "success",
+        install_outcome: str = "success",
+        fetch_outcome: str = "success",
         action_path: Path | None = None,
     ):
         bin_dir = tmp_path / "bin"
@@ -126,6 +137,10 @@ def step(tmp_path):
                 "MS_SUMMARY_OUTPUT": summary_output,
                 "MS_ALLOW_EMPTY_RANGE": allow_empty_range,
                 "MS_VERIFY_AGENT_SCOPE": verify_agent_scope,
+                "MS_FETCH_NOTES": "true",
+                "MS_SETUP_OUTCOME": setup_outcome,
+                "MS_INSTALL_OUTCOME": install_outcome,
+                "MS_FETCH_OUTCOME": fetch_outcome,
             }
         )
         env.pop("MS_CONFIG_ERROR", None)
@@ -252,6 +267,34 @@ def test_cli_not_installed(step):
     assert outputs["ok"] == "False"
 
 
+@pytest.mark.parametrize(
+    "outcome",
+    ["setup_outcome", "install_outcome", "fetch_outcome"],
+)
+def test_failed_prerequisite_cannot_reuse_runner_state(step, outcome):
+    kwargs = {outcome: "failure"}
+    if outcome == "fetch_outcome":
+        kwargs.update(head_ref="deadbeef", manifest="")
+    completed, outputs, summary = step(cli_output=MANIFEST_PASS, **kwargs)
+    assert completed.returncode == 1
+    assert outputs["ok"] == "False"
+    assert "did not run" in summary or "Fetching envelope notes failed" in summary
+
+
+def test_preexisting_summary_path_fails_before_verification(step, tmp_path):
+    summary_path = tmp_path / "range-summary.json"
+    summary_path.write_text('{"stale": true}', encoding="utf-8")
+    completed, outputs, summary = step(
+        cli_output=RANGE_PASS,
+        head_ref="deadbeef",
+        manifest="",
+        summary_output=str(summary_path),
+    )
+    assert completed.returncode == 1
+    assert outputs["ok"] == "False"
+    assert "already exists" in summary
+
+
 def test_parser_unavailable_still_writes_outputs(step, tmp_path):
     """The shell fallback covers a parser that cannot run at all."""
     empty = tmp_path / "no-action-here"
@@ -289,3 +332,21 @@ def test_inputs_are_not_interpolated_into_the_shell(step, tmp_path):
     assert not (tmp_path / "pwned.txt").exists()
     assert not (tmp_path / "pwned2.txt").exists()
     assert outputs["ok"] == "True"
+
+
+def test_fetch_notes_rejects_option_looking_refs(tmp_path):
+    script = tmp_path / "fetch-notes.sh"
+    script.write_text(action_step_body("Fetch envelope notes"), encoding="utf-8")
+    env = dict(os.environ)
+    env["MS_NOTES_REF"] = "--upload-pack=attacker-command"
+
+    completed = subprocess.run(
+        [str(BASH), "--noprofile", "--norc", "-e", "-o", "pipefail", str(script)],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=str(tmp_path),
+    )
+
+    assert completed.returncode != 0
+    assert "Invalid notes ref" in completed.stderr

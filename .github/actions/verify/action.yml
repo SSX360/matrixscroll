@@ -92,11 +92,13 @@ runs:
   using: composite
   steps:
     - name: Set up Python
+      id: setup
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
 
     - name: Install matrixscroll
+      id: install
       shell: bash
       env:
         MS_VERSION: ${{ inputs.matrixscroll-version }}
@@ -109,13 +111,18 @@ runs:
         fi
 
     - name: Fetch envelope notes
+      id: fetch
       if: inputs.head-ref != '' && inputs.fetch-notes == 'true' && inputs.source == 'notes'
       shell: bash
       env:
         MS_NOTES_REF: ${{ inputs.notes-ref }}
       run: |
         set -euo pipefail
-        git fetch origin "$MS_NOTES_REF:$MS_NOTES_REF"
+        if [[ "$MS_NOTES_REF" == -* ]] || ! git check-ref-format "$MS_NOTES_REF"; then
+          echo "::error title=Matrix Scroll verify::Invalid notes ref." >&2
+          exit 1
+        fi
+        git fetch -- origin "$MS_NOTES_REF:$MS_NOTES_REF"
 
     # Runs even when an earlier step failed. A runner without Python, a refused
     # SDK install and an unfetchable notes ref all used to skip this step
@@ -137,6 +144,10 @@ runs:
         MS_SUMMARY_OUTPUT: ${{ inputs.summary-output }}
         MS_ALLOW_EMPTY_RANGE: ${{ inputs.allow-empty-range }}
         MS_VERIFY_AGENT_SCOPE: ${{ inputs.verify-agent-scope }}
+        MS_FETCH_NOTES: ${{ inputs.fetch-notes }}
+        MS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
+        MS_INSTALL_OUTCOME: ${{ steps.install.outcome }}
+        MS_FETCH_OUTCOME: ${{ steps.fetch.outcome }}
       run: |
         # `shell: bash` runs as `bash --noprofile --norc -e -o pipefail`, so
         # errexit is already on when this script starts. Turning it off is the
@@ -176,8 +187,41 @@ runs:
 
         OUTPUT_FILE="$(mktemp)"
 
+        fail_to_start() {
+          export MS_CONFIG_ERROR="$1"
+          MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC=1 "$PY" "$PARSER"
+          RC=$?
+          emit_fallback_outputs
+          exit "$RC"
+        }
+
         if [ -n "$MS_HEAD_REF" ]; then
           export MS_MODE=range
+        else
+          export MS_MODE=manifest
+        fi
+
+        if [ "$MS_SETUP_OUTCOME" != "success" ]; then
+          fail_to_start "Python setup failed; verification did not run."
+        fi
+        if [ "$MS_INSTALL_OUTCOME" != "success" ]; then
+          fail_to_start "The matrixscroll SDK install failed; verification did not run."
+        fi
+        if [ -n "$MS_HEAD_REF" ] && [ "$MS_SOURCE" = "notes" ]; then
+          if [[ "$MS_NOTES_REF" == -* ]] || ! git check-ref-format "$MS_NOTES_REF"; then
+            fail_to_start "Invalid notes ref. Expected a full Git ref such as refs/notes/matrixscroll."
+          fi
+          if [ "$MS_FETCH_NOTES" = "true" ] && [ "$MS_FETCH_OUTCOME" != "success" ]; then
+            fail_to_start "Fetching envelope notes failed; verification did not run."
+          fi
+        fi
+        export MS_SUMMARY_PREEXISTED=false
+        if [ -n "$MS_SUMMARY_OUTPUT" ] && [ -e "$MS_SUMMARY_OUTPUT" ]; then
+          export MS_SUMMARY_PREEXISTED=true
+          fail_to_start "summary-output already exists; choose a fresh path for this verification run."
+        fi
+
+        if [ -n "$MS_HEAD_REF" ]; then
           ARGS=(envelope-verify-range --head "$MS_HEAD_REF")
           if [ -n "$MS_BASE_REF" ]; then
             ARGS+=(--base "$MS_BASE_REF")
@@ -203,7 +247,6 @@ runs:
             ARGS+=(--verify-agent-scope)
           fi
         elif [ -n "$MS_MANIFEST" ]; then
-          export MS_MODE=manifest
           ARGS=(verify "$MS_MANIFEST")
           if [ -n "$MS_REQUIRE_MODE" ]; then
             ARGS+=(--require-mode "$MS_REQUIRE_MODE")
@@ -212,12 +255,7 @@ runs:
             ARGS+=(--trusted-keys "$MS_TRUSTED_KEYS")
           fi
         else
-          export MS_MODE=manifest
-          export MS_CONFIG_ERROR="Either manifest or head-ref must be provided."
-          MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC=1 "$PY" "$PARSER"
-          RC=$?
-          emit_fallback_outputs
-          exit "$RC"
+          fail_to_start "Either manifest or head-ref must be provided."
         fi
 
         matrixscroll "${ARGS[@]}" >"$OUTPUT_FILE" 2>&1

@@ -74,6 +74,8 @@ def run(parser, tmp_path, monkeypatch):
         require_mode: str = "",
         summary_output: str = "",
         verify_agent_scope: str = "false",
+        allow_empty_range: str = "false",
+        summary_preexisted: str = "false",
         config_error: str = "",
         write_output_file: bool = True,
     ) -> Result:
@@ -91,6 +93,8 @@ def run(parser, tmp_path, monkeypatch):
         monkeypatch.setenv("MS_REQUIRE_MODE", require_mode)
         monkeypatch.setenv("MS_SUMMARY_OUTPUT", summary_output)
         monkeypatch.setenv("MS_VERIFY_AGENT_SCOPE", verify_agent_scope)
+        monkeypatch.setenv("MS_ALLOW_EMPTY_RANGE", allow_empty_range)
+        monkeypatch.setenv("MS_SUMMARY_PREEXISTED", summary_preexisted)
         monkeypatch.setenv("MS_CONFIG_ERROR", config_error)
         monkeypatch.setenv("GITHUB_OUTPUT", str(github_output))
         monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(step_summary))
@@ -268,6 +272,13 @@ def test_verification_failure_with_zero_exit_still_fails(run):
     assert result.outputs["ok"] == "False"
 
 
+def test_nonzero_exit_cannot_publish_a_passing_payload(run):
+    result = run(_manifest_pass(), cli_rc=1)
+    assert result.status == 1
+    assert result.outputs["ok"] == "False"
+    assert "exited with status 1" in result.summary
+
+
 def test_ok_must_be_a_json_boolean(run):
     result = run(json.dumps({"ok": "true", "device_id": "MS-1", "mode": "emulated"}))
     assert result.outputs["ok"] == "False"
@@ -289,11 +300,64 @@ def test_manifest_success_without_its_fields_is_not_a_pass(run, payload):
     assert "without these fields" in result.summary
 
 
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("device_id", 360),
+        ("device_id", True),
+        ("mode", ["hardware"]),
+        ("mode", {"name": "hardware"}),
+    ],
+)
+def test_manifest_success_requires_string_identity_fields(run, field, value):
+    payload = json.loads(_manifest_pass())
+    payload[field] = value
+    result = run(json.dumps(payload))
+    assert result.outputs["ok"] == "False"
+    assert result.status == 2
+
+
 def test_range_success_without_counts_is_not_a_pass(run):
     result = run(json.dumps({"ok": True, "modes": ["emulated"]}), mode="range")
     assert result.outputs["ok"] == "False"
     assert result.status == 2
     assert "verified_count" in result.summary
+
+
+@pytest.mark.parametrize(
+    "updates",
+    [
+        {"total": -1, "verified_count": -1},
+        {"total": 3, "verified_count": 2},
+        {"total": 3, "verified_count": 3, "agent_count": 3, "human_count": 1},
+        {"total": 3, "verified_count": 3, "empty_range": True},
+    ],
+)
+def test_range_success_requires_consistent_nonnegative_counts(run, updates):
+    payload = json.loads(_range_pass())
+    payload.update(updates)
+    result = run(json.dumps(payload), mode="range")
+    assert result.outputs["ok"] == "False"
+    assert result.status == 2
+
+
+def test_empty_range_needs_the_explicit_opt_in(run):
+    payload = {
+        "ok": True,
+        "total": 0,
+        "verified_count": 0,
+        "agent_count": 0,
+        "human_count": 0,
+        "modes": [],
+        "empty_range": True,
+        "results": [],
+    }
+    rejected = run(json.dumps(payload), mode="range")
+    accepted = run(
+        json.dumps(payload), mode="range", allow_empty_range="true"
+    )
+    assert rejected.outputs["ok"] == "False"
+    assert accepted.outputs["ok"] == "True"
 
 
 # --- policy gates -------------------------------------------------------------
@@ -339,7 +403,12 @@ def test_require_mode_rejects_an_allowed_empty_range(run):
         "empty_range": True,
         "results": [],
     }
-    result = run(json.dumps(payload), mode="range", require_mode="hardware")
+    result = run(
+        json.dumps(payload),
+        mode="range",
+        require_mode="hardware",
+        allow_empty_range="true",
+    )
     assert result.outputs["ok"] == "False"
     assert result.status == 2
     assert "no signature mode" in result.summary
@@ -356,6 +425,14 @@ def test_summary_path_only_claims_a_file_that_exists(run, tmp_path):
     missing.write_text("{}", encoding="utf-8")
     result = run(_range_pass(), mode="range", summary_output=str(missing))
     assert result.outputs["summary_path"] == str(missing)
+
+    result = run(
+        _range_pass(),
+        mode="range",
+        summary_output=str(missing),
+        summary_preexisted="true",
+    )
+    assert result.outputs["summary_path"] == ""
 
 
 def test_output_values_cannot_inject_extra_outputs(run):
