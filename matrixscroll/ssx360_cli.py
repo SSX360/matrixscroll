@@ -14,7 +14,7 @@ import os
 import sys
 import urllib.error
 import urllib.request
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -316,7 +316,7 @@ def _cmd_ledger_export(args: argparse.Namespace) -> int:
             "schema": EVIDENCE_PACK_SCHEMA,
             "source": "local",
             "bundle": result,
-            "exported_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "exported_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         },
         _framework_annotation(framework),
     )
