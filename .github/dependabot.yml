@@ -14,7 +14,9 @@ updates:
     ignore:
       # MCP 2.x removed mcp.server.fastmcp; keep receiving compatible 1.x updates.
       - dependency-name: "mcp"
-        update-types: ["version-update:semver-major"]
+        versions: [">=2.0.0.dev0"]
     groups:
       dev-dependencies:
         dependency-type: "development"
+        # Keep MCP's supported 1.x line independent from broad group updates.
+        exclude-patterns: ["mcp"]
