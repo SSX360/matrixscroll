@@ -328,6 +328,23 @@ def test_require_mode_rejects_a_range_with_no_mode(run):
     assert "no signature mode" in result.summary
 
 
+def test_require_mode_rejects_an_allowed_empty_range(run):
+    payload = {
+        "ok": True,
+        "total": 0,
+        "verified_count": 0,
+        "agent_count": 0,
+        "human_count": 0,
+        "modes": [],
+        "empty_range": True,
+        "results": [],
+    }
+    result = run(json.dumps(payload), mode="range", require_mode="hardware")
+    assert result.outputs["ok"] == "False"
+    assert result.status == 2
+    assert "no signature mode" in result.summary
+
+
 # --- output hygiene -----------------------------------------------------------
 
 

@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from .gate import (
     DEFAULT_NOTES_REF,
+    commits_in_range,
     export_envelope_bundle,
     publish_envelopes_to_notes,
     verify_commit_envelope_for_sha,
@@ -53,6 +54,16 @@ def _load_policy(
         if file_policy.require_mode and not policy.require_mode:
             policy.require_mode = file_policy.require_mode
     return None if policy.is_empty() else policy
+
+
+def commits_for_range(
+    workspace: str = "",
+    *,
+    base: str = "origin/main",
+    head: str = "HEAD",
+) -> list[str]:
+    """Resolve the commit SHAs in a workspace range without verifying envelopes."""
+    return commits_in_range(base, head, root=_resolve_root(workspace or None))
 
 
 def create_envelope(

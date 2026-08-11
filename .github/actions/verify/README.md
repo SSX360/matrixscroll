@@ -109,6 +109,7 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | `require-mode` | both | `""` | Policy require-mode (v0.2.1+) |
 | `trusted-keys` | both | `""` | Path to trusted public keys JSON (v0.2.1+) |
 | `summary-output` | range | `""` | Path for the full range verification JSON |
+| `allow-empty-range` | range | `false` | Explicitly accept a range holding no commits |
 | `verify-agent-scope` | range | `false` | Verify linked `agent_scope` manifest signatures |
 
 ## Outputs
@@ -139,6 +140,10 @@ the step. That covers a verifier that crashes with a Python traceback, a verifie
 that prints nothing, JSON that claims success without the fields backing the
 claim, a `require-mode` the parsed result does not satisfy, and a call that sets
 neither `manifest` nor `head-ref`.
+
+Range mode rejects an empty range by default. Set `allow-empty-range: true` only
+when checking no commits is the intended result. An empty range still cannot
+satisfy `require-mode`, because it carries no signature-mode evidence.
 
 All eight outputs carry a value on every path. `ok` is `True` or `False`, spelled
 the way Python prints a bool. `verified_count`, `agent_count` and `human_count`
@@ -176,10 +181,10 @@ For reproducible runs, SHA-pin this action rather than tracking `action-v1`, and
 set `matrixscroll-version` explicitly in every consumer instead of relying on the
 default.
 
-**Honest limits:** emulated Ed25519 signing ships today; hardware signing is
-preview until firmware validation passes. Compliance language is evidence
-mapping, not a certification claim. Illustrative profiles are not customer
-endorsements.
+**Honest limits:** emulated and SE050-backed Ed25519 signing are available; physical
+SSX360 USB signers are supplied through direct contact. Compliance language is
+evidence mapping, not a certification claim. Illustrative profiles are not
+customer endorsements.
 
 ## Proof links
 

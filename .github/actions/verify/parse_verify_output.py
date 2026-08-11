@@ -363,7 +363,7 @@ def main() -> int:
                     f"require-mode is {require_mode} but the range carries "
                     + ", ".join(offenders)
                 )
-            elif ok and not modes and as_count(payload.get("total")) != "0":
+            elif ok and not modes:
                 problems.append(
                     f"require-mode is {require_mode} but the verifier reported "
                     "no signature mode at all"

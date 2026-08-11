@@ -53,6 +53,10 @@ inputs:
     description: Optional path to write full range verification JSON summary
     required: false
     default: ""
+  allow-empty-range:
+    description: Explicitly accept a range holding no commits (range mode)
+    required: false
+    default: "false"
   verify-agent-scope:
     description: Verify linked agent_scope manifest signatures (range mode)
     required: false
@@ -131,6 +135,7 @@ runs:
         MS_REQUIRE_MODE: ${{ inputs.require-mode }}
         MS_TRUSTED_KEYS: ${{ inputs.trusted-keys }}
         MS_SUMMARY_OUTPUT: ${{ inputs.summary-output }}
+        MS_ALLOW_EMPTY_RANGE: ${{ inputs.allow-empty-range }}
         MS_VERIFY_AGENT_SCOPE: ${{ inputs.verify-agent-scope }}
       run: |
         # `shell: bash` runs as `bash --noprofile --norc -e -o pipefail`, so
@@ -184,6 +189,9 @@ runs:
           fi
           if [ -n "$MS_SUMMARY_OUTPUT" ]; then
             ARGS+=(--summary-output "$MS_SUMMARY_OUTPUT")
+          fi
+          if [ "$MS_ALLOW_EMPTY_RANGE" = "true" ]; then
+            ARGS+=(--allow-empty-range)
           fi
           if [ -n "$MS_REQUIRE_MODE" ]; then
             ARGS+=(--require-mode "$MS_REQUIRE_MODE")

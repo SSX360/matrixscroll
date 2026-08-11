@@ -84,6 +84,7 @@ def step(tmp_path):
         head_ref: str = "",
         require_mode: str = "",
         summary_output: str = "",
+        allow_empty_range: str = "false",
         verify_agent_scope: str = "false",
         action_path: Path | None = None,
     ):
@@ -123,6 +124,7 @@ def step(tmp_path):
                 "MS_REQUIRE_MODE": require_mode,
                 "MS_TRUSTED_KEYS": "",
                 "MS_SUMMARY_OUTPUT": summary_output,
+                "MS_ALLOW_EMPTY_RANGE": allow_empty_range,
                 "MS_VERIFY_AGENT_SCOPE": verify_agent_scope,
             }
         )
@@ -184,6 +186,23 @@ def test_range_success(step):
     assert outputs["ok"] == "True"
     assert outputs["verified_count"] == "2"
     assert outputs["modes"] == "emulated"
+    assert "--allow-empty-range" not in completed.stdout
+
+
+def test_allowed_empty_range_passes_the_explicit_cli_flag(step):
+    payload = (
+        '{"ok": true, "total": 0, "verified_count": 0, "agent_count": 0, '
+        '"human_count": 0, "modes": [], "empty_range": true, "results": []}'
+    )
+    completed, outputs, _summary = step(
+        cli_output=payload,
+        head_ref="deadbeef",
+        manifest="",
+        allow_empty_range="true",
+    )
+    assert completed.returncode == 0
+    assert outputs["ok"] == "True"
+    assert "--allow-empty-range" in completed.stdout
 
 
 def test_legitimate_verification_failure(step):

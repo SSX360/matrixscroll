@@ -419,7 +419,25 @@ def verify_pr_range(
     if auth_err:
         return auth_err
     try:
-        return cloud_verify_range(base=base, head=head)
+        shas = core.commits_for_range(workspace, base=base, head=head)
+        if not shas:
+            return {
+                "ok": False,
+                "base": base,
+                "head": head,
+                "total": 0,
+                "verified_count": 0,
+                "empty_range": True,
+                "error": (
+                    f"no commits in range {base or '(root)'}..{head}, so nothing "
+                    "was verified"
+                ),
+            }
+        return cloud_verify_range(
+            base=base,
+            head=head,
+            commits=[{"sha": sha} for sha in shas],
+        )
     except Exception as exc:
         return _cloud_error(exc)
 

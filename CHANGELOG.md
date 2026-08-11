@@ -12,6 +12,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Added `schemas/ssx360.evidence-pack.v1.json` for the document written by the
   evidence-pack exporter.
 - Added a hardware-signed SE050 acceptance vector with CLI and CI verification.
+- Added the composite action's explicit `allow-empty-range` input; it remains
+  disabled by default and cannot satisfy a signature-mode requirement.
 
 ### Changed
 - Empty commit ranges now return `ok: false` by default. CLI and Python callers
@@ -34,6 +36,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   copies.
 - The MCP extra remains on the verified 1.x SDK line; MCP 2.0 removed the
   `mcp.server.fastmcp` API used by the shipped server.
+- Hosted MCP range verification now rejects an empty Git range before calling
+  the API and sends the resolved commit SHAs for non-empty ranges.
 
 ### Removed
 - **Breaking:** removed `matrixscroll claim`, `matrixscroll identity`, the
