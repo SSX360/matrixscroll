@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "bfd99a72f3dd0995e6dad626a988835a2565995c",
+    "author": {
+      "date": "1786458392 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786458392 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Fix release documentation examples\n",
+    "parents": [
+      "f938c49147da6be4e3c14889f8ada4e65d8ddc86"
+    ],
+    "tree": "cb1e1e72fdc0b8744a6f585b52dfb54e4b28db43"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "codex"
+  },
+  "repository": {
+    "branch": "agent/release-matrixscroll-0.6.4",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T14:26:33Z",
+    "value": "W0argGaPndx+7B1GrvsLlwsxToLpAuKzi7XkONgpeSL/g2JHW8nD19nYU7ec91+SH7wGuiHczD1iNmG8UU2wBw=="
+  }
+}
