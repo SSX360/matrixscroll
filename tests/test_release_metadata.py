@@ -128,12 +128,18 @@ def test_release_selftests_can_install_checked_out_source():
         )
     )
     assert action["inputs"]["package-source"]["default"] == ""
-    install = next(
-        step["run"]
-        for step in action["runs"]["steps"]
-        if step.get("name") == "Install matrixscroll"
+    install_step = next(
+        (
+            step
+            for step in action["runs"]["steps"]
+            if step.get("name") == "Install matrixscroll"
+        ),
+        None,
     )
-    assert 'pip install "$MS_PACKAGE_SOURCE"' in install
+    assert install_step is not None, "Install matrixscroll step is missing"
+    install = install_step["run"]
+    assert 'python -m pip install -- "$package_source"' in install
+    assert "package-source must resolve inside GITHUB_WORKSPACE" in install
     assert install.index("MS_PACKAGE_SOURCE") < install.index("MS_VERSION")
 
     mcp_gate = yaml.safe_load(

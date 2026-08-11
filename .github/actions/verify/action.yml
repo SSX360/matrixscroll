@@ -42,7 +42,7 @@ inputs:
     required: false
     default: "0.7.0"
   package-source:
-    description: Local package path for repository self-tests; leave empty for PyPI
+    description: Workspace-local package path for repository self-tests; leave empty for PyPI
     required: false
     default: ""
   require-mode:
@@ -110,11 +110,35 @@ runs:
       run: |
         set -euo pipefail
         if [ -n "$MS_PACKAGE_SOURCE" ]; then
-          pip install "$MS_PACKAGE_SOURCE"
+          package_source="$(python - "$MS_PACKAGE_SOURCE" <<'PY'
+        import os
+        from pathlib import Path
+        import sys
+
+        workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+        source = Path(sys.argv[1]).resolve()
+        try:
+            source.relative_to(workspace)
+        except ValueError:
+            print(
+                "::error title=Matrix Scroll verify::package-source must resolve inside GITHUB_WORKSPACE.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        if not source.exists():
+            print(
+                "::error title=Matrix Scroll verify::package-source does not exist.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        print(source)
+        PY
+          )"
+          python -m pip install -- "$package_source"
         elif [ -n "$MS_VERSION" ]; then
-          pip install "matrixscroll==$MS_VERSION"
+          python -m pip install "matrixscroll==$MS_VERSION"
         else
-          pip install matrixscroll
+          python -m pip install matrixscroll
         fi
 
     - name: Fetch envelope notes
