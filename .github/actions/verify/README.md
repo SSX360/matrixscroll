@@ -38,7 +38,7 @@ git push origin refs/notes/matrixscroll
 Workflow:
 
 ```yaml
-- uses: actions/checkout@v4
+- uses: actions/checkout@v7
   with:
     fetch-depth: 0
 
