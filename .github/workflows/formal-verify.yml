@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Download TLA+ tools
         run: |
@@ -35,6 +37,8 @@ jobs:
         run: |
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/CanonicalBytes.cfg formal/tla/CanonicalBytes.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/ScrollGate.cfg formal/tla/ScrollGate.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/ScrollGateEmpty.cfg formal/tla/ScrollGate.tla
+          java -cp tla2tools.jar tlc2.TLC -config formal/tla/ScrollGateAllowEmpty.cfg formal/tla/ScrollGate.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/AuthorityFive.cfg formal/tla/AuthorityFive.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/OrgPlanSync.cfg formal/tla/OrgPlanSync.tla
           java -cp tla2tools.jar tlc2.TLC -config formal/tla/DualSignature.cfg formal/tla/DualSignature.tla

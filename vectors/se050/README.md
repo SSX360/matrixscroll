@@ -1,4 +1,6 @@
-# SE050 M1 Acceptance Vectors
+<!-- vale Google.Headings = NO -->
+# SE050 M1 acceptance vectors
+<!-- vale Google.Headings = YES -->
 
 Signed manifests produced by the completed SSX360 SE050 USB hardware signer.
 Each file is a complete Matrix Scroll manifest with a
@@ -16,8 +18,9 @@ pytest tests/test_se050_acceptance_vectors.py -v
 ```
 
 Verification uses the pinned byte contract from `SPEC.md §4`: canonical JSON
-(without the `signature` key), pure Ed25519 over those bytes, no SHA-256
-pre-hash. `device_id` must match `SHA256(public_key)` per the spec.
+(without the `signature` key) and pure Ed25519 directly over those bytes.
+`device_id` is `MS-` plus the first eight uppercase hexadecimal
+characters of `SHA-256(public_key)`, formatted as `MS-XXXX-XXXX`.
 
 ## Browser verifier
 

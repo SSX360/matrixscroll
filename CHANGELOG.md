@@ -8,7 +8,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - Range verification results now report agent-scope details and the formal model
-  includes `Inv_EmptyRangeNeverPasses`.
+  includes the default-path invariant `Inv_EmptyRangeFailsClosed`.
 - Added `schemas/ssx360.evidence-pack.v1.json` for the document written by the
   evidence-pack exporter.
 - Added a hardware-signed SE050 acceptance vector with CLI and CI verification.
@@ -34,10 +34,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Evidence-pack annotations no longer mutate signed hosted response bodies.
 - JSON schemas now ship in wheels and MCP schema resources resolve the installed
   copies.
-- The MCP extra remains on the verified 1.x SDK line; MCP 2.0 removed the
-  `mcp.server.fastmcp` API used by the shipped server.
+- The MCP extra now requires the verified 1.28+ SDK line; earlier 1.x releases
+  cannot register the server's annotated tools, and MCP 2.0 removed the
+  `mcp.server.fastmcp` API entirely.
 - Hosted MCP range verification now rejects an empty Git range before calling
   the API and sends the resolved commit SHAs for non-empty ranges.
+- Hosted CLI checks now write `--summary-output` on successful and empty-range
+  responses, matching local checks.
+- Local evidence-pack documents without a `bundle` now fail schema validation,
+  and CI verifies all eight schemas from an isolated wheel installation.
 
 ### Removed
 - **Breaking:** removed `matrixscroll claim`, `matrixscroll identity`, the

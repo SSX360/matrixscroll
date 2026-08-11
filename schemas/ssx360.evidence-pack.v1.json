@@ -6,6 +6,15 @@
   "type": "object",
   "required": ["schema", "ok", "source", "framework", "framework_mapping", "disclaimer"],
   "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "source": { "const": "local" } },
+        "required": ["source"]
+      },
+      "then": { "required": ["bundle"] }
+    }
+  ],
   "properties": {
     "schema": {
       "type": "string",

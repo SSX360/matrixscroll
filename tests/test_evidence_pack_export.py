@@ -25,6 +25,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock
 
+from jsonschema import Draft202012Validator
+
 from matrixscroll import ssx360_cli
 from matrixscroll._schemas import schema_path
 from matrixscroll.canonical import canonical_bytes
@@ -169,6 +171,44 @@ class HostedExportSignatureTests(unittest.TestCase):
             "attaching the PR number invalidated the signature the server sent",
         )
 
+    def test_hosted_check_writes_the_printed_summary(self):
+        summary = {"ok": True, "verified_count": 1, "total": 1}
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp) / "summary.json"
+            with mock.patch.dict(os.environ, HOSTED_ENV, clear=True), mock.patch(
+                "matrixscroll.ssx360_cli._collect_commits_for_hosted",
+                return_value=[{"sha": "a" * 40}],
+            ), mock.patch(
+                "matrixscroll.cloud.verify_range", return_value=summary
+            ):
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    rc = ssx360_cli.main(
+                        ["check", "--head", "HEAD", "--summary-output", str(output)]
+                    )
+
+            self.assertEqual(rc, 0, buf.getvalue())
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8")), summary)
+            self.assertEqual(json.loads(buf.getvalue()), summary)
+
+    def test_hosted_empty_range_writes_its_failure_summary(self):
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp) / "empty-summary.json"
+            with mock.patch.dict(os.environ, HOSTED_ENV, clear=True), mock.patch(
+                "matrixscroll.ssx360_cli._collect_commits_for_hosted", return_value=[]
+            ):
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    rc = ssx360_cli.main(
+                        ["check", "--head", "HEAD", "--summary-output", str(output)]
+                    )
+
+            written = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(rc, 2, buf.getvalue())
+            self.assertFalse(written["ok"])
+            self.assertTrue(written["empty_range"])
+            self.assertEqual(json.loads(buf.getvalue()), written)
+
 
 class LocalExportShapeTests(unittest.TestCase):
     """The local wrapper is built here, so its 0.6.2 shape has to hold."""
@@ -231,11 +271,37 @@ class EvidencePackSchemaTests(unittest.TestCase):
             self.assertIn(key, pack)
         self.assertEqual(pack["schema"], schema["properties"]["schema"]["const"])
 
+    def test_local_document_without_bundle_is_rejected(self):
+        schema = json.loads(
+            schema_path("ssx360.evidence-pack.v1.json").read_text(encoding="utf-8")
+        )
+        local_without_bundle = {
+            "schema": ssx360_cli.EVIDENCE_PACK_SCHEMA,
+            "ok": True,
+            "source": "local",
+            "framework": "SOC2",
+            "framework_mapping": {
+                "id": "soc2-type-ii",
+                "standard": "SOC 2 Type II",
+                "evidence": [],
+            },
+            "disclaimer": "mapping only",
+        }
+
+        errors = list(Draft202012Validator(schema).iter_errors(local_without_bundle))
+
+        self.assertTrue(errors)
+        self.assertIn("bundle", errors[0].message)
+
     def test_every_shipped_schema_resolves_through_the_package(self):
         """Guards the packaging fix: these files have to be findable at runtime."""
         for name in (
             "commit-envelope.v1.json",
+            "commit-envelope.v1.1.json",
             "action-envelope.v1.json",
+            "evidence-pack.v1.json",
+            "pqc-signature.v1.json",
+            "release-manifest.v1.json",
             "ssx360.mcp-manifest.v1.json",
             "ssx360.evidence-pack.v1.json",
         ):

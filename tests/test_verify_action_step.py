@@ -280,12 +280,12 @@ def test_require_mode_mismatch_fails(step):
     assert "require-mode is hardware" in summary
 
 
-def test_inputs_are_not_interpolated_into_the_shell(step):
+def test_inputs_are_not_interpolated_into_the_shell(step, tmp_path):
     """A manifest path is an argument, never shell source."""
     completed, outputs, _summary = step(
         cli_output=MANIFEST_PASS,
         manifest='$(touch pwned.txt)"; touch pwned2.txt; "',
     )
-    assert not (Path(completed.args[1]).parent / "pwned.txt").exists()
-    assert not (Path(completed.args[1]).parent / "pwned2.txt").exists()
+    assert not (tmp_path / "pwned.txt").exists()
+    assert not (tmp_path / "pwned2.txt").exists()
     assert outputs["ok"] == "True"

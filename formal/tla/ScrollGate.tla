@@ -1,11 +1,11 @@
 ---- MODULE ScrollGate ----
-\* Formal model: Scroll Gate PR merge semantics (maps F-G1..F-G4, matrixscroll/gate.py).
+\* Formal model: Scroll Gate PR merge semantics (maps F-G1..F-G5, matrixscroll/gate.py).
 \* This module is hand-maintained and is what CI checks. formal/pluscal/ScrollGate.tla
 \* is a non-normative sketch, not the generated source of this file.
 
 EXTENDS FiniteSets
 
-CONSTANTS Commits
+CONSTANTS Commits, AllowEmpty
 
 VARIABLES status, gateMode, gatePass, merged, evaluated
 
@@ -15,6 +15,7 @@ CommitStates == {"missing", "valid", "invalid", "tampered"}
 
 TypeOK ==
     /\ status \in [Commits -> CommitStates]
+    /\ AllowEmpty \in BOOLEAN
     /\ gateMode \in {"warn", "enforce"}
     /\ gatePass \in BOOLEAN
     /\ merged \in BOOLEAN
@@ -54,15 +55,18 @@ Invalidate(c) ==
     /\ evaluated' = FALSE
     /\ UNCHANGED <<gateMode, merged>>
 
+\* Tamper changes a previously evaluated snapshot. While a newly signed range
+\* awaits evaluation, EvalGate is the transition that can consume it.
 Tamper(c) ==
     /\ status[c] = "valid"
+    /\ evaluated
     /\ status' = [status EXCEPT ![c] = "tampered"]
     /\ gatePass' = FALSE
     /\ evaluated' = FALSE
     /\ UNCHANGED <<gateMode, merged>>
 
 EvalGate ==
-    /\ gatePass' = (AllValid /\ ~RangeEmpty)
+    /\ gatePass' = (AllValid /\ (~RangeEmpty \/ AllowEmpty))
     /\ evaluated' = TRUE
     /\ IF gateMode = "enforce"
        THEN merged' = gatePass'
@@ -93,6 +97,7 @@ Next ==
 Spec ==
     /\ Init
     /\ [][Next]_vars
+    /\ WF_vars(EvalGate)
 
 \* --- Safety ---
 
@@ -116,11 +121,12 @@ Inv_ValidRangeImpliesPass ==
 Inv_TamperFailsGate ==
     (\E c \in Commits : status[c] = "tampered") => ~gatePass
 
-\* F-G5: an empty range never passes. This is the vacuous-truth case: AllValid
-\* holds over the empty set, so without this the gate reports success for a
-\* mistyped base ref or a shallow clone.
-Inv_EmptyRangeNeverPasses ==
-    RangeEmpty => ~gatePass
+\* F-G5: the default path fails closed on an empty range. This is the
+\* vacuous-truth case: AllValid holds over the empty set, so without this the
+\* gate reports success for a mistyped base ref or a shallow clone. AllowEmpty
+\* models the API's explicit allow_empty=True opt-in.
+Inv_EmptyRangeFailsClosed ==
+    (RangeEmpty /\ ~AllowEmpty) => ~gatePass
 
 \* F-G2: warn mode may merge even when gate fails (documented advisory path)
 Inv_WarnAllowsAdvisoryMerge ==
@@ -129,6 +135,6 @@ Inv_WarnAllowsAdvisoryMerge ==
 \* --- Liveness ---
 
 Live_FullySignedEventuallyPass ==
-    []<>((AllValid /\ ~RangeEmpty) => gatePass)
+    []((AllValid /\ ~RangeEmpty) => <>gatePass)
 
 ====

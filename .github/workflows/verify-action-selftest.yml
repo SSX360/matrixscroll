@@ -1,17 +1,21 @@
 name: verify-action selftest
 
-# Resolves the composite action and the reusable MCP gate through their public
-# `SSX360/matrixscroll/...@action-v1` references, the same path an external
-# consumer takes, rather than through a local `./` path. Dispatch after moving
-# the `action-v1` tag to confirm the tag serves a working action.
+# The passing manifest and reusable MCP jobs exercise the public `action-v1`
+# release exactly as an external consumer does. Failure jobs exercise the
+# checked-out action so a pull request cannot pass by testing an older tag.
 #
-# Three of the jobs below exist to prove the gate fails closed. The action used
+# Four of the jobs below exist to prove the gate fails closed. The action used
 # to parse CLI output with inline `json.loads` calls under `set -euo pipefail`,
 # so a verifier that printed a traceback killed the step before it wrote a single
 # output, and the caller read an empty `ok` rather than a false. Every job here
 # asserts that `ok` carries a literal `True` or `False`, never a blank.
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/actions/verify/**"
+      - ".github/workflows/verify-action-selftest.yml"
   workflow_dispatch:
 
 permissions:
@@ -28,6 +32,8 @@ jobs:
         sdk: ["0.6.4"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify a signed example manifest
         id: verify
@@ -58,11 +64,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify a manifest whose signature does not match its bytes
         id: verify
         continue-on-error: true
-        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
+        uses: ./.github/actions/verify
         with:
           manifest: vectors/tampered_signature.json
           matrixscroll-version: "0.6.4"
@@ -88,6 +96,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # A trusted-keys path that is not there makes the SDK raise
       # FileNotFoundError out of VerifyPolicy.from_json_file. The CLI prints a
@@ -96,7 +106,7 @@ jobs:
       - name: Verify with a trusted-keys file that does not exist
         id: verify
         continue-on-error: true
-        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
+        uses: ./.github/actions/verify
         with:
           manifest: examples/release-manifest.signed.json
           trusted-keys: .github/this-file-does-not-exist.json
@@ -128,11 +138,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify a commit range with a trusted-keys file that does not exist
         id: verify
         continue-on-error: true
-        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
+        uses: ./.github/actions/verify
         with:
           head-ref: ${{ github.sha }}
           source: notes
@@ -174,11 +185,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Call the action with nothing to verify
         id: verify
         continue-on-error: true
-        uses: SSX360/matrixscroll/.github/actions/verify@action-v1
+        uses: ./.github/actions/verify
         with:
           matrixscroll-version: "0.6.4"
 
