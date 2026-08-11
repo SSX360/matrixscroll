@@ -1,6 +1,6 @@
 # SSX360 USB signer
 
-SSX360 produces an RP2350 and NXP SE050 USB signer for Matrix Scroll. The Python host transport ships in `matrixscroll[hardware]==0.6.4`, and SSX360 supplies the physical signer through [SSX360 contact](https://ssx360.com/contact).
+SSX360 produces an RP2350 and NXP SE050 USB signer for Matrix Scroll. The Python host transport ships in `matrixscroll[hardware]==0.7.0`, and SSX360 supplies the physical signer through [SSX360 contact](https://ssx360.com/contact).
 
 ![Completed SSX360 USB signer](images/ssx360-usb-signer.jpg)
 
@@ -17,7 +17,7 @@ Hardware mode preserves the canonical-byte and signature contract used by the fi
 ## Install and connect
 
 ```bash
-pip install "matrixscroll[hardware]==0.6.4"
+pip install "matrixscroll[hardware]==0.7.0"
 export MATRIXSCROLL_MODE=hardware
 export MATRIXSCROLL_SE050_PORT=/dev/ttyACM0
 matrixscroll status
@@ -38,7 +38,7 @@ Use the serial port assigned to the device. `COM3` and `/dev/ttyACM0` are exampl
 Install both extras:
 
 ```bash
-pip install "matrixscroll[mcp,hardware]==0.6.4"
+pip install "matrixscroll[mcp,hardware]==0.7.0"
 ```
 
 Pass the provider settings to the stdio server:

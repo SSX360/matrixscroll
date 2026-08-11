@@ -45,7 +45,7 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
      - **Command:** `python -m matrixscroll.mcp`
      - **Type:** `stdio`
      - **Env:** `COPILOT_WORKSPACE=${workspaceFolder}`
-     - **Description:** "Cryptographic self-attestation and range verification for agent-assisted Git commits."
+     - **Description:** "Signed machine-action records and offline Git range verification."
 
 ## 5. PulseMCP
 - **Status:** ready for submission.

@@ -1,83 +1,47 @@
-# How Matrix Scroll Compares
+# Where Matrix Scroll fits
 
-Matrix Scroll signs **Git commit envelopes** — cryptographic evidence of who (human, agent, CI) produced a change, attached inside the commit. This page is an honest map of adjacent tools. Most are **complementary**, not replacements.
+Matrix Scroll signs a declared authorization record at commit or action time.
+It complements, rather than replaces, identity systems, source-control policy,
+build provenance, artifact signing, and runtime security controls.
 
-**Positioning in one line:** Sigstore and SLSA answer “what was built in CI?” Matrix Scroll answers “who signed this commit before push?”
+## Control boundaries
 
-## At a glance
+| Control area | Primary question | Matrix Scroll role |
+| --- | --- | --- |
+| Identity and access management | Who may access or change a system? | Consumes trusted-key and authorization policy; does not issue access |
+| Source-control policy | Which changes may merge? | Supplies a signed record and range-verification result for policy checks |
+| Build provenance | What process produced an artifact? | Supplies optional source-history evidence; does not attest the build |
+| Artifact signing | Which key signed a release or image? | Separate control; Matrix Scroll records can be referenced by the release process |
+| Runtime security | What code or process is executing now? | Outside protocol scope |
+| Compliance assessment | Which evidence supports a control review? | Exports signed records and verification results for scoped review |
 
-| Tool | Layer | Signs commits? | Agent identity | Hardware root of trust | Open source |
-|------|-------|----------------|----------------|------------------------|-------------|
-| **Matrix Scroll** | Commit | Yes (envelope in commit) | Yes | Yes, with the direct-contact SSX360 SE050 signer | Protocol + SDK |
-| [agentmark](https://github.com/karta-oss/karta) | Commit + CI gate | Yes (manifest in message) | Yes (pipeline key) | No | Apache 2.0 |
-| [Alien Agent ID](https://github.com/alien-id) | Commit (git notes) | Yes | Yes (owner-bound via OIDC) | No | SDK on GitHub |
-| [ForgeProof](https://github.com/forgeproof/forgeproof) | File-level | No | Partial (model/provider) | No | Apache 2.0 |
-| [Sigstore / cosign](https://docs.sigstore.dev/) | Artifact / container | No | No | No (keyless OIDC) | Yes |
-| [GitHub artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations) | CI artifact | No | No | No | Partial |
-| [SLSA](https://slsa.dev/) | Build provenance framework | No | No | N/A | Yes |
-| [in-toto](https://in-toto.io/) | Pipeline layout | No | No | Functionary keys | Yes |
-| [OpenSSF GUAC](https://github.com/guacsec/guac) | Aggregation graph | No | No | N/A | Yes |
+## Commit-time and artifact-time evidence
 
-Runtime audit tools (Provedex, ProvenanceOne, etc.) log **what agents do at runtime** — useful, but they do not bind authorship to Git history.
+Matrix Scroll binds an envelope to a Git commit before or around push. Build
+provenance and artifact-signing systems operate later, after CI has produced an
+artifact. A complete software supply-chain review may use both:
 
-## Closest commit-level competitors
+1. Matrix Scroll records the declared actor class, tool, scope, and commit SHA.
+2. Scroll Gate checks the selected commit range against key and policy inputs.
+3. CI produces build provenance and signs the resulting artifact.
+4. Reviewers compare the source-history and artifact evidence as separate
+   control records.
 
-### agentmark
+## Signer choices
 
-- **Similar:** Commit-time Ed25519 manifest, CI verification gate, EU AI Act Article 50 cited as a use case.
-- **Different:** Software pipeline keys carry exfiltration risk. Matrix Scroll also supports the SSX360 hardware-sealed Ed25519 signer with offline verification.
-- **Takeaway:** Strongest software-only peer. Matrix Scroll differentiates on tamper-resistant keys and commit-embedded envelopes.
+The file-backed provider is included for local use, tests, and CI. The completed
+SSX360 USB signer keeps the Ed25519 private key inside an NXP SE050 secure
+element and is supplied through [SSX360 contact](https://ssx360.com/contact).
+Both paths produce the same public envelope format.
 
-### Alien Agent ID
+## Limits
 
-- **Similar:** Ed25519 commit signing, public verification story.
-- **Different:** Owner binding via cloud OIDC/DPoP; proof bundles in git notes. Matrix Scroll emphasizes **offline verification** and dedicated hardware, not a hosted identity network.
-- **Takeaway:** Alien leads on human→agent delegation chains; Matrix Scroll leads on hardware non-repudiation without cloud dependency.
+- A valid envelope proves integrity and key possession, not authorization to
+  use the key.
+- Scroll Gate does not replace branch protection or reviewer approval.
+- Matrix Scroll does not establish a SLSA level or certify compliance.
+- Hardware custody, trusted-key registration, revocation, and offboarding are
+  deployment responsibilities.
 
-### ForgeProof
-
-- **Similar:** Ed25519 + SHA-256 provenance for AI-assisted code.
-- **Different:** **Per-file receipts** before build, not commit envelopes. The provenance record is a separate artifact; Matrix Scroll embeds evidence in every clone of the repo.
-- **Takeaway:** Complementary granularity (file vs commit); potential interop, not a fork in the road.
-
-## Established supply chain (CI / artifact)
-
-Sigstore, GitHub attestations, SLSA, in-toto, and GUAC secure **build outputs and pipeline steps**. They do not record which AI tool authored a line at commit time.
-
-Matrix Scroll envelopes can **feed** these systems (e.g., as in-toto link metadata or GUAC evidence) rather than compete with them.
-
-## What Matrix Scroll adds that others don’t combine
-
-1. **Commit-time** signing (not post-build artifact attestation)
-2. **Agent/human actor** in the envelope schema
-3. **Hardware root of trust** path (SSX360 / NXP SE050) plus emulated dev mode today
-4. **Offline verify** — `matrixscroll verify` or [matrixscroll.com/verify](https://matrixscroll.com/verify)
-
-No single competitor listed above combines all four today.
-
-## Honest gaps (what we’re still building)
-
-- **CI gate:** Scroll Gate ships in **0.2.3+** — PR commit-range verification via `envelope-verify-range`, git notes transport (`refs/notes/matrixscroll`), and filesystem bundles. [`matrixscroll/.github/actions/verify`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) supports `head-ref`/`base-ref` range mode with agent/human counts.
-- **Owner/delegation attestation:** Optional `delegation` block in commit envelope schema (**0.2.4+**); see [`delegation-attestation-rfc.md`](delegation-attestation-rfc.md). Alien still leads on OIDC/DPoP owner binding.
-- **Multi-agent commits:** Multiple actors in one envelope — on the roadmap.
-- **Rekor / GUAC export:** Dry-run CLI ships in **0.3.0** (`envelope-publish-rekor`, `envelope-export-guac`); full Rekor upload integration still in progress.
-- **Hardware:** SSX360 supplies the RP2350 and SE050 USB signer through [direct inquiry](https://ssx360.com/contact). The file-backed provider remains available for software-only use.
-
-## When to use what
-
-| You need… | Reach for… |
-|-----------|------------|
-| Container/image signatures, Rekor log | Sigstore / cosign |
-| SLSA Level 3 build provenance on GitHub Actions | `slsa-github-generator` + artifact attestations |
-| Supply chain graph / SBOM aggregation | GUAC |
-| Prove an AI pipeline wrote code with no human edit path (software keys) | agentmark |
-| Bind agent commits to a hosted human identity chain | Alien Agent ID |
-| Per-file “which model wrote this file” receipts | ForgeProof |
-| **Hardware-backed, commit-embedded agent provenance with offline verify** | **Matrix Scroll** |
-
-## Further reading
-
-- [Whitepaper](WHITEPAPER.md) — threat model and envelope design
-- [SPEC.md](../SPEC.md) — wire format and verification rules
-
-*Last updated: August 2026. Comparisons reflect public docs and OSS repos. Use [SSX360 contact](https://ssx360.com/contact) for corrections.*
+For protocol details, read [`SPEC.md`](../SPEC.md). For an implementation path,
+start with [`FIVE_MINUTES.md`](FIVE_MINUTES.md).

@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         # Exercise the current public action and SDK release together.
-        sdk: ["0.6.4"]
+        sdk: ["0.7.0"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,7 +73,7 @@ jobs:
         uses: ./.github/actions/verify
         with:
           manifest: vectors/tampered_signature.json
-          matrixscroll-version: "0.6.4"
+          matrixscroll-version: "0.7.0"
 
       - name: Assert the step failed and ok is false
         if: always()
@@ -110,7 +110,7 @@ jobs:
         with:
           manifest: examples/release-manifest.signed.json
           trusted-keys: .github/this-file-does-not-exist.json
-          matrixscroll-version: "0.6.4"
+          matrixscroll-version: "0.7.0"
 
       - name: Assert the crash reads as a failure, not a pass
         if: always()
@@ -150,7 +150,7 @@ jobs:
           fetch-notes: "false"
           trusted-keys: .github/this-file-does-not-exist.json
           summary-output: range-summary.json
-          matrixscroll-version: "0.6.4"
+          matrixscroll-version: "0.7.0"
 
       - name: Assert every range output is defined and false
         if: always()
@@ -193,7 +193,7 @@ jobs:
         continue-on-error: true
         uses: ./.github/actions/verify
         with:
-          matrixscroll-version: "0.6.4"
+          matrixscroll-version: "0.7.0"
 
       - name: Assert the configuration error is not a pass
         if: always()
@@ -214,4 +214,4 @@ jobs:
     with:
       manifest: examples/mcp/matrixscroll-mcp.signed.json
       baseline: examples/mcp/matrixscroll-mcp.baseline.json
-      matrixscroll_version: "0.6.4"
+      matrixscroll_version: "0.7.0"

@@ -37,8 +37,8 @@ to", "utilize", "prior to", "leverage" as a verb.
 ## No em-dashes
 
 Zero em-dashes (—). Zero en-dashes used as a separator ( – ). Use a hyphen, a
-comma, a period, or parentheses. An en-dash between digits is a numeric range and
-is fine ("SLSA L1-2").
+comma, a period, or parentheses. Use a hyphen for numeric ranges, as in
+"2024-2025".
 
 ## One negative parallelism maximum
 
@@ -64,7 +64,7 @@ is audit-proof.
 
 ## Claims that must stay true
 
-- **Version.** The published version is `0.6.4`. It is set in `pyproject.toml`
+- **Version.** The published version is `0.7.0`. It is set in `pyproject.toml`
   and confirmed by `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly
   in every install example. Never assert a version you have not checked.
 - **Hardware.** SSX360 produces the RP2350 and SE050 USB signer and supplies it

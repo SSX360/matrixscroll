@@ -5,7 +5,7 @@ Install the provenance MCP server so agents can sign and verify commit envelopes
 ## Install
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.4"
+pip install "matrixscroll[mcp]==0.7.0"
 ```
 
 The console script `matrixscroll-mcp` is the preferred entry point. `python -m matrixscroll.mcp` also works.
@@ -54,7 +54,7 @@ only for the tools that call the hosted SSX360 API.
 For Git hook and CI workflows without MCP, use:
 
 ```bash
-pip install "matrixscroll==0.6.4"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 ```
 
