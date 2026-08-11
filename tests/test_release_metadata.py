@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -98,7 +100,21 @@ def test_pypi_metadata_does_not_overclaim_hardware_availability():
 
 def test_dependabot_does_not_widen_the_incompatible_mcp_major():
     """MCP 2.x removed the FastMCP API used by the published server."""
-    config = (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    config = yaml.safe_load(
+        (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    )
+    pip_updates = [
+        update
+        for update in config["updates"]
+        if update["package-ecosystem"] == "pip" and update["directory"] == "/"
+    ]
 
-    assert 'versions: [">=2"]' in config
-    assert 'exclude-patterns: ["mcp"]' in config
+    assert len(pip_updates) == 1
+    update = pip_updates[0]
+    mcp_ignores = [
+        rule for rule in update["ignore"] if rule["dependency-name"] == "mcp"
+    ]
+
+    assert len(mcp_ignores) == 1
+    assert ">=2.0.0.dev0" in mcp_ignores[0]["versions"]
+    assert "mcp" in update["groups"]["dev-dependencies"]["exclude-patterns"]
