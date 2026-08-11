@@ -97,6 +97,19 @@ Call `connect_card` to probe the USB CDC bridge. Call `status` before signing to
 
 SSX360 supplies the physical signer through direct contact. PyPI distributes the host software and cannot supply hardware. The signer is not listed for self-service purchase.
 
+## Hardware acceptance vector
+
+A signed manifest produced by the SSX360 hardware signer lives under
+[`vectors/se050/`](../vectors/se050/). Verify it locally:
+
+```bash
+matrixscroll verify vectors/se050/vector_01.json
+pytest tests/test_se050_acceptance_vectors.py -v
+```
+
+The [browser verifier](https://matrixscroll.com/verify/) also exposes vector 01
+as **Load SE050 vector 01**.
+
 The secure element protects key custody. It does not establish who is authorized to use the device. Register the expected public key, control physical access, and define a revocation process before enforcing hardware signatures.
 
 The wire protocol is documented in [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md). The original acceptance scope remains in [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md).

@@ -69,15 +69,18 @@ class FormalRegistryMatchesSpecsTests(unittest.TestCase):
 class ScrollGateTraceTests(unittest.TestCase):
     """Implementation scenarios aligned with formal/tla/ScrollGate.tla invariants."""
 
-    def test_empty_range_passes(self):
+    def test_empty_range_fails_closed(self):
+        """F-G5: `AllValid` is vacuously true over an empty range, and does not pass."""
         summary = verify_envelope_range("HEAD", "HEAD", source="local")
-        self.assertTrue(summary["ok"])
+        self.assertFalse(summary["ok"])
         self.assertEqual(summary["total"], 0)
+        self.assertTrue(summary["empty_range"])
 
-    def test_enforce_semantics_all_valid_required(self):
-        """F-G3: if all commits valid, gate passes — tested via empty range baseline."""
-        summary = verify_envelope_range("HEAD", "HEAD", source="local")
+    def test_empty_range_opt_out_is_labelled(self):
+        """A caller may accept an empty range, and the result still says it was empty."""
+        summary = verify_envelope_range("HEAD", "HEAD", source="local", allow_empty=True)
         self.assertTrue(summary["ok"])
+        self.assertTrue(summary["empty_range"])
 
 
 if __name__ == "__main__":

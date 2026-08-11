@@ -22,6 +22,7 @@ jobs:
           sudo apt-get install -y cmake ninja-build
       - run: pip install -e ".[dev,pqc]"
       - run: pytest tests/test_vectors.py tests/test_canonical_pqc.py -v
+      - run: pytest tests/test_se050_acceptance_vectors.py -v
       - run: pytest tests/test_pqc.py tests/test_policy.py -v
 
   verify-signed-examples:
@@ -36,6 +37,7 @@ jobs:
       - name: Verify signed examples and conformance vector
         run: |
           matrixscroll verify vectors/valid_simple.json
+          matrixscroll verify vectors/se050/vector_01.json
           matrixscroll verify examples/agentic_ai_evidence_manifest.signed.json
           matrixscroll verify examples/commit-envelope.signed.json
           matrixscroll verify examples/release-manifest.signed.json

@@ -109,6 +109,7 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | `require-mode` | both | `""` | Policy require-mode (v0.2.1+) |
 | `trusted-keys` | both | `""` | Path to trusted public keys JSON (v0.2.1+) |
 | `summary-output` | range | `""` | Path for the full range verification JSON |
+| `allow-empty-range` | range | `false` | Explicitly accept a range holding no commits |
 | `verify-agent-scope` | range | `false` | Verify linked `agent_scope` manifest signatures |
 
 ## Outputs
@@ -132,16 +133,58 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | 1 | Configuration error |
 | 2 | Verification failed |
 
+## How the action fails
+
+Any state that is not an affirmative verified result writes `ok=False` and fails
+the step. That covers a verifier that crashes with a Python traceback, a verifier
+that prints nothing, JSON that claims success without the fields backing the
+claim, a `require-mode` the parsed result does not satisfy, and a call that sets
+neither `manifest` nor `head-ref`.
+
+Range mode rejects an empty range by default. Set `allow-empty-range: true` only
+when checking no commits is the intended result. An empty range still cannot
+satisfy `require-mode`, because it carries no signature-mode evidence.
+
+All eight outputs carry a value on every path. `ok` is `True` or `False`, spelled
+the way Python prints a bool. `verified_count`, `agent_count` and `human_count`
+default to `0`, and `device_id`, `mode`, `modes` and `summary_path` default to an
+empty string. A caller never
+reads a blank `ok`, which is the one value a workflow condition can quietly treat
+as success.
+
+When you set `continue-on-error: true` on the step, read the output rather than
+the step result:
+
+```yaml
+- name: Block the merge unless provenance verified
+  if: steps.verify.outputs.ok != 'True'
+  run: exit 1
+```
+
+Output that is not JSON goes to the log and the job summary so you can read the
+underlying error. Secret-shaped strings are masked first, and long output keeps
+its tail, where a traceback puts the exception.
+[`parse_verify_output.py`](parse_verify_output.py) holds this logic, and
+`tests/test_verify_action_parser.py` plus `tests/test_verify_action_step.py` pin
+it.
+
+`require-mode` is checked twice: the SDK applies it during verification, and the
+action rechecks the signature mode in the result it parsed. `verify-agent-scope`
+is checked by the SDK alone, because the range summary carries no per-commit
+scope field for the action to recheck. Both flags now fail closed when the pinned
+SDK is too old to recognise them, which previously surfaced as an argparse usage
+message and a blank output.
+
 ## Operator guidance
 
 For reproducible runs, SHA-pin this action rather than tracking `action-v1`, and
 set `matrixscroll-version` explicitly in every consumer instead of relying on the
 default.
 
-**Honest limits:** emulated Ed25519 signing ships today; hardware signing is
-preview until firmware validation passes. Compliance language is evidence
-mapping, not a certification claim. Illustrative profiles are not customer
-endorsements.
+**Honest limits:** emulated and SE050-backed Ed25519 signing are available; physical
+SSX360 USB signers are supplied through direct contact. Compliance language is
+evidence mapping, not a certification claim. Illustrative profiles are not
+customer endorsements.
 
 ## Proof links
 

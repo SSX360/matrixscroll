@@ -57,6 +57,7 @@ dev = [
     "pytest>=9.1.1",
     "build>=1.5.0",
     "hypothesis>=6.165.2",
+    "jsonschema>=4.23.0",
     "pytest-cov>=7.1.0",
 ]
 git = []
@@ -64,7 +65,8 @@ hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
-    "mcp>=2.0.0,<3.0.0",
+    # MCP 2.0 removed mcp.server.fastmcp; stay on the verified FastMCP API.
+    "mcp>=1.28.0,<2.0.0",
 ]
 
 [project.scripts]
@@ -97,6 +99,13 @@ Maintainer = "https://ssx360.com/about"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]
+
+# The schemas live at the repository root because SPEC.md and the docs link
+# them there. Map that directory next to the module so `pip install matrixscroll`
+# receives them too. `matrixscroll._schemas` reads this location first and falls
+# back to the repository root for source checkouts.
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "matrixscroll/schemas"
 
 [tool.hatch.build.targets.sdist]
 include = [

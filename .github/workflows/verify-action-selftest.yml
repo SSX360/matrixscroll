@@ -1,11 +1,21 @@
 name: verify-action selftest
 
-# Resolves the composite action and the reusable MCP gate through their public
-# `SSX360/matrixscroll/...@action-v1` references, the same path an external
-# consumer takes, rather than through a local `./` path. Dispatch after moving
-# the `action-v1` tag to confirm the tag serves a working action.
+# The passing manifest and reusable MCP jobs exercise the public `action-v1`
+# release exactly as an external consumer does. Failure jobs exercise the
+# checked-out action so a pull request cannot pass by testing an older tag.
+#
+# Four of the jobs below exist to prove the gate fails closed. The action used
+# to parse CLI output with inline `json.loads` calls under `set -euo pipefail`,
+# so a verifier that printed a traceback killed the step before it wrote a single
+# output, and the caller read an empty `ok` rather than a false. Every job here
+# asserts that `ok` carries a literal `True` or `False`, never a blank.
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/actions/verify/**"
+      - ".github/workflows/verify-action-selftest.yml"
   workflow_dispatch:
 
 permissions:
@@ -13,28 +23,190 @@ permissions:
 
 jobs:
   manifest-mode:
+    name: pass, manifest mode, SDK ${{ matrix.sdk }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Exercise the current public action and SDK release together.
+        sdk: ["0.6.4"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify a signed example manifest
         id: verify
         uses: SSX360/matrixscroll/.github/actions/verify@action-v1
         with:
           manifest: examples/release-manifest.signed.json
-          matrixscroll-version: "0.6.4"
+          matrixscroll-version: ${{ matrix.sdk }}
 
       - name: Assert outputs
+        env:
+          OK: ${{ steps.verify.outputs.ok }}
+          DEVICE_ID: ${{ steps.verify.outputs.device_id }}
+          MODE: ${{ steps.verify.outputs.mode }}
         run: |
           set -euo pipefail
-          echo "ok=${{ steps.verify.outputs.ok }}"
-          echo "device_id=${{ steps.verify.outputs.device_id }}"
-          echo "mode=${{ steps.verify.outputs.mode }}"
+          echo "ok=[$OK] device_id=[$DEVICE_ID] mode=[$MODE]"
           # The action prints Python's bool, so "True" today. Accept the JSON
           # spelling too rather than fail for the wrong reason if that changes.
-          case "${{ steps.verify.outputs.ok }}" in
+          case "$OK" in
             True|true) ;;
             *) echo "verification did not report ok" >&2; exit 1 ;;
+          esac
+          [ -n "$DEVICE_ID" ] || { echo "device_id is empty" >&2; exit 1; }
+          [ -n "$MODE" ] || { echo "mode is empty" >&2; exit 1; }
+
+  legitimate-failure:
+    name: fail closed, tampered manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify a manifest whose signature does not match its bytes
+        id: verify
+        continue-on-error: true
+        uses: ./.github/actions/verify
+        with:
+          manifest: vectors/tampered_signature.json
+          matrixscroll-version: "0.6.4"
+
+      - name: Assert the step failed and ok is false
+        if: always()
+        env:
+          OUTCOME: ${{ steps.verify.outcome }}
+          OK: ${{ steps.verify.outputs.ok }}
+          DEVICE_ID: ${{ steps.verify.outputs.device_id }}
+        run: |
+          set -euo pipefail
+          echo "outcome=[$OUTCOME] ok=[$OK] device_id=[$DEVICE_ID]"
+          [ "$OUTCOME" = "failure" ] || { echo "the step should have failed" >&2; exit 1; }
+          [ -n "$OK" ] || { echo "ok is blank, so a caller can read it as a pass" >&2; exit 1; }
+          case "$OK" in
+            False|false) ;;
+            *) echo "ok should be false, got [$OK]" >&2; exit 1 ;;
+          esac
+
+  crashed-verifier-manifest-mode:
+    name: fail closed, verifier crashes in manifest mode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # A trusted-keys path that is not there makes the SDK raise
+      # FileNotFoundError out of VerifyPolicy.from_json_file. The CLI prints a
+      # Python traceback rather than JSON, which is the exact input that used to
+      # kill the step before it wrote an output.
+      - name: Verify with a trusted-keys file that does not exist
+        id: verify
+        continue-on-error: true
+        uses: ./.github/actions/verify
+        with:
+          manifest: examples/release-manifest.signed.json
+          trusted-keys: .github/this-file-does-not-exist.json
+          matrixscroll-version: "0.6.4"
+
+      - name: Assert the crash reads as a failure, not a pass
+        if: always()
+        env:
+          OUTCOME: ${{ steps.verify.outcome }}
+          OK: ${{ steps.verify.outputs.ok }}
+          DEVICE_ID: ${{ steps.verify.outputs.device_id }}
+          MODE: ${{ steps.verify.outputs.mode }}
+          VERIFIED: ${{ steps.verify.outputs.verified_count }}
+        run: |
+          set -euo pipefail
+          echo "outcome=[$OUTCOME] ok=[$OK] device_id=[$DEVICE_ID] mode=[$MODE] verified_count=[$VERIFIED]"
+          [ "$OUTCOME" = "failure" ] || { echo "a crashed verifier must fail the step" >&2; exit 1; }
+          [ -n "$OK" ] || { echo "ok is blank, so a caller can read it as a pass" >&2; exit 1; }
+          case "$OK" in
+            False|false) ;;
+            *) echo "ok should be false, got [$OK]" >&2; exit 1 ;;
+          esac
+          [ "$VERIFIED" = "0" ] || { echo "verified_count should default to 0, got [$VERIFIED]" >&2; exit 1; }
+
+  crashed-verifier-range-mode:
+    name: fail closed, verifier crashes in range mode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify a commit range with a trusted-keys file that does not exist
+        id: verify
+        continue-on-error: true
+        uses: ./.github/actions/verify
+        with:
+          head-ref: ${{ github.sha }}
+          source: notes
+          fetch-notes: "false"
+          trusted-keys: .github/this-file-does-not-exist.json
+          summary-output: range-summary.json
+          matrixscroll-version: "0.6.4"
+
+      - name: Assert every range output is defined and false
+        if: always()
+        env:
+          OUTCOME: ${{ steps.verify.outcome }}
+          OK: ${{ steps.verify.outputs.ok }}
+          VERIFIED: ${{ steps.verify.outputs.verified_count }}
+          AGENT: ${{ steps.verify.outputs.agent_count }}
+          HUMAN: ${{ steps.verify.outputs.human_count }}
+          MODES: ${{ steps.verify.outputs.modes }}
+          SUMMARY_PATH: ${{ steps.verify.outputs.summary_path }}
+        run: |
+          set -euo pipefail
+          echo "outcome=[$OUTCOME] ok=[$OK] verified=[$VERIFIED] agent=[$AGENT] human=[$HUMAN] modes=[$MODES] summary_path=[$SUMMARY_PATH]"
+          [ "$OUTCOME" = "failure" ] || { echo "a crashed verifier must fail the step" >&2; exit 1; }
+          case "$OK" in
+            False|false) ;;
+            *) echo "ok should be false, got [$OK]" >&2; exit 1 ;;
+          esac
+          for pair in "verified_count:$VERIFIED" "agent_count:$AGENT" "human_count:$HUMAN"; do
+            if [ "${pair#*:}" != "0" ]; then
+              echo "${pair%%:*} should default to 0, got [${pair#*:}]" >&2
+              exit 1
+            fi
+          done
+          # The verifier never got far enough to write the summary file, so the
+          # action must not claim a path for it.
+          [ -z "$SUMMARY_PATH" ] || { echo "summary_path claims [$SUMMARY_PATH] but the file was never written" >&2; exit 1; }
+
+  missing-inputs:
+    name: fail closed, neither manifest nor head-ref
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Call the action with nothing to verify
+        id: verify
+        continue-on-error: true
+        uses: ./.github/actions/verify
+        with:
+          matrixscroll-version: "0.6.4"
+
+      - name: Assert the configuration error is not a pass
+        if: always()
+        env:
+          OUTCOME: ${{ steps.verify.outcome }}
+          OK: ${{ steps.verify.outputs.ok }}
+        run: |
+          set -euo pipefail
+          echo "outcome=[$OUTCOME] ok=[$OK]"
+          [ "$OUTCOME" = "failure" ] || { echo "a missing input must fail the step" >&2; exit 1; }
+          case "$OK" in
+            False|false) ;;
+            *) echo "ok should be false, got [$OK]" >&2; exit 1 ;;
           esac
 
   mcp-gate:

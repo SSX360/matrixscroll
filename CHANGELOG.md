@@ -6,6 +6,51 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- Range verification results now report agent-scope details and the formal model
+  includes the default-path invariant `Inv_EmptyRangeFailsClosed`.
+- Added `schemas/ssx360.evidence-pack.v1.json` for the document written by the
+  evidence-pack exporter.
+- Added a hardware-signed SE050 acceptance vector with CLI and CI verification.
+- You can explicitly set the composite action's `allow-empty-range` input. It
+  remains disabled by default and cannot satisfy a signature-mode requirement.
+
+### Changed
+- Empty commit ranges now return `ok: false` by default. CLI and Python callers
+  that intentionally accept an empty range must opt in explicitly. MCP callers
+  use the same explicit opt-in and fail closed by default.
+- Documentation now describes the shipped 14-tool MCP server and completed USB
+  signer directly, without retired pricing tiers or level-based product gates.
+- Development, documentation, and GitHub Action dependencies were refreshed.
+
+### Fixed
+- **The verify action could hand a caller a blank `ok` when the verifier
+  crashed.** It now writes all eight outputs on every path, masks captured
+  verifier output in the job summary, and distinguishes tool failures from
+  legitimate verification failures. Parser and action-step tests cover crashes,
+  silent output, malformed JSON, and signature failures.
+- Unhandled CLI exceptions now return structured JSON with exit status 1 instead
+  of leaking a traceback into automation output.
+- Evidence-pack annotations no longer mutate signed hosted response bodies.
+- JSON schemas now ship in wheels and MCP schema resources resolve the installed
+  copies.
+- The MCP extra now requires the verified 1.28+ SDK line; earlier 1.x releases
+  cannot register the server's annotated tools, and MCP 2.0 removed the
+  `mcp.server.fastmcp` API entirely.
+- You receive an explicit rejection when a hosted MCP Git range is empty, before
+  any API call. Non-empty ranges send the resolved commit SHAs.
+- Hosted CLI checks now write `--summary-output` on successful and empty-range
+  responses, matching local checks.
+- Local evidence-pack documents without a `bundle` now fail schema validation,
+  and CI verifies all eight schemas from an isolated wheel installation.
+
+### Removed
+- **Breaking:** removed `matrixscroll claim`, `matrixscroll identity`, the
+  `--identity` verification flag, and their private paid-enrollment client. The
+  retired service no longer issues identity certificates; device identity
+  remains the local Ed25519 key pair reported by `matrixscroll status`.
+- Removed the retired platform-pricing and signup guide.
+
 ## [0.6.4] - 2026-08-11
 
 Documentation and release metadata. No wire-format change.
@@ -341,6 +386,12 @@ Initial public release. Extracted from the SSX360 reference implementation.
 [0.6.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.0
 [0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0
+[0.4.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.4.2
+[0.4.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.4.1
+[0.3.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.3.0
+[0.2.6]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.6
+[0.2.5]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.5
+[0.2.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.4
 [0.2.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.2
 [0.2.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.1
 [0.2.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.0

@@ -19,6 +19,7 @@ from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from . import mcp_core as core
+from ._schemas import schema_path
 from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
 from .cloud.client import list_envelopes as cloud_list_envelopes
 from .cloud.client import verify_range as cloud_verify_range
@@ -43,8 +44,7 @@ _HOSTED_NETWORK = ToolAnnotations(
     openWorldHint=True,
 )
 
-SIGNUP_URL = "https://ssx360.com/signup"
-DOCS_URL = "https://ssx360.com/docs"
+DOCS_URL = "https://matrixscroll.com/docs/"
 
 
 def _require_api_key(feature: str) -> dict[str, Any] | None:
@@ -57,11 +57,11 @@ def _require_api_key(feature: str) -> dict[str, Any] | None:
         "ok": False,
         "error": "api_key_required",
         "message": (
-            f"{feature} requires SSX360_API_KEY. "
-            "Community tier includes 100 CI verifications/day. "
-            f"Get a key at {SIGNUP_URL}"
+            f"{feature} reaches the hosted SSX360 API and needs SSX360_API_KEY. "
+            "Verification itself needs no key: call `verify_envelope`, or "
+            "`verify_pr_range` with source local, notes, or bundle. "
+            f"See {DOCS_URL}"
         ),
-        "signup_url": SIGNUP_URL,
         "docs_url": DOCS_URL,
     }
 
@@ -86,9 +86,9 @@ mcp = FastMCP(
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCHEMA_PATH = _REPO_ROOT / "schemas" / "commit-envelope.v1.json"
-_ACTION_SCHEMA_PATH = _REPO_ROOT / "schemas" / "action-envelope.v1.json"
-_MCP_MANIFEST_SCHEMA_PATH = _REPO_ROOT / "schemas" / "ssx360.mcp-manifest.v1.json"
+_SCHEMA_PATH = schema_path("commit-envelope.v1.json")
+_ACTION_SCHEMA_PATH = schema_path("action-envelope.v1.json")
+_MCP_MANIFEST_SCHEMA_PATH = schema_path("ssx360.mcp-manifest.v1.json")
 _SPEC_PATH = _REPO_ROOT / "SPEC.md"
 
 
@@ -378,6 +378,12 @@ def verify_pr_range(
         list[str] | None,
         Field(description="Optional deny-list of provenance.actor_type values."),
     ] = None,
+    allow_empty: Annotated[
+        bool,
+        Field(
+            description="Explicitly accept an empty range. Defaults to false and the result remains labelled empty."
+        ),
+    ] = False,
 ) -> dict[str, Any]:
     """Scroll Gate: verify signed/unsigned commits across a PR commit range.
 
@@ -400,6 +406,7 @@ def verify_pr_range(
         require_mode: Policy require_mode filter.
         trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.
         require_actor_types / deny_actor_types: Actor policy lists.
+        allow_empty: Accept a labelled empty range. Defaults to false.
     """
     if source in ("local", "notes", "bundle"):
         return core.verify_pr_range(
@@ -413,13 +420,35 @@ def verify_pr_range(
             trusted_keys_file=trusted_keys_file,
             require_actor_types=require_actor_types,
             deny_actor_types=deny_actor_types,
+            allow_empty=allow_empty,
         )
 
     auth_err = _require_api_key("verify_pr_range (hosted Scroll Gate)")
     if auth_err:
         return auth_err
     try:
-        return cloud_verify_range(base=base, head=head)
+        shas = core.commits_for_range(workspace, base=base, head=head)
+        if not shas:
+            result = {
+                "ok": bool(allow_empty),
+                "base": base,
+                "head": head,
+                "total": 0,
+                "verified_count": 0,
+                "empty_range": True,
+                "allow_empty_range": bool(allow_empty),
+            }
+            if not allow_empty:
+                result["error"] = (
+                    f"no commits in range {base or '(root)'}..{head}, so nothing "
+                    "was verified"
+                )
+            return result
+        return cloud_verify_range(
+            base=base,
+            head=head,
+            commits=[{"sha": sha} for sha in shas],
+        )
     except Exception as exc:
         return _cloud_error(exc)
 
@@ -599,7 +628,7 @@ def audit_export(
         Literal["json", "guac", "evidence-pack"],
         Field(
             description="Export serialization: json (envelope bundle), guac (GUAC JSONL ingest), or "
-            "evidence-pack (hosted Team+ procurement bundle with verification metadata).",
+            "evidence-pack (compliance bundle with verification metadata).",
         ),
     ] = "json",
     include_verification: Annotated[
@@ -640,7 +669,7 @@ def audit_export(
     Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.
     Prefer ``list_envelopes`` to browse hosted metadata without exporting files.
 
-    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export.
+    Hosted mode requires SSX360_API_KEY and calls ssx360.com/api/v1/audit/export.
     Local fallback: exports from git notes or on-disk envelopes when no API key.
     Side effects: writes files under ``output_dir`` locally; hosted mode returns
     download metadata. Returns ``{ok, bundle?, download_url?, error?}``.
@@ -731,8 +760,8 @@ def list_envelopes(
 
 _CONNECT_CARD_DESCRIPTION = (
     "Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.\n\n"
-    "Use before hardware signing pilots to confirm the reader responds on the serial port. "
-    "Do not use for everyday signing — use create_envelope (emulated mode) instead. "
+    "Use before hardware signing to confirm the reader responds on the serial port. "
+    "Use create_envelope for signing after hardware mode is configured. "
     "Do not use for verification — call verify_envelope after envelopes exist. "
     "Prefer status to check local identity without opening USB.\n\n"
     "Side effects: opens a short-lived serial session; does not export private keys. "
@@ -774,10 +803,10 @@ def connect_card(
 ) -> dict[str, Any]:
     """Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.
 
-    Use before hardware signing pilots to confirm the reader responds on the serial
-    port. Do not use for everyday signing — emulated mode via ``create_envelope`` is
-    the default path. Do not use for verification — call ``verify_envelope`` after
-    envelopes exist. Prefer ``status`` to check local identity without opening USB.
+    Use before hardware signing to confirm the reader responds on the serial port.
+    Use ``create_envelope`` for signing after hardware mode is configured. Do not
+    use this probe for verification; call ``verify_envelope`` after envelopes exist.
+    Prefer ``status`` to check local identity without opening USB.
 
     Side effects: opens a short-lived serial session; does not export private keys.
     No SSX360_API_KEY required. Returns ``{ok, mode, reader_name, available?, error?}``.

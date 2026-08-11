@@ -11,6 +11,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    ignore:
+      # MCP 2.x removed mcp.server.fastmcp; keep receiving compatible 1.x updates.
+      - dependency-name: "mcp"
+        update-types: ["version-update:semver-major"]
     groups:
       dev-dependencies:
         dependency-type: "development"

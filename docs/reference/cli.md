@@ -16,9 +16,14 @@ is the source of truth.
 | Command | Purpose |
 | --- | --- |
 | `matrixscroll status` | Print the active identity, plus a `pqc` block, as JSON. See [`status()` fields](python-api.md#status-fields). |
-| `matrixscroll identity` | Report whether this key carries a verified-identity certificate. Exits `0` when valid, `2` when absent or expired. |
-| `matrixscroll claim` | Bind this key to a verified SSX360 identity. The only command here that needs network access and an account. |
 | `matrixscroll pqc-keygen --algorithm <algo>` | Generate or load an ML-DSA or SLH-DSA key. Needs the `pqc` extra. |
+
+A device identity is the Ed25519 key pair under `MATRIXSCROLL_HOME`. The first
+command that needs it creates it offline in that directory. `matrixscroll claim`
+and `matrixscroll identity` were the client half of a retired enrollment service
+and are removed from the next release. The
+[changelog](https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md)
+records the breaking change.
 
 ## Signing and verifying
 
@@ -53,6 +58,20 @@ is the source of truth.
 | `--require-mode emulated\|hardware` | Reject signatures not produced by that provider. |
 | `--trusted-keys <path>` | Restrict acceptance to a key allowlist. |
 | `--summary-output <path>` | Write agent and human commit counts as JSON. |
+| `--allow-empty-range` | Report `ok` for a range holding no commits. Off by default. |
+
+A range holding no commits exits `2` and reports `"empty_range": true`. "Every
+commit here is signed" is a claim about the empty set when the range is empty,
+and a mistyped `--base`, a shallow clone, or a force-push that collapsed the
+range all produce one. Pass `--allow-empty-range` where an empty range is
+expected, such as a re-run of an already-merged commit. `empty_range` is on every
+summary, so a reader can tell "nothing to verify" apart from "everything
+verified" whichever way `ok` came out.
+
+Each row under `results` carries `agent_scope` and `agent_scope_verified` when
+the envelope declares a scope manifest, so a caller that passed
+`--verify-agent-scope` can confirm the policy ran rather than trust that it did.
+The summary totals those rows as `agent_scope_verified_count`.
 
 ## MCP trust
 
