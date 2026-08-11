@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "1a2183ea887e278987c9ded1adfc6b63c163ff3c",
+    "author": {
+      "date": "1786465375 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786465375 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Harden the verification action boundary\n",
+    "parents": [
+      "035549d8c13ab775b01d5841f0c8a0f1744358bd"
+    ],
+    "tree": "20b883efcdd78781ba88c9cb366e25f75f186d02"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/resolve-repository-branches",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T16:22:55Z",
+    "value": "Tz4pyvU/SEKiuL5LZUSZ+8JGlgcM96ik9LJdLTBrqlxFd+0MF2T2TPsVNW3T2pn2a9yeSyvbe0aPX1fmwrndBQ=="
+  }
+}
