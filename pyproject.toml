@@ -64,7 +64,8 @@ hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
-    "mcp>=2.0.0,<3.0.0",
+    # MCP 2.0 removed mcp.server.fastmcp; stay on the verified FastMCP API.
+    "mcp>=1.0.0,<2.0.0",
 ]
 
 [project.scripts]

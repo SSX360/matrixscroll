@@ -32,6 +32,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Evidence-pack annotations no longer mutate signed hosted response bodies.
 - JSON schemas now ship in wheels and MCP schema resources resolve the installed
   copies.
+- The MCP extra remains on the verified 1.x SDK line; MCP 2.0 removed the
+  `mcp.server.fastmcp` API used by the shipped server.
 
 ### Removed
 - **Breaking:** removed `matrixscroll claim`, `matrixscroll identity`, the
