@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
 import subprocess
 import unittest
 from pathlib import Path
@@ -35,6 +37,10 @@ class MCPProvenanceTests(unittest.TestCase):
 
     def test_status_reports_hooks_and_envelopes(self) -> None:
         install_hooks(self.repo)
+        if os.name != "nt":
+            for name in ("post-commit", "pre-push"):
+                mode = stat.S_IMODE((self.repo / ".git" / "hooks" / name).stat().st_mode)
+                self.assertEqual(mode, 0o700)
         envelope = sign_commit_envelope(build_commit_envelope(commit_sha="HEAD", root=self.repo))
         save_envelope(envelope, self.repo)
         res = status(str(self.repo))
