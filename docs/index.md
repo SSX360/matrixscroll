@@ -13,7 +13,7 @@ Matrix Scroll is an open protocol. It is free, permanently, and is not
 monetized.
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.6.4"
 ```
 
 ## Start here
@@ -59,15 +59,13 @@ section. If you are trying to get something working, read the how-to guides.
 
 ## Honest limits
 
-- **Shipping now.** PyPI `matrixscroll==0.6.3`, Git post-commit hooks,
+- **Shipping now.** PyPI `matrixscroll==0.6.4`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
   verification (partial SLSA L1-2), the browser verifier, the GitHub Action, and
-  a USB CDC host transport. Emulated mode is the default evaluation path.
-- **Prototype, bench only.** NXP SE050 M1 signing proof of concept, and the Pico
-  2 W / RP2350 + GMT130 display bring-up locked 2026-07-21. Live SE050 signing on
-  the display bring-up stays fail-closed pending an NXP Plug and Trust restore.
-  Not generally available. See
-  [Trust boundaries](explanation/trust-boundaries.md).
+  the `matrixscroll-mcp` stdio server. Emulated mode is the default provider.
+- **Direct-contact hardware.** SSX360 produces the RP2350 and NXP SE050 USB
+  signer and supplies it through `ssx360.com/contact`. PyPI distributes the USB
+  CDC host transport. See [Trust boundaries](explanation/trust-boundaries.md).
 - **Roadmap.** External Ed25519-capable hardware key backends and
   transparency-log integration.
 - **Not.** Identity and access management, sandboxing, prompt filtering, or an

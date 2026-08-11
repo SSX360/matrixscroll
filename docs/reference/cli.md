@@ -76,7 +76,7 @@ See [Scan an MCP server for drift](../how-to/scan-mcp-server.md).
 
 | Variable | Effect |
 | --- | --- |
-| `MATRIXSCROLL_MODE` | Select the provider. `emulated` is the default and the supported evaluation path. `hardware` targets the SE050 bench prototype, which is not generally available. `yubikey` and `tpm` are experimental previews that run a mock path. |
+| `MATRIXSCROLL_MODE` | Select the provider. `emulated` is the file-backed default. `hardware` targets the direct-contact SSX360 SE050 signer. `yubikey` and `tpm` are experimental previews that run a mock path. |
 | `MATRIXSCROLL_HOME` | Override the key-store directory. Defaults to `~/.matrixscroll`. |
 | `MATRIXSCROLL_ACTOR_TYPE` | Record the actor on the next commit: `human`, `agent`, or `ci`. |
 | `MATRIXSCROLL_TOOL` | Record the tool that produced the commit. |

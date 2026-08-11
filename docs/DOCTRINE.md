@@ -20,7 +20,7 @@ The buyer is a security or platform team, but the user who decides if we win is 
 
 ### 3. Every claim must be falsifiable — in marketing, in code, in README.
 
-The Honest Limits section is the brand. Emulated signing is called emulated. Hardware prototype (bench) is not "hardware-backed signing ships today" and is never GA until productized. Illustrative deployment profiles carry their disclaimer. "Aligned to SSDF / EU AI Act," never "certified" until a third party says so. The site, the PyPI page, the action README, and the sales deck must say the identical thing — the buyer we want is trained to find the gap, and finding one costs us the category. Unfalsifiable copy ("100% of AI writes") is a bug; file it and fix it like one.
+The Honest Limits section is the brand. Emulated signing is called emulated. PyPI distributes the host software. SSX360 supplies the completed USB signer through direct inquiry, which is different from self-service or retail distribution. Illustrative deployment profiles carry their disclaimer. "Aligned to SSDF / EU AI Act," never "certified" until a third party says so. The site, the PyPI page, the action README, and the sales deck must say the identical thing. The buyer we want is trained to find the gap, and finding one costs us the category. Unfalsifiable copy ("100% of AI writes") is a bug; file it and fix it like one.
 
 ### 4. Dogfood the provenance or don't ship it.
 
@@ -35,7 +35,7 @@ The market's live pain: unattributed machine-speed writes are breaking platforms
 - **Evidence Pack** as the flagship artifact. Signed, versioned, downloadable, self-verifying, mapped field-by-field to the frameworks we name. Optimize its legibility before optimizing anything else.
 - **Verification everywhere git goes.** CI gate hardening, server-side enforcement for self-hosters, offline verify, browser verify. Verification speed, determinism, and zero-false-positive behavior are the performance metrics that matter.
 - **Forge-agnostic integrations** as first-class citizens: the same install, the same gate, the same export on GitHub, GitLab, and Forgejo/Gitea. Treat every integration doc as a landing page.
-- **Hardware as device-bound identity** — activation, custody, revocation, offboarding. One clear story. The secure-element signing path is a bench-validated prototype for pilot evaluation; it graduates to GA only when productized, and not one sentence sooner.
+- **Hardware as device-bound identity.** The RP2350 and SE050 USB signer keeps the Ed25519 private key inside the secure element. SSX360 supplies completed units through direct inquiry. Device custody, trusted-key registration, revocation, and offboarding remain deployment responsibilities.
 - **Crawlability and machine-readability** of everything public. Specs, docs, llms.txt, sitemaps, plain-markdown paths. When a buyer's AI assistant is asked "what is Matrix Scroll," our own text must be the answer.
 
 ## Hold — maintained, not grown

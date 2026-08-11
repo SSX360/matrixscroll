@@ -5,20 +5,20 @@ manifest bytes today.
 
 | Product | Status | Access | Notes |
 |---------|--------|--------|-------|
-| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.3` | Hooks, envelopes, Scroll Gate, policy CLI |
+| **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.6.4` | Hooks, envelopes, Scroll Gate, policy CLI |
 | **Scroll Gate CI** | GA | [`matrixscroll/.github/actions/verify@action-v1`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) | PR range + manifest verify |
 | **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
 | **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
 | **GUAC export CLI** | MVP | `matrixscroll envelope-export-guac` | Same manifest contract |
 | **Rekor publish CLI** | Dry-run | `matrixscroll envelope-publish-rekor --dry-run` | Evidence export, not new signing mode |
-| **SE050 host preview** | Preview | `MATRIXSCROLL_MODE=hardware` | USB CDC host transport + mock path |
+| **SSX360 USB signer** | Direct contact | [Contact SSX360](https://ssx360.com/contact) | RP2350 USB bridge and NXP SE050 secure element |
 | **External key backends** | In progress | provider research | Only graduates when the backend preserves Ed25519 over canonical bytes |
 | **TypeScript verifier** | Planned | npm package | Phase 3 |
 
 ## Developer install
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.6.4"
 matrixscroll hook-install
 export MATRIXSCROLL_ACTOR_TYPE=agent
 export MATRIXSCROLL_TOOL=agent-runner
@@ -34,16 +34,15 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
     head-ref: ${{ github.event.pull_request.head.sha }}
     base-ref: ${{ github.event.pull_request.base.sha }}
     source: notes
-    matrixscroll-version: "0.6.3"
+    matrixscroll-version: "0.6.4"
     summary-output: provenance-summary.json
 ```
 
 ## Honest limits
 
-- L1 emulated signing is the default root of trust until the L2 Hardware
-  prototype is selected for pilot evaluation (`MATRIXSCROLL_MODE=hardware`)
-  sign-off is complete.
-- The SE050 path is a trust upgrade, not a dependency for adoption.
+- The file-backed provider remains the default until a deployment selects
+  `MATRIXSCROLL_MODE=hardware` and registers the expected signer key.
+- The SSX360 signer changes key custody. Matrix Scroll adoption does not require it.
 - Existing security keys are complementary today and become first-class Matrix
   Scroll backends only when they preserve the same Ed25519 contract.
 

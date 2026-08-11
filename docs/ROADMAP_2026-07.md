@@ -1,49 +1,38 @@
-# Matrix Scroll Public Roadmap
+# Matrix Scroll public roadmap
 
-_Published: June 21, 2026 · Updated: July 21, 2026_
+Published June 21, 2026. Updated August 11, 2026.
 
-This roadmap is intentionally narrow. Matrix Scroll earns trust by stabilizing
-what ships now before widening the story.
+Matrix Scroll stabilizes the verifier contract before adding new signing providers or hosted features.
 
-## Baseline on June 21, 2026
+## Current release
 
-- GitHub: early public repo, product-first docs, and offline verification
-- Current public release: `matrixscroll==0.6.3`
-- Public trust contract: pure Ed25519 over canonical manifest bytes
-- Hardware path: SSX360 SE050 reference implementation in progress
+- PyPI release: `matrixscroll==0.6.4`
+- MCP transport: stdio through `matrixscroll-mcp`
+- Public trust contract: Ed25519 over canonical manifest bytes
+- Software provider: file-backed key under `MATRIXSCROLL_HOME`
+- Hardware provider: SSX360 RP2350 and SE050 USB signer, supplied through direct inquiry
 
-## Update — July 21, 2026 (L2 Hardware prototype)
+## Completed hardware work
 
-- Pico 2 W / RP2350 USB CDC + CYW43 LED + GMT130 ST7789 pixels locked
-- SE050 M1 signing PoC remains bench-validated (contractor firmware); display
-  bring-up UF2 keeps live SE050 fail-closed until NXP backend restore
-- Public claim: **Prototype (bench)** — not GA
+- The RP2350 USB CDC bridge carries `GEN_KEY`, `GET_PUBKEY`, and `SIGN` requests.
+- The SE050 creates a non-exportable Ed25519 key and returns detached signatures.
+- The GMT130 display and status controls are assembled with the signer.
+- `matrixscroll[hardware]` connects the Python SDK and MCP server to the USB CDC port.
 
-## Next 7 days
+## Next work
 
-- keep install pins on `matrixscroll==0.6.3` unless a docs-only `0.6.3` publish
-- align site, README, action docs, and PyPI around one honest hardware ladder
-- remove broken links and stale release drift from public copy
+- Publish device provisioning and trusted-key registration instructions.
+- Add physical approval policy for deployments that require user presence.
+- Define revocation and offboarding records for a replaced signer.
+- Evaluate external Ed25519-capable key backends against the same verifier contract.
 
-## Next 30 days
+## Stable contracts
 
-- restore NXP Plug & Trust on the bring-up UF2 for live `pubkey`/`sign`
-- physical-approval gate (button/touch) after continuity
-- secure one public adopter, pilot repo, or testimonial
-- publish rollout criteria for external Ed25519-capable key backends
+- Commit-envelope schema
+- CLI exit codes
+- Offline verification behavior
+- MCP tool names for the `0.6.x` release line
 
-## What will stay stable
+## Release rule
 
-- commit-envelope schema
-- CLI exit-code contract
-- offline verification behavior
-
-## What will raise trust fastest
-
-1. one public user proof asset
-2. stable release cadence
-3. clean docs and reproducible verification
-4. honest hardware status (prototype ≠ GA)
-
-Matrix Scroll will earn trust by making those signals obvious, not by claiming
-hardware GA before the NXP backend is restored on the shipping UF2.
+Every release keeps `pyproject.toml`, `matrixscroll.__version__`, install examples, the GitHub release, and PyPI metadata on the same version. PyPI publishes through `.github/workflows/publish.yml` with Trusted Publishing.

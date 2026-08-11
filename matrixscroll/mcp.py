@@ -77,7 +77,7 @@ mcp = FastMCP(
         "Matrix Scroll MCP exposes provenance verbs for AI agent governance: "
         "create and verify RFC 8032 Ed25519 commit envelopes, sign universal action types "
         "(ci_step, iac_change, db_migration, api_call, contract_deploy), run Scroll Gate "
-        "(hosted partial SLSA L1–2), publish git notes, and export audit bundles. "
+        "through local or hosted range verification, publish git notes, and export audit bundles. "
         "Prefer ``status`` first in a new repo. "
         "Verification tools are read-only; ``create_envelope``, ``sign_action``, "
         "``publish_notes``, and ``audit_export`` write local artifacts. Hosted "

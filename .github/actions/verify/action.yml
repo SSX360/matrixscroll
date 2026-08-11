@@ -38,9 +38,9 @@ inputs:
     required: false
     default: "3.12"
   matrixscroll-version:
-    description: matrixscroll package version pin (recommended 0.6.3)
+    description: matrixscroll package version pin (recommended 0.6.4)
     required: false
-    default: "0.6.3"
+    default: "0.6.4"
   require-mode:
     description: Optional policy require-mode (v0.2.1+)
     required: false
