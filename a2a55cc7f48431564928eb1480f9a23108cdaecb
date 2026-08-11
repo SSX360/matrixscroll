@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "a2a55cc7f48431564928eb1480f9a23108cdaecb",
+    "author": {
+      "date": "1783037281 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783037281 -0400",
+      "email": "noreply@github.com",
+      "name": "GitHub"
+    },
+    "message": "claims-sync 2026-07: release-readiness and interop docs (#20)\n\n* claims-sync 2026-07: release-readiness gate and standards interop docs\n\n* claims-sync 2026-07: align compliance and hardware honest limits\n\n* 100-point 2026-07: SDK README proof links and SE050 firmware validation wording\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* docs: add commercial README linking Boja/Oliver runbooks\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* 100-point 2026-07: SDK README compliance order and matrixscroll.com proof links\n\n* fix: README test count 123 to 146 (pytest collect-only)\n\n* 100-point 2026-07: extend release-readiness README pin gate\n\nrelease-readiness.py now fails when README install pins disagree with\npyproject/PyPI. Add 100-point scorecard addendum for cross-repo QA.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n---------\n\nCo-authored-by: Ryan James David York <security@matrixscroll.com>\nCo-authored-by: Cursor <cursoragent@cursor.com>\nCo-authored-by: RJ <mission@ssx360.com>",
+    "parents": [
+      "2f033bdac451186e0fef87a711ed5ae5c5c24234"
+    ],
+    "tree": "0f20ece5f4761809f5e986a17f4db76dfc8ba1dd"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "feat/mcp-trust-scanner",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:23:09Z",
+    "value": "n2ZtjTS5jzFRcud6V12HVEToeqbD4IEEBeecgaamtw7z6bGb9n7QkL8yMAGbEQcIXuaC0H45y/S4dO11xC3eAA=="
+  }
+}

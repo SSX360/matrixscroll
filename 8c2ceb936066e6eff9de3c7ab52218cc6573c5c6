@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "8c2ceb936066e6eff9de3c7ab52218cc6573c5c6",
+    "author": {
+      "date": "1785738864 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1785738864 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Install Python dependencies in the formal-verify workflow\n\nWith all five TLA+ models now passing, the job reached its final step for\nthe first time since 2026-07-02 and failed on \"No module named pytest\": the\nworkflow never set up Python or installed the package.\n\nAlso widen the push path filter. It only watched formal/**, so a change to\nthis workflow, to matrixscroll/formal.py or to the test it runs would not\nretrigger the job on main.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "2529a8609306e9557e8d6e76a440894ae7f74667"
+    ],
+    "tree": "2ac60118663b0b0264cceb5996d37535af3f7dec"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T06:34:25Z",
+    "value": "vlCaD9ea8HTiV7OAQe+gM2GmQM4HYRNVo5qUvDH7nab9bwtBQfRgFme7s//d3kJj8RYTyMs75hIas0LVfwgaAg=="
+  }
+}

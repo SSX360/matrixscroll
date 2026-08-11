@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "e822fd00bdda6880cffce8dbab6557f3b9a2c469",
+    "author": {
+      "date": "1786452618 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786452618 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "docs: rewrite the README for a first-time reader and correct verified claims\n\nPyPI renders README.md as the project page, so it is the first thing a developer\nevaluating the protocol reads. The rewrite orders it for that reader: one\ndeclarative sentence, the statement that the protocol is free and never\nmonetized, a pinned `pip install matrixscroll==0.6.3`, a quickstart whose\ncommands and output sit in separate blocks, release-artifact verification, then\nwhere the documentation lives and the honest limits. Commands and expected output\nnever share a block, so a reader who pastes a whole block cannot execute the\noutput.\n\nEvery claim below was checked against source rather than against other prose.\n\n- `cryptography>=43.0`, per `pyproject.toml`. The README and\n  `docs/CRYPTO_BACKEND.md` both said version 42.\n- `matrixscroll envelope-verify` prints `device_id`, `mode`, `ok` and\n  `signed_at`. The tutorial showed `actor_type` and `tool`, which the command\n  never returns.\n- Amending a commit does not break verification. The post-commit hook runs again\n  and signs the amended commit, so the tutorial's failure demo passed with exit\n  0. It now edits the envelope, which fails with exit 2.\n- `status()` returns seven fields. The reference table listed five.\n- A commit envelope requires `schema`, `commit`, `provenance` and `repository`.\n  The reference page named an `actor` block that no schema defines, and called\n  the post-quantum overlay `pqc` rather than `pqc_signatures`.\n- Exit `1` does not cover an unreadable path. `matrixscroll verify` returns `2`\n  there, which the same page already said further down.\n- The verify action fetches `refs/notes/matrixscroll` itself when the source is\n  notes, because its `fetch-notes` input defaults to true.\n- Signing a `ci_step` action requires `pipeline`, `step` and `run_id` in the\n  payload. The README example named a payload file without contents, so a reader\n  pasting it got exit 2.\n- `docs/reference/cli.md` claimed a complete command list and omitted four\n  commands.\n- Dead links removed: `matrixscroll.com/device`, `matrixscroll.com/compare/`, a\n  malformed Cursor Directory link, and three relative paths resolving nowhere.\n- Documentation links now point at GitHub, because the pages under\n  `matrixscroll.com/docs/` return 404 for every Diataxis path.\n\nThe honest-limits blocks keep every item. `ai-tells.ShipOveruse` flags the\nrelease-state label that the house style requires on those blocks, so the rule is\noff for that block alone and back on immediately after.\n\nVerified with vale, pytest, a strict mkdocs build, twine check on a built sdist\nand wheel, and by running the documented quickstart end to end in a scratch\nrepository.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "f2438624d5df6c70aee6c6d3ed50c62c6b5354e5"
+    ],
+    "tree": "029ec0dfe8515fbd8882e5fb65f161ad88ff19eb"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "cursor"
+  },
+  "repository": {
+    "branch": "docs/readme-pypi-first-read",
+    "name": "matrixscroll-sdk",
+    "remote_url": "https://github.com/SSX360/matrixscroll"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-BB6E-6DB4",
+    "mode": "emulated",
+    "public_key": "pio5q0TXMN1KF3fAe2EZ31kzSXWNUzHU0fr40sxdnY8=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T12:50:20Z",
+    "value": "dFNT8VX7nwebLdUaYWPgvqN2dhX0OBnPWALzjIAtKRJFv3AYN+hDHsnOrT57BDtwAZHjkBndfalfHX0y3RQADA=="
+  }
+}

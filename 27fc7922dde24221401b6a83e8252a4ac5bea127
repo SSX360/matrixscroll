@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "27fc7922dde24221401b6a83e8252a4ac5bea127",
+    "author": {
+      "date": "1783145774 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783145774 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: re-record MCP rug-pull demo with human pacing (~37s, typed prompts, 4s drift hold)\n",
+    "parents": [
+      "102b708591e5df969087881cfa6cbad85c2901ad"
+    ],
+    "tree": "b42a113b61e37e6fa3ac13f6d44662714b8e61c7"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T06:16:15Z",
+    "value": "X0/oeZn+V120xHr6DOob1wn1PH2Qg4m+VACZlVKFjXFOO6iKW++WfCqNG3yw1hlma5gNoqyyE0zO7G7Qt2TUBw=="
+  }
+}

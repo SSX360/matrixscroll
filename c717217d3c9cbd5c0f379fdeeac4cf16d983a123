@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "c717217d3c9cbd5c0f379fdeeac4cf16d983a123",
+    "author": {
+      "date": "1782604270 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "committer": {
+      "date": "1782604288 -0400",
+      "email": "mission@ssx360.com",
+      "name": "SSX360 Agent"
+    },
+    "message": "docs: align README CTAs with pilot-first ssx360.com funnel\n",
+    "parents": [
+      "0a37d9f49a4a73698274cb37d96232a89b8e4774"
+    ],
+    "tree": "5964f19c4884857a09dc5d31a05439658c948f99"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "HEAD",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-27T23:51:28Z",
+    "value": "NlhYdUZaR3flVS9p9iPevpuUL1d9zyLXZfEJGS/Rq0949CUAygbvZBIkDoL3a9nCmSsPz4A2miSOH7evpurBAw=="
+  }
+}

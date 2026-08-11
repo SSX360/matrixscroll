@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "4cfb27d626fd0d17e3991e28072819dc7ef3b4be",
+    "author": {
+      "date": "1783100632 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783100632 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: MCP gate example in README; mark Product 2 and 0.6.0 release done in launch checklist\n",
+    "parents": [
+      "5d8830ee268b6c273e929162aac4273a4c77fc5d"
+    ],
+    "tree": "b6b26b41d2ae8c4d1912a54e6e7120d943e53b5a"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:43:53Z",
+    "value": "gQOOTmml5Qo4a83UpiNqBwkqjJbk7ZN8x2IVj2dNQAe+P9OPwSTf5SdEiOaMZNnmor5KalSU5ki6ONZv5oRXCw=="
+  }
+}

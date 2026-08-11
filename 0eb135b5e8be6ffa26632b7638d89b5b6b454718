@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "0eb135b5e8be6ffa26632b7638d89b5b6b454718",
+    "author": {
+      "date": "1785736013 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1785736013 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Require SSX360 API key only in Scroll Gate enforce mode\n\nDependabot and fork pull requests never receive repository secrets, so the precondition hard-failed an advisory warn-mode gate for a reason the PR could not fix, blocking three dependency PRs. Warn mode now skips the hosted verify and records why; offline provenance is still checked by verify-manifest.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n",
+    "parents": [
+      "1922ab1fbfc1d09f92d8a46710ca330a55587de5"
+    ],
+    "tree": "ed0f6e5d3d4067f863332b633843c967668fbd81"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-03T05:46:54Z",
+    "value": "HdO8/NUjKBZ9Fnda+iC/6giIra5Tws6yZskTUP0bDef/Keajle32eHq7NL0Fw38M8riOrGvh1s74y/Czo6vcAQ=="
+  }
+}

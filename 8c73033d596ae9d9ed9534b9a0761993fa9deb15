@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "8c73033d596ae9d9ed9534b9a0761993fa9deb15",
+    "author": {
+      "date": "1782054292 -0400",
+      "email": "agent-demo@matrixscroll.com",
+      "name": "Matrix Scroll Demo"
+    },
+    "committer": {
+      "date": "1782054292 -0400",
+      "email": "agent-demo@matrixscroll.com",
+      "name": "Matrix Scroll Demo"
+    },
+    "message": "docs: answer core evaluator questions\n",
+    "parents": [
+      "1c637393c4100fb76abc61cf738bcbad8692ced9"
+    ],
+    "tree": "46948e8d01e927440ae11b8ad331723d624824f9"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "codex/trust-layer-rollout",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-21T15:05:58Z",
+    "value": "muDK7vajnQA573haH0X8izvBC1SftxcRRLl+MO3zXrU+jTewu+yjPDQYKxG/MkAkELP2LVF8C05o2LBspgiiCw=="
+  }
+}

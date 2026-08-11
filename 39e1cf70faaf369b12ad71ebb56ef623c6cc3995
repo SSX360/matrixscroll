@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "39e1cf70faaf369b12ad71ebb56ef623c6cc3995",
+    "author": {
+      "date": "1783099993 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783099993 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "Release matrixscroll 0.6.0: MCP Trust Scanner (mcp scan|sign|verify)\n",
+    "parents": [
+      "fed42803375d3b0a9e273a9e1a1cb96fb90d58d5"
+    ],
+    "tree": "278b30e7ce29e237c1cbcea339cd03a5fff96ac0"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-03T17:33:14Z",
+    "value": "rNvlwx3s6FdMyRyApeMZS6Dp/tiTS37eUw/YbtnwRJzEHcdJJlRrlENUGQJ5fn6szN0XRiloPUCIzOJRryNUBw=="
+  }
+}

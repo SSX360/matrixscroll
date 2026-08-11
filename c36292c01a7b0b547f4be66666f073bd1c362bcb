@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "c36292c01a7b0b547f4be66666f073bd1c362bcb",
+    "author": {
+      "date": "1783166449 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "committer": {
+      "date": "1783166449 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Matrix Scroll"
+    },
+    "message": "docs: authorization pivot README for PyPI and GitHub\n",
+    "parents": [
+      "418abac8ac34d3e88453a64d515142fb2c4df766"
+    ],
+    "tree": "3eead4f3fcd8564e01697eb441586e4319567e90"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-07-04T12:00:49Z",
+    "value": "f5ha+Zxknjoedv3M5ERdgfHYRRz51kQaE/VUMzS/p/3g54g0AzDLeTVSkC1y4YqEjvVhfWo5UnwQd0PXhO3uAg=="
+  }
+}
