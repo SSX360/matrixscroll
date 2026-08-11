@@ -19,6 +19,7 @@ from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from . import mcp_core as core
+from ._schemas import schema_path
 from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
 from .cloud.client import list_envelopes as cloud_list_envelopes
 from .cloud.client import verify_range as cloud_verify_range
@@ -43,8 +44,7 @@ _HOSTED_NETWORK = ToolAnnotations(
     openWorldHint=True,
 )
 
-SIGNUP_URL = "https://ssx360.com/signup"
-DOCS_URL = "https://ssx360.com/docs"
+DOCS_URL = "https://matrixscroll.com/docs/"
 
 
 def _require_api_key(feature: str) -> dict[str, Any] | None:
@@ -57,11 +57,11 @@ def _require_api_key(feature: str) -> dict[str, Any] | None:
         "ok": False,
         "error": "api_key_required",
         "message": (
-            f"{feature} requires SSX360_API_KEY. "
-            "Community tier includes 100 CI verifications/day. "
-            f"Get a key at {SIGNUP_URL}"
+            f"{feature} reaches the hosted SSX360 API and needs SSX360_API_KEY. "
+            "Verification itself needs no key: call `verify_envelope`, or "
+            "`verify_pr_range` with source local, notes, or bundle. "
+            f"See {DOCS_URL}"
         ),
-        "signup_url": SIGNUP_URL,
         "docs_url": DOCS_URL,
     }
 
@@ -86,9 +86,9 @@ mcp = FastMCP(
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_SCHEMA_PATH = _REPO_ROOT / "schemas" / "commit-envelope.v1.json"
-_ACTION_SCHEMA_PATH = _REPO_ROOT / "schemas" / "action-envelope.v1.json"
-_MCP_MANIFEST_SCHEMA_PATH = _REPO_ROOT / "schemas" / "ssx360.mcp-manifest.v1.json"
+_SCHEMA_PATH = schema_path("commit-envelope.v1.json")
+_ACTION_SCHEMA_PATH = schema_path("action-envelope.v1.json")
+_MCP_MANIFEST_SCHEMA_PATH = schema_path("ssx360.mcp-manifest.v1.json")
 _SPEC_PATH = _REPO_ROOT / "SPEC.md"
 
 
@@ -599,7 +599,7 @@ def audit_export(
         Literal["json", "guac", "evidence-pack"],
         Field(
             description="Export serialization: json (envelope bundle), guac (GUAC JSONL ingest), or "
-            "evidence-pack (hosted Team+ procurement bundle with verification metadata).",
+            "evidence-pack (compliance bundle with verification metadata).",
         ),
     ] = "json",
     include_verification: Annotated[
@@ -640,7 +640,7 @@ def audit_export(
     Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.
     Prefer ``list_envelopes`` to browse hosted metadata without exporting files.
 
-    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export.
+    Hosted mode requires SSX360_API_KEY and calls ssx360.com/api/v1/audit/export.
     Local fallback: exports from git notes or on-disk envelopes when no API key.
     Side effects: writes files under ``output_dir`` locally; hosted mode returns
     download metadata. Returns ``{ok, bundle?, download_url?, error?}``.
@@ -731,8 +731,8 @@ def list_envelopes(
 
 _CONNECT_CARD_DESCRIPTION = (
     "Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.\n\n"
-    "Use before hardware signing pilots to confirm the reader responds on the serial port. "
-    "Do not use for everyday signing — use create_envelope (emulated mode) instead. "
+    "Use before hardware signing to confirm the reader responds on the serial port. "
+    "Use create_envelope for signing after hardware mode is configured. "
     "Do not use for verification — call verify_envelope after envelopes exist. "
     "Prefer status to check local identity without opening USB.\n\n"
     "Side effects: opens a short-lived serial session; does not export private keys. "
@@ -774,10 +774,10 @@ def connect_card(
 ) -> dict[str, Any]:
     """Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.
 
-    Use before hardware signing pilots to confirm the reader responds on the serial
-    port. Do not use for everyday signing — emulated mode via ``create_envelope`` is
-    the default path. Do not use for verification — call ``verify_envelope`` after
-    envelopes exist. Prefer ``status`` to check local identity without opening USB.
+    Use before hardware signing to confirm the reader responds on the serial port.
+    Use ``create_envelope`` for signing after hardware mode is configured. Do not
+    use this probe for verification; call ``verify_envelope`` after envelopes exist.
+    Prefer ``status`` to check local identity without opening USB.
 
     Side effects: opens a short-lived serial session; does not export private keys.
     No SSX360_API_KEY required. Returns ``{ok, mode, reader_name, available?, error?}``.

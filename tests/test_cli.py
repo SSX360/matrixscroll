@@ -225,6 +225,99 @@ class GateCommandTests(_RunMixin, unittest.TestCase):
             finally:
                 os.chdir(old_cwd)
 
+    def test_envelope_verify_range_empty_exits_two(self):
+        """A misconfigured base ref must not exit 0. It used to."""
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            repo = self._init_repo(Path(tmp))
+            sha = self._commit(repo, "a.txt", "first")
+            old_cwd = os.getcwd()
+            try:
+                os.chdir(repo)
+                rc, out = self._run(
+                    ["envelope-verify-range", "--base", sha, "--head", sha, "--source", "local"]
+                )
+                self.assertEqual(rc, 2)
+                summary = json.loads(out)
+                self.assertFalse(summary["ok"])
+                self.assertTrue(summary["empty_range"])
+                self.assertEqual(summary["total"], 0)
+            finally:
+                os.chdir(old_cwd)
+
+    def test_envelope_verify_range_empty_opt_out_exits_zero(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            repo = self._init_repo(Path(tmp))
+            sha = self._commit(repo, "a.txt", "first")
+            old_cwd = os.getcwd()
+            try:
+                os.chdir(repo)
+                rc, out = self._run([
+                    "envelope-verify-range",
+                    "--base", sha,
+                    "--head", sha,
+                    "--source", "local",
+                    "--allow-empty-range",
+                ])
+                self.assertEqual(rc, 0)
+                summary = json.loads(out)
+                self.assertTrue(summary["ok"])
+                self.assertTrue(summary["empty_range"])
+            finally:
+                os.chdir(old_cwd)
+
+
+class TopLevelErrorHandlingTests(_RunMixin, unittest.TestCase):
+    """An unhandled exception used to reach stdout as a Python traceback."""
+
+    def test_missing_trusted_keys_file_returns_json(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            missing = str(Path(tmp) / "no-such-keys.json")
+            rc, out = self._run(
+                ["envelope-verify-range", "--head", "HEAD", "--trusted-keys", missing]
+            )
+            self.assertEqual(rc, 1)
+            payload = json.loads(out)
+            self.assertFalse(payload["ok"])
+            self.assertIn("FileNotFoundError", payload["error"])
+            self.assertIn("no-such-keys.json", payload["error"])
+
+    def test_manifest_mode_missing_trusted_keys_file_returns_json(self):
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            manifest = Path(tmp) / "manifest.json"
+            manifest.write_text(json.dumps({"release": "x"}), encoding="utf-8")
+            rc, out = self._run(
+                ["verify", str(manifest), "--trusted-keys", str(Path(tmp) / "gone.json")]
+            )
+            self.assertEqual(rc, 1)
+            payload = json.loads(out)
+            self.assertFalse(payload["ok"])
+            self.assertTrue(payload["error"])
+
+    def test_exit_code_two_still_means_verification_failed(self):
+        """The handler must not flatten the 1 / 2 split the action branches on."""
+        with tempfile.TemporaryDirectory() as tmp, _isolated_env(Path(tmp)):
+            _reset_provider_cache()
+            manifest = Path(tmp) / "manifest.json"
+            manifest.write_text(json.dumps({"release": "unsigned"}), encoding="utf-8")
+            rc, out = self._run(["verify", str(manifest)])
+            self.assertEqual(rc, 2)
+            self.assertFalse(json.loads(out)["ok"])
+
+    def test_argparse_usage_error_still_exits_two(self):
+        with self.assertRaises(SystemExit) as caught:
+            cli.main(["no-such-subcommand"])
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_help_still_exits_zero(self):
+        buf = io.StringIO()
+        with redirect_stdout(buf), self.assertRaises(SystemExit) as caught:
+            cli.main(["--help"])
+        self.assertEqual(caught.exception.code, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

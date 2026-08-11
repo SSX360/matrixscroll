@@ -14,8 +14,8 @@ Two schema identifiers are stamped into every artifact:
   `status`, the on-disk key store).
 - `matrixscroll.signature.v1` — the signature block attached to manifests.
 - `matrixscroll.commit_envelope.v1` — Git commit provenance document (see §10).
-- `matrixscroll.release_manifest.v1` and evidence-pack schemas — release and
-  audit artifacts (see §10).
+- Release and audit artifacts (see §10): `matrixscroll.release_manifest.v1`,
+  `matrixscroll.evidence_pack.v1`, and `ssx360.evidence-pack.v1`.
 
 A breaking change to canonical encoding, signature layout, device id
 derivation, or algorithm choice **must** bump the relevant version. Minor
@@ -192,10 +192,27 @@ Conformance vector: [`vectors/valid_commit_envelope.json`](vectors/valid_commit_
 Signed release metadata (version, tag, artifact list). JSON Schema:
 [`schemas/release-manifest.v1.json`](schemas/release-manifest.v1.json).
 
-### 10.3 Evidence pack
+### 10.3 Evidence packs
 
-Signed audit or agent-scope evidence. JSON Schema:
-[`schemas/evidence-pack.v1.json`](schemas/evidence-pack.v1.json).
+`matrixscroll.evidence_pack.v1` and `ssx360.evidence-pack.v1` both carry the
+"evidence pack" name. They are separate documents with separate schemas, and
+neither validates against the other.
+
+`matrixscroll.evidence_pack.v1` is the protocol document: a `subject` plus an
+`artifacts` list, holding audit or agent-scope evidence. JSON Schema:
+[`schemas/evidence-pack.v1.json`](schemas/evidence-pack.v1.json). No command in
+the Python reference SDK writes one yet. The schema is published so other
+implementers can agree on the shape ahead of that.
+
+`ssx360.evidence-pack.v1` is what `ssx360 ledger export` and
+`ssx360-ledger --export` write. It is an index over a bundle of signed commit
+envelopes, annotated with a framework mapping. The wrapper carries no
+`signature` block and makes no claim about itself. The trust is in the
+envelopes it points at, and each one verifies on its own. When the hosted
+export returns a body that does carry a signature, that body is nested verbatim
+under `evidence_pack` so its canonical bytes are the ones the signer covered.
+JSON Schema:
+[`schemas/ssx360.evidence-pack.v1.json`](schemas/ssx360.evidence-pack.v1.json).
 
 ## 11. Post-quantum overlay (v1.1 extension)
 

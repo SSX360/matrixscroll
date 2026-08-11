@@ -13,7 +13,7 @@ Names beginning with `Inv_` are state invariants declared with `INVARIANT`.
 
 | ID | Type | Invariant / property | Implementation |
 |----|------|----------------------|----------------|
-| **F-P1** | Safety | `Inv_VerifyImpliesUntampered` | P1 Sign–verify roundtrip |
+| **F-P1** | Safety | `Inv_VerifyImpliesUntampered` | P1 Sign-verify roundtrip |
 | **F-P2** | Safety | `Inv_TamperBreaksVerify` | P2 Tamper detection |
 | **F-P3** | Safety | `Inv_WrongKeyRejects` | P3 Wrong-key rejection |
 | **F-P4** | Safety | `Inv_NoVerifyWhileUnsigned` | P4 Canonical determinism |
@@ -27,7 +27,13 @@ Names beginning with `Inv_` are state invariants declared with `INVARIANT`.
 | **F-G2** | Safety | `Inv_WarnAllowsAdvisoryMerge` | `continue-on-error` warn workflows |
 | **F-G3** | Safety | `Inv_ValidRangeImpliesPass` | Gate `ok: true` semantics |
 | **F-G4** | Safety | `Inv_TamperFailsGate` | Tampered envelope in range → fail |
+| **F-G5** | Safety | `Inv_EmptyRangeNeverPasses` | Empty range → `ok: false`, `empty_range: true` |
 | **F-L2** | Liveness | `Live_FullySignedEventuallyPass` | All valid → gate pass reachable |
+
+`Inv_ValidRangeImpliesPass` carries a `~RangeEmpty` guard. `AllValid` quantifies
+over `Commits` and is vacuously true when that set is empty, so without the guard
+the model would license the fail-open that `gate.verify_envelope_range` just
+stopped doing.
 
 ## Five authorities (`AuthorityFive.tla`)
 

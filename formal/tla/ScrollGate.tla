@@ -23,6 +23,13 @@ TypeOK ==
 AllValid ==
     \A c \in Commits : status[c] = "valid"
 
+\* An empty range makes AllValid vacuously true. The gate does not treat that as
+\* a pass, because "every commit here is signed" says nothing when the range
+\* holds nothing. gate.verify_envelope_range returns ok: false with
+\* empty_range: true unless the caller passes allow_empty.
+RangeEmpty ==
+    Commits = {}
+
 Init ==
     /\ status = [c \in Commits |-> "missing"]
     /\ gateMode \in {"warn", "enforce"}
@@ -55,11 +62,11 @@ Tamper(c) ==
     /\ UNCHANGED <<gateMode, merged>>
 
 EvalGate ==
-    /\ gatePass' = AllValid
+    /\ gatePass' = (AllValid /\ ~RangeEmpty)
     /\ evaluated' = TRUE
     /\ IF gateMode = "enforce"
        THEN merged' = gatePass'
-       ELSE IF AllValid
+       ELSE IF gatePass'
             THEN merged' = TRUE
             ELSE UNCHANGED merged
     /\ UNCHANGED <<status, gateMode>>
@@ -98,14 +105,22 @@ Inv_TypeOK == TypeOK
 Prop_EnforceNoMergeUnlessAllValid ==
     [][ (gateMode = "enforce" /\ ~merged /\ merged') => AllValid ]_vars
 
-\* F-G3: all valid => gate passes, once the gate has actually been run.
-\* Envelope validity cannot imply a gate result that was never computed.
+\* F-G3: all valid => gate passes, once the gate has actually been run and the
+\* range holds at least one commit. Envelope validity cannot imply a gate result
+\* that was never computed, and an empty range computes no result about any
+\* commit.
 Inv_ValidRangeImpliesPass ==
-    (evaluated /\ AllValid) => gatePass
+    (evaluated /\ AllValid /\ ~RangeEmpty) => gatePass
 
 \* F-G4: any tampered commit in range prevents pass
 Inv_TamperFailsGate ==
     (\E c \in Commits : status[c] = "tampered") => ~gatePass
+
+\* F-G5: an empty range never passes. This is the vacuous-truth case: AllValid
+\* holds over the empty set, so without this the gate reports success for a
+\* mistyped base ref or a shallow clone.
+Inv_EmptyRangeNeverPasses ==
+    RangeEmpty => ~gatePass
 
 \* F-G2: warn mode may merge even when gate fails (documented advisory path)
 Inv_WarnAllowsAdvisoryMerge ==
@@ -114,6 +129,6 @@ Inv_WarnAllowsAdvisoryMerge ==
 \* --- Liveness ---
 
 Live_FullySignedEventuallyPass ==
-    []<>(AllValid => gatePass)
+    []<>((AllValid /\ ~RangeEmpty) => gatePass)
 
 ====

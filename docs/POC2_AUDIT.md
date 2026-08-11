@@ -21,7 +21,7 @@
 
 - [x] `ssx360 check` CLI + hosted verify (`matrixscroll/ssx360_cli.py`)
 - [x] `provenance-gate.yml` uses `ssx360 check --hosted` (not empty commits curl)
-- [x] Community tier: 100 hosted verifications/day
+- [x] Offline range verification with no account: `matrixscroll envelope-verify-range --source notes`
 
 ## 4. SSX360 control plane
 

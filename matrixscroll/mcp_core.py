@@ -154,7 +154,14 @@ def verify_pr_range(
     require_actor_types: list[str] | None = None,
     deny_actor_types: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Scroll Gate: verify every commit in base..head."""
+    """Scroll Gate: verify every commit in base..head.
+
+    A range holding no commits returns ``ok: false`` with ``empty_range: true``.
+    There is no opt-out here: the MCP surface is a verification verb, and an
+    agent reading ``ok`` should never be handed a pass for a range that was
+    never checked. Read ``empty_range`` to tell that case apart from a genuine
+    verification failure.
+    """
     root = _resolve_root(workspace or None)
     policy = _load_policy(
         require_mode=require_mode or None,

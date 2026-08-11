@@ -34,6 +34,39 @@ def test_public_metadata_uses_stable_device_url():
     assert "[AP2 Vault Card hardware]" not in readme
 
 
+def test_workflows_and_sdk_messages_carry_no_killed_product_copy():
+    """Matrix Scroll is the open protocol. It has no tiers, seats, or signup.
+
+    The tier sentence rendered in the Actions UI of a public repository and in
+    every SDK error a user without an API key saw. It survives a rebuild easily,
+    because nobody rereads a workflow's `echo` lines, so pin it here.
+    """
+    surfaces = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+    surfaces += [
+        ROOT / "matrixscroll" / "mcp.py",
+        ROOT / "matrixscroll" / "cloud" / "client.py",
+        ROOT / "docs" / "quickstart-mcp.md",
+    ]
+    forbidden = [
+        "community tier",
+        "verifications/day",
+        "ssx360.com/signup",
+        "ssx360.com/#pricing",
+    ]
+    for path in surfaces:
+        text = path.read_text(encoding="utf-8").lower()
+        for phrase in forbidden:
+            assert phrase not in text, f"{phrase!r} found in {path.name}"
+
+
+def test_step_summaries_carry_no_em_dashes():
+    """House rule: no em-dash, and no en-dash used as a separator."""
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        text = path.read_text(encoding="utf-8")
+        assert "\u2014" not in text, f"em-dash in {path.name}"
+        assert " \u2013 " not in text, f"en-dash separator in {path.name}"
+
+
 def test_sdk_public_docs_do_not_link_vercel_preview_urls():
     checked = [ROOT / "README.md", ROOT / "pyproject.toml", ROOT / "SPEC.md"]
     for path in checked:
