@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.18"]
+requires = ["hatchling>=1.31.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -51,20 +51,20 @@ dependencies = [
 
 [project.optional-dependencies]
 pqc = [
-    "liboqs-python>=0.12.0",
+    "liboqs-python>=0.16.0",
 ]
 dev = [
-    "pytest>=7.4",
-    "build>=1.0",
-    "hypothesis>=6.100",
-    "pytest-cov>=4.1",
+    "pytest>=9.1.1",
+    "build>=1.5.0",
+    "hypothesis>=6.165.2",
+    "pytest-cov>=7.1.0",
 ]
 git = []
 hardware = ["pyserial>=3.5"]
-yubikey = ["python-pkcs11>=0.7"]  # experimental preview; mock path in tests
+yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
-    "mcp>=1.0.0,<2.0.0",
+    "mcp>=2.0.0,<3.0.0",
 ]
 
 [project.scripts]
