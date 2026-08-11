@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "9c394423c21e378830d18847d1461f956709e5f4",
+    "author": {
+      "date": "1786459383 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786459383 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Fix PyPI artifact metadata validation\n",
+    "parents": [
+      "cce16c501095df23c22a3e5ca766ce59c41de62a"
+    ],
+    "tree": "f0102ffd8031ef91af274cb79bea7a5ca05d9ed7"
+  },
+  "provenance": {
+    "actor_type": "agent",
+    "tool": "codex"
+  },
+  "repository": {
+    "branch": "agent/fix-publish-metadata-2.5",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T14:43:03Z",
+    "value": "C4v0LpZUhIwr1/PaNhH8El5FvEhCGfRRAJKC8RH2mL3SK/dLjRbCov+6+B7U9NNihURu2jEPZgnAWTn+P6bfCQ=="
+  }
+}
