@@ -106,6 +106,7 @@ versus the baseline. The exact diff is printed and written to the job summary.
 | `fetch-notes` | range | `true` | Fetch the notes ref from origin first |
 | `python-version` | both | `3.12` | Python version used to install the SDK |
 | `matrixscroll-version` | both | `0.7.0` | SDK version pin |
+| `package-source` | both | `""` | Local package path for repository self-tests; leave empty for PyPI |
 | `require-mode` | both | `""` | Policy require-mode (v0.2.1+) |
 | `trusted-keys` | both | `""` | Path to trusted public keys JSON (v0.2.1+) |
 | `summary-output` | range | `""` | Path for the full range verification JSON |

@@ -1,8 +1,8 @@
 name: verify-action selftest
 
-# The passing manifest and reusable MCP jobs exercise the public `action-v1`
-# release exactly as an external consumer does. Failure jobs exercise the
-# checked-out action so a pull request cannot pass by testing an older tag.
+# The passing manifest job exercises the public `action-v1` release exactly as
+# an external consumer does. The reusable MCP and failure jobs exercise the
+# checked-out source so a release PR does not depend on an unpublished wheel.
 #
 # Four of the jobs below exist to prove the gate fails closed. The action used
 # to parse CLI output with inline `json.loads` calls under `set -euo pipefail`,
@@ -28,8 +28,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Exercise the current public action and SDK release together.
-        sdk: ["0.7.0"]
+        # Keep this at the last published SDK during a release PR. The
+        # post-publish metadata PR advances it with the floating action tag.
+        sdk: ["0.6.4"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,6 +75,7 @@ jobs:
         with:
           manifest: vectors/tampered_signature.json
           matrixscroll-version: "0.7.0"
+          package-source: "."
 
       - name: Assert the step failed and ok is false
         if: always()
@@ -111,6 +113,7 @@ jobs:
           manifest: examples/release-manifest.signed.json
           trusted-keys: .github/this-file-does-not-exist.json
           matrixscroll-version: "0.7.0"
+          package-source: "."
 
       - name: Assert the crash reads as a failure, not a pass
         if: always()
@@ -151,6 +154,7 @@ jobs:
           trusted-keys: .github/this-file-does-not-exist.json
           summary-output: range-summary.json
           matrixscroll-version: "0.7.0"
+          package-source: "."
 
       - name: Assert every range output is defined and false
         if: always()
@@ -194,6 +198,7 @@ jobs:
         uses: ./.github/actions/verify
         with:
           matrixscroll-version: "0.7.0"
+          package-source: "."
 
       - name: Assert the configuration error is not a pass
         if: always()
@@ -210,8 +215,9 @@ jobs:
           esac
 
   mcp-gate:
-    uses: SSX360/matrixscroll/.github/workflows/mcp-manifest-gate.yml@action-v1
+    uses: ./.github/workflows/mcp-manifest-gate.yml
     with:
       manifest: examples/mcp/matrixscroll-mcp.signed.json
       baseline: examples/mcp/matrixscroll-mcp.baseline.json
       matrixscroll_version: "0.7.0"
+      package_source: "."

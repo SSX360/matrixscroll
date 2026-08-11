@@ -41,6 +41,10 @@ inputs:
     description: matrixscroll package version pin (recommended 0.7.0)
     required: false
     default: "0.7.0"
+  package-source:
+    description: Local package path for repository self-tests; leave empty for PyPI
+    required: false
+    default: ""
   require-mode:
     description: Optional policy require-mode (v0.2.1+)
     required: false
@@ -102,9 +106,12 @@ runs:
       shell: bash
       env:
         MS_VERSION: ${{ inputs.matrixscroll-version }}
+        MS_PACKAGE_SOURCE: ${{ inputs.package-source }}
       run: |
         set -euo pipefail
-        if [ -n "$MS_VERSION" ]; then
+        if [ -n "$MS_PACKAGE_SOURCE" ]; then
+          pip install "$MS_PACKAGE_SOURCE"
+        elif [ -n "$MS_VERSION" ]; then
           pip install "matrixscroll==$MS_VERSION"
         else
           pip install matrixscroll
