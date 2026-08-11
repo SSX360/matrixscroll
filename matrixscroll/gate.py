@@ -107,53 +107,71 @@ def verify_commit_envelope_for_sha(
 ) -> EnvelopeVerifyResult:
     """Verify a signed commit envelope is cryptographically valid and bound to *sha*."""
     root = root or repo_root()
-    commit = envelope.get("commit") or {}
-    actual_id = commit.get("actual_id")
-    if actual_id != sha:
+    policy = policy or VerifyPolicy()
+    provenance_value = envelope.get("provenance")
+    provenance = provenance_value if isinstance(provenance_value, dict) else {}
+    scope_value = provenance.get("agent_scope")
+    scope_uri = scope_value if isinstance(scope_value, str) and scope_value else None
+
+    def failure(reason: str, *, scope_verified: bool | None = None) -> EnvelopeVerifyResult:
         return EnvelopeVerifyResult(
             ok=False,
             sha=sha,
-            error=f"commit id mismatch: envelope has {actual_id!r}, expected {sha!r}",
+            actor_type=provenance.get("actor_type"),
+            tool=provenance.get("tool"),
+            tool_version=provenance.get("tool_version"),
+            agent_scope=scope_uri,
+            agent_scope_verified=scope_verified,
+            error=reason,
+        )
+
+    commit = envelope.get("commit") or {}
+    actual_id = commit.get("actual_id")
+    if actual_id != sha:
+        return failure(
+            f"commit id mismatch: envelope has {actual_id!r}, expected {sha!r}",
+            scope_verified=False if scope_uri else None,
         )
 
     ok, reason = verify_manifest_with_policy(envelope, policy)
     if not ok:
-        return EnvelopeVerifyResult(ok=False, sha=sha, error=reason or "verification failed")
+        return failure(
+            reason or "verification failed",
+            scope_verified=False if scope_uri else None,
+        )
 
     ok, reason = verify_envelope_attribution_policy(envelope, policy)
     if not ok:
-        return EnvelopeVerifyResult(ok=False, sha=sha, error=reason or "attribution policy failed")
+        return failure(
+            reason or "attribution policy failed",
+            scope_verified=False if scope_uri else None,
+        )
 
     ok, reason = _verify_delegation_block(envelope, root)
     if not ok:
-        return EnvelopeVerifyResult(ok=False, sha=sha, error=reason or "delegation invalid")
+        return failure(
+            reason or "delegation invalid",
+            scope_verified=False if scope_uri else None,
+        )
 
-    provenance = envelope.get("provenance") or {}
-    policy = policy or VerifyPolicy()
-    scope_uri = provenance.get("agent_scope") or None
     scope_verified: bool | None = None
     if policy.verify_agent_scope or scope_uri:
         if not scope_uri:
             if policy.verify_agent_scope:
-                return EnvelopeVerifyResult(
-                    ok=False, sha=sha, error="agent_scope verification required but missing"
+                return failure(
+                    "agent_scope verification required but missing",
+                    scope_verified=False,
                 )
         else:
             try:
                 path = _resolve_manifest_path(scope_uri, root)
             except FileNotFoundError as exc:
-                return EnvelopeVerifyResult(
-                    ok=False, sha=sha, error=str(exc), agent_scope=scope_uri,
-                    agent_scope_verified=False,
-                )
+                return failure(str(exc), scope_verified=False)
             ok, reason = _verify_linked_manifest(path)
             if not ok:
-                return EnvelopeVerifyResult(
-                    ok=False,
-                    sha=sha,
-                    error=reason or "agent_scope manifest invalid",
-                    agent_scope=scope_uri,
-                    agent_scope_verified=False,
+                return failure(
+                    reason or "agent_scope manifest invalid",
+                    scope_verified=False,
                 )
             scope_verified = True
 

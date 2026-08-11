@@ -3,6 +3,9 @@
 Matrix Scroll adds signed provenance records around normal Git operations. Git
 remains the object store and the commit format is unchanged.
 
+**Shipping now:** the `scroll commit` wrapper, Git hooks, and universal action
+envelopes. **Not:** a Git replacement or a change to Git's object format.
+
 ## Module location
 
 - `matrixscroll/scroll/` contains the `scroll commit` wrapper.

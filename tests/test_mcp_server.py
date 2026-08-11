@@ -49,6 +49,14 @@ class MCPToolDefinitionTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(ann.readOnlyHint, msg=f"{tool.name} missing readOnlyHint")
             self.assertIsNotNone(ann.destructiveHint, msg=f"{tool.name} missing destructiveHint")
 
+    async def test_verify_range_schema_exposes_empty_range_opt_in(self):
+        tools = await mcp.list_tools()
+        tool = next(item for item in tools if item.name == "verify_pr_range")
+        allow_empty = tool.inputSchema["properties"]["allow_empty"]
+
+        self.assertEqual(allow_empty["type"], "boolean")
+        self.assertFalse(allow_empty["default"])
+
 
 class MCPServerTests(unittest.TestCase):
     def setUp(self):
@@ -93,6 +101,34 @@ class MCPServerTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertTrue(result["empty_range"])
         hosted.assert_not_called()
+
+    def test_hosted_range_accepts_empty_only_on_explicit_opt_in(self):
+        with mock.patch.dict(os.environ, {"SSX360_API_KEY": "test-key"}), mock.patch(
+            "matrixscroll.mcp.cloud_verify_range"
+        ) as hosted:
+            result = verify_pr_range(
+                workspace=str(self.workspace),
+                base=self.first_sha,
+                head=self.first_sha,
+                source="hosted",
+                allow_empty=True,
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["empty_range"])
+        hosted.assert_not_called()
+
+    def test_local_range_accepts_empty_only_on_explicit_opt_in(self):
+        result = verify_pr_range(
+            workspace=str(self.workspace),
+            base=self.first_sha,
+            head=self.first_sha,
+            source="local",
+            allow_empty=True,
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["empty_range"])
 
     def test_hosted_range_sends_each_commit_to_the_api(self):
         test_file = self.workspace / "test.txt"

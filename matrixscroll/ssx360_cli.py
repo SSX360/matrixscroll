@@ -182,7 +182,7 @@ def _write_summary(path: str, summary: dict[str, Any]) -> None:
 
 def _cmd_check(args: argparse.Namespace) -> int:
     base = args.base or ""
-    head = args.head or "HEAD"
+    head = args.head or ""
     pr_number = args.pr
 
     if pr_number is not None:
@@ -190,17 +190,20 @@ def _cmd_check(args: argparse.Namespace) -> int:
         base = base or pr_base
         head = head or pr_head
 
+    head = head or "HEAD"
+
     allow_empty = bool(getattr(args, "allow_empty_range", False))
     use_hosted = args.hosted or bool(os.environ.get("SSX360_API_KEY", "").strip())
     if use_hosted:
         from matrixscroll.cloud import verify_range
 
+        effective_base = base or "origin/main"
         try:
-            commits = _collect_commits_for_hosted(base or "origin/main", head, args.source)
+            commits = _collect_commits_for_hosted(effective_base, head, args.source)
             if not commits:
                 empty = {
                     "ok": allow_empty,
-                    "base": base,
+                    "base": effective_base,
                     "head": head,
                     "total": 0,
                     "verified_count": 0,
@@ -210,14 +213,16 @@ def _cmd_check(args: argparse.Namespace) -> int:
                 }
                 if not allow_empty:
                     empty["error"] = (
-                        f"no commits in range {base or 'origin/main'}..{head}, so "
+                        f"no commits in range {effective_base}..{head}, so "
                         "nothing was verified. Pass --allow-empty-range to accept "
                         "an empty range."
                     )
+                if pr_number is not None:
+                    empty = _annotate(empty, {"pr": pr_number}, container_key="result")
                 _write_summary(args.summary_output, empty)
                 print(json.dumps(empty, sort_keys=True))
                 return 0 if allow_empty else 2
-            summary = verify_range(base=base or "origin/main", head=head, commits=commits)
+            summary = verify_range(base=effective_base, head=head, commits=commits)
         except Exception as exc:
             print(json.dumps({"ok": False, "error": str(exc)}))
             return 1
@@ -331,7 +336,7 @@ def build_parser(prog: str = "ssx360") -> argparse.ArgumentParser:
     check = sub.add_parser("check", help="Verify signed envelopes for a PR or commit range")
     check.add_argument("--pr", type=int, help="GitHub pull request number (requires GITHUB_TOKEN)")
     check.add_argument("--base", default="", help="Base ref or SHA (exclusive)")
-    check.add_argument("--head", default="HEAD", help="Head ref or SHA (inclusive)")
+    check.add_argument("--head", default="", help="Head ref or SHA (inclusive; default: HEAD)")
     check.add_argument(
         "--source",
         choices=["local", "notes", "bundle"],

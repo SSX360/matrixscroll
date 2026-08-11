@@ -164,14 +164,13 @@ def verify_pr_range(
     trusted_keys_file: str = "",
     require_actor_types: list[str] | None = None,
     deny_actor_types: list[str] | None = None,
+    allow_empty: bool = False,
 ) -> dict[str, Any]:
     """Scroll Gate: verify every commit in base..head.
 
-    A range holding no commits returns ``ok: false`` with ``empty_range: true``.
-    There is no opt-out here: the MCP surface is a verification verb, and an
-    agent reading ``ok`` should never be handed a pass for a range that was
-    never checked. Read ``empty_range`` to tell that case apart from a genuine
-    verification failure.
+    A range holding no commits returns ``ok: false`` with ``empty_range: true``
+    by default. Callers with a known empty-range case may set ``allow_empty``;
+    the result remains labelled as empty and proves nothing about a commit.
     """
     root = _resolve_root(workspace or None)
     policy = _load_policy(
@@ -189,6 +188,7 @@ def verify_pr_range(
         notes_ref=notes_ref,
         bundle_dir=bundle,
         policy=policy,
+        allow_empty=allow_empty,
     )
 
 

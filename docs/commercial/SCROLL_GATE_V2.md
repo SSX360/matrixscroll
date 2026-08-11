@@ -19,8 +19,9 @@ Install the current MCP release with:
 pip install "matrixscroll[mcp]==0.6.4"
 ```
 
-The stdio server exposes 14 tools. `verify_pr_range` fails closed when the range
-is empty, so a mistyped base ref cannot become a successful check.
+The stdio server exposes 14 tools. `verify_pr_range` fails closed on an empty
+range by default, so a mistyped base ref cannot become a successful check. Its
+explicit `allow_empty=true` opt-in keeps the result labelled as an empty range.
 
 ## Optional hosted path
 

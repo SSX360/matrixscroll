@@ -378,6 +378,12 @@ def verify_pr_range(
         list[str] | None,
         Field(description="Optional deny-list of provenance.actor_type values."),
     ] = None,
+    allow_empty: Annotated[
+        bool,
+        Field(
+            description="Explicitly accept an empty range. Defaults to false and the result remains labelled empty."
+        ),
+    ] = False,
 ) -> dict[str, Any]:
     """Scroll Gate: verify signed/unsigned commits across a PR commit range.
 
@@ -400,6 +406,7 @@ def verify_pr_range(
         require_mode: Policy require_mode filter.
         trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.
         require_actor_types / deny_actor_types: Actor policy lists.
+        allow_empty: Accept a labelled empty range. Defaults to false.
     """
     if source in ("local", "notes", "bundle"):
         return core.verify_pr_range(
@@ -413,6 +420,7 @@ def verify_pr_range(
             trusted_keys_file=trusted_keys_file,
             require_actor_types=require_actor_types,
             deny_actor_types=deny_actor_types,
+            allow_empty=allow_empty,
         )
 
     auth_err = _require_api_key("verify_pr_range (hosted Scroll Gate)")
@@ -421,18 +429,21 @@ def verify_pr_range(
     try:
         shas = core.commits_for_range(workspace, base=base, head=head)
         if not shas:
-            return {
-                "ok": False,
+            result = {
+                "ok": bool(allow_empty),
                 "base": base,
                 "head": head,
                 "total": 0,
                 "verified_count": 0,
                 "empty_range": True,
-                "error": (
+                "allow_empty_range": bool(allow_empty),
+            }
+            if not allow_empty:
+                result["error"] = (
                     f"no commits in range {base or '(root)'}..{head}, so nothing "
                     "was verified"
-                ),
-            }
+                )
+            return result
         return cloud_verify_range(
             base=base,
             head=head,

@@ -61,8 +61,12 @@ def test_no_module_imports_the_removed_claim_module():
     for path in _python_sources():
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and (node.module or "").endswith("_claim"):
-                raise AssertionError(f"matrixscroll/{path.relative_to(PACKAGE)} imports _claim")
+            if isinstance(node, ast.ImportFrom):
+                imported = [node.module or "", *(alias.name for alias in node.names)]
+                if any(name == "_claim" or name.endswith("._claim") for name in imported):
+                    raise AssertionError(
+                        f"matrixscroll/{path.relative_to(PACKAGE)} imports _claim"
+                    )
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     assert not alias.name.endswith("_claim"), path.name

@@ -245,6 +245,23 @@ def test_range_rows_report_agent_scope(isolated_env, tmp_path: Path):
     assert row["agent_scope_verified"] is True
 
 
+def test_failed_range_row_preserves_declared_agent_scope(isolated_env, tmp_path: Path):
+    repo = _init_repo(tmp_path / "repo")
+    sha = _commit_file(repo, "a.txt", "first")
+    envelope = build_commit_envelope(commit_sha=sha, root=repo)
+    envelope["provenance"]["agent_scope"] = "scope.json"
+    signed = sign_commit_envelope(envelope)
+    signed["commit"]["message"] = "tampered after signing"
+    save_envelope(signed, repo)
+
+    summary = verify_envelope_range("", sha, source="local", root=repo)
+
+    assert not summary["ok"]
+    row = summary["results"][0]
+    assert row["agent_scope"] == "scope.json"
+    assert row["agent_scope_verified"] is False
+
+
 def test_range_rows_omit_agent_scope_when_absent(isolated_env, tmp_path: Path):
     repo = _init_repo(tmp_path / "repo")
     sha = _commit_file(repo, "a.txt", "first")

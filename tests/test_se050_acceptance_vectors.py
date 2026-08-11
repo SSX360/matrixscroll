@@ -42,12 +42,13 @@ class SE050AcceptanceVectorTests(unittest.TestCase):
         public_key = base64.b64decode(block["public_key"], validate=True)
         signature = base64.b64decode(block["value"], validate=True)
 
-        self.assertEqual(len(signing_input), len(json.dumps(
+        expected = json.dumps(
             {k: v for k, v in manifest.items() if k != "signature"},
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=True,
-        ).encode("ascii")))
+        ).encode("ascii")
+        self.assertEqual(signing_input, expected)
         self.assertTrue(verify(public_key, signing_input, signature))
 
 

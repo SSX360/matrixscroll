@@ -46,7 +46,8 @@ only for the tools that call the hosted SSX360 API.
 |------|---------|
 | `create_envelope`, `verify_envelope`, `status`, `sign_action` | None. Local key store and Git only. |
 | `verify_pr_range` with `source=local`, `notes`, or `bundle` | None. |
-| `verify_pr_range` with `source=hosted`, `list_envelopes`, `audit_export` | Calls the SSX360 API. Needs `SSX360_API_KEY`. |
+| `verify_pr_range` with `source=hosted`, `list_envelopes` | Calls the SSX360 API. Needs `SSX360_API_KEY`. |
+| `audit_export` | Calls the SSX360 API when a key is configured; otherwise exports locally from Git notes or on-disk envelopes. |
 
 ## CLI and hooks (repos without MCP)
 

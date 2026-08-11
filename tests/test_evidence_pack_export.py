@@ -207,7 +207,28 @@ class HostedExportSignatureTests(unittest.TestCase):
             self.assertEqual(rc, 2, buf.getvalue())
             self.assertFalse(written["ok"])
             self.assertTrue(written["empty_range"])
+            self.assertEqual(written["base"], "origin/main")
             self.assertEqual(json.loads(buf.getvalue()), written)
+
+    def test_hosted_empty_pr_summary_keeps_pr_annotation(self):
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp) / "empty-pr-summary.json"
+            with mock.patch.dict(os.environ, HOSTED_ENV, clear=True), mock.patch(
+                "matrixscroll.ssx360_cli._resolve_pr_refs",
+                return_value=("base-sha", "head-sha"),
+            ), mock.patch(
+                "matrixscroll.ssx360_cli._collect_commits_for_hosted", return_value=[]
+            ):
+                with redirect_stdout(io.StringIO()):
+                    rc = ssx360_cli.main(
+                        ["check", "--pr", "7", "--summary-output", str(output)]
+                    )
+
+            written = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(rc, 2)
+            self.assertEqual(written["base"], "base-sha")
+            self.assertEqual(written["head"], "head-sha")
+            self.assertEqual(written["pr"], 7)
 
 
 class LocalExportShapeTests(unittest.TestCase):

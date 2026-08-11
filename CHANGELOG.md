@@ -12,13 +12,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Added `schemas/ssx360.evidence-pack.v1.json` for the document written by the
   evidence-pack exporter.
 - Added a hardware-signed SE050 acceptance vector with CLI and CI verification.
-- Added the composite action's explicit `allow-empty-range` input; it remains
-  disabled by default and cannot satisfy a signature-mode requirement.
+- You can explicitly set the composite action's `allow-empty-range` input. It
+  remains disabled by default and cannot satisfy a signature-mode requirement.
 
 ### Changed
 - Empty commit ranges now return `ok: false` by default. CLI and Python callers
-  that intentionally accept an empty range must opt in explicitly; the MCP
-  verification tool always fails closed.
+  that intentionally accept an empty range must opt in explicitly. MCP callers
+  use the same explicit opt-in and fail closed by default.
 - Documentation now describes the shipped 14-tool MCP server and completed USB
   signer directly, without retired pricing tiers or level-based product gates.
 - Development, documentation, and GitHub Action dependencies were refreshed.
@@ -37,8 +37,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - The MCP extra now requires the verified 1.28+ SDK line; earlier 1.x releases
   cannot register the server's annotated tools, and MCP 2.0 removed the
   `mcp.server.fastmcp` API entirely.
-- Hosted MCP range verification now rejects an empty Git range before calling
-  the API and sends the resolved commit SHAs for non-empty ranges.
+- You receive an explicit rejection when a hosted MCP Git range is empty, before
+  any API call. Non-empty ranges send the resolved commit SHAs.
 - Hosted CLI checks now write `--summary-output` on successful and empty-range
   responses, matching local checks.
 - Local evidence-pack documents without a `bundle` now fail schema validation,

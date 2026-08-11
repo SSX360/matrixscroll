@@ -26,7 +26,7 @@ characters of `SHA-256(public_key)`, formatted as `MS-XXXX-XXXX`.
 
 The Matrix Scroll site exposes vector 01 as a loadable sample at
 <https://matrixscroll.com/verify/> (“Load SE050 vector 01”). Site assets live
-under `matrixscroll-site/assets/samples/se050/`.
+under `assets/samples/se050/` in the separate `matrixscroll-site` repository.
 
 ## Adding vectors 02 through 10
 

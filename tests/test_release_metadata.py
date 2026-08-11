@@ -1,5 +1,6 @@
 """Release metadata checks for public-facing SDK links."""
 
+import re
 from pathlib import Path
 
 
@@ -64,7 +65,9 @@ def test_step_summaries_carry_no_em_dashes():
     for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
         text = path.read_text(encoding="utf-8")
         assert "\u2014" not in text, f"em-dash in {path.name}"
-        assert " \u2013 " not in text, f"en-dash separator in {path.name}"
+        assert not re.search(r"(?<!\d)\u2013|\u2013(?!\d)", text), (
+            f"en-dash separator in {path.name}"
+        )
 
 
 def test_sdk_public_docs_do_not_link_vercel_preview_urls():
