@@ -9,6 +9,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import urlparse
 
 import matrixscroll
 from matrixscroll import EmulatedProvider
@@ -29,11 +30,16 @@ class AgenticGuidanceControlMatrixTests(unittest.TestCase):
     def test_control_matrix_has_expected_schema_and_sources(self):
         self.assertEqual(self.matrix["schema"], "matrixscroll.agentic_ai_controls.v1")
         self.assertGreaterEqual(len(self.matrix["sources"]), 4)
-        self.assertTrue(any("cyber.gov.au" in src for src in self.matrix["sources"]))
-        self.assertTrue(any("cisa.gov" in src for src in self.matrix["sources"]))
-        self.assertTrue(any("nsa.gov" in src for src in self.matrix["sources"]))
-        self.assertTrue(any("cyber.gc.ca" in src for src in self.matrix["sources"]))
-        self.assertTrue(any("ncsc.gov" in src for src in self.matrix["sources"]))
+        source_hosts = {urlparse(source).hostname for source in self.matrix["sources"]}
+        expected_hosts = {
+            "www.cyber.gov.au",
+            "www.cisa.gov",
+            "www.nsa.gov",
+            "www.cyber.gc.ca",
+            "www.ncsc.govt.nz",
+            "www.ncsc.gov.uk",
+        }
+        self.assertTrue(expected_hosts.issubset(source_hosts))
 
     def test_every_control_has_required_fields_and_repo_evidence(self):
         seen = set()
