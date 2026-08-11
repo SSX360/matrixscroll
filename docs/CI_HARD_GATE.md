@@ -8,7 +8,7 @@ Enable required provenance on `SSX360/matrixscroll` after contributors can publi
 gh variable set ENFORCE_PROVENANCE --body true --repo SSX360/matrixscroll
 ```
 
-When set, [`verify-manifest.yml`](.github/workflows/verify-manifest.yml) **fails** PRs missing `refs/notes/matrixscroll` envelopes.
+When set, [`verify-manifest.yml`](../.github/workflows/verify-manifest.yml) **fails** PRs missing `refs/notes/matrixscroll` envelopes.
 
 ## 2. Branch protection
 
@@ -38,7 +38,7 @@ git push origin refs/notes/matrixscroll
 matrixscroll envelope-verify-range --base origin/main --head HEAD --source notes
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Rollback
 

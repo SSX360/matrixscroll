@@ -28,4 +28,4 @@ matrixscroll sign-action --type ci_step \
 
 Action types: `git_commit`, `ci_step`, `iac_change`, `db_migration`, `api_call`, `contract_deploy`.
 
-Schema: [`schemas/action-envelope.v1.json`](../schemas/action-envelope.v1.json)
+Schema: [`schemas/action-envelope.v1.json`](../../schemas/action-envelope.v1.json)

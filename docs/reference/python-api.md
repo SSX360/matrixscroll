@@ -33,13 +33,19 @@ docstring is wrong, and the fix belongs in the module.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `schema` | `str` | Always `matrixscroll.identity.v1` for this release line |
+| `algorithm` | `str` | Always `ed25519` for this release line |
 | `available` | `bool` | Whether a signing key could be loaded |
 | `mode` | `str` | `emulated` for the software signer, `hardware` for the secure-element prototype path |
 | `device_id` | `str` | Stable identifier derived from the public key |
 | `public_key` | `str` | Base64 Ed25519 public key, 32 bytes decoded |
+| `created_at` | `str` | UTC timestamp recorded when the key store was created |
 
 `mode` and `available` together expose the compliance level: `emulated` is L1,
 `hardware` is the L2 prototype path.
+
+The `matrixscroll status` command prints these seven fields plus a `pqc` block
+reporting the post-quantum backend. `status()` returns the seven fields only.
+`pqc_status()` in `matrixscroll.pqc` is a separate call.
 
 ## Canonical encoding
 

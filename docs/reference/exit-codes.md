@@ -7,8 +7,12 @@ a broken tool, because they call for different responses.
 | Code | Meaning | What a CI gate should do |
 | --- | --- | --- |
 | `0` | Verification succeeded, or the command completed | Continue |
-| `1` | The tool failed: bad arguments, unreadable path, missing dependency | Fail the build and page the owner |
-| `2` | Verification failed | Fail the build and block the merge |
+| `1` | The tool could not run. An unresolvable ref, a missing module, a failed hook install, or `--source bundle` with no `--bundle` directory | Fail the build and page the owner |
+| `2` | Verification failed, or an input file could not be read | Fail the build and block the merge |
+
+An unreadable input file returns `2`, not `1`. This applies to
+`matrixscroll verify`, `matrixscroll envelope-verify` and
+`matrixscroll mcp verify`.
 
 ## What produces exit code 2
 
@@ -25,8 +29,8 @@ a broken tool, because they call for different responses.
 
 ## Never treat 1 and 2 the same
 
-A script that does `if ! matrixscroll envelope-verify "$SHA"; then` cannot
-distinguish a genuine tamper from a typo in the path. Branch on the code:
+A script that does `if ! matrixscroll envelope-verify "$SHA"; then` cannot tell a
+tampered envelope from a typo in the path. Branch on the code:
 
 ```bash
 matrixscroll envelope-verify "$SHA"

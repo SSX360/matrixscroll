@@ -3,10 +3,11 @@
 Signed provenance for agent-assisted Git commits, with offline Ed25519
 verification.
 
-When an agent, a CI workflow, or a person produces a commit, Matrix Scroll
-attaches a signed envelope recording the actor, the tool, and an optional scope.
-Anyone can verify that envelope later, in the CLI, in the browser, or in CI,
-without trusting the session that produced the commit.
+Matrix Scroll attaches a signed envelope to each commit. The envelope names the
+declared actor as `human`, `agent` or `ci`, plus the tool that produced the change
+and an optional scope. Anyone can verify that envelope later from the CLI or from
+CI. Verification needs no network and no trust in the session that produced the
+commit.
 
 Matrix Scroll is an open protocol. It is free, permanently, and is not
 monetized.
@@ -51,6 +52,11 @@ and comparisons live.
 If you are evaluating whether to adopt Matrix Scroll, read the explanation
 section. If you are trying to get something working, read the how-to guides.
 
+<!-- CLAUDE.md requires the honest-limits block to carry a "Shipping now" label,
+     and ai-tells.ShipOveruse flags that word. The rule is off for this block
+     only and back on immediately after it. -->
+<!-- vale ai-tells.ShipOveruse = NO -->
+
 ## Honest limits
 
 - **Shipping now.** PyPI `matrixscroll==0.6.3`, Git post-commit hooks,
@@ -66,5 +72,7 @@ section. If you are trying to get something working, read the how-to guides.
   transparency-log integration.
 - **Not.** Identity and access management, sandboxing, prompt filtering, or an
   agent runtime.
+
+<!-- vale ai-tells.ShipOveruse = YES -->
 
 Compliance language throughout is evidence mapping, not a certification claim.

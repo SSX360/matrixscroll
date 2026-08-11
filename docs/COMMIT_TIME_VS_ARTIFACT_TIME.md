@@ -46,6 +46,6 @@ That gives teams both commit-time attribution and artifact-time provenance.
 
 ## Public proof links
 
-- [Compare page](https://matrixscroll.com/compare/)
+- [Comparison table](./COMPARISON.md)
 - [Browser verifier](https://matrixscroll.com/verify/)
 - [SPEC.md](../SPEC.md)
