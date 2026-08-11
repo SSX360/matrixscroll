@@ -33,7 +33,7 @@ This is a small open-source project maintained by SSX360. We aim to:
 - respond to Discussions when we can; no SLA for community Q&A
 
 Commercial support for teams (policy design, hardware rollout, CI integration)
-is not offered through this repo today. Contact **mission@ssx360.com** for
+is not offered through this repo today. Use the [SSX360 email](mailto:mission@ssx360.com) for
 partnership inquiries.
 
 ## What we cannot help with in issues
@@ -45,11 +45,11 @@ partnership inquiries.
 
 ## Status
 
-- **Shipping now:** L1 emulated Ed25519 signing, Git post-commit hooks, PyPI
-  `matrixscroll` **0.6.4**, Scroll Gate, the public verifier, the public action,
-  and the SE050 USB CDC host transport
-- **Prototype (bench):** L2 Hardware — Pico 2 W / RP2350 + GMT130 display locked
-  (Jul 2026); SE050 M1 signing PoC accepted — pilot evaluation, not GA
-- **Roadmap:** external Ed25519-capable key backends, transparency-log integrations,
-  NXP backend restore on the display bring-up UF2
+- **Software:** emulated Ed25519 signing, Git post-commit hooks, PyPI
+  `matrixscroll` **0.6.4**, Scroll Gate, the public verifier, and the public action
+- **Hardware:** the completed SSX360 USB signer uses an RP2350 USB bridge and an
+  NXP SE050 secure element. The signer and its Matrix Scroll host tooling are
+  available by direct inquiry through [SSX360 contact](https://ssx360.com/contact).
+- **Roadmap:** more Ed25519-capable key backends and transparency-log
+  integrations
 - **Not in scope:** IAM, sandbox, prompt-injection filter, or agent runtime

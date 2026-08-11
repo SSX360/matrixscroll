@@ -85,7 +85,7 @@ An API key is optional. Local signing, offline verification, MCP manifest checks
 Matrix Scroll records an MCP server's tool names, descriptions, and input schemas in a signed manifest. Re-scan the server after an update and compare it with the install-time baseline.
 
 ```bash
-pip install "matrixscroll==0.6.4"
+pip install "matrixscroll[mcp]==0.6.4"
 
 matrixscroll mcp scan \
   --connect stdio \
