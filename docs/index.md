@@ -1,6 +1,6 @@
 # Matrix Scroll
 
-Signed provenance for agent-assisted Git commits, with offline Ed25519
+Signed machine-action records for Git commits, with offline Ed25519
 verification.
 
 Matrix Scroll attaches a signed envelope to each commit. The envelope names the
@@ -9,11 +9,11 @@ and an optional scope. Anyone can verify that envelope later from the CLI or fro
 CI. Verification needs no network and no trust in the session that produced the
 commit.
 
-Matrix Scroll is an open protocol. It is free, permanently, and is not
-monetized.
+Matrix Scroll is an open protocol. The SDK remains Apache-2.0 software; SSX360
+supplies the physical signer and scoped cybersecurity services separately.
 
 ```bash
-pip install "matrixscroll==0.6.4"
+pip install "matrixscroll==0.7.0"
 ```
 
 ## Start here
@@ -59,9 +59,9 @@ section. If you are trying to get something working, read the how-to guides.
 
 ## Honest limits
 
-- **Shipping now.** PyPI `matrixscroll==0.6.4`, Git post-commit hooks,
+- **Shipping now.** PyPI `matrixscroll==0.7.0`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
-  verification (partial SLSA L1-2), the browser verifier, the GitHub Action, and
+  verification, the browser verifier, the GitHub Action, and
   the `matrixscroll-mcp` stdio server. Emulated mode is the default provider.
 - **Direct-contact hardware.** SSX360 produces the RP2350 and NXP SE050 USB
   signer and supplies it through `ssx360.com/contact`. PyPI distributes the USB

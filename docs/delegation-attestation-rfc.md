@@ -66,4 +66,4 @@ Delegation manifest is verified independently when `delegation_manifest_uri` is 
 
 - OIDC/DPoP binding (Alien parity) without cloud dependency
 - Multi-agent delegation chains in one envelope
-- Hardware-backed owner signatures (L2/L3)
+- Hardware-backed owner signatures

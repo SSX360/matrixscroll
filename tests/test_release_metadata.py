@@ -118,3 +118,41 @@ def test_dependabot_does_not_widen_the_incompatible_mcp_major():
     assert len(mcp_ignores) == 1
     assert ">=2.0.0.dev0" in mcp_ignores[0]["versions"]
     assert "mcp" in update["groups"]["dev-dependencies"]["exclude-patterns"]
+
+
+def test_release_selftests_can_install_checked_out_source():
+    """Release PR checks must not require the wheel they are about to publish."""
+    action = yaml.safe_load(
+        (ROOT / ".github" / "actions" / "verify" / "action.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert action["inputs"]["package-source"]["default"] == ""
+    install_step = next(
+        (
+            step
+            for step in action["runs"]["steps"]
+            if step.get("name") == "Install matrixscroll"
+        ),
+        None,
+    )
+    assert install_step is not None, "Install matrixscroll step is missing"
+    install = install_step["run"]
+    assert 'python -m pip install -- "$package_source"' in install
+    assert "package-source must resolve inside GITHUB_WORKSPACE" in install
+    assert install.index("MS_PACKAGE_SOURCE") < install.index("MS_VERSION")
+
+    mcp_gate = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "mcp-manifest-gate.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    call_inputs = mcp_gate[True]["workflow_call"]["inputs"]
+    assert call_inputs["package_source"]["default"] == ""
+
+    selftest = (
+        ROOT / ".github" / "workflows" / "verify-action-selftest.yml"
+    ).read_text(encoding="utf-8")
+    assert "uses: ./.github/workflows/mcp-manifest-gate.yml" in selftest
+    assert 'package_source: "."' in selftest
+    assert 'package-source: "."' in selftest

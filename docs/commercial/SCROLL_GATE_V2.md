@@ -16,7 +16,7 @@ or API key.
 Install the current MCP release with:
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.4"
+pip install "matrixscroll[mcp]==0.7.0"
 ```
 
 The stdio server exposes 14 tools. `verify_pr_range` fails closed on an empty

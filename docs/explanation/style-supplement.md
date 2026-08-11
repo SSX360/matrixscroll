@@ -17,7 +17,7 @@ claims discipline that an audit vendor needs.
 | --- | --- | --- |
 | **envelope** | A signed JSON record binding an actor, tool, and optional scope to a commit or action. The unit of evidence. | "receipt", "certificate", "token" |
 | **actor** | The entity that produced a change: `human`, `agent`, or `ci`. A declared role, not a verified identity. | "user", "author", "identity" |
-| **Scroll Gate** | The pull-request verification path that checks every commit in a range. Partial SLSA L1-2. | "the gate", "compliance gate", "security gate" |
+| **Scroll Gate** | The pull-request verification path that checks every commit in a range. | "the gate", "compliance gate", "security gate" |
 | **mandate chain** | The path from a human authorization, through delegation, to a machine action, provable afterward. Shared vocabulary with AP2. | "audit trail", "chain of custody" |
 | **emulated mode** | The file-backed software signer and default provider | "demo mode", "test mode", "insecure mode" |
 | **hardware mode** | The SSX360 RP2350 and SE050 USB signer, supplied by direct inquiry | "retail signer", "self-service hardware" |
@@ -45,8 +45,8 @@ Every one of these is a word chosen to avoid naming a thing. Name the thing.
 Zero em-dashes (—). Zero en-dashes used as a separator ( – ). Use a hyphen, a
 comma, a period, or parentheses.
 
-An en-dash between digits is a numeric range and stays legal: "SLSA L1-2",
-"2024-2025". The ban is on the dash as a rhetorical pause.
+A hyphen between digits is a numeric range and stays legal, as in "2024-2025".
+The ban is on a dash used as a rhetorical pause.
 
 This is a house decision, not a claim about writing quality. Reasonable people
 argue the em-dash ban is superstition, and the research generally supports them:
@@ -78,7 +78,7 @@ The approved positioning lines use this construction deliberately and are exempt
 ## Register
 
 Developer surfaces get one concrete declarative sentence. The PyPI summary,
-"Signed provenance for agent-assisted Git commits with offline verification", is
+"Signed machine-action records with offline verification", is
 the right class: compare ruff's "An extremely fast Python linter and code
 formatter, written in Rust."
 
@@ -89,8 +89,9 @@ family.
 
 ## Claims discipline
 
-This is the section that matters most, because SSX360 sells independent
-assessments and a false claim in its own documentation is disqualifying.
+This is the section that matters most because SSX360 sells cybersecurity
+products and scoped services aligned to compliance outcomes. A false claim in
+our own documentation is disqualifying.
 
 **Compliance.** Wherever DORA, PCI DSS, the EU AI Act, SOC 2, NIST, the SSDF, or
 the FS-AI RMF is named, the file must carry "evidence mapping, not a

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.6.4"
-description = "MCP server for signed AI-agent provenance with offline tool-surface checks and SSX360 USB signer support."
+version = "0.7.0"
+description = "MCP server for signed machine-action records, offline tool-surface checks, and SSX360 USB signer support."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -21,10 +21,11 @@ keywords = [
     "fips-204",
     "fips-205",
     "signing",
+    "authorization",
+    "machine-action",
     "provenance",
     "root-of-trust",
     "secure-element",
-    "ai",
     "supply-chain",
     "ssx360",
     "matrixscroll",

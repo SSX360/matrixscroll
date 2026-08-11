@@ -6,6 +6,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-11
+
+Fail-closed verification, package completeness, and public positioning. No
+wire-format change.
+
 ### Added
 - Range verification results now report agent-scope details and the formal model
   includes the default-path invariant `Inv_EmptyRangeFailsClosed`.
@@ -22,6 +27,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation now describes the shipped 14-tool MCP server and completed USB
   signer directly, without retired pricing tiers or level-based product gates.
 - Development, documentation, and GitHub Action dependencies were refreshed.
+- Public package metadata now describes signed machine-action records instead
+  of leading with AI terminology. Exact schema terms such as `actor_type: agent`
+  remain unchanged.
 
 ### Fixed
 - **The verify action could hand a caller a blank `ok` when the verifier
@@ -379,6 +387,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.7.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.7.0
 [0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4
 [0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3
 [0.6.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.2

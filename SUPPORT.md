@@ -46,7 +46,7 @@ partnership inquiries.
 ## Status
 
 - **Software:** emulated Ed25519 signing, Git post-commit hooks, PyPI
-  `matrixscroll` **0.6.4**, Scroll Gate, the public verifier, and the public action
+  `matrixscroll` **0.7.0**, Scroll Gate, the public verifier, and the public action
 - **Hardware:** the completed SSX360 USB signer uses an RP2350 USB bridge and an
   NXP SE050 secure element. The signer and its Matrix Scroll host tooling are
   available by direct inquiry through [SSX360 contact](https://ssx360.com/contact).

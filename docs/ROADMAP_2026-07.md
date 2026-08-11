@@ -6,7 +6,7 @@ Matrix Scroll stabilizes the verifier contract before adding new signing provide
 
 ## Current release
 
-- PyPI release: `matrixscroll==0.6.4`
+- PyPI release: `matrixscroll==0.7.0`
 - MCP transport: stdio through `matrixscroll-mcp`
 - Public trust contract: Ed25519 over canonical manifest bytes
 - Software provider: file-backed key under `MATRIXSCROLL_HOME`
@@ -31,7 +31,7 @@ Matrix Scroll stabilizes the verifier contract before adding new signing provide
 - Commit-envelope schema
 - CLI exit codes
 - Offline verification behavior
-- MCP tool names for the `0.6.x` release line
+- MCP tool names for the `0.7.x` release line
 
 ## Release rule
 

@@ -13,7 +13,7 @@ writing or editing any user-facing text. The condensed version:
 - Naming DORA, PCI DSS, the EU AI Act, SOC 2, NIST, the SSDF, or the FS-AI RMF
   obliges the file to carry "evidence mapping, not a certification claim".
   Never assert that anything is certified or compliant.
-- The published version is `0.6.4`, per `pyproject.toml` and
+- The published version is `0.7.0`, per `pyproject.toml` and
   `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly in every install
   example.
 - SSX360 produces the SE050 USB signer and supplies it through direct inquiry.

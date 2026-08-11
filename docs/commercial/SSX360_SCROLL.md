@@ -14,7 +14,7 @@ envelopes. **Not:** a Git replacement or a change to Git's object format.
 ## Quick start
 
 ```bash
-pip install "matrixscroll==0.6.4"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 matrixscroll scroll commit -m "feat: governed commit"
 ```

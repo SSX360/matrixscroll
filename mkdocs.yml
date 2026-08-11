@@ -1,5 +1,5 @@
 site_name: Matrix Scroll
-site_description: Signed provenance for agent-assisted Git commits with offline Ed25519 verification.
+site_description: Signed machine-action records with offline Ed25519 verification.
 site_url: https://matrixscroll.com/docs/
 repo_url: https://github.com/SSX360/matrixscroll
 repo_name: SSX360/matrixscroll

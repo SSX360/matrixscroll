@@ -1,60 +1,56 @@
-# Master Doctrine — SSX360 / Matrix Scroll
+# Publishing doctrine: SSX360 and Matrix Scroll
 
-Codebase-level direction. Audience: anyone touching this system — internal, contract, or partner. Independent of any deal, signature, or person. If a decision isn't covered here, derive it from the doctrine.
+This document defines the public claims and technical boundaries shared by the
+Matrix Scroll package, matrixscroll.com, PyPI, GitHub, and SSX360.
 
-## The one thesis
+## The thesis
 
-AI agents now write code and move money at machine speed. Nobody can prove who authorized what. We own the proof layer: signed at the moment of action, verified before merge, exported as evidence an assessor can read without us in the room.
+Software changes code, infrastructure, and business records at machine speed.
+Matrix Scroll signs a declared authorization record for those actions and lets
+reviewers verify the record offline. SSX360 maintains the protocol, produces the
+USB signer, and delivers scoped cybersecurity services.
 
-Everything in this codebase either strengthens that sentence or doesn't belong in it.
+## Rules
 
-## Doctrine — the five rules every commit answers to
+### 1. Describe evidence, not trust
 
-### 1. We are the trust layer, never the platform.
+Matrix Scroll verifies that signed bytes match and correspond to a key. It does
+not establish who was authorized to use that key. Trusted-key policy, access
+control, key custody, revocation, and review remain deployment responsibilities.
 
-We do not build version control. We do not build a forge. We do not build payment rails. Those categories monetize at zero (DVCS), require a decade and a billion dollars (forge), or are owned by card networks and FIDO working groups (rails). We are the provenance layer that rides on all of them — git, GitHub, GitLab, Forgejo, Gitea, any Actions-syntax CI, any payment protocol that emits signed mandates. Forge-agnostic and rail-agnostic is the moat. Any code that couples us to one platform is technical debt on arrival.
+### 2. Keep the protocol portable
 
-### 2. The assessor is the user.
+The envelope format, schemas, conformance vectors, and verifier must work
+without a Matrix Scroll account. Integrations may target GitHub, GitLab,
+Forgejo, Gitea, or other systems, but the wire format must not depend on one
+platform.
 
-The buyer is a security or platform team, but the user who decides if we win is the auditor who receives the Evidence Pack. Every schema, export, log line, and doc is written for a person who will read it cold, without a founder on the call. Stable schema versions, changelogs, field glossaries, verify instructions that stand alone. If an artifact needs us to explain it, the artifact is unfinished.
+### 3. Make every claim checkable
 
-### 3. Every claim must be falsifiable — in marketing, in code, in README.
+Software signing is described as software signing. The completed SSX360 USB
+signer is described as an RP2350 and NXP SE050 device supplied through direct
+contact. PyPI distributes the host software, not the physical device. Compliance
+references are evidence mappings, not certifications.
 
-The Honest Limits section is the brand. Emulated signing is called emulated. PyPI distributes the host software. SSX360 supplies the completed USB signer through direct inquiry, which is different from self-service or retail distribution. Illustrative deployment profiles carry their disclaimer. "Aligned to SSDF / EU AI Act," never "certified" until a third party says so. The site, the PyPI page, the action README, and the sales deck must say the identical thing. The buyer we want is trained to find the gap, and finding one costs us the category. Unfalsifiable copy ("100% of AI writes") is a bug; file it and fix it like one.
+### 4. Apply the same controls to releases
 
-### 4. Dogfood the provenance or don't ship it.
+Release examples use explicit version pins. PyPI artifacts are built from the
+tagged repository state and published through Trusted Publishing with
+attestations. The changelog, support policy, action defaults, site, and package
+metadata must identify the same current release.
 
-Our own releases carry signed provenance, pinned versions, checksums, and attestations — the pipeline is the demo. One supported release line, stated support policy, org-owned maintainer accounts, no personal tokens in the release path. A provenance company with a sloppy supply chain is a contradiction the market will not forgive. The release train is a product surface, not plumbing.
+### 5. Separate open software from commercial delivery
 
-### 5. Meet buyers at the migration, sell them the evidence.
+Matrix Scroll remains Apache-2.0 software with CC0 specification text and
+vectors. SSX360 earns revenue from cybersecurity products and scoped services,
+including the physical USB signer and compliance-aligned assessment work.
 
-The market's live pain: unattributed machine-speed writes are breaking platforms, and security-conscious teams are re-platforming to self-hosted and sovereign forges — where they lose native attestation and must bring their own trust layer. That is our insertion point. Distribution is the open protocol (spec, conformance vectors, verifier, integrations — aggressively boring, zero commercial copy); revenue is the control plane (policy, evidence, SSO, hardware-bound identity, support). The spear stays sharp and free; the handle is what we sell.
+## Publication check
 
-## Double down — where all optimization effort goes
+Before publishing, confirm that:
 
-- **Evidence Pack** as the flagship artifact. Signed, versioned, downloadable, self-verifying, mapped field-by-field to the frameworks we name. Optimize its legibility before optimizing anything else.
-- **Verification everywhere git goes.** CI gate hardening, server-side enforcement for self-hosters, offline verify, browser verify. Verification speed, determinism, and zero-false-positive behavior are the performance metrics that matter.
-- **Forge-agnostic integrations** as first-class citizens: the same install, the same gate, the same export on GitHub, GitLab, and Forgejo/Gitea. Treat every integration doc as a landing page.
-- **Hardware as device-bound identity.** The RP2350 and SE050 USB signer keeps the Ed25519 private key inside the secure element. SSX360 supplies completed units through direct inquiry. Device custody, trusted-key registration, revocation, and offboarding remain deployment responsibilities.
-- **Crawlability and machine-readability** of everything public. Specs, docs, llms.txt, sitemaps, plain-markdown paths. When a buyer's AI assistant is asked "what is Matrix Scroll," our own text must be the answer.
-
-## Hold — maintained, not grown
-
-- **Agent-commerce (AP2/mandates):** the envelope format already fits signed mandates; keep the mapping document current and the demo honest. It graduates to product only on a written pull from a payments buyer or a certifiable third-party role in the standards output. Until then it is a narrative, clearly badged, and it never leads the homepage story to a security buyer.
-- **Digital Rain / studio:** the live demo of "agent builds with provenance." It exists to make the proof layer visible, not to become a second product line.
-
-## Killed — do not resurrect without a scored memo
-
-Building a DVCS. Building or hosting a forge. Competing on scanning/analysis (partner narrative only). Payment-rail infrastructure. Silicon beyond the validated path until revenue demands it. Any second go-to-market motion that splits focus from the security buyer.
-
-## The test
-
-Before merging, shipping, or publishing, ask in order:
-
-1. Does this make the proof stronger, the verify faster, or the evidence more legible?
-2. Would it survive an adversarial reader — an assessor, a CISO's counsel, a competitor — with zero explanation from us?
-3. Does it work on every forge and rail, or does it marry us to one?
-4. Are we running the same provenance on ourselves that we sell?
-5. Is every word of it falsifiable?
-
-Five yeses: ship. Any no: it's not done.
+1. The capability exists in the referenced release or deployed service.
+2. The evidence and limitations appear beside the claim.
+3. Version numbers and install commands agree across every public surface.
+4. Hardware availability distinguishes host software from physical units.
+5. Standards references do not imply certification or third-party validation.
