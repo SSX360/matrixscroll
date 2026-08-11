@@ -19,8 +19,8 @@ claims discipline that an audit vendor needs.
 | **actor** | The entity that produced a change: `human`, `agent`, or `ci`. A declared role, not a verified identity. | "user", "author", "identity" |
 | **Scroll Gate** | The pull-request verification path that checks every commit in a range. Partial SLSA L1-2. | "the gate", "compliance gate", "security gate" |
 | **mandate chain** | The path from a human authorization, through delegation, to a machine action, provable afterward. Shared vocabulary with AP2. | "audit trail", "chain of custody" |
-| **emulated mode** | The software signer. The default and the supported evaluation path. L1. | "demo mode", "test mode", "insecure mode" |
-| **hardware mode** | The secure-element path. A bench prototype, not generally available. L2 prototype. | "hardware support", "secure mode", anything implying availability |
+| **emulated mode** | The file-backed software signer and default provider | "demo mode", "test mode", "insecure mode" |
+| **hardware mode** | The SSX360 RP2350 and SE050 USB signer, supplied by direct inquiry | "retail signer", "self-service hardware" |
 | **evidence mapping** | The relationship between Matrix Scroll output and a compliance framework. | "compliance", "certification", "coverage" |
 
 Write "Matrix Scroll" with a space for the protocol and the brand. Write
@@ -101,12 +101,12 @@ Never write that anything is certified, is compliant with a framework, meets a
 framework's requirements, is required by a framework, guarantees compliance, or
 is audit-proof. Enforced by `SSX360.Certification` at `error`.
 
-**Hardware.** State the bench-prototype status every time. Never write that
-hardware ships, is available, or is validated without "prototype, not generally
-available" attached. See
-[Trust boundaries and the hardware roadmap](trust-boundaries.md).
+**Hardware.** Distinguish the Python transport from the physical signer. PyPI
+distributes `matrixscroll[hardware]`. SSX360 supplies completed signer units
+through direct inquiry at `ssx360.com/contact`. Do not imply retail or
+self-service distribution. See [Trust boundaries](trust-boundaries.md).
 
-**Versions.** The shipping version is whatever `pyproject.toml` and the PyPI JSON
+**Versions.** The published version is whatever `pyproject.toml` and the PyPI JSON
 API agree on. Pin it explicitly in every install example. Three properties
 asserting three different versions is a credibility failure, not a documentation
 bug.

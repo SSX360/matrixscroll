@@ -6,6 +6,28 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-08-11
+
+Documentation and release metadata. No wire-format change.
+
+### Added
+- The PyPI page now leads with the working `matrixscroll-mcp` stdio server and
+  documents all 14 tools.
+- The completed SSX360 USB signer, signing sequence, and architecture are shown
+  with the direct-contact acquisition path.
+
+### Changed
+- Removed the overlapping authorization and provider maturity ladders from the
+  PyPI page. Capability names and provider modes now stand on their own.
+- Hardware documentation now distinguishes the `matrixscroll[hardware]` host
+  package from physical signers supplied through `ssx360.com/contact`.
+- Install examples and release metadata now pin `matrixscroll==0.6.4`.
+
+### Verified
+- The stdio handshake returns 14 MCP tools.
+- The focused MCP and SE050 transport suite passes 29 tests.
+- The wheel and source distribution pass `twine check`.
+
 ## [0.6.3] - 2026-08-10
 
 Repository layout and documentation. No code, CLI or wire-format changes.
@@ -312,6 +334,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4
 [0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3
 [0.6.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.2
 [0.6.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.1

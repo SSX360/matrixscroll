@@ -12,7 +12,7 @@ Platform docs: [ssx360.com/docs](https://ssx360.com/docs)
 ## Quick start
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.6.4"
 matrixscroll hook-install
 matrixscroll scroll commit -m "feat: governed commit"
 ```

@@ -3,7 +3,7 @@
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
   "version": "0.6.3",
-  "description": "Provenance-only MCP for AI agent governance: RFC 8032 Ed25519 commit envelopes, universal action types (ci_step, iac_change, db_migration, api_call, contract_deploy), offline verify, Scroll Gate CI (partial SLSA L1â€“2), audit export, and SE050 hardware preview. Hosted features require ssx360.com API key.",
+  "description": "MCP server for RFC 8032 Ed25519 commit envelopes, signed action records, offline tool-surface checks, audit export, and the SSX360 SE050 USB signer. Hosted features require an SSX360 API key.",
   "maintainers": ["SSX360"],
   "homepage": "https://ssx360.com",
   "repository": "https://github.com/SSX360/matrixscroll",

@@ -64,13 +64,12 @@ is audit-proof.
 
 ## Claims that must stay true
 
-- **Version.** The shipping version is `0.6.3`. It is set in `pyproject.toml`
+- **Version.** The published version is `0.6.4`. It is set in `pyproject.toml`
   and confirmed by `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly
   in every install example. Never assert a version you have not checked.
-- **Hardware.** SE050 and the Pico 2 W display bring-up are bench prototypes, not
-  generally available. Live SE050 signing on the display bring-up UF2 is
-  fail-closed. Never write "validated", "shipping", or "available" about
-  hardware without "prototype, not generally available" attached.
+- **Hardware.** SSX360 produces the RP2350 and SE050 USB signer and supplies it
+  through direct inquiry at `ssx360.com/contact`. PyPI distributes the host
+  software. Do not describe the signer as a self-service or retail product.
 - **Business structure.** SSX360 is the audit entity and sells assessments.
   Matrix Scroll is the open protocol, free permanently, never monetized.
   Research is the newsletter, index, and incident registry. Selling software to

@@ -8,7 +8,7 @@ Matrix Scroll signs **Git commit envelopes** — cryptographic evidence of who (
 
 | Tool | Layer | Signs commits? | Agent identity | Hardware root of trust | Open source |
 |------|-------|----------------|----------------|------------------------|-------------|
-| **Matrix Scroll** | Commit | Yes (envelope in commit) | Yes | Yes (SSX360 / SE050 path; emulated L1 today) | Protocol + SDK |
+| **Matrix Scroll** | Commit | Yes (envelope in commit) | Yes | Yes, with the direct-contact SSX360 SE050 signer | Protocol + SDK |
 | [agentmark](https://github.com/karta-oss/karta) | Commit + CI gate | Yes (manifest in message) | Yes (pipeline key) | No | Apache 2.0 |
 | [Alien Agent ID](https://github.com/alien-id) | Commit (git notes) | Yes | Yes (owner-bound via OIDC) | No | SDK on GitHub |
 | [ForgeProof](https://github.com/forgeproof/forgeproof) | File-level | No | Partial (model/provider) | No | Apache 2.0 |
@@ -25,7 +25,7 @@ Runtime audit tools (Provedex, ProvenanceOne, etc.) log **what agents do at runt
 ### agentmark
 
 - **Similar:** Commit-time Ed25519 manifest, CI verification gate, EU AI Act Article 50 cited as a use case.
-- **Different:** Software pipeline keys (exfiltration risk). Matrix Scroll targets **hardware-sealed** Ed25519 (SSX360) with offline verify; emulated L1 ships today.
+- **Different:** Software pipeline keys carry exfiltration risk. Matrix Scroll also supports the SSX360 hardware-sealed Ed25519 signer with offline verification.
 - **Takeaway:** Strongest software-only peer. Matrix Scroll differentiates on tamper-resistant keys and commit-embedded envelopes.
 
 ### Alien Agent ID
@@ -37,7 +37,7 @@ Runtime audit tools (Provedex, ProvenanceOne, etc.) log **what agents do at runt
 ### ForgeProof
 
 - **Similar:** Ed25519 + SHA-256 provenance for AI-assisted code.
-- **Different:** **Per-file receipts** before build, not commit envelopes. Provenance is a separate artifact; Matrix Scroll embeds evidence in every clone of the repo.
+- **Different:** **Per-file receipts** before build, not commit envelopes. The provenance record is a separate artifact; Matrix Scroll embeds evidence in every clone of the repo.
 - **Takeaway:** Complementary granularity (file vs commit); potential interop, not a fork in the road.
 
 ## Established supply chain (CI / artifact)
@@ -61,7 +61,7 @@ No single competitor listed above combines all four today.
 - **Owner/delegation attestation:** Optional `delegation` block in commit envelope schema (**0.2.4+**); see [`delegation-attestation-rfc.md`](delegation-attestation-rfc.md). Alien still leads on OIDC/DPoP owner binding.
 - **Multi-agent commits:** Multiple actors in one envelope — on the roadmap.
 - **Rekor / GUAC export:** Dry-run CLI ships in **0.3.0** (`envelope-publish-rekor`, `envelope-export-guac`); full Rekor upload integration still in progress.
-- **Hardware:** SSX360 reference device and Scroll Key retail are **in progress**; L1 emulated key is what you can use now.
+- **Hardware:** SSX360 supplies the RP2350 and SE050 USB signer through [direct inquiry](https://ssx360.com/contact). The file-backed provider remains available for software-only use.
 
 ## When to use what
 
@@ -80,4 +80,4 @@ No single competitor listed above combines all four today.
 - [Whitepaper](WHITEPAPER.md) — threat model and envelope design
 - [SPEC.md](../SPEC.md) — wire format and verification rules
 
-*Last updated: June 2026. Comparisons reflect public docs and OSS repos; contact mission@ssx360.com for corrections.*
+*Last updated: August 2026. Comparisons reflect public docs and OSS repos. Use [SSX360 contact](https://ssx360.com/contact) for corrections.*

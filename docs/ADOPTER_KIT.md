@@ -11,7 +11,7 @@ who want to trial Matrix Scroll without changing their core workflow.
 
 ## 15-minute pilot
 
-1. Install `matrixscroll==0.6.3` in one repo.
+1. Install `matrixscroll==0.6.4` in one repo.
 2. Run `matrixscroll hook-install`.
 3. Make one agent-assisted commit and verify it locally.
 4. Publish notes with `matrixscroll envelope-publish-notes`.
@@ -38,7 +38,7 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.3"
+          matrixscroll-version: "0.6.4"
           require-mode: emulated
 ```
 
@@ -57,7 +57,7 @@ jobs:
 
 ## What not to assume
 
-- L1 emulated mode is not a hardware root of trust
+- The file-backed provider stores its key on the host
 - Matrix Scroll does not replace IAM or sandboxing
 - Matrix Scroll does not replace release-signing or artifact attestations
 

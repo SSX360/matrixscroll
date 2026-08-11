@@ -50,9 +50,9 @@ Matrix Scroll adds a stronger evidence layer on top:
 
 1. **Offline verification** — auditors can verify a manifest without trusting
    Matrix Scroll servers, the original CI system, or the agent runtime.
-2. **Hardware-rooted provenance path** — the SSX360 L2 design moves the signing
-   key into a secure element so the agent cannot exfiltrate it as a normal
-   credential. Hardware mode is a typed provider path awaiting SE050 transport.
+2. **Hardware-rooted provenance path** — the SSX360 USB signer moves the signing
+   key into an SE050 secure element so the agent cannot export it as a normal
+   host credential. The `matrixscroll[hardware]` extra provides the USB transport.
 3. **Fail-closed policy gates** — the CLI returns exit `2` for tampered,
    unsigned, malformed, wrong-schema, wrong-algorithm, or wrong-device-id input.
 4. **Executable conformance** — `vectors/` lets third-party implementations

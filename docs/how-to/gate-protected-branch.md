@@ -34,7 +34,7 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.3"
+          matrixscroll-version: "0.6.4"
           require-mode: emulated
 ```
 
@@ -67,10 +67,10 @@ yourself:
 | --- | --- | --- |
 | omitted | Any valid signature passes | Rolling out, measuring coverage |
 | `emulated` | Software-signed envelopes pass | Normal enforcement |
-| `hardware` | Only secure-element signatures pass | Not yet: see below |
+| `hardware` | Only secure-element signatures pass | The expected SSX360 signer key is registered |
 
-Do not set `require-mode: hardware`. Hardware signing is a bench prototype, not
-a generally available product, and the gate will reject every commit.
+Set `require-mode: hardware` only after you register the expected SSX360 signer
+key and confirm every required commit can reach the device.
 
 ## 4. Require the check on the branch
 
@@ -89,7 +89,7 @@ Auditors ask how many commits in a release were agent-authored. Emit the counts:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.3"
+          matrixscroll-version: "0.6.4"
           summary-output: provenance-summary.json
 ```
 
