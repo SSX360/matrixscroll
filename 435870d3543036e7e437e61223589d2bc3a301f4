@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "435870d3543036e7e437e61223589d2bc3a301f4",
+    "author": {
+      "date": "1786467598 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786467598 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Harden Dependabot guard semantics\n",
+    "parents": [
+      "ba5893366175abf9fefca6f9549e412c03f69538"
+    ],
+    "tree": "552ea92acaadb3caaea4a588fd4e83fdd82d1577"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/block-incompatible-mcp",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T16:59:58Z",
+    "value": "nPO9bL/oKZcDg3ynpsbEhuHje/UdPunvlwAbogknoCE0O4Ve+ohqSlYOoaXwFvSnveA4oAPsqyH7s3YdQBmWAA=="
+  }
+}
