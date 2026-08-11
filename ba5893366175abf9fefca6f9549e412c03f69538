@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "ba5893366175abf9fefca6f9549e412c03f69538",
+    "author": {
+      "date": "1786467049 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786467049 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Keep Dependabot off incompatible MCP major\n",
+    "parents": [
+      "6997bf8b248b2d96ce36b76cb46a17072f1c60b1"
+    ],
+    "tree": "73d34b1404feba8e91b6c01b9748a2d01948813d"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/block-incompatible-mcp",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-11T16:50:50Z",
+    "value": "DOx0GO/zQ9VJvih5szUsmQHsdt2JnETvB1kGUL28Gf6c9XQ4xvec5rpOurIfE54pcduwU+HU9nGXJwp9DzxBDA=="
+  }
+}
