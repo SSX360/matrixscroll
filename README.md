@@ -117,7 +117,9 @@ matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 
 ## Use the SSX360 USB signer
 
-![Completed SSX360 USB signer](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
+![SSX360 USB signer product visualization](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
+
+*Product visualization of the finished SSX360 USB signer. Supplied configurations can vary in enclosure details. The product documentation supplied with each unit names that configuration's signing boundary.*
 
 Install the hardware and MCP extras:
 
