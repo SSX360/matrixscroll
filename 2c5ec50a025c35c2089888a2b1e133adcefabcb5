@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "2c5ec50a025c35c2089888a2b1e133adcefabcb5",
+    "author": {
+      "date": "1786642291 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786642291 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Clarify signer image caption\n",
+    "parents": [
+      "c205b0fc085ad918a4e921c85d6a6c4ad2d45e6b"
+    ],
+    "tree": "5d30a5e0c05185a60491385d2bfb324a373e5b07"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/update-signer-product-image",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-13T17:31:32Z",
+    "value": "GAxJaTi4O85EC64yg2JeNbJKeyBv/8NLGar+cJFqDUEcFbYpAGNxV92FN6HglwwG6l1k5harHS/4AFgNxjS8AQ=="
+  }
+}
