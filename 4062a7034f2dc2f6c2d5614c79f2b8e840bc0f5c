@@ -1,0 +1,40 @@
+{
+  "commit": {
+    "actual_id": "4062a7034f2dc2f6c2d5614c79f2b8e840bc0f5c",
+    "author": {
+      "date": "1786642706 -1000",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "SSX360"
+    },
+    "committer": {
+      "date": "1786642706 -1000",
+      "email": "noreply@github.com",
+      "name": "GitHub"
+    },
+    "message": "Merge pull request #58 from SSX360/agent/update-signer-product-image\n\nRefresh USB signer product image",
+    "parents": [
+      "383dce182becc6286178d3b88e114603ee443cba",
+      "2c5ec50a025c35c2089888a2b1e133adcefabcb5"
+    ],
+    "tree": "5d30a5e0c05185a60491385d2bfb324a373e5b07"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "main",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-13T17:38:45Z",
+    "value": "t7NOCx6BlDUyJe251+eOxxFeeE6ZuF6C/j+WBEeADch65wZ5UXvMbHzRh8u5zXHWvg8HlOtedqWurjYGG9z5CQ=="
+  }
+}
