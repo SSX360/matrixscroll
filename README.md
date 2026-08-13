@@ -119,7 +119,7 @@ matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 
 ![SSX360 USB signer product visualization](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
 
-*Product visualization of the finished SSX360 USB signer. Enclosure details can vary by supplied configuration; the signing boundary is defined by the accompanying product documentation.*
+*Product visualization of the finished SSX360 USB signer. Supplied configurations can vary in enclosure details. The product documentation supplied with each unit names that configuration's signing boundary.*
 
 Install the hardware and MCP extras:
 
