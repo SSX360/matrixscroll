@@ -1,0 +1,39 @@
+{
+  "commit": {
+    "actual_id": "c205b0fc085ad918a4e921c85d6a6c4ad2d45e6b",
+    "author": {
+      "date": "1786641836 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "committer": {
+      "date": "1786641836 -0400",
+      "email": "119862339+SSX360@users.noreply.github.com",
+      "name": "Ryan James York"
+    },
+    "message": "Refresh USB signer product image\n",
+    "parents": [
+      "383dce182becc6286178d3b88e114603ee443cba"
+    ],
+    "tree": "0bd804a38014fd7b5756870317c443e5c0246eaf"
+  },
+  "provenance": {
+    "actor_type": "human",
+    "tool": "git-cli"
+  },
+  "repository": {
+    "branch": "agent/update-signer-product-image",
+    "name": "matrixscroll",
+    "remote_url": "https://github.com/SSX360/matrixscroll.git"
+  },
+  "schema": "matrixscroll.commit_envelope.v1",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4319-20D5",
+    "mode": "emulated",
+    "public_key": "bsVoWgUYK+NZNcSNIoWjO3IiTK/xT6U6mXFzBJgPUKc=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-08-13T17:23:56Z",
+    "value": "ifCDDth6DOHjThecGXUyExpFBoDAPZjhZ6KvauIRp2sU5ZKHr1Tr0iK+u5cmND12ZUh56SbbFA9+EoQRLMbfAg=="
+  }
+}
