@@ -57,7 +57,7 @@ section. If you are trying to get something working, read the how-to guides.
      only and back on immediately after it. -->
 <!-- vale ai-tells.ShipOveruse = NO -->
 
-## Honest limits
+## Verification boundaries
 
 - **Shipping now.** PyPI `matrixscroll==0.7.0`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request

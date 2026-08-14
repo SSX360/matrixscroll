@@ -7,9 +7,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Changed
-- The public README now leads with the offline verification outcome, uses a
-  verification-boundary section, and reserves signer implementation detail for
-  qualified setup.
+- The public README and documentation now lead with the offline verification
+  outcome, use explicit verification-boundary sections, and reserve signer
+  implementation detail for qualified setup.
 
 ## [0.7.0] - 2026-08-11
 

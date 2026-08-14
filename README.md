@@ -11,7 +11,7 @@ An MCP server can change its tool descriptions or input schemas after installati
 
 The `matrixscroll-mcp` stdio server exposes 14 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, agent traces, and the SSX360 USB signer. Local signing and verification need no cloud account.
 
-SSX360 has completed and produced the USB signer shown below. It is supplied by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
+SSX360 has completed and produced the USB signer shown below. SSX360 supplies it by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
 
 Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and the specification and vectors are CC0 1.0.
 
