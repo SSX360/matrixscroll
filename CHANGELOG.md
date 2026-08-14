@@ -6,6 +6,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- The public README and documentation now lead with the offline verification
+  outcome, use explicit verification-boundary sections, and reserve signer
+  implementation detail for qualified setup.
+
 ## [0.7.0] - 2026-08-11
 
 Fail-closed verification, package completeness, and public positioning. No

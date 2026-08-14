@@ -18,7 +18,7 @@ writing or editing any user-facing text. The condensed version:
   example.
 - SSX360 produces the SE050 USB signer and supplies it through direct inquiry.
   Distinguish direct-contact availability from self-service or retail distribution.
-- Never delete or soften an "Honest limits" section.
+- Never delete or soften a "Verification boundaries" section.
 
 ## Commit attribution
 

@@ -76,7 +76,7 @@ is audit-proof.
   an audit client destroys independence and is forbidden; do not write copy that
   does it.
 
-## Preserve honest limits
+## Preserve verification boundaries
 
 Every surface making a capability claim carries a "Shipping now / In progress /
 Not" block. Never delete or soften one. It is the strongest asset in the copy.

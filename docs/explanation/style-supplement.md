@@ -112,10 +112,10 @@ API agree on. Pin it explicitly in every install example. Three properties
 asserting three different versions is a credibility failure, not a documentation
 bug.
 
-## Honest limits
+## Verification boundaries
 
 Every surface that makes a capability claim carries a "Shipping now / In
-progress / Not" block. The README's "Honest limits" section is the model. This is
+progress / Not" block. The README's "Verification boundaries" section is the model. This is
 the single strongest asset in the copy and the clearest differentiator against
 vendors selling fear, and it belongs on the marketing pages too, not only in the
 README.

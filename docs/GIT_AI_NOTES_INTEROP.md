@@ -27,7 +27,7 @@ Agent edit → Git AI note (line attribution) → Matrix Scroll envelope signs n
 | `matrixscroll attest-git-ai-notes` CLI | Planned adapter |
 | Scroll Gate policy: require signed note when Git AI present | Planned |
 
-## Honest limits
+## Verification boundaries
 
 - Line attribution remains **self-reported**; signing proves integrity of the declaration, not ground-truth authorship detection.
 
