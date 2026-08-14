@@ -1,17 +1,17 @@
 # Matrix Scroll
 
-Model Context Protocol server for signed machine-action records and offline tool-surface verification.
+Signed machine-action records with offline verification for MCP, Git, and CI.
 
 [![ci-unit](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml/badge.svg)](https://github.com/SSX360/matrixscroll/actions/workflows/ci-unit.yml)
 [![PyPI](https://img.shields.io/pypi/v/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
-An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll addresses both gaps with Ed25519-signed evidence that reviewers can verify offline.
+An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline.
 
 The `matrixscroll-mcp` stdio server exposes 14 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, agent traces, and the SSX360 USB signer. Local signing and verification need no cloud account.
 
-SSX360 has completed and produced the USB signer shown below. The device uses an RP2350 USB bridge and an NXP SE050 secure element. SSX360 supplies the signer by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`.
+SSX360 has completed and produced the USB signer shown below. It is supplied by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
 
 Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and the specification and vectors are CC0 1.0.
 
@@ -22,7 +22,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 - [Detect MCP tool-surface changes](#detect-mcp-tool-surface-changes)
 - [Use the SSX360 USB signer](#use-the-ssx360-usb-signer)
 - [Sign and verify from the CLI](#sign-and-verify-from-the-cli)
-- [Honest limits](#honest-limits)
+- [Verification boundaries](#verification-boundaries)
 - [Verify the release](#verify-the-release)
 - [Security and license](#security-and-license)
 
@@ -170,18 +170,11 @@ SSX360 supplies the finished signer through direct contact. Ask for the Matrix S
 
 ### How hardware signing works
 
-![USB signing round trip](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer-round-trip.jpg)
+1. The signer creates and retains the private Ed25519 key in hardware.
+2. The host sends canonical record bytes and receives the public key and detached signature.
+3. Matrix Scroll assembles the record and checks it with the same offline verifier used for software signing.
 
-1. The host sends `GEN_KEY` through the RP2350 USB bridge.
-2. The SE050 creates an Ed25519 key pair in the secure element. The private key is non-exportable.
-3. The host reads the 32-byte public key.
-4. The host sends canonical bytes with a `SIGN` request.
-5. The SE050 returns a 64-byte Ed25519 signature.
-6. Matrix Scroll assembles the signed record and verifies it with the same offline verifier used for software signing.
-
-The host receives the public key and signature. The private key stays inside the SE050.
-
-![USB signer architecture](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer-architecture.jpg)
+The host receives only the public material needed to verify the record. Qualified operators receive the integration guide during setup.
 
 ## Sign and verify from the CLI
 
@@ -207,16 +200,16 @@ matrixscroll verify release.signed.json
 
 `matrixscroll verify` exits with code `0` for a valid signature and code `2` for invalid input, a failed signature, a mismatched device identity, or an unsupported schema or algorithm.
 
-## Honest limits
+## Verification boundaries
 
 <!-- vale ai-tells.ShipOveruse = NO -->
 
-- Shipping now: PyPI `matrixscroll==0.7.0` installs the 14-tool stdio MCP server and Git hooks. The release also includes the MCP Trust Scanner, offline verification, and USB CDC integration for the SSX360 signer.
-- Hardware availability: SSX360 produces the USB signer and supplies it after a direct inquiry. PyPI distributes the host software only.
-- Hosted tools: `list_envelopes` and the hosted modes of `verify_pr_range` and `audit_export` require `SSX360_API_KEY` and a deployed SSX360 API. Local alternatives remain available without a key.
-- Post-quantum overlay: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
-- Verification scope: an Ed25519 signature proves that the signed bytes match and correspond to the included public key. The declared `actor_type` still requires a trusted-key and authorization policy.
-- Not included: identity and access management, sandboxing, prompt filtering, or an agent runtime.
+- Release: PyPI `matrixscroll==0.7.0` installs the 14-tool stdio MCP server and Git hooks. The release also includes the MCP Trust Scanner, offline verification, and USB signer host integration.
+- Hardware supply: SSX360 produces the USB signer and supplies it after a direct inquiry. PyPI distributes the host software.
+- Hosted tools: `list_envelopes` and the hosted modes of `verify_pr_range` and `audit_export` require `SSX360_API_KEY` and a deployed SSX360 API. Local signing and verification remain available without a key.
+- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
+- Verification scope: an Ed25519 signature proves that the signed bytes match and correspond to the included public key. A trusted-key and authorization policy establishes whether the declared `actor_type` can perform the action.
+- Adjacent controls: identity and access management, sandboxing, prompt filtering, and agent runtime policy remain separate controls.
 
 <!-- vale ai-tells.ShipOveruse = YES -->
 
