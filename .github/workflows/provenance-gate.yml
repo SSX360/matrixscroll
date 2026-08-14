@@ -22,7 +22,7 @@ jobs:
     env:
       SSX360_API_KEY: ${{ secrets.SSX360_API_KEY }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 

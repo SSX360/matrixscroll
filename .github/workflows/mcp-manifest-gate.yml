@@ -56,7 +56,7 @@ jobs:
       MS_VERSION: ${{ inputs.matrixscroll_version }}
       MS_PACKAGE_SOURCE: ${{ inputs.package_source }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - uses: actions/setup-python@v7
         with:
