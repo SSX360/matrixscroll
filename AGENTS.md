@@ -15,10 +15,14 @@ writing or editing any user-facing text. The condensed version:
   Never assert that anything is certified or compliant.
 - The shipping version is `0.6.3`, per `pyproject.toml` and
   `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly in every install
-  example.
+  example. Unreleased tree changes may retarget the software PQC default to
+  `ml-dsa-87`; do not claim that default on PyPI until the release that ships it.
 - Hardware (SE050, Pico 2 W) is a bench prototype, not generally available. Say
   so every time.
 - Never delete or soften an "Honest limits" section.
+- Do not claim CNSA 2.0 certification, FIPS CMVP validation, or NSA approval.
+  Naming ML-DSA-87 as the Category 5 / CNSA 2.0 signature parameter set is
+  parameter readiness only.
 
 ## Commit attribution
 

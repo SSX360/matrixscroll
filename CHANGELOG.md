@@ -6,6 +6,23 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- **Default PQC algorithm is now `ml-dsa-87`.** When `MATRIXSCROLL_PQC` enables
+  the overlay without naming a set, and when `matrixscroll pqc-keygen` is run
+  without `--algorithm`, the SDK selects ML-DSA-87 (FIPS 204 Category 5). That
+  matches the CNSA 2.0 signature parameter set. It is parameter-set readiness
+  through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
+  Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
+  files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
+  newly generated keys.
+
+### Added
+- **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
+  list (FIPS 205 Category 5 hash-based options), schema, and CLI choices.
+- **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
+  that need a named CNSA 2.0 signature target without hard-coding the string.
+- **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
+
 ## [0.6.3] - 2026-08-10
 
 Repository layout and documentation. No code, CLI or wire-format changes.

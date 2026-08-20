@@ -214,7 +214,7 @@ Each element of `pqc_signatures`:
 ```json
 {
   "schema": "matrixscroll.pqc_signature.v1",
-  "algorithm": "ml-dsa-65",
+  "algorithm": "ml-dsa-87",
   "public_key": "<base64(raw public key bytes)>",
   "value": "<base64(detached signature)>",
   "signed_at": "<RFC 3339 UTC, informational>"
@@ -222,7 +222,21 @@ Each element of `pqc_signatures`:
 ```
 
 Allowed `algorithm` values: `ml-dsa-44`, `ml-dsa-65`, `ml-dsa-87`,
-`slh-dsa-sha2-128s`, `slh-dsa-sha2-128f`.
+`slh-dsa-sha2-128s`, `slh-dsa-sha2-128f`, `slh-dsa-sha2-256s`,
+`slh-dsa-sha2-256f`.
+
+The software default when `MATRIXSCROLL_PQC` is set without an explicit
+algorithm (and the `pqc-keygen` CLI default) is `ml-dsa-87`, the FIPS 204
+Category 5 parameter set. That matches the CNSA 2.0 signature selection for
+National Security Systems. Supporting and defaulting to that set is
+parameter-set readiness through liboqs. It is not CNSA certification, FIPS
+CMVP validation, or NSA approval. ML-KEM-1024 (FIPS 203 Category 5) is the
+CNSA 2.0 key-establishment set; Matrix Scroll envelopes remain signature-only
+and do not implement KEM.
+
+`slh-dsa-sha2-128s` / `128f` remain supported for smaller deployments.
+`slh-dsa-sha2-256s` / `256f` are the FIPS 205 Category 5 hash-based options
+for deployments that prefer SLH-DSA at that security category.
 
 Hardware envelopes (`signature.mode` = `"hardware"`) MUST NOT include
 `pqc_signatures` until secure-element firmware supports PQC. Policy engines

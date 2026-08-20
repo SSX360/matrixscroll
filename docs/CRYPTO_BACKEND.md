@@ -5,7 +5,10 @@ operations through a single Python module: `matrixscroll/crypto_backend.py`.
 
 Post-quantum overlays (ML-DSA FIPS 204, SLH-DSA FIPS 205) are optional and
 implemented via `matrixscroll/pqc.py` when `matrixscroll[pqc]` (liboqs-python)
-is installed. **USB/NFC/SE050 hardware signers remain Ed25519-only.**
+is installed. The software default is `ml-dsa-87` (Category 5 / CNSA 2.0
+signature parameter set). That is parameter-set readiness, not CNSA
+certification or FIPS CMVP validation. **USB/NFC/SE050 hardware signers remain
+Ed25519-only.**
 
 ## Design
 

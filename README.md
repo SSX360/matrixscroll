@@ -204,13 +204,20 @@ canonical UTF-8 JSON bytes (see [`SPEC.md`](https://github.com/SSX360/matrixscro
   firmware, not GA; display bring-up UF2 keeps `pubkey`/`sign` fail-closed
   until Plug & Trust restore. External Ed25519-capable hardware key backends
   and transparency-log integrations remain roadmap.
-- The post-quantum overlay implements the ML-DSA and SLH-DSA algorithms specified
-  in FIPS 204 and FIPS 205, through liboqs. That is an algorithm implementation,
-  not a CMVP-validated cryptographic module, and it is never described as FIPS
-  validated, certified or compliant. liboqs itself states that it should not be
-  relied on in production or to protect sensitive data, which is a limit worth
-  repeating rather than burying. The overlay is attached alongside the Ed25519
-  signature and never replaces it.
+- Post-quantum overlay (software only, `matrixscroll[pqc]`):
+  - Shipping now (this tree / next release): ML-DSA-44/65/87 and
+    SLH-DSA-SHA2-128s/128f/256s/256f through liboqs. Default algorithm is
+    `ml-dsa-87` (FIPS 204 Category 5), matching the CNSA 2.0 signature
+    parameter set for National Security Systems. Published PyPI `0.6.3` still
+    defaults to `ml-dsa-65`; set `MATRIXSCROLL_PQC=ml-dsa-87` until you upgrade.
+    Parameter-set readiness is not CNSA certification, FIPS CMVP validation, or
+    NSA approval.
+  - In progress: hardware-path PQC provisioning toward ML-DSA-87 (and
+    ML-KEM-1024 where key establishment applies outside this envelope format).
+  - Not: a validated production cryptographic module; liboqs itself states it
+    should not be relied on in production or to protect sensitive data. The
+    overlay attaches alongside the Ed25519 signature and never replaces it.
+    Matrix Scroll does not implement ML-KEM inside envelopes.
 - Compliance language is evidence mapping (DORA, PCI DSS 4.0, Treasury FS-AI RMF, SSDF, EU AI Act Article 12 readiness, Five Eyes agentic-AI guidance), not certification or customer endorsement.
 - Illustrative deployment profiles are not endorsements or existing customer relationships.
 - Not: IAM, sandboxing, prompt filtering, or an agent runtime.
