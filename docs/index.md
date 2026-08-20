@@ -1,18 +1,19 @@
 # Matrix Scroll
 
-Signed provenance for agent-assisted Git commits, with offline Ed25519
+Signed machine-action records for Git commits, with offline Ed25519
 verification.
 
-When an agent, a CI workflow, or a person produces a commit, Matrix Scroll
-attaches a signed envelope recording the actor, the tool, and an optional scope.
-Anyone can verify that envelope later, in the CLI, in the browser, or in CI,
-without trusting the session that produced the commit.
+Matrix Scroll attaches a signed envelope to each commit. The envelope names the
+declared actor as `human`, `agent` or `ci`, plus the tool that produced the change
+and an optional scope. Anyone can verify that envelope later from the CLI or from
+CI. Verification needs no network and no trust in the session that produced the
+commit.
 
-Matrix Scroll is an open protocol. It is free, permanently, and is not
-monetized.
+Matrix Scroll is an open protocol. The SDK remains Apache-2.0 software; SSX360
+supplies the physical signer and scoped cybersecurity services separately.
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.7.0"
 ```
 
 ## Start here
@@ -51,20 +52,25 @@ and comparisons live.
 If you are evaluating whether to adopt Matrix Scroll, read the explanation
 section. If you are trying to get something working, read the how-to guides.
 
-## Honest limits
+<!-- CLAUDE.md requires the honest-limits block to carry a "Shipping now" label,
+     and ai-tells.ShipOveruse flags that word. The rule is off for this block
+     only and back on immediately after it. -->
+<!-- vale ai-tells.ShipOveruse = NO -->
 
-- **Shipping now.** PyPI `matrixscroll==0.6.3`, Git post-commit hooks,
+## Verification boundaries
+
+- **Shipping now.** PyPI `matrixscroll==0.7.0`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
-  verification (partial SLSA L1-2), the browser verifier, the GitHub Action, and
-  a USB CDC host transport. Emulated mode is the default evaluation path.
-- **Prototype, bench only.** NXP SE050 M1 signing proof of concept, and the Pico
-  2 W / RP2350 + GMT130 display bring-up locked 2026-07-21. Live SE050 signing on
-  the display bring-up stays fail-closed pending an NXP Plug and Trust restore.
-  Not generally available. See
-  [Trust boundaries](explanation/trust-boundaries.md).
+  verification, the browser verifier, the GitHub Action, and
+  the `matrixscroll-mcp` stdio server. Emulated mode is the default provider.
+- **Direct-contact hardware.** SSX360 produces the RP2350 and NXP SE050 USB
+  signer and supplies it through `ssx360.com/contact`. PyPI distributes the USB
+  CDC host transport. See [Trust boundaries](explanation/trust-boundaries.md).
 - **Roadmap.** External Ed25519-capable hardware key backends and
   transparency-log integration.
 - **Not.** Identity and access management, sandboxing, prompt filtering, or an
   agent runtime.
+
+<!-- vale ai-tells.ShipOveruse = YES -->
 
 Compliance language throughout is evidence mapping, not a certification claim.

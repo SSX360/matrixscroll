@@ -1,6 +1,9 @@
 """Release metadata checks for public-facing SDK links."""
 
+import re
 from pathlib import Path
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,6 +37,41 @@ def test_public_metadata_uses_stable_device_url():
     assert "[AP2 Vault Card hardware]" not in readme
 
 
+def test_workflows_and_sdk_messages_carry_no_killed_product_copy():
+    """Matrix Scroll is the open protocol. It has no tiers, seats, or signup.
+
+    The tier sentence rendered in the Actions UI of a public repository and in
+    every SDK error a user without an API key saw. It survives a rebuild easily,
+    because nobody rereads a workflow's `echo` lines, so pin it here.
+    """
+    surfaces = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+    surfaces += [
+        ROOT / "matrixscroll" / "mcp.py",
+        ROOT / "matrixscroll" / "cloud" / "client.py",
+        ROOT / "docs" / "quickstart-mcp.md",
+    ]
+    forbidden = [
+        "community tier",
+        "verifications/day",
+        "ssx360.com/signup",
+        "ssx360.com/#pricing",
+    ]
+    for path in surfaces:
+        text = path.read_text(encoding="utf-8").lower()
+        for phrase in forbidden:
+            assert phrase not in text, f"{phrase!r} found in {path.name}"
+
+
+def test_step_summaries_carry_no_em_dashes():
+    """House rule: no em-dash, and no en-dash used as a separator."""
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        text = path.read_text(encoding="utf-8")
+        assert "\u2014" not in text, f"em-dash in {path.name}"
+        assert not re.search(r"(?<!\d)\u2013|\u2013(?!\d)", text), (
+            f"en-dash separator in {path.name}"
+        )
+
+
 def test_sdk_public_docs_do_not_link_vercel_preview_urls():
     checked = [ROOT / "README.md", ROOT / "pyproject.toml", ROOT / "SPEC.md"]
     for path in checked:
@@ -58,3 +96,63 @@ def test_pypi_metadata_does_not_overclaim_hardware_availability():
         text = path.read_text(encoding="utf-8").lower()
         for phrase in forbidden:
             assert phrase not in text, f"{phrase!r} found in {path.name}"
+
+
+def test_dependabot_does_not_widen_the_incompatible_mcp_major():
+    """MCP 2.x removed the FastMCP API used by the published server."""
+    config = yaml.safe_load(
+        (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    )
+    pip_updates = [
+        update
+        for update in config["updates"]
+        if update["package-ecosystem"] == "pip" and update["directory"] == "/"
+    ]
+
+    assert len(pip_updates) == 1
+    update = pip_updates[0]
+    mcp_ignores = [
+        rule for rule in update["ignore"] if rule["dependency-name"] == "mcp"
+    ]
+
+    assert len(mcp_ignores) == 1
+    assert ">=2.0.0.dev0" in mcp_ignores[0]["versions"]
+    assert "mcp" in update["groups"]["dev-dependencies"]["exclude-patterns"]
+
+
+def test_release_selftests_can_install_checked_out_source():
+    """Release PR checks must not require the wheel they are about to publish."""
+    action = yaml.safe_load(
+        (ROOT / ".github" / "actions" / "verify" / "action.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert action["inputs"]["package-source"]["default"] == ""
+    install_step = next(
+        (
+            step
+            for step in action["runs"]["steps"]
+            if step.get("name") == "Install matrixscroll"
+        ),
+        None,
+    )
+    assert install_step is not None, "Install matrixscroll step is missing"
+    install = install_step["run"]
+    assert 'python -m pip install -- "$package_source"' in install
+    assert "package-source must resolve inside GITHUB_WORKSPACE" in install
+    assert install.index("MS_PACKAGE_SOURCE") < install.index("MS_VERSION")
+
+    mcp_gate = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "mcp-manifest-gate.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    call_inputs = mcp_gate[True]["workflow_call"]["inputs"]
+    assert call_inputs["package_source"]["default"] == ""
+
+    selftest = (
+        ROOT / ".github" / "workflows" / "verify-action-selftest.yml"
+    ).read_text(encoding="utf-8")
+    assert "uses: ./.github/workflows/mcp-manifest-gate.yml" in selftest
+    assert 'package_source: "."' in selftest
+    assert 'package-source: "."' in selftest

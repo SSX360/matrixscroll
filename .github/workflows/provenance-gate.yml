@@ -22,11 +22,11 @@ jobs:
     env:
       SSX360_API_KEY: ${{ secrets.SSX360_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -47,19 +47,24 @@ jobs:
       - name: Require SSX360 API key
         if: steps.gate.outputs.mode == 'enforce' && env.SSX360_API_KEY == ''
         run: |
-          echo "SSX360_API_KEY secret is required for Scroll Gate v2 enforce mode." >&2
-          echo "Community tier includes 100 CI verifications/day. Get a key at https://ssx360.com/signup" >&2
+          echo "Enforce mode reaches the hosted verifier, which needs the SSX360_API_KEY secret." >&2
+          echo "Verification does not need a key. Run it offline instead:" >&2
+          echo '  pip install "matrixscroll==0.7.0"' >&2
+          echo "  git fetch origin refs/notes/matrixscroll:refs/notes/matrixscroll" >&2
+          echo "  matrixscroll envelope-verify-range --base <base> --head <head> --source notes" >&2
+          echo "Use a non-empty range; an empty range exits 2 unless you explicitly pass --allow-empty-range." >&2
+          echo "Protocol documentation: https://matrixscroll.com/docs/" >&2
           exit 1
 
       - name: Skip hosted verify (no API key)
         if: steps.gate.outputs.mode == 'warn' && env.SSX360_API_KEY == ''
         run: |
           {
-            echo "## Matrix Scroll Scroll Gate v2 (hosted)"
+            echo "## Scroll Gate"
             echo ""
             echo "**Skipped:** no \`SSX360_API_KEY\` available to this run."
             echo "Dependabot and fork pull requests cannot read repository secrets."
-            echo "Offline provenance is still checked by \`verify-manifest\` / \`scroll-gate-smoke\`."
+            echo "Offline provenance is still checked by \`verify-manifest\` and \`scroll-gate-smoke\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Resolve commit range
@@ -80,36 +85,44 @@ jobs:
       - name: Hosted verify (warn mode)
         if: steps.gate.outputs.mode == 'warn' && env.SSX360_API_KEY != ''
         continue-on-error: true
+        env:
+          RANGE_BASE: ${{ steps.range.outputs.base }}
+          RANGE_HEAD: ${{ steps.range.outputs.head }}
         run: |
           set -euo pipefail
           ssx360 check \
             --hosted \
-            --base "${{ steps.range.outputs.base }}" \
-            --head "${{ steps.range.outputs.head }}" \
+            --base "$RANGE_BASE" \
+            --head "$RANGE_HEAD" \
             --source notes \
             --summary-output provenance-summary.json
           {
-            echo "## Matrix Scroll Scroll Gate v2 (hosted)"
+            echo "## Scroll Gate"
             echo ""
-            echo "**Mode:** warn — advisory; merge not blocked"
-            echo "**CLI:** ssx360 check --hosted"
-            echo "**Community tier:** 100 verifications/day — [ssx360.com/signup](https://ssx360.com/signup)"
+            echo "**Mode:** warn. Results are advisory and no merge is blocked."
+            echo "**Range:** \`$RANGE_BASE..$RANGE_HEAD\`"
+            echo "**Checked:** every commit in the range carries an Ed25519 commit envelope, read from \`refs/notes/matrixscroll\`."
+            echo "**Verifier:** \`ssx360 check --hosted\`. The same check runs offline with \`matrixscroll envelope-verify-range --base $RANGE_BASE --head $RANGE_HEAD --source notes\`."
+            echo "**Protocol:** [matrixscroll.com/docs](https://matrixscroll.com/docs/)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Hosted verify (enforce mode)
         if: steps.gate.outputs.mode == 'enforce'
+        env:
+          RANGE_BASE: ${{ steps.range.outputs.base }}
+          RANGE_HEAD: ${{ steps.range.outputs.head }}
         run: |
           set -euo pipefail
           ssx360 check \
             --hosted \
-            --base "${{ steps.range.outputs.base }}" \
-            --head "${{ steps.range.outputs.head }}" \
+            --base "$RANGE_BASE" \
+            --head "$RANGE_HEAD" \
             --source notes \
             --summary-output provenance-summary.json
 
       - name: Upload provenance summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: provenance-summary
           path: provenance-summary.json

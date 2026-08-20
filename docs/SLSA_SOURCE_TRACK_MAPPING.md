@@ -1,34 +1,26 @@
-# SLSA v1.2 Source Track Mapping
+# SLSA source evidence context
 
-Matrix Scroll commit envelopes map to **SLSA Source Track** levels for agent-assisted Git changes.
+SLSA applies requirements to software supply-chain provenance. Matrix Scroll
+adds signed commit-time records that can support a reviewer examining source
+history, but the protocol does not establish or certify a SLSA level.
 
-## Positioning
+## Evidence Matrix Scroll can provide
 
-- Sigstore/SLSA artifact tracks answer **what CI built**.
-- Matrix Scroll answers **who attested this commit before push**.
-- Scroll Gate provides partial Source Track coverage at commit time, complementing CI artifact attestations.
+| Review question | Matrix Scroll evidence | Deployment dependency |
+| --- | --- | --- |
+| Which commit was assessed? | Commit SHA bound into a signed envelope | Git repository history |
+| Which actor class and tool were declared? | `provenance.actor_type` and `provenance.tool` | Accurate declaration by the signer |
+| Was the record altered? | Ed25519 signature over canonical bytes | Trusted public-key policy |
+| Did every selected commit carry a valid record? | Scroll Gate range result | Correct base and head refs |
+| Was protected review enforced? | External branch and review evidence | Forge configuration and organization policy |
+| What artifact did CI build? | Not provided by Matrix Scroll | Build provenance such as SLSA or Sigstore |
 
-## Mapping
+## Use in an assessment
 
-| SLSA Source level | Matrix Scroll capability | Notes |
-|-------------------|-------------------------|-------|
-| L1 — version controlled | Git commit + signed envelope | Baseline today |
-| L2 — hosted build / protected history | Protected-branch Scroll Gate + branch protection | Requires org policy enforcement |
-| L3 — two-party review + protected refs | Policy templates + human co-sign rules in SSX360 | Roadmap with assessor presets |
-| L4 — two-person review + hermetic builds | Requires customer CI hardening beyond protocol alone | Partner narrative, not solo claim |
+Treat Matrix Scroll envelopes and range results as source-history evidence. Pair
+them with branch-protection records, reviewer approvals, build attestations, and
+artifact signatures where those controls are in scope.
 
-## Evidence artifacts
-
-- Signed commit envelope (`matrixscroll.identity.v1`)
-- Scroll Gate CI result on protected branches
-- Optional `ssx360.evidence-pack.v1` export for assessors
-
-## Related docs
-
-- SDK: `matrixscroll/docs/commercial/SCROLL_GATE_V2.md`
-- Portal: `/docs/slsa`
-- Compare: commit-time vs artifact-time provenance
-
-## Language
-
-Use **aligned to SLSA Source Track L1–L2 evidence** — never **SLSA certified**.
+Use language such as "provides signed commit-time evidence for SLSA review."
+Do not claim a SLSA level, SLSA certification, or complete build provenance from
+Matrix Scroll alone.

@@ -66,8 +66,9 @@ Post-sunset    Ed25519-only envelopes rejected when org policy mandates PQC
 | FIPS 204 | ML-DSA (Dilithium) | Primary PQC signature | `ml-dsa-44/65/87` via liboqs; default `ml-dsa-87` |
 | FIPS 205 | SLH-DSA (SPHINCS+) | Hash-based backup | `slh-dsa-sha2-128s/f` and `256s/f` |
 
-Enable: `pip install "matrixscroll[pqc]==0.6.3"` and `MATRIXSCROLL_PQC=ml-dsa-87`
-(or omit the value's algorithm after upgrade and accept the default).
+Enable: `pip install "matrixscroll[pqc]==0.7.0"` and `MATRIXSCROLL_PQC=ml-dsa-87`
+(published `0.7.0` still defaults to `ml-dsa-65`; after the next release that
+ships this default change, you can omit the algorithm and accept `ml-dsa-87`).
 
 ## POC 2 audit answers
 

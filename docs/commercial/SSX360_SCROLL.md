@@ -1,23 +1,25 @@
-# SSX360 Scroll — Provenance-native Git governance
+# Governed Git commits and universal action envelopes
 
-**Status:** Phase 1 thin wrapper + hooks. **Not** a Git replacement.
+Matrix Scroll adds signed provenance records around normal Git operations. Git
+remains the object store and the commit format is unchanged.
 
-Platform docs: [ssx360.com/docs](https://ssx360.com/docs)
+**Shipping now:** the `scroll commit` wrapper, Git hooks, and universal action
+envelopes. **Not:** a Git replacement or a change to Git's object format.
 
 ## Module location
 
-- `matrixscroll/scroll/` — Phase 1 `scroll commit` wrapper
-- `matrixscroll/provenance/` — universal action envelope builders
+- `matrixscroll/scroll/` contains the `scroll commit` wrapper.
+- `matrixscroll/provenance/` contains the universal action-envelope builders.
 
 ## Quick start
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 matrixscroll scroll commit -m "feat: governed commit"
 ```
 
-## Universal actions (Layer 2)
+## Universal actions
 
 ```bash
 matrixscroll sign-action --type ci_step \
@@ -26,6 +28,7 @@ matrixscroll sign-action --type ci_step \
   --actor-type ci
 ```
 
-Action types: `git_commit`, `ci_step`, `iac_change`, `db_migration`, `api_call`, `contract_deploy`.
+Action types: `git_commit`, `ci_step`, `iac_change`, `db_migration`, `api_call`,
+and `contract_deploy`.
 
-Schema: [`schemas/action-envelope.v1.json`](../schemas/action-envelope.v1.json)
+Schema: [`schemas/action-envelope.v1.json`](../../schemas/action-envelope.v1.json)

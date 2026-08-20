@@ -5,7 +5,7 @@ Install the provenance MCP server so agents can sign and verify commit envelopes
 ## Install
 
 ```bash
-pip install "matrixscroll[mcp]==0.6.3"
+pip install "matrixscroll[mcp]==0.7.0"
 ```
 
 The console script `matrixscroll-mcp` is the preferred entry point. `python -m matrixscroll.mcp` also works.
@@ -31,32 +31,34 @@ Add this to `.cursor/mcp.json` (project) or your global MCP config:
 
 On Windows, if `matrixscroll-mcp` is not on PATH, use the full path to the script inside your virtual environment.
 
-Get a free Community API key (100 hosted verifications/day) at [ssx360.com/signup](https://ssx360.com/signup).
+Signing and verification run locally and need no account. `SSX360_API_KEY` is
+only for the tools that call the hosted SSX360 API.
 
 ## Verify the connection
 
 1. Enable the server in your editor's MCP settings.
-2. Invoke the `status` tool (free, local).
-3. Invoke `list_envelopes` to confirm network access with your API key.
+2. Invoke the `status` tool. It reads local hook state and needs no network.
+3. Invoke `verify_pr_range` with `source=notes` to check a range offline.
 
-## Tool tiers
+## Which tools reach the network
 
-| Tool | Tier |
-|------|------|
-| `create_envelope`, `verify_envelope`, `status` | Free (local) |
-| `verify_pr_range` (hosted), `list_envelopes`, `audit_export` | Requires `SSX360_API_KEY` |
-
-Use `verify_pr_range` with `source=notes` for offline git-notes verification without a key.
+| Tool | Network |
+|------|---------|
+| `create_envelope`, `verify_envelope`, `status`, `sign_action` | None. Local key store and Git only. |
+| `verify_pr_range` with `source=local`, `notes`, or `bundle` | None. |
+| `verify_pr_range` with `source=hosted`, `list_envelopes` | Calls the SSX360 API. Needs `SSX360_API_KEY`. |
+| `audit_export` | Calls the SSX360 API when a key is configured; otherwise exports locally from Git notes or on-disk envelopes. |
 
 ## CLI and hooks (repos without MCP)
 
 For Git hook and CI workflows without MCP, use:
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 ```
 
-Scroll Gate v2 CI calls `https://ssx360.com/api/v1/verify` — see [SCROLL_GATE_V2.md](./commercial/SCROLL_GATE_V2.md).
+Hosted Scroll Gate CI calls `https://ssx360.com/api/v1/verify`. See
+[SCROLL_GATE_V2.md](./commercial/SCROLL_GATE_V2.md).
 
 See [FIVE_MINUTES.md](./FIVE_MINUTES.md) for the hook path.

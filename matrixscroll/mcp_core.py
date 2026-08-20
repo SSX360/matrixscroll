@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from .gate import (
     DEFAULT_NOTES_REF,
+    commits_in_range,
     export_envelope_bundle,
     publish_envelopes_to_notes,
     verify_commit_envelope_for_sha,
@@ -53,6 +54,16 @@ def _load_policy(
         if file_policy.require_mode and not policy.require_mode:
             policy.require_mode = file_policy.require_mode
     return None if policy.is_empty() else policy
+
+
+def commits_for_range(
+    workspace: str = "",
+    *,
+    base: str = "origin/main",
+    head: str = "HEAD",
+) -> list[str]:
+    """Resolve the commit SHAs in a workspace range without verifying envelopes."""
+    return commits_in_range(base, head, root=_resolve_root(workspace or None))
 
 
 def create_envelope(
@@ -153,8 +164,14 @@ def verify_pr_range(
     trusted_keys_file: str = "",
     require_actor_types: list[str] | None = None,
     deny_actor_types: list[str] | None = None,
+    allow_empty: bool = False,
 ) -> dict[str, Any]:
-    """Scroll Gate: verify every commit in base..head."""
+    """Scroll Gate: verify every commit in base..head.
+
+    A range holding no commits returns ``ok: false`` with ``empty_range: true``
+    by default. Callers with a known empty-range case may set ``allow_empty``;
+    the result remains labelled as empty and proves nothing about a commit.
+    """
     root = _resolve_root(workspace or None)
     policy = _load_policy(
         require_mode=require_mode or None,
@@ -171,6 +188,7 @@ def verify_pr_range(
         notes_ref=notes_ref,
         bundle_dir=bundle,
         policy=policy,
+        allow_empty=allow_empty,
     )
 
 

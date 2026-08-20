@@ -45,7 +45,7 @@ signatures.
 
 ## Dependency pin
 
-`pyproject.toml` requires `cryptography>=42.0` as a mandatory (non-optional)
+`pyproject.toml` requires `cryptography>=43.0` as a mandatory (non-optional)
 dependency.
 
 ## Diagnostics

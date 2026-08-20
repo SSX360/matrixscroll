@@ -40,8 +40,9 @@ Out of scope:
 
 | Version | Status |
 | ------- | ------ |
-| 0.6.x   | Active development. Security fixes are released as patch versions. The published release is 0.6.3. |
-| 0.5.x and earlier | Legacy. Upgrade to 0.6.x for the post-quantum overlay and the in-repo verify action. |
+| 0.7.x | Active development. Security fixes are released as patch versions. The published release is 0.7.0. |
+| 0.6.x | Maintenance through 2026-11-09 under the 90-day previous-minor policy. |
+| 0.5.x and earlier | Legacy. Upgrade to 0.7.x for the current MCP server, USB signer host path, and in-repo verify action. |
 
 Pre-1.0 there is no extended support window. Pin to a known-good version
 in production until 1.0.

@@ -10,8 +10,7 @@ import urllib.request
 from typing import Any
 
 DEFAULT_BASE_URL = "https://ssx360.com"
-SIGNUP_URL = "https://ssx360.com/signup"
-DOCS_URL = "https://ssx360.com/docs"
+DOCS_URL = "https://matrixscroll.com/docs/"
 
 
 class CloudAuthError(Exception):
@@ -31,11 +30,11 @@ def _require_api_key() -> str:
             "ok": False,
             "error": "api_key_required",
             "message": (
-                "Network features require SSX360_API_KEY. "
-                "Community tier includes 100 CI verifications/day. "
-                f"Get a key at {SIGNUP_URL}"
+                "This call reaches the hosted SSX360 API and needs SSX360_API_KEY. "
+                "Verification itself needs no key: run "
+                "`matrixscroll envelope-verify-range --source local|notes|bundle` "
+                f"offline. See {DOCS_URL}"
             ),
-            "signup_url": SIGNUP_URL,
             "docs_url": DOCS_URL,
         }
     )
@@ -105,7 +104,7 @@ def audit_export(
     include_verification: bool = True,
     framework: str = "",
 ) -> dict[str, Any]:
-    """Export audit bundle from the hosted platform (Team+)."""
+    """Export an audit bundle from the hosted SSX360 API."""
     params = [f"format={urllib.parse.quote(format)}"]
     if start_date.strip():
         params.append(f"start_date={urllib.parse.quote(start_date.strip())}")

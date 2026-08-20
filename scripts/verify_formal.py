@@ -14,8 +14,11 @@ TLA_DIR = ROOT / "formal" / "tla"
 MODELS = [
     ("CanonicalBytes.tla", "CanonicalBytes.cfg"),
     ("ScrollGate.tla", "ScrollGate.cfg"),
+    ("ScrollGate.tla", "ScrollGateEmpty.cfg"),
+    ("ScrollGate.tla", "ScrollGateAllowEmpty.cfg"),
     ("AuthorityFive.tla", "AuthorityFive.cfg"),
     ("OrgPlanSync.tla", "OrgPlanSync.cfg"),
+    ("DualSignature.tla", "DualSignature.cfg"),
 ]
 
 

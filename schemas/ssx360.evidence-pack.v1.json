@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/ssx360.evidence-pack.v1.json",
+  "title": "SSX360 Evidence Pack v1",
+  "description": "The document written by `ssx360 ledger export` and `ssx360-ledger --export`. It is an unsigned index over signed commit envelopes: the envelopes in the bundle carry Ed25519 signatures, this wrapper carries none and asserts nothing about itself. When the hosted export returns a signed body, that body is nested verbatim under `evidence_pack` so its canonical bytes survive.",
+  "type": "object",
+  "required": ["schema", "ok", "source", "framework", "framework_mapping", "disclaimer"],
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "source": { "const": "local" } },
+        "required": ["source"]
+      },
+      "then": { "required": ["bundle"] }
+    }
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "ssx360.evidence-pack.v1"
+    },
+    "ok": { "type": "boolean" },
+    "source": {
+      "type": "string",
+      "enum": ["local", "hosted"]
+    },
+    "exported_at": {
+      "type": "string",
+      "description": "UTC timestamp for the local export."
+    },
+    "framework": {
+      "type": "string",
+      "enum": ["SOC2", "ISO27001", "NIST-SSDF"]
+    },
+    "framework_mapping": {
+      "type": "object",
+      "required": ["id", "standard", "evidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "standard": { "type": "string" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "disclaimer": {
+      "type": "string",
+      "description": "Names the export as evidence mapping, not a certification claim."
+    },
+    "bundle": {
+      "type": "object",
+      "description": "Local export: the envelope bundle this wrapper indexes.",
+      "additionalProperties": true
+    },
+    "evidence_pack": {
+      "type": "object",
+      "description": "Hosted export: the signed response body, byte-identical to what ssx360.com returned. Verify this object, not the wrapper.",
+      "additionalProperties": true
+    }
+  }
+}

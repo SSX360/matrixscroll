@@ -1,61 +1,52 @@
-# POC 2 audit readiness checklist
+# Matrix Scroll release evidence
 
-**Target:** External security / design review · June 2026  
-**Repo:** [SSX360/matrixscroll](https://github.com/SSX360/matrixscroll)
+This checklist records the public evidence for Matrix Scroll 0.7.0. It is a
+release-readiness record, not a third-party audit or certification.
 
-## 1. Cryptography
+## Release surfaces
 
-- [x] Ed25519 sign–verify roundtrip (Hypothesis P1–P4, `tests/test_security_properties.py`)
-- [x] PQC overlay additive; `canonical_bytes` excludes `pqc_signatures` (commit `b4d743e`)
-- [x] `docs/CRYPTO_ROADMAP.md` — Q-Day 2028–2033 disclosure, ML-DSA/SLH-DSA path
-- [x] Hardware signers Ed25519-only; software optional `[pqc]`
-- [ ] Third-party crypto audit (scheduled post-POC 2)
+| Surface | Current reference |
+| --- | --- |
+| Python package | `matrixscroll==0.7.0` |
+| MCP server | `matrixscroll-mcp`, 14 tools |
+| GitHub Action | `SSX360/matrixscroll/.github/actions/verify@action-v1` |
+| Browser verifier | <https://matrixscroll.com/verify/> |
+| MCP surface scanner | <https://matrixscroll.com/scan/> |
+| Protocol source | [`SPEC.md`](../SPEC.md) and [`schemas/`](../schemas/) |
 
-## 2. Formal methods
+## Verification behavior
 
-- [x] TLA+ models: `formal/tla/*.tla` (Scroll Gate, CanonicalBytes, AuthorityFive, OrgPlanSync)
-- [x] CI: `.github/workflows/formal-verify.yml` (TLC on push)
-- [x] Property registry: `formal/PROPERTIES.md`, `matrixscroll/formal.py`
+- Ed25519 signatures are checked over deterministic canonical JSON bytes.
+- Invalid signatures, unsupported schemas, malformed records, and empty commit
+  ranges fail closed by default.
+- Range checks can read local envelopes, Git notes, or exported bundles without
+  a hosted account.
+- The wheel includes the public schemas used by the MCP resources and evidence
+  exporter.
 
-## 3. Scroll Gate & CI
+## Hardware path
 
-- [x] `ssx360 check` CLI + hosted verify (`matrixscroll/ssx360_cli.py`)
-- [x] `provenance-gate.yml` uses `ssx360 check --hosted` (not empty commits curl)
-- [x] Community tier: 100 hosted verifications/day
+- SSX360 produces the RP2350 and NXP SE050 USB signer.
+- The SE050 creates and retains the non-exportable Ed25519 private key.
+- USB CDC host support ships in `matrixscroll[hardware]==0.7.0`.
+- Physical units are supplied by SSX360 through direct contact. PyPI distributes
+  the host software only.
 
-## 4. SSX360 control plane
+## Release chain
 
-- [x] Browser verifier `/verify` — Ed25519 + PQC metadata
-- [x] Org plan sync after Stripe webhook (`syncOrganizationFromEntitlement`)
-- [x] Team checkout + API key scopes (`defaultScopesForPlan`)
-- [x] Evidence export + compliance framework mappings
+- GitHub Actions builds the wheel and source distribution from the release
+  repository state.
+- PyPI Trusted Publishing supplies provenance attestations for both artifacts.
+- `python scripts/release-readiness.py` checks package, README, and registry
+  version consistency before publication.
+- `python -m twine check --strict dist/*` validates the built metadata.
 
-## 5. Documentation honesty
+## Limits
 
-- [x] No “signs every line in IDE” — commit-envelope language
-- [x] Trust page: `/trust` — local vs hosted boundary
-- [x] TLA+ claimed only where models exist
-
-## 6. Live deployments
-
-| Surface | URL | Last verified |
-| ------- | --- | ------------- |
-| SSX360 | https://ssx360.com | Vercel production |
-| Matrix Scroll | https://matrixscroll.com | Vercel production |
-| PyPI | https://pypi.org/project/matrixscroll/0.6.3/ | v0.6.0 (ssx360 CLIs on PyPI) |
-
-## 7. Reviewer artifacts
-
-| Artifact | Path |
-| -------- | ---- |
-| Security properties | `docs/SECURITY_PROPERTIES.md` |
-| Crypto roadmap | `docs/CRYPTO_ROADMAP.md` |
-| Whitepaper | `docs/WHITEPAPER.md` |
-| Sample envelope | `public/samples/valid_commit_envelope.json` (SSX360) |
-| Conformance vectors | `vectors/` |
-
-## 8. Known gaps (disclosed)
-
-- `matrixscroll mandate` CLI documented in AP2 pipeline but not yet in SDK
-- Browser verifier: Ed25519 full verify; PQC verify requires local `[pqc]` CLI
-- npm `@ssx360/verify` package not published
+- A valid signature proves integrity and key possession, not authorization to
+  use the key.
+- The optional ML-DSA and SLH-DSA overlay uses liboqs and has no CMVP validation.
+- Matrix Scroll does not replace IAM, sandboxing, build attestations, or review
+  policy.
+- Compliance references map available evidence to control questions; they do
+  not claim certification.

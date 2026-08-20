@@ -398,7 +398,7 @@ def install_hooks(root: Path | None = None, *, remove: bool = False) -> dict[str
             shutil.copy2(dst, backup)
         dst.write_text(content, encoding="utf-8")
         try:
-            os.chmod(dst, 0o755)
+            os.chmod(dst, 0o700)
         except OSError:
             pass
 

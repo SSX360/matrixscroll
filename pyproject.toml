@@ -1,11 +1,11 @@
 [build-system]
-requires = ["hatchling>=1.18"]
+requires = ["hatchling>=1.31.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.6.3"
-description = "Sign who authorized an AI agent's actions and verify it offline. Ed25519 envelopes for Git commits and MCP tool surfaces, with an optional ML-DSA/SLH-DSA overlay (FIPS 204/205)."
+version = "0.7.0"
+description = "MCP server for signed machine-action records, offline tool-surface checks, and SSX360 USB signer support."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -21,10 +21,11 @@ keywords = [
     "fips-204",
     "fips-205",
     "signing",
+    "authorization",
+    "machine-action",
     "provenance",
     "root-of-trust",
     "secure-element",
-    "ai",
     "supply-chain",
     "ssx360",
     "matrixscroll",
@@ -51,20 +52,23 @@ dependencies = [
 
 [project.optional-dependencies]
 pqc = [
-    "liboqs-python>=0.12.0",
+    "liboqs-python>=0.16.0",
 ]
 dev = [
-    "pytest>=7.4",
-    "build>=1.0",
-    "hypothesis>=6.100",
-    "pytest-cov>=4.1",
+    "pytest>=9.1.1",
+    "build>=1.5.0",
+    "hypothesis>=6.165.2",
+    "jsonschema>=4.23.0",
+    "PyYAML>=6.0.3",
+    "pytest-cov>=7.1.0",
 ]
 git = []
 hardware = ["pyserial>=3.5"]
-yubikey = ["python-pkcs11>=0.7"]  # experimental preview; mock path in tests
+yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
-    "mcp>=1.0.0,<2.0.0",
+    # MCP 2.0 removed mcp.server.fastmcp; stay on the verified FastMCP API.
+    "mcp>=1.28.0,<2.0.0",
 ]
 
 [project.scripts]
@@ -97,6 +101,13 @@ Maintainer = "https://ssx360.com/about"
 
 [tool.hatch.build.targets.wheel]
 packages = ["matrixscroll"]
+
+# The schemas live at the repository root because SPEC.md and the docs link
+# them there. Map that directory next to the module so `pip install matrixscroll`
+# receives them too. `matrixscroll._schemas` reads this location first and falls
+# back to the repository root for source checkouts.
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "matrixscroll/schemas"
 
 [tool.hatch.build.targets.sdist]
 include = [

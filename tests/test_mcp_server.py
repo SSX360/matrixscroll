@@ -3,7 +3,9 @@ import tempfile
 import subprocess
 import json
 import asyncio
+import os
 from pathlib import Path
+from unittest import mock
 
 from matrixscroll.mcp import (
     create_envelope,
@@ -47,6 +49,14 @@ class MCPToolDefinitionTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(ann.readOnlyHint, msg=f"{tool.name} missing readOnlyHint")
             self.assertIsNotNone(ann.destructiveHint, msg=f"{tool.name} missing destructiveHint")
 
+    async def test_verify_range_schema_exposes_empty_range_opt_in(self):
+        tools = await mcp.list_tools()
+        tool = next(item for item in tools if item.name == "verify_pr_range")
+        allow_empty = tool.inputSchema["properties"]["allow_empty"]
+
+        self.assertEqual(allow_empty["type"], "boolean")
+        self.assertFalse(allow_empty["default"])
+
 
 class MCPServerTests(unittest.TestCase):
     def setUp(self):
@@ -76,6 +86,79 @@ class MCPServerTests(unittest.TestCase):
         self.assertEqual(res.get("ok"), True)
         self.assertEqual(res["config"].get("actor_type"), "human")
         self.assertIn("envelope_count", res)
+
+    def test_hosted_range_fails_closed_before_calling_api_when_empty(self):
+        with mock.patch.dict(os.environ, {"SSX360_API_KEY": "test-key"}), mock.patch(
+            "matrixscroll.mcp.cloud_verify_range"
+        ) as hosted:
+            result = verify_pr_range(
+                workspace=str(self.workspace),
+                base=self.first_sha,
+                head=self.first_sha,
+                source="hosted",
+            )
+
+        self.assertFalse(result["ok"])
+        self.assertTrue(result["empty_range"])
+        hosted.assert_not_called()
+
+    def test_hosted_range_accepts_empty_only_on_explicit_opt_in(self):
+        with mock.patch.dict(os.environ, {"SSX360_API_KEY": "test-key"}), mock.patch(
+            "matrixscroll.mcp.cloud_verify_range"
+        ) as hosted:
+            result = verify_pr_range(
+                workspace=str(self.workspace),
+                base=self.first_sha,
+                head=self.first_sha,
+                source="hosted",
+                allow_empty=True,
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["empty_range"])
+        hosted.assert_not_called()
+
+    def test_local_range_accepts_empty_only_on_explicit_opt_in(self):
+        result = verify_pr_range(
+            workspace=str(self.workspace),
+            base=self.first_sha,
+            head=self.first_sha,
+            source="local",
+            allow_empty=True,
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["empty_range"])
+
+    def test_hosted_range_sends_each_commit_to_the_api(self):
+        test_file = self.workspace / "test.txt"
+        test_file.write_text("second commit", encoding="utf-8")
+        subprocess.run(["git", "add", "test.txt"], cwd=self.workspace, check=True)
+        subprocess.run(["git", "commit", "-m", "second"], cwd=self.workspace, check=True)
+        second_sha = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=self.workspace,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+
+        with mock.patch.dict(os.environ, {"SSX360_API_KEY": "test-key"}), mock.patch(
+            "matrixscroll.mcp.cloud_verify_range", return_value={"ok": True}
+        ) as hosted:
+            result = verify_pr_range(
+                workspace=str(self.workspace),
+                base=self.first_sha,
+                head=second_sha,
+                source="hosted",
+            )
+
+        self.assertTrue(result["ok"])
+        hosted.assert_called_once_with(
+            base=self.first_sha,
+            head=second_sha,
+            commits=[{"sha": second_sha}],
+        )
 
     def test_create_envelope_and_verify(self):
         # Create a signed scope manifest first

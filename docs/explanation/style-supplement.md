@@ -17,10 +17,10 @@ claims discipline that an audit vendor needs.
 | --- | --- | --- |
 | **envelope** | A signed JSON record binding an actor, tool, and optional scope to a commit or action. The unit of evidence. | "receipt", "certificate", "token" |
 | **actor** | The entity that produced a change: `human`, `agent`, or `ci`. A declared role, not a verified identity. | "user", "author", "identity" |
-| **Scroll Gate** | The pull-request verification path that checks every commit in a range. Partial SLSA L1-2. | "the gate", "compliance gate", "security gate" |
+| **Scroll Gate** | The pull-request verification path that checks every commit in a range. | "the gate", "compliance gate", "security gate" |
 | **mandate chain** | The path from a human authorization, through delegation, to a machine action, provable afterward. Shared vocabulary with AP2. | "audit trail", "chain of custody" |
-| **emulated mode** | The software signer. The default and the supported evaluation path. L1. | "demo mode", "test mode", "insecure mode" |
-| **hardware mode** | The secure-element path. A bench prototype, not generally available. L2 prototype. | "hardware support", "secure mode", anything implying availability |
+| **emulated mode** | The file-backed software signer and default provider | "demo mode", "test mode", "insecure mode" |
+| **hardware mode** | The SSX360 RP2350 and SE050 USB signer, supplied by direct inquiry | "retail signer", "self-service hardware" |
 | **evidence mapping** | The relationship between Matrix Scroll output and a compliance framework. | "compliance", "certification", "coverage" |
 
 Write "Matrix Scroll" with a space for the protocol and the brand. Write
@@ -45,8 +45,8 @@ Every one of these is a word chosen to avoid naming a thing. Name the thing.
 Zero em-dashes (—). Zero en-dashes used as a separator ( – ). Use a hyphen, a
 comma, a period, or parentheses.
 
-An en-dash between digits is a numeric range and stays legal: "SLSA L1-2",
-"2024-2025". The ban is on the dash as a rhetorical pause.
+A hyphen between digits is a numeric range and stays legal, as in "2024-2025".
+The ban is on a dash used as a rhetorical pause.
 
 This is a house decision, not a claim about writing quality. Reasonable people
 argue the em-dash ban is superstition, and the research generally supports them:
@@ -78,7 +78,7 @@ The approved positioning lines use this construction deliberately and are exempt
 ## Register
 
 Developer surfaces get one concrete declarative sentence. The PyPI summary,
-"Signed provenance for agent-assisted Git commits with offline verification", is
+"Signed machine-action records with offline verification", is
 the right class: compare ruff's "An extremely fast Python linter and code
 formatter, written in Rust."
 
@@ -89,8 +89,9 @@ family.
 
 ## Claims discipline
 
-This is the section that matters most, because SSX360 sells independent
-assessments and a false claim in its own documentation is disqualifying.
+This is the section that matters most because SSX360 sells cybersecurity
+products and scoped services aligned to compliance outcomes. A false claim in
+our own documentation is disqualifying.
 
 **Compliance.** Wherever DORA, PCI DSS, the EU AI Act, SOC 2, NIST, the SSDF, or
 the FS-AI RMF is named, the file must carry "evidence mapping, not a
@@ -101,20 +102,20 @@ Never write that anything is certified, is compliant with a framework, meets a
 framework's requirements, is required by a framework, guarantees compliance, or
 is audit-proof. Enforced by `SSX360.Certification` at `error`.
 
-**Hardware.** State the bench-prototype status every time. Never write that
-hardware ships, is available, or is validated without "prototype, not generally
-available" attached. See
-[Trust boundaries and the hardware roadmap](trust-boundaries.md).
+**Hardware.** Distinguish the Python transport from the physical signer. PyPI
+distributes `matrixscroll[hardware]`. SSX360 supplies completed signer units
+through direct inquiry at `ssx360.com/contact`. Do not imply retail or
+self-service distribution. See [Trust boundaries](trust-boundaries.md).
 
-**Versions.** The shipping version is whatever `pyproject.toml` and the PyPI JSON
+**Versions.** The published version is whatever `pyproject.toml` and the PyPI JSON
 API agree on. Pin it explicitly in every install example. Three properties
 asserting three different versions is a credibility failure, not a documentation
 bug.
 
-## Honest limits
+## Verification boundaries
 
 Every surface that makes a capability claim carries a "Shipping now / In
-progress / Not" block. The README's "Honest limits" section is the model. This is
+progress / Not" block. The README's "Verification boundaries" section is the model. This is
 the single strongest asset in the copy and the clearest differentiator against
 vendors selling fear, and it belongs on the marketing pages too, not only in the
 README.

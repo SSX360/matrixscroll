@@ -1,40 +1,40 @@
-# Agent Attestation for Git Commits
+# Signed authorization records for Git commits
 
-**Signed provenance for agent-assisted code changes — verify offline, one command.**
+**Declare who or what authorized a machine action, sign the record, and verify it offline.**
 
 ## Executive summary
 
-Agentic coding tools can commit and push code without a durable record of *who* acted (human, agent, or CI) or *which tool* produced the change. Review fatigue and credential theft make software-only gates insufficient. Matrix Scroll adds a cryptographic **commit envelope** — Ed25519-signed metadata bound to each Git commit — that anyone can verify offline or in CI.
+Automated development tools, CI jobs, and people can all create Git commits. The normal Git record does not carry a portable declaration of the actor class, tool, or authorization scope. Matrix Scroll adds an Ed25519-signed **commit envelope** bound to the commit so reviewers can verify that declaration offline or in CI.
 
-This document distills the public product story. The full enterprise architecture lives in internal strategy materials; this whitepaper is scoped to developers, DevSecOps, and auditors adopting the open protocol today.
+This whitepaper is scoped to developers, platform teams, security reviewers, and auditors evaluating the open protocol.
 
 ## Scope and audience
 
-**Audience:** Software engineers using AI-assisted IDEs, platform teams wiring CI gates, security auditors.
+**Audience:** Software engineers, platform teams wiring CI gates, security reviewers, and auditors.
 
-**Covers:** Why Git commits are the Day-1 beachhead, protocol overview, install path, honest roadmap.
+**Covers:** Why Git commits are a useful control point, the protocol, the install path, and current limits.
 
 **Does not cover:** IAM replacement, prompt-injection mitigation, financial transaction gating, or hardware manufacturing details.
 
 **Prerequisites:** Git, Python 3.10+, basic CI familiarity.
 
-## What Matrix Scroll is — and is not
+## What Matrix Scroll is and is not
 
-Matrix Scroll is **not** an agent runtime, sandbox, IAM system, or prompt filter. It is a **cryptographic evidence layer**: it signs what an agent (or human) attested at commit time and lets verifiers check that record without trusting the IDE or Matrix Scroll servers.
+Matrix Scroll is a **cryptographic evidence layer**. It signs a declared actor, tool, and optional scope at commit time and lets reviewers check that record without relying on the originating IDE or a Matrix Scroll server. It is not an IAM system, sandbox, prompt filter, or runtime.
 
 ## Why Git commits first
 
 | Vector | Risk | Why Matrix Scroll fits |
 |--------|------|------------------------|
-| **Git commits** | Rogue agent code, LLM filibustering in review, stolen tokens | Standardized hooks; high-consequence; maps to supply-chain guidance |
-| Financial APIs | Fragmented rails, liability | Defer — integration cost too high for Day 1 |
-| Database writes | Latency, engine sprawl | Defer — per-query hardware signing impractical |
+| **Git commits** | Missing actor and tool context, stolen credentials | Standard hooks, stable object identifiers, and pre-merge policy checks |
+| Financial APIs | Authorization, liability, and rail-specific semantics | Requires a separate implementation and policy model |
+| Database writes | Latency and engine-specific controls | Requires a separate implementation and policy model |
 
-Supply-chain incidents involving agent-assisted merges illustrate the gap: audit logs show *that* a commit landed, not *which actor class and tool* produced it with verifiable scope.
+Repository logs show that a commit landed. A Matrix Scroll envelope adds a signed declaration of the actor class, tool, and optional scope.
 
 ## Regulatory context (verified links)
 
-Live audit regimes to lead with: DORA, PCI DSS 4.0 Req 6.5, US Treasury FS-AI RMF, and NIST SSDF. EU AI Act Article 12 is a **2027 readiness** mapping, not a current mandate on dev teams.
+Compliance references in this project are evidence mappings. They help a reviewer identify which Matrix Scroll records may support a control question; they do not claim certification or complete compliance.
 
 Five Eyes agencies published supplementary joint guidance on careful adoption of agentic AI services (maps to controls; not a forcing function):
 
@@ -73,7 +73,7 @@ Full wire format: [`SPEC.md`](../SPEC.md). Schema: [`schemas/commit-envelope.v1.
 ### 1. Install
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 matrixscroll hook-status
 ```
@@ -89,7 +89,7 @@ matrixscroll envelope-verify "$(git rev-parse HEAD)"
 
 Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/config.json` to block commits when signing fails. See [`docs/quickstart-git.md`](quickstart-git.md).
 
-**Windows:** support landed in matrixscroll **0.2.1**; pin **0.6.3** in pilot environments.
+**Windows:** support landed in matrixscroll **0.2.1**; pin **0.7.0** in pilot environments.
 
 ### 3. CI gate
 
@@ -97,12 +97,12 @@ Hooks default to **warn mode**; set `"enforce": true` in `.git/matrixscroll/conf
 - uses: SSX360/matrixscroll/.github/actions/verify@action-v1
   with:
     manifest: path/to/signed-manifest.json
-    matrixscroll-version: "0.6.3"
+    matrixscroll-version: "0.7.0"
     require-mode: emulated
     trusted-keys: trusted-keys.json
 ```
 
-Policy flags (`--require-mode`, `--trusted-keys`) ship in the current release; this whitepaper pins `0.6.3` for copy-and-paste examples.
+Policy flags (`--require-mode`, `--trusted-keys`) ship in the current release; this whitepaper pins `0.7.0` for copy-and-paste examples.
 
 ### 4. Optional scope manifest
 
@@ -112,13 +112,12 @@ Bind agent operations to a signed evidence manifest:
 export MATRIXSCROLL_AGENT_SCOPE=examples/agentic_ai_evidence_manifest.signed.json
 ```
 
-## Trust levels (honest roadmap)
+## Signing providers
 
-| Level | Provider | Status |
-|-------|----------|--------|
-| **L1 Emulated** | Software key (`~/.matrixscroll/`) | Shipping |
-| **L2 Hardware** | SSX360 / NXP SE050 + Pico 2 W / GMT130 | Prototype (bench) — not GA |
-| **L3 Attested** | L2 + remote attestation | Roadmap |
+| Provider | Key custody | Availability |
+| --- | --- | --- |
+| File-backed | Software key under `~/.matrixscroll/` | Included in `matrixscroll==0.7.0` |
+| SSX360 USB signer | NXP SE050 with RP2350 USB bridge | Supplied through `ssx360.com/contact` |
 
 External hardware key backend criteria are documented in
 [`docs/yubikey-bridge.md`](yubikey-bridge.md). Non-Ed25519 bridge experiments

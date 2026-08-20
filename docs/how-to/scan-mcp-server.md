@@ -49,7 +49,7 @@ jobs:
     with:
       manifest: mcp/my-server.signed.json
       baseline: mcp/my-server.baseline.json
-      matrixscroll_version: "0.6.3"
+      matrixscroll_version: "0.7.0"
 ```
 
 ## Related

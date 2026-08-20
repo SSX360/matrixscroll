@@ -19,7 +19,7 @@ These answers are different, and mature teams usually want both.
 | Main unit | Commit envelope | Package, container, or predicate |
 | Actor / tool in record | Yes | Usually no |
 | Offline verify | Yes | Varies by workflow |
-| Hardware path | Prototype (bench) | External to the standard flow; not GA |
+| Hardware path | SSX360 SE050 signer, supplied by direct inquiry | External to the standard flow |
 
 ## Where Matrix Scroll fits
 
@@ -38,7 +38,7 @@ Use artifact-layer tools when you need:
 
 ## How to use them together
 
-1. Sign agent-assisted commits with Matrix Scroll.
+1. Sign commit-time authorization records with Matrix Scroll.
 2. Verify commit ranges in PRs with `SSX360/matrixscroll/.github/actions/verify@action-v1`.
 3. Keep Sigstore, GitHub attestations, or SLSA on the release path.
 
@@ -46,6 +46,6 @@ That gives teams both commit-time attribution and artifact-time provenance.
 
 ## Public proof links
 
-- [Compare page](https://matrixscroll.com/compare/)
+- [Comparison table](./COMPARISON.md)
 - [Browser verifier](https://matrixscroll.com/verify/)
 - [SPEC.md](../SPEC.md)

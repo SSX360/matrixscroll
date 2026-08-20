@@ -14,7 +14,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
   Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
   files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
-  newly generated keys.
+  newly generated keys. Published PyPI `0.7.0` still defaults to `ml-dsa-65`
+  until this change ships in a release.
+- The public README and documentation now lead with the offline verification
+  outcome, use explicit verification-boundary sections, and reserve signer
+  implementation detail for qualified setup.
 
 ### Added
 - **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
@@ -22,6 +26,81 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
+
+## [0.7.0] - 2026-08-11
+
+Fail-closed verification, package completeness, and public positioning. No
+wire-format change.
+
+### Added
+- Range verification results now report agent-scope details and the formal model
+  includes the default-path invariant `Inv_EmptyRangeFailsClosed`.
+- Added `schemas/ssx360.evidence-pack.v1.json` for the document written by the
+  evidence-pack exporter.
+- Added a hardware-signed SE050 acceptance vector with CLI and CI verification.
+- You can explicitly set the composite action's `allow-empty-range` input. It
+  remains disabled by default and cannot satisfy a signature-mode requirement.
+
+### Changed
+- Empty commit ranges now return `ok: false` by default. CLI and Python callers
+  that intentionally accept an empty range must opt in explicitly. MCP callers
+  use the same explicit opt-in and fail closed by default.
+- Documentation now describes the shipped 14-tool MCP server and completed USB
+  signer directly, without retired pricing tiers or level-based product gates.
+- Development, documentation, and GitHub Action dependencies were refreshed.
+- Public package metadata now describes signed machine-action records instead
+  of leading with AI terminology. Exact schema terms such as `actor_type: agent`
+  remain unchanged.
+
+### Fixed
+- **The verify action could hand a caller a blank `ok` when the verifier
+  crashed.** It now writes all eight outputs on every path, masks captured
+  verifier output in the job summary, and distinguishes tool failures from
+  legitimate verification failures. Parser and action-step tests cover crashes,
+  silent output, malformed JSON, and signature failures.
+- Unhandled CLI exceptions now return structured JSON with exit status 1 instead
+  of leaking a traceback into automation output.
+- Evidence-pack annotations no longer mutate signed hosted response bodies.
+- JSON schemas now ship in wheels and MCP schema resources resolve the installed
+  copies.
+- The MCP extra now requires the verified 1.28+ SDK line; earlier 1.x releases
+  cannot register the server's annotated tools, and MCP 2.0 removed the
+  `mcp.server.fastmcp` API entirely.
+- You receive an explicit rejection when a hosted MCP Git range is empty, before
+  any API call. Non-empty ranges send the resolved commit SHAs.
+- Hosted CLI checks now write `--summary-output` on successful and empty-range
+  responses, matching local checks.
+- Local evidence-pack documents without a `bundle` now fail schema validation,
+  and CI verifies all eight schemas from an isolated wheel installation.
+
+### Removed
+- **Breaking:** removed `matrixscroll claim`, `matrixscroll identity`, the
+  `--identity` verification flag, and their private paid-enrollment client. The
+  retired service no longer issues identity certificates; device identity
+  remains the local Ed25519 key pair reported by `matrixscroll status`.
+- Removed the retired platform-pricing and signup guide.
+
+## [0.6.4] - 2026-08-11
+
+Documentation and release metadata. No wire-format change.
+
+### Added
+- The PyPI page now leads with the working `matrixscroll-mcp` stdio server and
+  documents all 14 tools.
+- The completed SSX360 USB signer, signing sequence, and architecture are shown
+  with the direct-contact acquisition path.
+
+### Changed
+- Removed the overlapping authorization and provider maturity ladders from the
+  PyPI page. Capability names and provider modes now stand on their own.
+- Hardware documentation now distinguishes the `matrixscroll[hardware]` host
+  package from physical signers supplied through `ssx360.com/contact`.
+- Install examples and release metadata now pin `matrixscroll==0.6.4`.
+
+### Verified
+- The stdio handshake returns 14 MCP tools.
+- The focused MCP and SE050 transport suite passes 29 tests.
+- The wheel and source distribution pass `twine check`.
 
 ## [0.6.3] - 2026-08-10
 
@@ -329,12 +408,20 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.7.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.7.0
+[0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4
 [0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3
 [0.6.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.2
 [0.6.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.1
 [0.6.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.0
 [0.5.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.5.0
+[0.4.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.4.2
+[0.4.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.4.1
+[0.3.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.3.0
+[0.2.6]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.6
+[0.2.5]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.5
+[0.2.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.4
 [0.2.2]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.2
 [0.2.1]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.1
 [0.2.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.2.0

@@ -62,8 +62,8 @@ both.
 ## What this does not claim
 
 Matrix Scroll does not implement AP2. It is not AP2-certified, and no such
-certification exists. The L4 Money layer in the authorization ladder is a demo,
-not a shipped capability. This page is evidence mapping between two protocols,
+certification exists. The payment example is a demo, not a shipped capability.
+This page is evidence mapping between two protocols,
 not a certification claim.
 
 ## Sources

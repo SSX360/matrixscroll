@@ -16,7 +16,12 @@ on:
         description: matrixscroll package version pin
         required: false
         type: string
-        default: "0.6.3"
+        default: "0.7.0"
+      package_source:
+        description: Local package path for repository self-tests; leave empty for PyPI
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       manifest:
@@ -30,7 +35,11 @@ on:
       matrixscroll_version:
         description: matrixscroll package version pin
         required: false
-        default: "0.6.3"
+        default: "0.7.0"
+      package_source:
+        description: Local package path for repository self-tests; leave empty for PyPI
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -45,17 +54,22 @@ jobs:
       MANIFEST: ${{ inputs.manifest }}
       BASELINE: ${{ inputs.baseline }}
       MS_VERSION: ${{ inputs.matrixscroll_version }}
+      MS_PACKAGE_SOURCE: ${{ inputs.package_source }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Install matrixscroll
         run: |
           python -m pip install --upgrade pip
-          pip install "matrixscroll==${MS_VERSION}"
+          if [ -n "$MS_PACKAGE_SOURCE" ]; then
+            pip install "$MS_PACKAGE_SOURCE"
+          else
+            pip install "matrixscroll==${MS_VERSION}"
+          fi
 
       - name: Verify signed MCP manifest against baseline
         run: |

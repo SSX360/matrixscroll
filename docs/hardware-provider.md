@@ -1,77 +1,115 @@
-# SSX360 hardware provider
+# SSX360 USB signer
 
-**Status:** L2 Hardware prototype (bench-validated, 2026-07-21). Mock transport
-and USB CDC host transport ship in `matrixscroll[hardware]==0.6.3`. Pico 2 W
-(RP2350) + GMT130 ST7789 LCD/LED bring-up is locked. NXP SE050 M1 signing PoC
-is accepted on contractor firmware; the display bring-up UF2 keeps
-`pubkey`/`sign` fail-closed until Plug & Trust + object ID restore. **Not GA.**
+SSX360 produces an RP2350 and NXP SE050 USB signer for Matrix Scroll. The Python host transport ships in `matrixscroll[hardware]==0.7.0`, and SSX360 supplies the physical signer through [SSX360 contact](https://ssx360.com/contact).
 
-## What this mode means
+![Completed SSX360 USB signer](images/ssx360-usb-signer.jpg)
 
-- `MATRIXSCROLL_MODE=hardware` selects the SE050-backed provider prototype.
-- The device signs canonical manifest bytes directly with Ed25519.
-- The private key stays inside the secure element.
-- The host and verifier stay on the same manifest schema and verification path
-  used by emulated mode.
+## What hardware mode does
 
-## Quickstart (mock)
+- `MATRIXSCROLL_MODE=hardware` selects the SE050-backed provider.
+- The RP2350 carries commands between the host and the SE050 over USB CDC.
+- The SE050 creates the Ed25519 key pair and keeps the private key non-exportable.
+- The host receives the public key and detached signature.
+- The standard Matrix Scroll verifier checks the result offline.
 
-```powershell
-$env:MATRIXSCROLL_MODE = "hardware"
-$env:MATRIXSCROLL_SE050_MOCK = "1"
-matrixscroll status
-```
+Hardware mode preserves the canonical-byte and signature contract used by the file-backed provider.
 
-## Quickstart (USB CDC prototype)
+## Install and connect
 
 ```bash
-pip install "matrixscroll[hardware]==0.6.3"
+pip install "matrixscroll[hardware]==0.7.0"
 export MATRIXSCROLL_MODE=hardware
 export MATRIXSCROLL_SE050_PORT=/dev/ttyACM0
 matrixscroll status
 ```
 
-On Windows, use `COM3` (or the enumerated Raspberry Pi CDC port) for
-`MATRIXSCROLL_SE050_PORT`.
+On Windows PowerShell:
 
-## Bench hardware (locked)
+```powershell
+$env:MATRIXSCROLL_MODE = "hardware"
+$env:MATRIXSCROLL_SE050_PORT = "COM3"
+matrixscroll status
+```
 
-| Piece | Detail |
-|---|---|
-| MCU | Raspberry Pi Pico 2 W / RP2350 |
-| Secure element | NXP SE050 (OM-SE050ARD-E) |
-| Display | GMT130-V1.0 IPS 240×240 ST7789 |
-| Display pins | SCK18 MOSI19 CS17 DC20 RST21 BL16 (SPI mode 3) |
+Use the serial port assigned to the device. `COM3` and `/dev/ttyACM0` are examples.
+
+## Connect through MCP
+
+Install both extras:
+
+```bash
+pip install "matrixscroll[mcp,hardware]==0.7.0"
+```
+
+Pass the provider settings to the stdio server:
+
+```json
+{
+  "mcpServers": {
+    "matrixscroll": {
+      "command": "matrixscroll-mcp",
+      "args": [],
+      "env": {
+        "MATRIXSCROLL_MODE": "hardware",
+        "MATRIXSCROLL_SE050_PORT": "COM3"
+      }
+    }
+  }
+}
+```
+
+Call `connect_card` to probe the USB CDC bridge. Call `status` before signing to confirm that the hardware provider is active.
+
+## Device components
+
+| Component | Detail |
+| --- | --- |
+| MCU and USB bridge | Raspberry Pi Pico 2 W with RP2350 |
+| Secure element | NXP SE050 on OM-SE050ARD-E |
+| Display | GMT130-V1.0 IPS 240 x 240 ST7789 |
+| Display pins | SCK18 MOSI19 CS17 DC20 RST21 BL16, SPI mode 3 |
 | Protocol | `ssx360.se050.poc.v1` |
+
+## Signing sequence
+
+![USB signing round trip](images/ssx360-usb-signer-round-trip.jpg)
+
+1. The host sends `GEN_KEY` to the RP2350 bridge.
+2. The SE050 creates the Ed25519 key pair.
+3. The host reads the 32-byte public key.
+4. The host sends canonical bytes with `SIGN`.
+5. The SE050 returns a 64-byte Ed25519 signature.
+6. Matrix Scroll assembles and verifies the signed record.
+
+![USB signer architecture](images/ssx360-usb-signer-architecture.jpg)
 
 ## Environment variables
 
 | Variable | Purpose |
-|----------|---------|
-| `MATRIXSCROLL_MODE=hardware` | Select hardware provider |
-| `MATRIXSCROLL_SE050_MOCK=1` | Use in-process Ed25519 mock transport for dev or CI |
-| `MATRIXSCROLL_SE050_PORT` | USB CDC serial device path, e.g. `COM3` or `/dev/ttyACM0` |
-| `MATRIXSCROLL_SE050_BAUD` | Optional serial baud override (default `115200`) |
-| `MATRIXSCROLL_SE050_TIMEOUT_MS` | Optional request timeout in milliseconds (default `3000`) |
+| --- | --- |
+| `MATRIXSCROLL_MODE=hardware` | Select the hardware provider |
+| `MATRIXSCROLL_SE050_MOCK=1` | Use the in-process transport in development or CI |
+| `MATRIXSCROLL_SE050_PORT` | Set the USB CDC serial device path |
+| `MATRIXSCROLL_SE050_BAUD` | Override the default `115200` baud rate |
+| `MATRIXSCROLL_SE050_TIMEOUT_MS` | Override the default `3000` millisecond timeout |
 
-Wire protocol: [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md)  
-Contractor-facing PoC scope: [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md)
+## Availability and limits
 
-## Related docs
+SSX360 supplies the physical signer through direct contact. PyPI distributes the host software and cannot supply hardware. The signer is not listed for self-service purchase.
 
-- [`yubikey-bridge.md`](yubikey-bridge.md) - criteria for external hardware key backends
-- [`SPEC.md`](../SPEC.md) - wire format and verification contract
-- [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md) - newline-delimited JSON framing
-- [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md) - contractor-ready scope and acceptance
+## Hardware acceptance vector
 
-## Rollout rule
+A signed manifest produced by the SSX360 hardware signer lives under
+[`vectors/se050/`](../vectors/se050/). Verify it locally:
 
-External security keys are welcome as future Matrix Scroll backends, but they
-only graduate into the mainline when they preserve the same Ed25519 byte
-contract. The SE050 prototype does that; non-Ed25519 bridge experiments do not.
-Do not claim GA or “hardware-backed signing ships today” while the bring-up
-UF2 remains fail-closed for live SE050.
+```bash
+matrixscroll verify vectors/se050/vector_01.json
+pytest tests/test_se050_acceptance_vectors.py -v
+```
 
-## Device
+The [browser verifier](https://matrixscroll.com/verify/) also exposes vector 01
+as **Load SE050 vector 01**.
 
-Reference hardware: [matrixscroll.com/device](https://matrixscroll.com/device)
+The secure element protects key custody. It does not establish who is authorized to use the device. Register the expected public key, control physical access, and define a revocation process before enforcing hardware signatures.
+
+The wire protocol is documented in [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md). The original acceptance scope remains in [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md).

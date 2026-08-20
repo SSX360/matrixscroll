@@ -38,9 +38,13 @@ inputs:
     required: false
     default: "3.12"
   matrixscroll-version:
-    description: matrixscroll package version pin (recommended 0.6.3)
+    description: matrixscroll package version pin (recommended 0.7.0)
     required: false
-    default: "0.6.3"
+    default: "0.7.0"
+  package-source:
+    description: Workspace-local package path for repository self-tests; leave empty for PyPI
+    required: false
+    default: ""
   require-mode:
     description: Optional policy require-mode (v0.2.1+)
     required: false
@@ -53,6 +57,10 @@ inputs:
     description: Optional path to write full range verification JSON summary
     required: false
     default: ""
+  allow-empty-range:
+    description: Explicitly accept a range holding no commits (range mode)
+    required: false
+    default: "false"
   verify-agent-scope:
     description: Verify linked agent_scope manifest signatures (range mode)
     required: false
@@ -88,96 +96,204 @@ runs:
   using: composite
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v5
+      id: setup
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ inputs.python-version }}
 
     - name: Install matrixscroll
+      id: install
       shell: bash
+      env:
+        MS_VERSION: ${{ inputs.matrixscroll-version }}
+        MS_PACKAGE_SOURCE: ${{ inputs.package-source }}
       run: |
         set -euo pipefail
-        if [ -n "${{ inputs.matrixscroll-version }}" ]; then
-          pip install "matrixscroll==${{ inputs.matrixscroll-version }}"
+        if [ -n "$MS_PACKAGE_SOURCE" ]; then
+          package_source="$(python - "$MS_PACKAGE_SOURCE" <<'PY'
+        import os
+        from pathlib import Path
+        import sys
+
+        workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+        source = Path(sys.argv[1]).resolve()
+        try:
+            source.relative_to(workspace)
+        except ValueError:
+            print(
+                "::error title=Matrix Scroll verify::package-source must resolve inside GITHUB_WORKSPACE.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        if not source.exists():
+            print(
+                "::error title=Matrix Scroll verify::package-source does not exist.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        print(source)
+        PY
+          )"
+          python -m pip install -- "$package_source"
+        elif [ -n "$MS_VERSION" ]; then
+          python -m pip install "matrixscroll==$MS_VERSION"
         else
-          pip install matrixscroll
+          python -m pip install matrixscroll
         fi
 
     - name: Fetch envelope notes
+      id: fetch
       if: inputs.head-ref != '' && inputs.fetch-notes == 'true' && inputs.source == 'notes'
       shell: bash
+      env:
+        MS_NOTES_REF: ${{ inputs.notes-ref }}
       run: |
         set -euo pipefail
-        git fetch origin "${{ inputs.notes-ref }}:${{ inputs.notes-ref }}"
+        if [[ "$MS_NOTES_REF" == -* ]] || ! git check-ref-format "$MS_NOTES_REF"; then
+          echo "::error title=Matrix Scroll verify::Invalid notes ref." >&2
+          exit 1
+        fi
+        git fetch -- origin "$MS_NOTES_REF:$MS_NOTES_REF"
 
+    # Runs even when an earlier step failed. A runner without Python, a refused
+    # SDK install and an unfetchable notes ref all used to skip this step
+    # entirely, which left every output blank. A blank `ok` is the one state a
+    # calling gate can mistake for a pass, so this step always gets to write one.
     - name: Verify
       id: verify
+      if: always()
       shell: bash
+      env:
+        MS_MANIFEST: ${{ inputs.manifest }}
+        MS_HEAD_REF: ${{ inputs.head-ref }}
+        MS_BASE_REF: ${{ inputs.base-ref }}
+        MS_SOURCE: ${{ inputs.source }}
+        MS_BUNDLE_DIR: ${{ inputs.bundle-dir }}
+        MS_NOTES_REF: ${{ inputs.notes-ref }}
+        MS_REQUIRE_MODE: ${{ inputs.require-mode }}
+        MS_TRUSTED_KEYS: ${{ inputs.trusted-keys }}
+        MS_SUMMARY_OUTPUT: ${{ inputs.summary-output }}
+        MS_ALLOW_EMPTY_RANGE: ${{ inputs.allow-empty-range }}
+        MS_VERIFY_AGENT_SCOPE: ${{ inputs.verify-agent-scope }}
+        MS_FETCH_NOTES: ${{ inputs.fetch-notes }}
+        MS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
+        MS_INSTALL_OUTCOME: ${{ steps.install.outcome }}
+        MS_FETCH_OUTCOME: ${{ steps.fetch.outcome }}
       run: |
-        set -euo pipefail
-        HEAD_REF="${{ inputs.head-ref }}"
-        MANIFEST="${{ inputs.manifest }}"
+        # `shell: bash` runs as `bash --noprofile --norc -e -o pipefail`, so
+        # errexit is already on when this script starts. Turning it off is the
+        # point: aborting on the first non-zero status is what used to skip the
+        # output writes and hand the caller a blank `ok`. Every failure path here
+        # runs to the end, writes the outputs, then exits with a chosen status.
+        set +e
+        set -u -o pipefail
 
-        if [ -n "$HEAD_REF" ]; then
-          ARGS=(envelope-verify-range --head "$HEAD_REF")
-          if [ -n "${{ inputs.base-ref }}" ]; then
-            ARGS+=(--base "${{ inputs.base-ref }}")
+        emit_fallback_outputs() {
+          # Last line of defence. If the parser never ran, or died before it
+          # could write, the eight outputs still get fail-closed values.
+          if ! grep -q '^ok=' "$GITHUB_OUTPUT" 2>/dev/null; then
+            {
+              echo "ok=False"
+              echo "device_id="
+              echo "mode="
+              echo "verified_count=0"
+              echo "agent_count=0"
+              echo "human_count=0"
+              echo "modes="
+              echo "summary_path="
+            } >> "$GITHUB_OUTPUT"
           fi
-          ARGS+=(--source "${{ inputs.source }}")
-          ARGS+=(--notes-ref "${{ inputs.notes-ref }}")
-          if [ -n "${{ inputs.bundle-dir }}" ]; then
-            ARGS+=(--bundle "${{ inputs.bundle-dir }}")
-          fi
-          if [ -n "${{ inputs.summary-output }}" ]; then
-            ARGS+=(--summary-output "${{ inputs.summary-output }}")
-          fi
-          if [ -n "${{ inputs.require-mode }}" ]; then
-            ARGS+=(--require-mode "${{ inputs.require-mode }}")
-          fi
-          if [ -n "${{ inputs.trusted-keys }}" ]; then
-            ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
-          fi
-          if [ "${{ inputs.verify-agent-scope }}" = "true" ]; then
-            ARGS+=(--verify-agent-scope)
-          fi
-          OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
-          RC="${RC:-0}"
-          echo "$OUTPUT"
-          OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
-          VERIFIED="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("verified_count", 0))' <<< "$OUTPUT")"
-          AGENT="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("agent_count", 0))' <<< "$OUTPUT")"
-          HUMAN="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("human_count", 0))' <<< "$OUTPUT")"
-          MODES="$(python -c 'import json,sys; print(",".join(json.loads(sys.stdin.read()).get("modes", [])))' <<< "$OUTPUT")"
-          echo "ok=$OK" >> "$GITHUB_OUTPUT"
-          echo "verified_count=$VERIFIED" >> "$GITHUB_OUTPUT"
-          echo "agent_count=$AGENT" >> "$GITHUB_OUTPUT"
-          echo "human_count=$HUMAN" >> "$GITHUB_OUTPUT"
-          echo "modes=$MODES" >> "$GITHUB_OUTPUT"
-          if [ -n "${{ inputs.summary-output }}" ]; then
-            echo "summary_path=${{ inputs.summary-output }}" >> "$GITHUB_OUTPUT"
-          fi
-          MS_SUMMARY="$OUTPUT" python -c 'import json, os; summary = json.loads(os.environ["MS_SUMMARY"]); status = "passed" if summary.get("ok") else "failed"; lines = ["## Matrix Scroll provenance gate", "", "**Status:** %s" % status, "**Commits verified:** %s / %s" % (summary.get("verified_count", 0), summary.get("total", 0)), "**Agent commits:** %s" % summary.get("agent_count", 0), "**Human commits:** %s" % summary.get("human_count", 0), "**Modes:** %s" % (", ".join(summary.get("modes") or []) or "none")]; failures = ["- `%s`: %s" % (row.get("sha", "")[:8], row.get("error", "unknown")) for row in summary.get("results", []) if not row.get("ok")][:20]; lines += ["", "### Failures", ""] + failures if failures else []; print(chr(10).join(lines))' >> "$GITHUB_STEP_SUMMARY"
-          exit "$RC"
-        fi
+        }
 
-        if [ -z "$MANIFEST" ]; then
-          echo "Either manifest or head-ref must be provided" >&2
+        PARSER="$GITHUB_ACTION_PATH/parse_verify_output.py"
+        if command -v python3 >/dev/null 2>&1; then
+          PY=python3
+        elif command -v python >/dev/null 2>&1; then
+          PY=python
+        else
+          echo "::error title=Matrix Scroll verify::No Python interpreter on PATH, so the manifest cannot be verified." >&2
+          emit_fallback_outputs
           exit 1
         fi
 
-        ARGS=(verify "$MANIFEST")
-        if [ -n "${{ inputs.require-mode }}" ]; then
-          ARGS+=(--require-mode "${{ inputs.require-mode }}")
+        OUTPUT_FILE="$(mktemp)"
+
+        fail_to_start() {
+          export MS_CONFIG_ERROR="$1"
+          MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC=1 "$PY" "$PARSER"
+          RC=$?
+          emit_fallback_outputs
+          exit "$RC"
+        }
+
+        if [ -n "$MS_HEAD_REF" ]; then
+          export MS_MODE=range
+        else
+          export MS_MODE=manifest
         fi
-        if [ -n "${{ inputs.trusted-keys }}" ]; then
-          ARGS+=(--trusted-keys "${{ inputs.trusted-keys }}")
+
+        if [ "$MS_SETUP_OUTCOME" != "success" ]; then
+          fail_to_start "Python setup failed; verification did not run."
         fi
-        OUTPUT="$(matrixscroll "${ARGS[@]}" 2>&1)" || RC=$?
-        RC="${RC:-0}"
-        echo "$OUTPUT"
-        OK="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("ok", False))' <<< "$OUTPUT")"
-        DEVICE_ID="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("device_id") or "")' <<< "$OUTPUT")"
-        MODE="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("mode") or "")' <<< "$OUTPUT")"
-        echo "ok=$OK" >> "$GITHUB_OUTPUT"
-        echo "device_id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
-        echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+        if [ "$MS_INSTALL_OUTCOME" != "success" ]; then
+          fail_to_start "The matrixscroll SDK install failed; verification did not run."
+        fi
+        if [ -n "$MS_HEAD_REF" ] && [ "$MS_SOURCE" = "notes" ]; then
+          if [[ "$MS_NOTES_REF" == -* ]] || ! git check-ref-format "$MS_NOTES_REF"; then
+            fail_to_start "Invalid notes ref. Expected a full Git ref such as refs/notes/matrixscroll."
+          fi
+          if [ "$MS_FETCH_NOTES" = "true" ] && [ "$MS_FETCH_OUTCOME" != "success" ]; then
+            fail_to_start "Fetching envelope notes failed; verification did not run."
+          fi
+        fi
+        export MS_SUMMARY_PREEXISTED=false
+        if [ -n "$MS_SUMMARY_OUTPUT" ] && [ -e "$MS_SUMMARY_OUTPUT" ]; then
+          export MS_SUMMARY_PREEXISTED=true
+          fail_to_start "summary-output already exists; choose a fresh path for this verification run."
+        fi
+
+        if [ -n "$MS_HEAD_REF" ]; then
+          ARGS=(envelope-verify-range --head "$MS_HEAD_REF")
+          if [ -n "$MS_BASE_REF" ]; then
+            ARGS+=(--base "$MS_BASE_REF")
+          fi
+          ARGS+=(--source "$MS_SOURCE")
+          ARGS+=(--notes-ref "$MS_NOTES_REF")
+          if [ -n "$MS_BUNDLE_DIR" ]; then
+            ARGS+=(--bundle "$MS_BUNDLE_DIR")
+          fi
+          if [ -n "$MS_SUMMARY_OUTPUT" ]; then
+            ARGS+=(--summary-output "$MS_SUMMARY_OUTPUT")
+          fi
+          if [ "$MS_ALLOW_EMPTY_RANGE" = "true" ]; then
+            ARGS+=(--allow-empty-range)
+          fi
+          if [ -n "$MS_REQUIRE_MODE" ]; then
+            ARGS+=(--require-mode "$MS_REQUIRE_MODE")
+          fi
+          if [ -n "$MS_TRUSTED_KEYS" ]; then
+            ARGS+=(--trusted-keys "$MS_TRUSTED_KEYS")
+          fi
+          if [ "$MS_VERIFY_AGENT_SCOPE" = "true" ]; then
+            ARGS+=(--verify-agent-scope)
+          fi
+        elif [ -n "$MS_MANIFEST" ]; then
+          ARGS=(verify "$MS_MANIFEST")
+          if [ -n "$MS_REQUIRE_MODE" ]; then
+            ARGS+=(--require-mode "$MS_REQUIRE_MODE")
+          fi
+          if [ -n "$MS_TRUSTED_KEYS" ]; then
+            ARGS+=(--trusted-keys "$MS_TRUSTED_KEYS")
+          fi
+        else
+          fail_to_start "Either manifest or head-ref must be provided."
+        fi
+
+        matrixscroll "${ARGS[@]}" >"$OUTPUT_FILE" 2>&1
+        CLI_RC=$?
+        cat "$OUTPUT_FILE"
+
+        MS_OUTPUT_FILE="$OUTPUT_FILE" MS_CLI_RC="$CLI_RC" "$PY" "$PARSER"
+        RC=$?
+        emit_fallback_outputs
         exit "$RC"

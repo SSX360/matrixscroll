@@ -12,8 +12,8 @@ jobs:
   vectors:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Install liboqs for PQC tests
@@ -22,20 +22,22 @@ jobs:
           sudo apt-get install -y cmake ninja-build
       - run: pip install -e ".[dev,pqc]"
       - run: pytest tests/test_vectors.py tests/test_canonical_pqc.py -v
+      - run: pytest tests/test_se050_acceptance_vectors.py -v
       - run: pytest tests/test_pqc.py tests/test_policy.py -v
 
   verify-signed-examples:
     runs-on: ubuntu-latest
     needs: vectors
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -e ".[pqc]"
       - name: Verify signed examples and conformance vector
         run: |
           matrixscroll verify vectors/valid_simple.json
+          matrixscroll verify vectors/se050/vector_01.json
           matrixscroll verify examples/agentic_ai_evidence_manifest.signed.json
           matrixscroll verify examples/commit-envelope.signed.json
           matrixscroll verify examples/release-manifest.signed.json
@@ -44,8 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: vectors
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -e ".[dev]"

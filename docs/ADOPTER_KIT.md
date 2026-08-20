@@ -6,14 +6,14 @@ who want to trial Matrix Scroll without changing their core workflow.
 ## Best first-fit teams
 
 - OSS repos with active PR review and at least one protected branch
-- platform or DevSecOps teams evaluating agent-assisted coding controls
+- platform or DevSecOps teams evaluating machine-action controls
 - teams that already use GitHub Actions and can add one verification job
 
 ## 15-minute pilot
 
-1. Install `matrixscroll==0.6.3` in one repo.
+1. Install `matrixscroll==0.7.0` in one repo.
 2. Run `matrixscroll hook-install`.
-3. Make one agent-assisted commit and verify it locally.
+3. Make one commit with a declared actor and tool, then verify it locally.
 4. Publish notes with `matrixscroll envelope-publish-notes`.
 5. Add `SSX360/matrixscroll/.github/actions/verify@action-v1` to PR CI.
 
@@ -38,7 +38,7 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha }}
           base-ref: ${{ github.event.pull_request.base.sha }}
           source: notes
-          matrixscroll-version: "0.6.3"
+          matrixscroll-version: "0.7.0"
           require-mode: emulated
 ```
 
@@ -57,7 +57,7 @@ jobs:
 
 ## What not to assume
 
-- L1 emulated mode is not a hardware root of trust
+- The file-backed provider stores its key on the host
 - Matrix Scroll does not replace IAM or sandboxing
 - Matrix Scroll does not replace release-signing or artifact attestations
 
@@ -65,7 +65,7 @@ jobs:
 
 Recorded on `2026-06-21` against the pinned public flow:
 `pip install matrixscroll` -> `matrixscroll hook-install` ->
-`matrixscroll hook-status` -> first agent-assisted commit ->
+`matrixscroll hook-status` -> first signed commit ->
 `matrixscroll envelope-verify`.
 
 The pin that run used is not named here. It moved with every release since, and

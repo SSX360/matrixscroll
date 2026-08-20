@@ -22,10 +22,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -44,15 +44,16 @@ jobs:
     env:
       SSX360_API_KEY: ${{ secrets.SSX360_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Require SSX360 API key
         if: env.SSX360_API_KEY == ''
         run: |
-          echo "SSX360_API_KEY secret is required for hosted integration tests." >&2
-          echo "Community tier includes 100 CI verifications/day. Get a key at https://ssx360.com/signup" >&2
+          echo "The hosted Scroll Gate smoke job needs the SSX360_API_KEY secret." >&2
+          echo "Offline verification needs no key:" >&2
+          echo "  matrixscroll envelope-verify-range --base <base> --head <head> --source notes" >&2
           exit 1
 
       - name: Hosted verify (warn mode)
@@ -69,7 +70,7 @@ jobs:
 
       - name: Upload provenance summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: integration-provenance-summary
           path: provenance-summary.json

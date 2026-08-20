@@ -6,7 +6,7 @@ without coupling public docs to a specific editor or assistant brand.
 ## One-time setup
 
 ```bash
-pip install "matrixscroll==0.6.3"
+pip install "matrixscroll==0.7.0"
 matrixscroll hook-install
 ```
 

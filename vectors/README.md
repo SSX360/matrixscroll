@@ -4,6 +4,9 @@ These JSON fixtures are the canonical conformance set for the Matrix Scroll
 protocol. Every implementation should produce the same verify result on each
 file. The expected result is encoded in the filename prefix:
 
+Hardware acceptance vectors from the SSX360 USB signer live in [`se050/`](se050/).
+See that README for the fixture naming convention.
+
 | Prefix | Expected `verify_manifest` result |
 | ------ | --------------------------------- |
 | `valid_*.json`    | **true** — well-formed, signed, untampered. |
