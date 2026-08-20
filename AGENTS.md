@@ -15,10 +15,14 @@ writing or editing any user-facing text. The condensed version:
   Never assert that anything is certified or compliant.
 - The published version is `0.7.0`, per `pyproject.toml` and
   `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly in every install
-  example.
+  example. Unreleased tree changes may retarget the software PQC default to
+  `ml-dsa-87`; do not claim that default on PyPI until the release that ships it.
 - SSX360 produces the SE050 USB signer and supplies it through direct inquiry.
   Distinguish direct-contact availability from self-service or retail distribution.
 - Never delete or soften a "Verification boundaries" section.
+- Do not claim CNSA 2.0 certification, FIPS CMVP validation, or NSA approval.
+  Naming ML-DSA-87 as the Category 5 / CNSA 2.0 signature parameter set is
+  parameter readiness only.
 
 ## Commit attribution
 

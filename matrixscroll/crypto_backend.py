@@ -93,6 +93,8 @@ _OQS_ALG: dict[str, str] = {
     "ml-dsa-87": "ML-DSA-87",
     "slh-dsa-sha2-128s": "SLH-DSA-SHA2-128s",
     "slh-dsa-sha2-128f": "SLH-DSA-SHA2-128f",
+    "slh-dsa-sha2-256s": "SLH-DSA-SHA2-256s",
+    "slh-dsa-sha2-256f": "SLH-DSA-SHA2-256f",
 }
 
 _PQC_BACKEND: str | None = None

@@ -740,15 +740,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pqc_keygen.add_argument(
         "--algorithm",
-        default="ml-dsa-65",
+        default=None,
         choices=[
             "ml-dsa-44",
             "ml-dsa-65",
             "ml-dsa-87",
             "slh-dsa-sha2-128s",
             "slh-dsa-sha2-128f",
+            "slh-dsa-sha2-256s",
+            "slh-dsa-sha2-256f",
         ],
-        help="PQC algorithm per SPEC.md §11",
+        help=(
+            "PQC algorithm per SPEC.md §11. "
+            "Default is ml-dsa-87 (FIPS 204 Category 5 / CNSA 2.0 signature set)."
+        ),
     )
     pqc_keygen.set_defaults(command="pqc-keygen")
 

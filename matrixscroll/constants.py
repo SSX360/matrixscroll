@@ -14,8 +14,19 @@ PQC_ALGORITHMS: tuple[str, ...] = (
     "ml-dsa-87",
     "slh-dsa-sha2-128s",
     "slh-dsa-sha2-128f",
+    "slh-dsa-sha2-256s",
+    "slh-dsa-sha2-256f",
 )
-DEFAULT_PQC_ALGORITHM = "ml-dsa-65"
+# Default is ML-DSA-87 (FIPS 204 Category 5). That matches the CNSA 2.0
+# signature parameter set NSA publishes for National Security Systems.
+# Shipping this default is parameter-set readiness through liboqs, not CNSA
+# certification, FIPS CMVP validation, or NSA approval. Callers may still
+# select ml-dsa-44 or ml-dsa-65 explicitly.
+DEFAULT_PQC_ALGORITHM = "ml-dsa-87"
+# Preferred algorithm when a deployment asks for CNSA 2.0 Category 5 signature
+# alignment. Identical to DEFAULT_PQC_ALGORITHM today; kept named so policy and
+# docs can reference the intent without hard-coding a string.
+CNSA_PREFERRED_PQC_ALGORITHM = "ml-dsa-87"
 PQC_ENV_VAR = "MATRIXSCROLL_PQC"
 
 DEVICE_FILE = "device.json"
