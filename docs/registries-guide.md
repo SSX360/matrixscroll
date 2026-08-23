@@ -16,8 +16,9 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
   1. **Publish to PyPI first**, then bump `glama.json` `packages[].version` (Glama installs the PyPI pin, and a pin ahead of PyPI fails the build, as in commit `453a3ef`).
   2. CI guards: `scripts/validate_glama_pypi.py` and `scripts/glama_stdio_smoke.py` (PyPI install + stdio `tools/list`).
   3. Log in to [Glama.ai](https://glama.ai/mcp).
-  4. Sync repository `https://github.com/SSX360/matrixscroll` (automatic on push). Use **Sync Server** manually if a failed build predates the PyPI release.
-  5. Confirm per-tool TDQS â‰¥ B and server quality **A** on the listing page.
+  4. Open [SSX360/matrixscroll](https://glama.ai/mcp/servers/SSX360/matrixscroll) and click **Sync Server** so Glama reinstalls from PyPI and re-reads `glama.json` from GitHub.
+  5. Confirm the listing shows the **14 Matrix Scroll MCP tools** (`create_envelope`, `verify_envelope`, `scan_mcp_server`, etc.), not unrelated workspace-scaffolding tools.
+  6. Confirm per-tool TDQS is at least B and server quality on the listing page.
 
 ## 2. Official MCP Registry (Model Context Protocol)
 - **Status:** ready for submission.
