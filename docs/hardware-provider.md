@@ -107,8 +107,8 @@ matrixscroll verify vectors/se050/vector_01.json
 pytest tests/test_se050_acceptance_vectors.py -v
 ```
 
-The [browser verifier](https://matrixscroll.com/verify/) also exposes vector 01
-as **Load SE050 vector 01**.
+The browser verifier UI was retired in August 2026. Load vector 01 locally with
+`matrixscroll verify vectors/se050/vector_01.json`.
 
 The secure element protects key custody. It does not establish who is authorized to use the device. Register the expected public key, control physical access, and define a revocation process before enforcing hardware signatures.
 

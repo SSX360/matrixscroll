@@ -10,8 +10,8 @@ release-readiness record, not a third-party audit or certification.
 | Python package | `matrixscroll==0.7.0` |
 | MCP server | `matrixscroll-mcp`, 14 tools |
 | GitHub Action | `SSX360/matrixscroll/.github/actions/verify@action-v1` |
-| Browser verifier | <https://matrixscroll.com/verify/> |
-| MCP surface scanner | <https://matrixscroll.com/scan/> |
+| Browser verifier | Retired (August 2026); use CLI `matrixscroll verify` |
+| MCP surface scanner | Retired (August 2026); use `matrixscroll mcp scan` |
 | Protocol source | [`SPEC.md`](../SPEC.md) and [`schemas/`](../schemas/) |
 
 ## Verification behavior

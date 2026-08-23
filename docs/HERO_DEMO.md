@@ -7,7 +7,7 @@ Record this flow once for product demos, conference talks, or onboarding videos.
 - **Agent:** Cursor or Claude Code in a bound workspace
 - **Producer:** `matrixscroll` hooks / MCP `create_envelope`
 - **Enforcer:** Scroll Gate (`SSX360/matrixscroll/.github/actions/verify@action-v1`)
-- **Verifier:** [matrixscroll.com/verify/](https://matrixscroll.com/verify/) (offline, no portal trust)
+- **Verifier:** CLI `matrixscroll verify` (offline; browser UI retired August 2026)
 
 ## Beat sheet
 
@@ -17,7 +17,7 @@ Record this flow once for product demos, conference talks, or onboarding videos.
 | 0:10 | `git log -1` + hook output | "Matrix Scroll signs an Ed25519 envelope at commit time — actor, tool, scope." |
 | 0:25 | Envelope JSON (redacted keys OK) | "This is the proof object. Repo contents never left the machine." |
 | 0:35 | GitHub PR + Scroll Gate check | "Scroll Gate verifies the full PR range — signed vs unsigned, trusted vs untrusted." |
-| 0:50 | Browser verifier paste | "Anyone verifies offline at matrixscroll.com/verify — no SSX360 login required." |
+| 0:50 | Terminal `matrixscroll verify` | "Anyone verifies offline with the CLI — no SSX360 login required." |
 | 1:05 | SSX360 portal flash (optional) | "Identity, billing, and audit live on the control plane — verification does not." |
 | 1:15 | CTA slate | "Verify → Install → Pilot." |
 

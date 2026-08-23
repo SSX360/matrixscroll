@@ -24,9 +24,13 @@ characters of `SHA-256(public_key)`, formatted as `MS-XXXX-XXXX`.
 
 ## Browser verifier
 
-The Matrix Scroll site exposes vector 01 as a loadable sample at
-<https://matrixscroll.com/verify/> (“Load SE050 vector 01”). Site assets live
-under `assets/samples/se050/` in the separate `matrixscroll-site` repository.
+The browser verifier UI was retired in August 2026. Verify vector 01 locally:
+
+```bash
+matrixscroll verify vectors/se050/vector_01.json
+```
+
+Site sample assets previously lived under `assets/samples/se050/` in the `Matrix_Scroll` repository.
 
 ## Adding vectors 02 through 10
 
