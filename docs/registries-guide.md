@@ -5,8 +5,8 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
 ---
 
 ## 1. Glama Registry
-- **Status:** live, quality **A** on [matrixscroll Glama listing](https://glama.ai/mcp/servers/SSX360/matrixscroll) (license A, maintenance A, TDQS tool-set A as of 2026-06-29).
-- **Listing:** [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll)
+- **Status:** live listing at [matrixscroll on Glama](https://glama.ai/mcp/servers/SSX360/matrixscroll). After August 2026 tombstone work, **re-sync manually** if the page shows stale description, wrong tools, or old `matrixscroll.com/docs` links.
+- **Source of truth:** [`glama.json`](../glama.json) in this repository (`documentation` → GitHub docs, `homepage` → matrixscroll.com tombstone).
 - **TDQS checklist (quality A):**
   1. Every `@mcp.tool()` declares MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`).
   2. Tool docstrings include **when to use**, **when not to use**, sibling alternatives, side effects, and return shape.
