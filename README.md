@@ -245,9 +245,9 @@ Matrix Scroll code is licensed under Apache-2.0. [`SPEC.md`](https://github.com/
 
 | Resource | Link |
 | --- | --- |
-| Documentation | [matrixscroll.com/docs](https://matrixscroll.com/docs/) |
-| MCP Trust Scanner | [matrixscroll.com/scan](https://matrixscroll.com/scan/) |
-| Offline verifier | [matrixscroll.com/verify](https://matrixscroll.com/verify/) |
-| Protocol specification | [matrixscroll.com/spec](https://matrixscroll.com/spec/) |
+| Tombstone / schemas | [matrixscroll.com](https://matrixscroll.com/) |
+| Documentation | [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs) |
+| Offline verification | [CLI guide](https://github.com/SSX360/matrixscroll#sign-and-verify-from-the-cli) |
+| Protocol specification | [SPEC.md](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md) |
 | Source repository | [github.com/SSX360/matrixscroll](https://github.com/SSX360/matrixscroll) |
 | SSX360 contact | [Contact SSX360](https://ssx360.com/contact) |

@@ -189,9 +189,9 @@ customer endorsements.
 
 ## Proof links
 
-- Protocol docs: <https://matrixscroll.com/docs/>
-- Browser verifier: <https://matrixscroll.com/verify/>
-- Envelope specification: <https://matrixscroll.com/spec/>
+- Protocol docs: <https://github.com/SSX360/matrixscroll/tree/main/docs>
+- Offline verify: <https://matrixscroll.com/#verify-offline>
+- Envelope specification: <https://github.com/SSX360/matrixscroll/blob/main/SPEC.md>
 - PyPI release provenance: <https://pypi.org/project/matrixscroll/0.7.0/>
 
 ## License

@@ -83,9 +83,9 @@ ssx360-ledger = "matrixscroll.ssx360_cli:ledger_main"
 # exists. Compare duplicated Documentation.
 [project.urls]
 Homepage = "https://matrixscroll.com"
-Documentation = "https://matrixscroll.com/docs/"
-Specification = "https://matrixscroll.com/spec/"
-Verifier = "https://matrixscroll.com/verify/"
+Documentation = "https://github.com/SSX360/matrixscroll/tree/main/docs"
+Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
+Verifier = "https://matrixscroll.com/#verify-offline"
 Repository = "https://github.com/SSX360/matrixscroll"
 Source = "https://github.com/SSX360/matrixscroll"
 Issues = "https://github.com/SSX360/matrixscroll/issues"

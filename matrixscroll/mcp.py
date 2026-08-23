@@ -44,7 +44,7 @@ _HOSTED_NETWORK = ToolAnnotations(
     openWorldHint=True,
 )
 
-DOCS_URL = "https://matrixscroll.com/docs/"
+DOCS_URL = "https://github.com/SSX360/matrixscroll/tree/main/docs"
 
 
 def _require_api_key(feature: str) -> dict[str, Any] | None:

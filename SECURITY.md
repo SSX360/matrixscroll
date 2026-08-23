@@ -53,6 +53,49 @@ We follow a coordinated-disclosure model. Once a fix is available we publish a
 GitHub Security Advisory with a CVE (where applicable) and credit the reporter
 unless anonymity is requested.
 
+**Primary report path:** open a private GitHub Security Advisory at
+<https://github.com/SSX360/matrixscroll/security/advisories/new>.
+
+Email **security@matrixscroll.com** remains listed for continuity; if inbound mail
+on that domain is retired, use the GitHub advisory path above.
+
+## Offline verification boundary
+
+Core verification (`verify_manifest`, commit envelope verify, local range verify)
+does **not** contact `matrixscroll.com`. JSON Schema `$id` values on that domain
+are identifiers; the SDK loads schemas from the installed package. Optional hosted
+SSX360 API tools require `SSX360_API_KEY` and reach `ssx360.com` only.
+
+## Release yank policy
+
+If a published release embeds a secret or contains a key-recovery vulnerability:
+
+1. **Yank** the affected version on PyPI.
+2. Publish a **GitHub Security Advisory** with remediation steps.
+3. **Disclose publicly** once a fix is available.
+
+Quiet removal without disclosure is not acceptable for a provenance library.
+
+## Commercial boundary
+
+- **Open (Apache-2.0):** protocol spec, schemas, vectors, verifier, MCP local tools.
+- **SSX360 commercial:** physical USB signer supply, hosted Scroll Gate, scoped
+  cybersecurity services. See [`docs/commercial/README.md`](docs/commercial/README.md)
+  and [`docs/DOCTRINE.md`](docs/DOCTRINE.md).
+
+## Signing key custody
+
+Production signing keys must not reside on developer laptops.
+
+| Environment | Expected custody |
+|-------------|------------------|
+| Local development | Emulated keys in `~/.matrixscroll/` only; never used for production releases |
+| Production / fleet | SE050 secure element or hardware token / HSM with non-exportable Ed25519 |
+| Rotation | Generate new identity, update deployment `trusted-keys.json`, record date in team notes |
+
+See [`docs/OPERATOR_RUNBOOK.md`](docs/OPERATOR_RUNBOOK.md) for credential rotation
+and [`docs/hardware-provider.md`](docs/hardware-provider.md) for SE050 provisioning.
+
 ## Cryptographic Primitives
 
 - Signing: Ed25519 (RFC 8032) via `cryptography`'s `Ed25519PrivateKey`.

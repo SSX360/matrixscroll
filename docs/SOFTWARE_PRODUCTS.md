@@ -7,8 +7,8 @@ manifest bytes today.
 |---------|--------|--------|-------|
 | **Matrix Scroll SDK** | GA | PyPI `matrixscroll==0.7.0` | Hooks, envelopes, Scroll Gate, policy CLI |
 | **Scroll Gate CI** | GA | [`matrixscroll/.github/actions/verify@action-v1`](https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify) | PR range + manifest verify |
-| **Browser verifier** | GA | [matrixscroll.com/verify](https://matrixscroll.com/verify/) | Offline paste-and-verify |
-| **Protocol docs** | GA | [matrixscroll.com/docs](https://matrixscroll.com/docs/) | SPEC mirror, whitepaper, quickstarts |
+| **Browser verifier** | Retired (2026-08) | CLI / MCP offline | Site UI removed; use `matrixscroll verify` |
+| **Protocol docs** | GA | [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs) | Tombstone at matrixscroll.com |
 | **GUAC export CLI** | MVP | `matrixscroll envelope-export-guac` | Same manifest contract |
 | **Rekor publish CLI** | Dry-run | `matrixscroll envelope-publish-rekor --dry-run` | Evidence export, not new signing mode |
 | **SSX360 USB signer** | Direct contact | [Contact SSX360](https://ssx360.com/contact) | RP2350 USB bridge and NXP SE050 secure element |

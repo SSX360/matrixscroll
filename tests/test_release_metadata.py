@@ -12,27 +12,25 @@ ROOT = Path(__file__).resolve().parent.parent
 def test_public_metadata_uses_stable_device_url():
     """Public links must resolve directly, not through a redirect or to a dead page.
 
-    This test used to pin `ssx360.com/hardware` and `matrixscroll.com/compare`.
-    Both were retired, so the assertions were holding the metadata on two URLs
-    that no longer resolved. Pin the properties instead of the literals: the
-    hardware reference points at the status doc in this repo, and the protocol
-    surfaces are addressed on matrixscroll.com with their canonical paths.
+    Tombstone era: marketing routes retired; homepage and schema anchors remain on
+    matrixscroll.com. Documentation and spec live on GitHub.
     """
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "docs/hardware-provider.md" in pyproject
-    assert "matrixscroll.com/docs/" in pyproject
-    assert "matrixscroll.com/spec/" in pyproject
-    assert "matrixscroll.com/verify/" in pyproject
-    assert "matrixscroll.com/docs/" in readme
+    assert "matrixscroll.com" in pyproject
+    assert "github.com/SSX360/matrixscroll" in pyproject
+    assert "github.com/SSX360/matrixscroll" in readme
 
-    # Retired surfaces. Linking them again would send a reader to a redirect.
+    # Retired marketing surfaces must not reappear in metadata.
     for gone in ("ssx360.com/hardware", "ssx360.com/enterprise", "ssx360.com/signup"):
         assert gone not in pyproject, gone
         assert gone not in readme, gone
     for gone in ("matrixscroll.com/compare", "matrixscroll.com/ecosystem", "matrixscroll.com/roadmap"):
         assert gone not in readme, gone
+    for gone in ("matrixscroll.com/docs/", "matrixscroll.com/verify/", "matrixscroll.com/scan/"):
+        assert gone not in pyproject, gone
 
     assert "[AP2 Vault Card hardware]" not in readme
 

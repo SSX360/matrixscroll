@@ -46,9 +46,15 @@ credentials/
 .cursor/
 .playwright-cli/
 
+# Local operational data (workbench / envelopes)
+data/
+
 # Matrix Scroll local store (never commit a private key)
 .matrixscroll/
 device.json
+session.secret
+credentials.once.txt
+workbench.sqlite3
 
 # TLA+ tools (download locally or in CI)
 tla2tools.jar

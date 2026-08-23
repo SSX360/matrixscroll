@@ -10,7 +10,7 @@ call the SSX360 hosted API.
 | [SCROLL_GATE_V2.md](./SCROLL_GATE_V2.md) | Local and optional hosted commit-range verification |
 | [SSX360_SCROLL.md](./SSX360_SCROLL.md) | Governed Git commits and universal action envelopes |
 
-Protocol documentation: [matrixscroll.com/docs](https://matrixscroll.com/docs/)
+Protocol documentation: [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs)
 
 Physical SSX360 USB signers are available through
 [SSX360 contact](https://ssx360.com/contact). PyPI supplies the host software,

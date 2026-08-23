@@ -10,7 +10,7 @@ import urllib.request
 from typing import Any
 
 DEFAULT_BASE_URL = "https://ssx360.com"
-DOCS_URL = "https://matrixscroll.com/docs/"
+DOCS_URL = "https://github.com/SSX360/matrixscroll/tree/main/docs"
 
 
 class CloudAuthError(Exception):
