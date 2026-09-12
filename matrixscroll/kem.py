@@ -1,7 +1,8 @@
 """ML-KEM (FIPS 203) key-encapsulation primitives for the CNSA 2.0 full-suite track.
 
-Status: **In progress** (see ``docs/CRYPTO_ROADMAP.md``, "CNSA 2.0 full-suite track").
-No envelope, manifest or evidence-pack format uses this module yet. It exists so
+Status: the primitives are **Shipping now** (0.8.0); the CNSA 2.0 full-suite track
+that will use them is **In progress** (see ``docs/CRYPTO_ROADMAP.md``). No envelope,
+manifest or evidence-pack format uses this module yet. It exists so
 that the sealed evidence-pack design can be built on primitives that are already
 checked against the NIST ACVP sample vectors (``vectors/acvp-mlkem-fips203.json``,
 ``tests/test_acvp_mlkem.py``) instead of on a specification alone.
@@ -18,7 +19,7 @@ not recommend relying on liboqs in production.
 
 from __future__ import annotations
 
-from .crypto_backend import pqc_available, pqc_backend_info
+from .crypto_backend import pqc_available, pqc_backend_info, resolve_oqs_mechanism
 
 #: Matrix Scroll identifiers for the FIPS 203 parameter sets the track uses.
 #: ``ml-kem-1024`` is the CNSA 2.0 key-establishment set; ``ml-kem-768`` is kept
@@ -40,34 +41,19 @@ def kem_available() -> bool:
     return pqc_available()
 
 
+def _enabled_kem_mechanisms() -> list[str]:
+    import oqs  # type: ignore[import-untyped]
+
+    return list(oqs.get_enabled_kem_mechanisms())
+
+
 def oqs_kem_mechanism_name(algorithm: str) -> str | None:
     """Return the liboqs KEM mechanism enabled for ``algorithm``, or None.
 
-    Both outcomes are cached per process, as ``oqs_mechanism_name`` does for
-    signatures.
+    The cache-and-resolve step is ``crypto_backend.resolve_oqs_mechanism``, shared
+    with the signature map, so a resolution fix lands in one place.
     """
-    if algorithm in _OQS_KEM_RESOLVED:
-        return _OQS_KEM_RESOLVED[algorithm] or None
-    candidates = _OQS_KEM_CANDIDATES.get(algorithm)
-    if not candidates:
-        return None
-    if not pqc_available():
-        # The backend probe is cached for the process too, so a missing liboqs is a
-        # stable negative answer for every identifier.
-        _OQS_KEM_RESOLVED[algorithm] = ""
-        return None
-    import oqs  # type: ignore[import-untyped]
-
-    try:
-        enabled = set(oqs.get_enabled_kem_mechanisms())
-    except Exception:
-        enabled = set()
-    for name in candidates:
-        if name in enabled:
-            _OQS_KEM_RESOLVED[algorithm] = name
-            return name
-    _OQS_KEM_RESOLVED[algorithm] = ""
-    return None
+    return resolve_oqs_mechanism(_OQS_KEM_RESOLVED, _OQS_KEM_CANDIDATES, algorithm, _enabled_kem_mechanisms)
 
 
 def _mechanism(algorithm: str) -> str:
@@ -91,9 +77,10 @@ def kem_generate_keypair(algorithm: str = DEFAULT_KEM_ALGORITHM, seed: bytes | N
     deterministic, which is how the NIST keyGen vectors are checked. Without it
     liboqs draws the seed from the operating system.
     """
+    name = _mechanism(algorithm)  # validates the identifier and the backend before oqs is imported
     import oqs  # type: ignore[import-untyped]
 
-    with oqs.KeyEncapsulation(_mechanism(algorithm)) as kem:
+    with oqs.KeyEncapsulation(name) as kem:
         if seed is None:
             public_key = kem.generate_keypair()
         else:
@@ -105,9 +92,10 @@ def kem_generate_keypair(algorithm: str = DEFAULT_KEM_ALGORITHM, seed: bytes | N
 
 def kem_encapsulate(algorithm: str, encapsulation_key: bytes) -> tuple[bytes, bytes]:
     """Return ``(ciphertext, shared_secret)`` for the holder of ``encapsulation_key``."""
+    name = _mechanism(algorithm)
     import oqs  # type: ignore[import-untyped]
 
-    with oqs.KeyEncapsulation(_mechanism(algorithm)) as kem:
+    with oqs.KeyEncapsulation(name) as kem:
         if len(encapsulation_key) != kem.details["length_public_key"]:
             raise ValueError(f"encapsulation key must be {kem.details['length_public_key']} bytes for {algorithm}")
         ciphertext, shared_secret = kem.encap_secret(encapsulation_key)
@@ -121,9 +109,9 @@ def kem_decapsulate(algorithm: str, decapsulation_key: bytes, ciphertext: bytes)
     ciphertext yields the implicit-rejection value ``J(z || c)``, which the NIST
     vectors pin. A ciphertext of the wrong length raises ``ValueError``.
     """
+    name = _mechanism(algorithm)
     import oqs  # type: ignore[import-untyped]
 
-    name = _mechanism(algorithm)
     # Check both lengths before liboqs sees the key: a wrong-length key handed to the
     # constructor would surface as a backend error, not as this module's ValueError.
     with oqs.KeyEncapsulation(name) as probe:
