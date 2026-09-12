@@ -11,9 +11,14 @@ Post-quantum signature-verification vectors live in
 `acvp-sigver-fips204-fips205.json`: a subset of the NIST ACVP-Server gen-val
 sample files for ML-DSA-87 (FIPS 204) and SLH-DSA-SHA2-256s/256f (FIPS 205),
 external interface, pure variant, with the NIST tcIds, verdicts and reason
-strings, and the URL and SHA-256 of each source file. `tests/test_acvp_sigver.py`
-runs them through the liboqs mechanism that the overlay uses; it skips when
-`matrixscroll[pqc]` is not installed.
+strings, and the URL and SHA-256 of each source file. sigVer groups are NIST's
+valid and modified verification inputs; sigGen groups are NIST's expected
+signatures over an empty context, restated as positive verification cases so the
+overlay's own verify path is exercised. `tests/test_acvp_sigver.py` runs them
+through the liboqs mechanism that the overlay uses; it skips when
+`matrixscroll[pqc]` is not installed. This is an evidence mapping to the NIST
+sample vectors, not a certification claim: no CAVP or CMVP validation is claimed
+(see `docs/CRYPTO_ROADMAP.md` for what is shipping, in progress and not claimed).
 
 | Prefix | Expected `verify_manifest` result |
 | ------ | --------------------------------- |
