@@ -12,6 +12,12 @@ commit.
 Matrix Scroll is an open protocol. The SDK remains Apache-2.0 software; SSX360
 supplies the physical signer and scoped cybersecurity services separately.
 
+![SSX360 USB signer: a machined black enclosure with a USB-C port, two light bars and a display reading VERIFIED](images/ssx360-usb-signer.jpg){ width="640" }
+
+*The SSX360 USB signer (product visualization, September 2026). The Ed25519
+key lives in an NXP SE050 secure element behind an RP2350 USB bridge. See
+[Trust boundaries](explanation/trust-boundaries.md).*
+
 ```bash
 pip install "matrixscroll==0.7.0"
 ```
