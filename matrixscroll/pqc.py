@@ -124,6 +124,13 @@ def sign_pqc_block(
 ) -> dict[str, Any]:
     algo, pub, sec = load_pqc_keypair(algorithm)
     message = canonical_bytes_pqc(manifest)
+    if not oqs_mechanism_name(algo):
+        # An existing key file can name a set that this liboqs build does not enable;
+        # report it through the same contract as key generation, not as a backend error.
+        raise IdentityError(
+            f"PQC key algorithm {algo!r} is not enabled in this liboqs build "
+            f"({pqc_backend_info().get('liboqs_version', 'unknown')})."
+        )
     signature = pqc_sign(algo, sec, message)
     return {
         "schema": PQC_SIGNATURE_SCHEMA,
