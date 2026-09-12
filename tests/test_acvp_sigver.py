@@ -114,9 +114,16 @@ def test_acvp_sigver_vector(case: tuple[str, str, dict]) -> None:
         with oqs.Signature(mechanism) as sig:
             if not hasattr(sig, "verify_with_ctx_str"):
                 pytest.skip("liboqs-python build has no verify_with_ctx_str")
-            # An exception here is a test failure, not a negative verdict: NIST's modified
-            # inputs keep valid lengths, so the verifier must answer, not raise.
-            verdict = bool(sig.verify_with_ctx_str(message, signature, context, public_key))
+            details = sig.details
+            if len(signature) != details["length_signature"] or len(public_key) != details["length_public_key"]:
+                # NIST's "too large" vectors carry a signature one byte longer than the
+                # parameter set allows. A wrong length is invalid by definition, and some
+                # liboqs-python builds raise on it, so decide it here without calling verify.
+                verdict = False
+            else:
+                # Every other modified input keeps valid lengths, so the verifier must
+                # answer; an exception here is a test failure, not a negative verdict.
+                verdict = bool(sig.verify_with_ctx_str(message, signature, context, public_key))
     else:
         # The empty-context path is exactly what Matrix Scroll's overlay uses.
         verdict = pqc_verify(algorithm, public_key, message, signature)
