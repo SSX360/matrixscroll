@@ -7,18 +7,9 @@ file. The expected result is encoded in the filename prefix:
 Hardware acceptance vectors from the SSX360 USB signer live in [`se050/`](se050/).
 See that README for the fixture naming convention.
 
-Post-quantum signature-verification vectors live in
-`acvp-sigver-fips204-fips205.json`: a subset of the NIST ACVP-Server gen-val
-sample files for ML-DSA-87 (FIPS 204) and SLH-DSA-SHA2-256s/256f (FIPS 205),
-external interface, pure variant, with the NIST tcIds, verdicts and reason
-strings, and the URL and SHA-256 of each source file. sigVer groups are NIST's
-valid and modified verification inputs; sigGen groups are NIST's expected
-signatures over an empty context, restated as positive verification cases so the
-overlay's own verify path is exercised. `tests/test_acvp_sigver.py` runs them
-through the liboqs mechanism that the overlay uses; it skips when
-`matrixscroll[pqc]` is not installed. This is an evidence mapping to the NIST
-sample vectors, not a certification claim: no CAVP or CMVP validation is claimed
-(see `docs/CRYPTO_ROADMAP.md` for what is shipping, in progress and not claimed).
+The filename-prefix table below applies to the Matrix Scroll conformance
+fixtures only. The NIST ACVP bundle described in its own section further down is
+a separate file with its own layout and is not a `verify_manifest` fixture.
 
 | Prefix | Expected `verify_manifest` result |
 | ------ | --------------------------------- |
@@ -49,6 +40,28 @@ pytest tests/test_vectors.py -v
 
 Repeat for the other `valid_*` files. Then confirm that every `tampered_*`
 and `unsigned_*` file returns **false**.
+
+## NIST ACVP vectors (separate from the conformance set)
+
+Post-quantum signature-verification vectors live in
+`acvp-sigver-fips204-fips205.json`: a subset of the NIST ACVP-Server gen-val
+sample files for ML-DSA-87 (FIPS 204) and SLH-DSA-SHA2-256s/256f (FIPS 205),
+external interface, pure variant, with the NIST tcIds, verdicts and reason
+strings, and the URL and SHA-256 of each source file. sigVer groups are NIST's
+valid and modified verification inputs; sigGen groups are NIST's expected
+signatures over an empty context, restated as positive verification cases so the
+overlay's own verify path is exercised. `tests/test_acvp_sigver.py` runs them
+through the liboqs mechanism that the overlay uses; it skips when
+`matrixscroll[pqc]` is not installed. This is an evidence mapping to the NIST
+sample vectors, not a certification claim: no CAVP or CMVP validation is claimed
+(see `docs/CRYPTO_ROADMAP.md` for what is shipping, in progress and not claimed).
+
+`acvp-mlkem-fips203.json` holds the ML-KEM-1024 (FIPS 203) subset for the
+CNSA 2.0 full-suite track: keyGen vectors (seed `d || z` to `ek` and `dk`),
+NIST-produced ciphertexts checked through decapsulation, and decapsulation
+cases including the implicit-rejection values for modified ciphertexts.
+`tests/test_acvp_mlkem.py` runs them through `matrixscroll.kem`. Same
+provenance layout, same evidence-mapping boundary.
 
 ## Public domain
 
