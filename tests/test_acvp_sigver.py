@@ -61,12 +61,27 @@ def test_vector_file_declares_its_provenance() -> None:
     assert all(g["signatureInterface"] == "external" and g["preHash"] == "pure" for g in doc["groups"])
 
 
+def _liboqs_family_enabled(family: str) -> bool:
+    """True when this liboqs build ships the family ("ML-DSA" or "SLH-DSA") at all."""
+    import oqs  # type: ignore[import-untyped]
+
+    enabled = {name.upper().replace("_", "-") for name in oqs.get_enabled_sig_mechanisms()}
+    return any(name.startswith(family) for name in enabled)
+
+
 @pytest.mark.parametrize("parameter_set", sorted(_ALGORITHM_IDS))
 def test_mechanism_resolves_to_the_pure_fips_variant(parameter_set: str) -> None:
+    """The identifier must resolve to the pure (non-prehash, SHA2) mechanism of its family.
+
+    A build without the family skips; a build with the family but no resolution fails,
+    so a wrong name mapping is reported as a failure and not hidden as a skip.
+    """
+    family = "ML-DSA" if parameter_set.startswith("ML-DSA") else "SLH-DSA"
+    if not _liboqs_family_enabled(family):
+        pytest.skip(f"this liboqs build has no {family} mechanisms")
     name = oqs_mechanism_name(_ALGORITHM_IDS[parameter_set])
-    assert name, f"{parameter_set} is not enabled in this liboqs build"
-    assert "PREHASH" not in name.upper()
-    assert "SHAKE" not in name.upper() or parameter_set.startswith("ML-DSA")
+    assert name, f"{parameter_set} does not resolve to an enabled liboqs mechanism"
+    assert "PREHASH" not in name.upper() and "SHAKE" not in name.upper()
 
 
 @pytest.mark.parametrize("case", CASES, ids=_case_id)

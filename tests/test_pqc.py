@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 import pytest
 
@@ -100,6 +99,18 @@ def test_configured_pqc_algorithm(monkeypatch: pytest.MonkeyPatch) -> None:
     assert configured_pqc_algorithm() is None
 
 
+def _liboqs_family_enabled(family: str) -> bool:
+    """True when this liboqs build ships the family ("ML-DSA" or "SLH-DSA") at all.
+
+    A build without the family skips the test; a build with the family but an identifier
+    that does not resolve fails it, so a broken name mapping cannot hide behind a skip.
+    """
+    import oqs  # type: ignore[import-untyped]
+
+    enabled = {name.upper().replace("_", "-") for name in oqs.get_enabled_sig_mechanisms()}
+    return any(name.startswith(family) for name in enabled)
+
+
 @pytest.mark.parametrize("algorithm", sorted(PQC_ALGORITHMS))
 def test_every_listed_algorithm_signs_and_verifies(
     algorithm: str, monkeypatch: pytest.MonkeyPatch, tmp_path
@@ -112,7 +123,10 @@ def test_every_listed_algorithm_signs_and_verifies(
     from matrixscroll.pqc import sign_pqc_block, verify_pqc_block
 
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
-    assert oqs_mechanism_name(algorithm), f"{algorithm} is not enabled in this liboqs build"
+    family = "ML-DSA" if algorithm.startswith("ml-dsa") else "SLH-DSA"
+    if not _liboqs_family_enabled(family):
+        pytest.skip(f"this liboqs build has no {family} mechanisms")
+    assert oqs_mechanism_name(algorithm), f"{algorithm} does not resolve to an enabled liboqs mechanism"
     manifest = {"schema": "matrixscroll.test.v0", "payload": f"probe-{algorithm}"}
     block = sign_pqc_block(manifest, algorithm)
     assert block["algorithm"] == algorithm
