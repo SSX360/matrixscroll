@@ -13,14 +13,16 @@ wire-format change; Ed25519 remains the default signature scheme and the
 post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
 
 ### Changed
-- **Default PQC algorithm is now `ml-dsa-87`.** When `MATRIXSCROLL_PQC` enables
-  the overlay without naming a set, and when `matrixscroll pqc-keygen` is run
-  without `--algorithm`, the SDK selects ML-DSA-87 (FIPS 204 Category 5). That
-  matches the CNSA 2.0 signature parameter set. It is parameter-set readiness
-  through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
-  Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
-  files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
-  newly generated keys. `0.7.0` and earlier default to `ml-dsa-65`.
+- **Default PQC algorithm is now `ml-dsa-87`.** When `matrixscroll pqc-keygen`
+  is run without `--algorithm`, and when a library caller passes no algorithm,
+  the SDK selects ML-DSA-87 (FIPS 204 Category 5). That matches the CNSA 2.0
+  signature parameter set. `MATRIXSCROLL_PQC` still names the set it enables
+  (`MATRIXSCROLL_PQC=ml-dsa-87`); `0`, `false`, `off` and `no` disable the
+  overlay. It is parameter-set readiness through liboqs, not CNSA certification,
+  FIPS CMVP validation, or NSA approval. Callers can still pass `ml-dsa-44` or
+  `ml-dsa-65` explicitly. Existing key files under `~/.matrixscroll/pqc/` are
+  unchanged; a new default only affects newly generated keys. `0.7.0` and
+  earlier default to `ml-dsa-65`.
 - The public README and documentation now lead with the offline verification
   outcome, use explicit verification-boundary sections, and reserve signer
   implementation detail for qualified setup.
