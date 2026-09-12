@@ -135,6 +135,8 @@ def test_signing_with_a_key_set_this_build_lacks_raises_identity_error(
     from matrixscroll.pqc import sign_pqc_block
 
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
+    if not liboqs_family_enabled("ML-DSA"):
+        pytest.skip("this liboqs build has no ML-DSA mechanisms")
     manifest = {"schema": "matrixscroll.test.v0", "payload": "probe-missing-set"}
     sign_pqc_block(manifest, "ml-dsa-87")  # writes the key file for ml-dsa-87
     monkeypatch.setitem(crypto_backend._OQS_RESOLVED, "ml-dsa-87", "")  # this build "lacks" it now
