@@ -21,9 +21,11 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
   `sign_manifest_with_pqc` attach the overlay only when you enable it:
   `MATRIXSCROLL_PQC` names the set (`MATRIXSCROLL_PQC=ml-dsa-87`) or the caller
   passes `pqc_algorithm`; `0`, `false`, `off` and `no` disable it, and an unset
-  variable leaves the manifest Ed25519-only. `matrixscroll sign` and the MCP
-  server sign Ed25519 only, as in 0.7.0. It is parameter-set readiness
-  through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
+  variable leaves the manifest Ed25519-only. `matrixscroll sign`, the MCP
+  `sign_action` tool and `sign_mcp_manifest` remain Ed25519-only, as in 0.7.0;
+  the MCP `create_envelope` tool signs Git envelopes through
+  `sign_manifest_with_pqc`. It is parameter-set readiness through liboqs, not
+  CNSA certification, FIPS CMVP validation, or NSA approval.
   Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
   files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
   newly generated keys. `0.7.0` and earlier default to `ml-dsa-65`. Status of
