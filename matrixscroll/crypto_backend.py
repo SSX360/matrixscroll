@@ -114,7 +114,12 @@ def oqs_mechanism_name(algorithm: str) -> str | None:
     if algorithm in _OQS_RESOLVED:
         return _OQS_RESOLVED[algorithm] or None
     candidates = _OQS_ALG_CANDIDATES.get(algorithm)
-    if not candidates or not _probe_pqc():
+    if not candidates:
+        return None
+    if not _probe_pqc():
+        # The backend probe is cached for the process too, so a missing liboqs is a
+        # stable negative answer for every identifier.
+        _OQS_RESOLVED[algorithm] = ""
         return None
     import oqs  # type: ignore[import-untyped]
 

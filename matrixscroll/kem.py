@@ -49,7 +49,12 @@ def oqs_kem_mechanism_name(algorithm: str) -> str | None:
     if algorithm in _OQS_KEM_RESOLVED:
         return _OQS_KEM_RESOLVED[algorithm] or None
     candidates = _OQS_KEM_CANDIDATES.get(algorithm)
-    if not candidates or not pqc_available():
+    if not candidates:
+        return None
+    if not pqc_available():
+        # The backend probe is cached for the process too, so a missing liboqs is a
+        # stable negative answer for every identifier.
+        _OQS_KEM_RESOLVED[algorithm] = ""
         return None
     import oqs  # type: ignore[import-untyped]
 
@@ -118,11 +123,16 @@ def kem_decapsulate(algorithm: str, decapsulation_key: bytes, ciphertext: bytes)
     """
     import oqs  # type: ignore[import-untyped]
 
-    with oqs.KeyEncapsulation(_mechanism(algorithm), secret_key=decapsulation_key) as kem:
-        if len(decapsulation_key) != kem.details["length_secret_key"]:
-            raise ValueError(f"decapsulation key must be {kem.details['length_secret_key']} bytes for {algorithm}")
-        if len(ciphertext) != kem.details["length_ciphertext"]:
-            raise ValueError(f"ciphertext must be {kem.details['length_ciphertext']} bytes for {algorithm}")
+    name = _mechanism(algorithm)
+    # Check both lengths before liboqs sees the key: a wrong-length key handed to the
+    # constructor would surface as a backend error, not as this module's ValueError.
+    with oqs.KeyEncapsulation(name) as probe:
+        details = probe.details
+    if len(decapsulation_key) != details["length_secret_key"]:
+        raise ValueError(f"decapsulation key must be {details['length_secret_key']} bytes for {algorithm}")
+    if len(ciphertext) != details["length_ciphertext"]:
+        raise ValueError(f"ciphertext must be {details['length_ciphertext']} bytes for {algorithm}")
+    with oqs.KeyEncapsulation(name, secret_key=decapsulation_key) as kem:
         return bytes(kem.decap_secret(ciphertext))
 
 
