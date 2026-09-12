@@ -38,17 +38,20 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
 ### Added
 - **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
   list (FIPS 205 Category 5 hash-based options), schema, and CLI choices.
-- **NIST ACVP known-answer tests** for the overlay: `vectors/acvp-sigver-fips204-fips205.json`
-  carries a subset of the ACVP-Server sigVer sample vectors for ML-DSA-87,
-  SLH-DSA-SHA2-256s and SLH-DSA-SHA2-256f (external interface, pure variant)
-  with the NIST tcIds, verdicts, reason strings and the SHA-256 of each source
-  file, plus NIST sigGen expected signatures over an empty context restated as
-  positive cases; `tests/test_acvp_sigver.py` verifies the valid ones through
-  `pqc_verify` and rejects the modified ones through the same liboqs mechanism
-  the overlay uses. This is an evidence mapping to NIST sample vectors, not a
-  certification claim (`docs/CRYPTO_ROADMAP.md`). `tests/test_pqc.py` now signs,
-  verifies and rejects a tampered signature for every identifier in
-  `PQC_ALGORITHMS`.
+- **NIST ACVP vectors** for the overlay: `vectors/acvp-sigver-fips204-fips205.json`
+  carries a subset of the ACVP-Server sample vectors for ML-DSA-87,
+  SLH-DSA-SHA2-256s and SLH-DSA-SHA2-256f (external interface, pure variant):
+  sigVer cases with the NIST tcIds, verdicts and reason strings, and sigGen
+  expected signatures over an empty context restated as positive cases. The
+  provenance block records the URL and SHA-256 of each source file. This is an
+  evidence mapping to NIST sample vectors, not a certification claim
+  (`docs/CRYPTO_ROADMAP.md`).
+- **`tests/test_acvp_sigver.py`** verifies the NIST-valid signatures through
+  `pqc_verify` and rejects the NIST-modified inputs through the same liboqs
+  mechanism the overlay uses; the provenance check runs without liboqs.
+- **`tests/test_pqc.py`** signs, verifies and rejects a tampered signature for
+  every identifier in `PQC_ALGORITHMS`, and checks that a key file naming a set
+  the build does not enable fails through `IdentityError`.
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
