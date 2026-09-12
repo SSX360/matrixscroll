@@ -56,12 +56,22 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
   provenance block records the URL and SHA-256 of each source file. This is an
   evidence mapping to NIST sample vectors, not a certification claim
   (`docs/CRYPTO_ROADMAP.md`).
-- **`tests/test_acvp_sigver.py`** verifies the NIST-valid signatures through
-  `pqc_verify` and rejects the NIST-modified inputs through the same liboqs
-  mechanism the overlay uses; the provenance check runs without liboqs.
+- **`tests/test_acvp_sigver.py`** verifies the NIST-valid empty-context
+  signatures through `pqc_verify`, verifies and rejects the context-string
+  cases through liboqs's `verify_with_ctx_str` on the same mechanism the
+  overlay uses, and treats a wrong-length signature as invalid without calling
+  the verifier; the provenance check runs without liboqs.
 - **`tests/test_pqc.py`** signs, verifies and rejects a tampered signature for
   every identifier in `PQC_ALGORITHMS`, and checks that a key file naming a set
   the build does not enable fails through `IdentityError`.
+- **`matrixscroll.kem`** (CNSA 2.0 full-suite track, in progress): ML-KEM-1024
+  and ML-KEM-768 key generation, encapsulation and decapsulation through liboqs,
+  with deterministic key generation from the FIPS 203 seed. No envelope or
+  export format uses the module yet; `docs/CRYPTO_ROADMAP.md` names the sealed
+  evidence-pack design that will. `vectors/acvp-mlkem-fips203.json` and
+  `tests/test_acvp_mlkem.py` check it against the NIST ACVP sample vectors
+  (keyGen, decapsulation of NIST ciphertexts, implicit rejection of modified
+  ciphertexts); evidence mapping, not a certification claim.
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
