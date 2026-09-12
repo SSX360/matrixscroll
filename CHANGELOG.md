@@ -38,9 +38,33 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
 ### Added
 - **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
   list (FIPS 205 Category 5 hash-based options), schema, and CLI choices.
+- **NIST ACVP known-answer tests** for the overlay: `vectors/acvp-sigver-fips204-fips205.json`
+  carries a subset of the ACVP-Server sigVer sample vectors for ML-DSA-87,
+  SLH-DSA-SHA2-256s and SLH-DSA-SHA2-256f (external interface, pure variant)
+  with the NIST tcIds, verdicts, reason strings and the SHA-256 of each source
+  file; `tests/test_acvp_sigver.py` verifies the valid ones and rejects the
+  modified ones through the same liboqs mechanism the overlay uses.
+  `tests/test_pqc.py` now signs, verifies and rejects a tampered signature for
+  every identifier in `PQC_ALGORITHMS`.
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
+
+### Fixed
+- **SLH-DSA identifiers now resolve against liboqs.** The overlay mapped the
+  `slh-dsa-*` identifiers to mechanism names liboqs does not expose
+  (`SLH-DSA-SHA2-256s`), so every SLH-DSA key generation, signature and
+  verification raised `MechanismNotSupportedError` on liboqs 0.16. The backend
+  now resolves each identifier against `oqs.get_enabled_sig_mechanisms()`
+  (`SLH_DSA_PURE_SHA2_256S` on liboqs 0.13 and later, the hyphenated spelling as
+  a fallback) and reports an unsupported set as `IdentityError` with the liboqs
+  version. ML-DSA was unaffected.
+- **`pqc_available()` no longer flips to true on the second call.** The probe
+  cached its negative result as an empty string and returned it unchanged on
+  later calls, so any second query reported the backend as present without
+  liboqs installed and the next signing call failed with a raw import error
+  instead of `IdentityError`. Found by the new tests, which query the probe
+  from two modules.
 
 ## [0.7.0] - 2026-08-11
 
