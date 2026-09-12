@@ -2,12 +2,16 @@
 
 The vectors in ``vectors/acvp-sigver-fips204-fips205.json`` are copied from the
 NIST ACVP-Server gen-val sample files (external interface, pure variant). Each
-test names its NIST tcId and expected verdict. The tests run the vectors through
-the same liboqs mechanism that ``matrixscroll.crypto_backend.pqc_verify`` uses,
-so they check two things at once: that the backend verifies what NIST says is
-valid and rejects what NIST says is invalid, and that the name mapping from
-Matrix Scroll's algorithm identifiers to liboqs mechanisms is the FIPS 204 /
-FIPS 205 pure variant and not something else.
+test names its NIST tcId and expected verdict. sigVer groups carry NIST's valid
+and deliberately modified inputs; sigGen groups carry NIST's expected signatures
+over an empty context string, restated as positive verification cases. The tests
+run the vectors through the same liboqs mechanism that
+``matrixscroll.crypto_backend.pqc_verify`` uses, so they check three things: that
+the overlay's own empty-context path accepts NIST-valid signatures, that the
+backend rejects what NIST says is invalid, and that the name mapping from Matrix
+Scroll's algorithm identifiers to liboqs mechanisms is the FIPS 204 / FIPS 205
+pure variant and not something else. This is an evidence mapping to NIST sample
+vectors, not a certification claim (see docs/CRYPTO_ROADMAP.md).
 
 Every test skips when liboqs is not installed. Tests with a non-empty context
 string need a liboqs-python build that exposes ``verify_with_ctx_str``.
@@ -34,18 +38,18 @@ _ALGORITHM_IDS = {
 pytestmark = pytest.mark.skipif(not pqc_available(), reason="liboqs PQC backend not installed")
 
 
-def _load_cases() -> list[tuple[str, dict]]:
+def _load_cases() -> list[tuple[str, str, dict]]:
     doc = json.loads(VECTORS.read_text(encoding="utf-8"))
-    cases: list[tuple[str, dict]] = []
+    cases: list[tuple[str, str, dict]] = []
     for group in doc["groups"]:
         for test in group["tests"]:
-            cases.append((group["algorithm"], test))
+            cases.append((group["algorithm"], group["mode"], test))
     return cases
 
 
-def _case_id(case: tuple[str, dict]) -> str:
-    algorithm, test = case
-    return f"{algorithm}-tc{test['tcId']}-{'valid' if test['testPassed'] else 'invalid'}"
+def _case_id(case: tuple[str, str, dict]) -> str:
+    algorithm, mode, test = case
+    return f"{algorithm}-{mode}-tc{test['tcId']}-{'valid' if test['testPassed'] else 'invalid'}"
 
 
 CASES = _load_cases()
@@ -59,6 +63,15 @@ def test_vector_file_declares_its_provenance() -> None:
         assert len(source["sha256"]) == 64
     assert {g["algorithm"] for g in doc["groups"]} == set(_ALGORITHM_IDS)
     assert all(g["signatureInterface"] == "external" and g["preHash"] == "pure" for g in doc["groups"])
+    assert all(g["source"] in prov["sources"] for g in doc["groups"])
+    # Every parameter set has at least one NIST-valid signature over an empty context,
+    # so the overlay's own verify path (pqc_verify) is exercised positively for each.
+    for parameter_set in _ALGORITHM_IDS:
+        assert any(
+            g["algorithm"] == parameter_set and t["testPassed"] and not t.get("context")
+            for g in doc["groups"]
+            for t in g["tests"]
+        ), f"no valid empty-context vector for {parameter_set}"
 
 
 def _liboqs_family_enabled(family: str) -> bool:
@@ -85,10 +98,10 @@ def test_mechanism_resolves_to_the_pure_fips_variant(parameter_set: str) -> None
 
 
 @pytest.mark.parametrize("case", CASES, ids=_case_id)
-def test_acvp_sigver_vector(case: tuple[str, dict]) -> None:
+def test_acvp_sigver_vector(case: tuple[str, str, dict]) -> None:
     import oqs  # type: ignore[import-untyped]
 
-    parameter_set, test = case
+    parameter_set, _mode, test = case
     algorithm = _ALGORITHM_IDS[parameter_set]
     mechanism = oqs_mechanism_name(algorithm)
     if not mechanism:
@@ -103,10 +116,9 @@ def test_acvp_sigver_vector(case: tuple[str, dict]) -> None:
         with oqs.Signature(mechanism) as sig:
             if not hasattr(sig, "verify_with_ctx_str"):
                 pytest.skip("liboqs-python build has no verify_with_ctx_str")
-            try:
-                verdict = bool(sig.verify_with_ctx_str(message, signature, context, public_key))
-            except Exception:
-                verdict = False
+            # An exception here is a test failure, not a negative verdict: NIST's modified
+            # inputs keep valid lengths, so the verifier must answer, not raise.
+            verdict = bool(sig.verify_with_ctx_str(message, signature, context, public_key))
     else:
         # The empty-context path is exactly what Matrix Scroll's overlay uses.
         verdict = pqc_verify(algorithm, public_key, message, signature)
