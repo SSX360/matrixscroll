@@ -117,6 +117,7 @@ include = [
     "/schemas",
     "/examples",
     "/tests",
+    "/tools/independent_verify.py",
     "/vectors",
     "/README.md",
     "/LICENSE",

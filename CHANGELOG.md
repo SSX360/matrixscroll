@@ -64,6 +64,13 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
 - **`tests/test_pqc.py`** signs, verifies and rejects a tampered signature for
   every identifier in `PQC_ALGORITHMS`, and checks that a key file naming a set
   the build does not enable fails through `IdentityError`.
+- **`tools/independent_verify.py`**, a second implementation of the verifier
+  written from SPEC.md alone: its own canonical serializer, a pure-Python
+  RFC 8032 Ed25519, the device-id derivation and the section 6 procedure, with
+  no import from the SDK (the section 11 overlay is checked when liboqs is
+  present). `tests/test_independent_verifier.py` holds it against the SDK on
+  every committed vector, on 500 random documents and on fresh signatures; the
+  README's "Ten-minute check for reviewers" names the commands.
 - **`matrixscroll.kem`** (CNSA 2.0 full-suite track, in progress): ML-KEM-1024
   and ML-KEM-768 key generation, encapsulation and decapsulation through liboqs,
   with deterministic key generation from the FIPS 203 seed. No envelope or

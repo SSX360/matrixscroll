@@ -28,6 +28,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 - [Sign and verify from the CLI](#sign-and-verify-from-the-cli)
 - [Verification boundaries](#verification-boundaries)
 - [Verify the release](#verify-the-release)
+- [Ten-minute check for reviewers](#ten-minute-check-for-reviewers)
 - [Security and license](#security-and-license)
 
 ## Install the MCP server
@@ -241,6 +242,16 @@ The response names the GitHub publisher:
 ```
 
 Compare the attested `subject[].digest.sha256` value with the SHA-256 digest of the file you downloaded. Stop if the repository, workflow, or digest differs.
+
+## Ten-minute check for reviewers
+
+Five questions a programme manager or auditor asks first, each with the command that answers it. Everything below runs offline from a clone of this repository with `pip install "matrixscroll[pqc]==0.8.0"` (the `pqc` extra is needed only for the last two lines of question 3).
+
+1. **Does it run in one command, offline?** `matrixscroll verify vectors/valid_simple.json` prints `"ok": true` and exits `0`; `matrixscroll verify vectors/tampered_field.json` prints `"ok": false` and exits `2`. Neither command opens a network connection. Exit codes are fixed in [docs/reference/exit-codes.md](https://github.com/SSX360/matrixscroll/blob/main/docs/reference/exit-codes.md).
+2. **Is there a second implementation of the verifier?** `python tools/independent_verify.py vectors/` re-implements SPEC.md sections 3 to 6 from the text, with its own canonical serializer and a pure-Python RFC 8032 Ed25519, and imports nothing from the SDK. It must reach the same verdict as the SDK on every committed vector and on 500 randomly generated documents; `tests/test_independent_verifier.py` enforces that in CI on every change.
+3. **Are the vectors committed?** `vectors/valid_*.json`, `tampered_*.json` and `unsigned_*.json` are the conformance set (CC0 1.0); `vectors/acvp-sigver-fips204-fips205.json` and `vectors/acvp-mlkem-fips203.json` are NIST ACVP sample vectors with source URLs and SHA-256 digests. `python -m pytest tests/test_vectors.py tests/test_independent_verifier.py -q` runs the conformance set; `python -m pytest tests/test_acvp_sigver.py tests/test_acvp_mlkem.py -q` runs the NIST vectors through liboqs.
+4. **Is the boundary stated?** [Verification boundaries](#verification-boundaries) above, [docs/CRYPTO_ROADMAP.md](https://github.com/SSX360/matrixscroll/blob/main/docs/CRYPTO_ROADMAP.md) (Shipping now / In progress / Not, with policy dates) and [docs/COMPARISON.md](https://github.com/SSX360/matrixscroll/blob/main/docs/COMPARISON.md) (a dated landscape and the claims Matrix Scroll does not make). Compliance language everywhere is evidence mapping, not a certification claim.
+5. **Are the design rules checked by a model checker?** `formal/tla/` holds TLA+ models of the canonical bytes, the dual signature and the Scroll Gate range rules; `.github/workflows/formal-verify.yml` runs TLC on all seven configurations on every change to them. The models check the design, not the Python implementation; the tests above check the implementation. [docs/WHITEPAPER.md](https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md) is the written account of the protocol.
 
 ## Security and license
 
