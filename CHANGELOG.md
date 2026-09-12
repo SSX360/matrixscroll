@@ -42,10 +42,13 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
   carries a subset of the ACVP-Server sigVer sample vectors for ML-DSA-87,
   SLH-DSA-SHA2-256s and SLH-DSA-SHA2-256f (external interface, pure variant)
   with the NIST tcIds, verdicts, reason strings and the SHA-256 of each source
-  file; `tests/test_acvp_sigver.py` verifies the valid ones and rejects the
-  modified ones through the same liboqs mechanism the overlay uses.
-  `tests/test_pqc.py` now signs, verifies and rejects a tampered signature for
-  every identifier in `PQC_ALGORITHMS`.
+  file, plus NIST sigGen expected signatures over an empty context restated as
+  positive cases; `tests/test_acvp_sigver.py` verifies the valid ones through
+  `pqc_verify` and rejects the modified ones through the same liboqs mechanism
+  the overlay uses. This is an evidence mapping to NIST sample vectors, not a
+  certification claim (`docs/CRYPTO_ROADMAP.md`). `tests/test_pqc.py` now signs,
+  verifies and rejects a tampered signature for every identifier in
+  `PQC_ALGORITHMS`.
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
