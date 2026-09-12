@@ -105,9 +105,14 @@ _OQS_RESOLVED: dict[str, str] = {}
 
 
 def oqs_mechanism_name(algorithm: str) -> str | None:
-    """Return the liboqs mechanism identifier enabled for ``algorithm``, or None."""
+    """Return the liboqs mechanism identifier enabled for ``algorithm``, or None.
+
+    Both outcomes are cached per process: a resolved name, and "" for an identifier
+    that this liboqs build does not enable, so repeated calls for an unsupported set
+    do not re-query the mechanism list.
+    """
     if algorithm in _OQS_RESOLVED:
-        return _OQS_RESOLVED[algorithm]
+        return _OQS_RESOLVED[algorithm] or None
     candidates = _OQS_ALG_CANDIDATES.get(algorithm)
     if not candidates or not _probe_pqc():
         return None
@@ -121,6 +126,7 @@ def oqs_mechanism_name(algorithm: str) -> str | None:
         if name in enabled:
             _OQS_RESOLVED[algorithm] = name
             return name
+    _OQS_RESOLVED[algorithm] = ""
     return None
 
 
