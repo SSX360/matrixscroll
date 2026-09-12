@@ -7,6 +7,14 @@ file. The expected result is encoded in the filename prefix:
 Hardware acceptance vectors from the SSX360 USB signer live in [`se050/`](se050/).
 See that README for the fixture naming convention.
 
+Post-quantum signature-verification vectors live in
+`acvp-sigver-fips204-fips205.json`: a subset of the NIST ACVP-Server gen-val
+sample files for ML-DSA-87 (FIPS 204) and SLH-DSA-SHA2-256s/256f (FIPS 205),
+external interface, pure variant, with the NIST tcIds, verdicts and reason
+strings, and the URL and SHA-256 of each source file. `tests/test_acvp_sigver.py`
+runs them through the liboqs mechanism that the overlay uses; it skips when
+`matrixscroll[pqc]` is not installed.
+
 | Prefix | Expected `verify_manifest` result |
 | ------ | --------------------------------- |
 | `valid_*.json`    | **true** — well-formed, signed, untampered. |
