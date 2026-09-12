@@ -87,23 +87,48 @@ def sha256_hex(data: bytes) -> str:
 
 # --- Post-quantum (ML-DSA / SLH-DSA) via liboqs when matrixscroll[pqc] is installed ---
 
-_OQS_ALG: dict[str, str] = {
-    "ml-dsa-44": "ML-DSA-44",
-    "ml-dsa-65": "ML-DSA-65",
-    "ml-dsa-87": "ML-DSA-87",
-    "slh-dsa-sha2-128s": "SLH-DSA-SHA2-128s",
-    "slh-dsa-sha2-128f": "SLH-DSA-SHA2-128f",
-    "slh-dsa-sha2-256s": "SLH-DSA-SHA2-256s",
-    "slh-dsa-sha2-256f": "SLH-DSA-SHA2-256f",
+# liboqs mechanism identifiers, first match wins. liboqs 0.13 and later name the
+# FIPS 205 pure variants SLH_DSA_PURE_SHA2_256S and so on; the hyphenated spellings
+# are kept as fallbacks for builds that expose them.
+_OQS_ALG_CANDIDATES: dict[str, tuple[str, ...]] = {
+    "ml-dsa-44": ("ML-DSA-44",),
+    "ml-dsa-65": ("ML-DSA-65",),
+    "ml-dsa-87": ("ML-DSA-87",),
+    "slh-dsa-sha2-128s": ("SLH_DSA_PURE_SHA2_128S", "SLH-DSA-SHA2-128s"),
+    "slh-dsa-sha2-128f": ("SLH_DSA_PURE_SHA2_128F", "SLH-DSA-SHA2-128f"),
+    "slh-dsa-sha2-256s": ("SLH_DSA_PURE_SHA2_256S", "SLH-DSA-SHA2-256s"),
+    "slh-dsa-sha2-256f": ("SLH_DSA_PURE_SHA2_256F", "SLH-DSA-SHA2-256f"),
 }
 
 _PQC_BACKEND: str | None = None
+_OQS_RESOLVED: dict[str, str] = {}
+
+
+def oqs_mechanism_name(algorithm: str) -> str | None:
+    """Return the liboqs mechanism identifier enabled for ``algorithm``, or None."""
+    if algorithm in _OQS_RESOLVED:
+        return _OQS_RESOLVED[algorithm]
+    candidates = _OQS_ALG_CANDIDATES.get(algorithm)
+    if not candidates or not _probe_pqc():
+        return None
+    import oqs  # type: ignore[import-untyped]
+
+    try:
+        enabled = set(oqs.get_enabled_sig_mechanisms())
+    except Exception:
+        enabled = set()
+    for name in candidates:
+        if name in enabled:
+            _OQS_RESOLVED[algorithm] = name
+            return name
+    return None
 
 
 def _probe_pqc() -> str | None:
     global _PQC_BACKEND
     if _PQC_BACKEND is not None:
-        return _PQC_BACKEND
+        # "" is the cached negative result; report it as None on every call, not only the first.
+        return _PQC_BACKEND or None
     try:
         import oqs  # type: ignore[import-untyped]
 
@@ -137,9 +162,9 @@ def pqc_sign(algorithm: str, secret_key: bytes, message: bytes) -> bytes:
         raise RuntimeError("PQC backend not available")
     import oqs  # type: ignore[import-untyped]
 
-    oqs_name = _OQS_ALG.get(algorithm)
+    oqs_name = oqs_mechanism_name(algorithm)
     if not oqs_name:
-        raise ValueError(f"unsupported PQC algorithm: {algorithm}")
+        raise ValueError(f"unsupported PQC algorithm for this liboqs build: {algorithm}")
     with oqs.Signature(oqs_name, secret_key=secret_key) as sig:
         return sig.sign(message)
 
@@ -150,7 +175,7 @@ def pqc_verify(algorithm: str, public_key: bytes, message: bytes, signature: byt
         return False
     import oqs  # type: ignore[import-untyped]
 
-    oqs_name = _OQS_ALG.get(algorithm)
+    oqs_name = oqs_mechanism_name(algorithm)
     if not oqs_name:
         return False
     try:
@@ -162,6 +187,7 @@ def pqc_verify(algorithm: str, public_key: bytes, message: bytes, signature: byt
 
 __all__ = [
     "backend_info",
+    "oqs_mechanism_name",
     "ed25519_private_seed",
     "ed25519_public_key_bytes",
     "ed25519_sign",

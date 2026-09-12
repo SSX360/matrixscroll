@@ -18,19 +18,15 @@ from .constants import (
     PQC_IDENTITY_SCHEMA,
     PQC_SIGNATURE_SCHEMA,
 )
-from .crypto_backend import pqc_available, pqc_backend_info, pqc_sign, pqc_verify
+from .crypto_backend import (
+    oqs_mechanism_name,
+    pqc_available,
+    pqc_backend_info,
+    pqc_sign,
+    pqc_verify,
+)
 from .errors import IdentityError
 from .providers.emulated import store_dir
-
-_OQS_NAME: dict[str, str] = {
-    "ml-dsa-44": "ML-DSA-44",
-    "ml-dsa-65": "ML-DSA-65",
-    "ml-dsa-87": "ML-DSA-87",
-    "slh-dsa-sha2-128s": "SLH-DSA-SHA2-128s",
-    "slh-dsa-sha2-128f": "SLH-DSA-SHA2-128f",
-    "slh-dsa-sha2-256s": "SLH-DSA-SHA2-256s",
-    "slh-dsa-sha2-256f": "SLH-DSA-SHA2-256f",
-}
 
 
 def normalize_pqc_algorithm(value: str | None) -> str:
@@ -110,7 +106,12 @@ def load_pqc_keypair(algorithm: str | None = None) -> tuple[str, bytes, bytes]:
 def _generate_keypair(algorithm: str) -> tuple[bytes, bytes]:
     import oqs  # type: ignore[import-untyped]
 
-    oqs_name = _OQS_NAME[algorithm]
+    oqs_name = oqs_mechanism_name(algorithm)
+    if not oqs_name:
+        raise IdentityError(
+            f"PQC algorithm {algorithm!r} is not enabled in this liboqs build "
+            f"({pqc_backend_info().get('liboqs_version', 'unknown')})."
+        )
     with oqs.Signature(oqs_name) as sig:
         public_key = sig.generate_keypair()
         secret_key = sig.export_secret_key()
