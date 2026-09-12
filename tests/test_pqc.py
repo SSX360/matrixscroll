@@ -19,6 +19,7 @@ from matrixscroll.manifest import (
 from matrixscroll.policy import VerifyPolicy, verify_manifest_with_policy
 from matrixscroll.errors import IdentityError
 from matrixscroll.pqc import attach_pqc_overlay, configured_pqc_algorithm
+from tests._pqc_support import liboqs_family_enabled
 
 pytestmark = pytest.mark.skipif(not pqc_available(), reason="liboqs PQC backend not installed")
 
@@ -99,18 +100,6 @@ def test_configured_pqc_algorithm(monkeypatch: pytest.MonkeyPatch) -> None:
     assert configured_pqc_algorithm() is None
 
 
-def _liboqs_family_enabled(family: str) -> bool:
-    """True when this liboqs build ships the family ("ML-DSA" or "SLH-DSA") at all.
-
-    A build without the family skips the test; a build with the family but an identifier
-    that does not resolve fails it, so a broken name mapping cannot hide behind a skip.
-    """
-    import oqs  # type: ignore[import-untyped]
-
-    enabled = {name.upper().replace("_", "-") for name in oqs.get_enabled_sig_mechanisms()}
-    return any(name.startswith(family) for name in enabled)
-
-
 @pytest.mark.parametrize("algorithm", sorted(PQC_ALGORITHMS))
 def test_every_listed_algorithm_signs_and_verifies(
     algorithm: str, monkeypatch: pytest.MonkeyPatch, tmp_path
@@ -124,7 +113,7 @@ def test_every_listed_algorithm_signs_and_verifies(
 
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     family = "ML-DSA" if algorithm.startswith("ml-dsa") else "SLH-DSA"
-    if not _liboqs_family_enabled(family):
+    if not liboqs_family_enabled(family):
         pytest.skip(f"this liboqs build has no {family} mechanisms")
     assert oqs_mechanism_name(algorithm), f"{algorithm} does not resolve to an enabled liboqs mechanism"
     manifest = {"schema": "matrixscroll.test.v0", "payload": f"probe-{algorithm}"}
@@ -135,3 +124,19 @@ def test_every_listed_algorithm_signs_and_verifies(
     raw[0] ^= 0x01
     tampered = dict(block, value=base64.b64encode(bytes(raw)).decode("ascii"))
     assert not verify_pqc_block(manifest, tampered)
+
+
+def test_signing_with_a_key_set_this_build_lacks_raises_identity_error(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """An existing key file naming a set the build does not enable fails through IdentityError,
+    the same contract as key generation, not through the backend's ValueError."""
+    from matrixscroll import crypto_backend
+    from matrixscroll.pqc import sign_pqc_block
+
+    monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
+    manifest = {"schema": "matrixscroll.test.v0", "payload": "probe-missing-set"}
+    sign_pqc_block(manifest, "ml-dsa-87")  # writes the key file for ml-dsa-87
+    monkeypatch.setitem(crypto_backend._OQS_RESOLVED, "ml-dsa-87", "")  # this build "lacks" it now
+    with pytest.raises(IdentityError, match="not enabled in this liboqs build"):
+        sign_pqc_block(manifest, "ml-dsa-87")

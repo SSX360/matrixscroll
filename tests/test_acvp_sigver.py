@@ -13,8 +13,9 @@ Scroll's algorithm identifiers to liboqs mechanisms is the FIPS 204 / FIPS 205
 pure variant and not something else. This is an evidence mapping to NIST sample
 vectors, not a certification claim (see docs/CRYPTO_ROADMAP.md).
 
-Every test skips when liboqs is not installed. Tests with a non-empty context
-string need a liboqs-python build that exposes ``verify_with_ctx_str``.
+The provenance test needs only the JSON and runs everywhere; the other tests skip
+when liboqs is not installed. Tests with a non-empty context string need a
+liboqs-python build that exposes ``verify_with_ctx_str``.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from pathlib import Path
 import pytest
 
 from matrixscroll.crypto_backend import oqs_mechanism_name, pqc_available, pqc_verify
+from tests._pqc_support import liboqs_family_enabled
 
 VECTORS = Path(__file__).resolve().parent.parent / "vectors" / "acvp-sigver-fips204-fips205.json"
 
@@ -35,7 +37,9 @@ _ALGORITHM_IDS = {
     "SLH-DSA-SHA2-256f": "slh-dsa-sha2-256f",
 }
 
-pytestmark = pytest.mark.skipif(not pqc_available(), reason="liboqs PQC backend not installed")
+# The provenance test reads only the JSON and runs everywhere; the two liboqs-dependent
+# tests carry the skip themselves.
+needs_liboqs = pytest.mark.skipif(not pqc_available(), reason="liboqs PQC backend not installed")
 
 
 def _load_cases() -> list[tuple[str, str, dict]]:
@@ -74,14 +78,7 @@ def test_vector_file_declares_its_provenance() -> None:
         ), f"no valid empty-context vector for {parameter_set}"
 
 
-def _liboqs_family_enabled(family: str) -> bool:
-    """True when this liboqs build ships the family ("ML-DSA" or "SLH-DSA") at all."""
-    import oqs  # type: ignore[import-untyped]
-
-    enabled = {name.upper().replace("_", "-") for name in oqs.get_enabled_sig_mechanisms()}
-    return any(name.startswith(family) for name in enabled)
-
-
+@needs_liboqs
 @pytest.mark.parametrize("parameter_set", sorted(_ALGORITHM_IDS))
 def test_mechanism_resolves_to_the_pure_fips_variant(parameter_set: str) -> None:
     """The identifier must resolve to the pure (non-prehash, SHA2) mechanism of its family.
@@ -90,13 +87,14 @@ def test_mechanism_resolves_to_the_pure_fips_variant(parameter_set: str) -> None
     so a wrong name mapping is reported as a failure and not hidden as a skip.
     """
     family = "ML-DSA" if parameter_set.startswith("ML-DSA") else "SLH-DSA"
-    if not _liboqs_family_enabled(family):
+    if not liboqs_family_enabled(family):
         pytest.skip(f"this liboqs build has no {family} mechanisms")
     name = oqs_mechanism_name(_ALGORITHM_IDS[parameter_set])
     assert name, f"{parameter_set} does not resolve to an enabled liboqs mechanism"
     assert "PREHASH" not in name.upper() and "SHAKE" not in name.upper()
 
 
+@needs_liboqs
 @pytest.mark.parametrize("case", CASES, ids=_case_id)
 def test_acvp_sigver_vector(case: tuple[str, str, dict]) -> None:
     import oqs  # type: ignore[import-untyped]

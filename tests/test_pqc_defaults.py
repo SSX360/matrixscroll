@@ -32,11 +32,36 @@ def test_legacy_parameter_sets_remain_selectable() -> None:
         assert normalize_pqc_algorithm(algo) == algo
 
 
-def test_pqc_probe_is_stable_across_calls() -> None:
-    """The cached negative probe must not turn into a positive answer on the second call."""
+def test_pqc_probe_negative_result_stays_negative(monkeypatch) -> None:
+    """With liboqs absent, the cached negative probe answers False on every call.
+
+    Release 0.7.0 returned the cached "" on the second call, which pqc_available()
+    read as True. The import is forced to fail here so the negative path is tested
+    whether or not liboqs is installed.
+    """
+    import sys
+
     from matrixscroll import crypto_backend
 
-    first = crypto_backend.pqc_available()
-    second = crypto_backend.pqc_available()
-    third = crypto_backend.pqc_available()
-    assert first == second == third
+    monkeypatch.setattr(crypto_backend, "_PQC_BACKEND", None)
+    monkeypatch.setitem(sys.modules, "oqs", None)  # makes `import oqs` raise ImportError
+    assert crypto_backend.pqc_available() is False
+    assert crypto_backend.pqc_available() is False
+    assert crypto_backend.pqc_available() is False
+    assert crypto_backend.pqc_backend_info()["pqc_available"] == "false"
+
+
+def test_pqc_probe_positive_result_stays_positive(monkeypatch) -> None:
+    """With a backend that imports, the probe answers True on every call."""
+    import sys
+    import types
+
+    from matrixscroll import crypto_backend
+
+    fake = types.ModuleType("oqs")
+    fake.oqs_version = lambda: "0.0-test"  # type: ignore[attr-defined]
+    monkeypatch.setattr(crypto_backend, "_PQC_BACKEND", None)
+    monkeypatch.setitem(sys.modules, "oqs", fake)
+    assert crypto_backend.pqc_available() is True
+    assert crypto_backend.pqc_available() is True
+    assert crypto_backend.pqc_backend_info()["liboqs_version"] == "0.0-test"
