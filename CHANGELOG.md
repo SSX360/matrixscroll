@@ -6,6 +6,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-12
+
+Default post-quantum signature set moves to the CNSA 2.0 parameter set. No
+wire-format change; Ed25519 remains the default signature scheme and the
+post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
+
 ### Changed
 - **Default PQC algorithm is now `ml-dsa-87`.** When `MATRIXSCROLL_PQC` enables
   the overlay without naming a set, and when `matrixscroll pqc-keygen` is run
@@ -14,8 +20,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
   Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
   files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
-  newly generated keys. Published PyPI `0.7.0` still defaults to `ml-dsa-65`
-  until this change ships in a release.
+  newly generated keys. `0.7.0` and earlier default to `ml-dsa-65`.
 - The public README and documentation now lead with the offline verification
   outcome, use explicit verification-boundary sections, and reserve signer
   implementation detail for qualified setup.
@@ -408,6 +413,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.8.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.8.0
 [0.7.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.7.0
 [0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4
 [0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3

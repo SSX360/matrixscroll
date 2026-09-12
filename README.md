@@ -31,7 +31,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 Install the current release from PyPI:
 
 ```bash
-pip install "matrixscroll[mcp]==0.7.0"
+pip install "matrixscroll[mcp]==0.8.0"
 ```
 
 Register the stdio server in your MCP client:
@@ -59,7 +59,7 @@ After your client connects, call `status`. The server reports the local identity
 
 ## MCP tools
 
-The `0.7.0` server exposes these tools:
+The `0.8.0` server exposes these tools:
 
 | Tool | What it does | Network or write behavior |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ An API key is optional. Local signing, offline verification, MCP manifest checks
 Matrix Scroll records an MCP server's tool names, descriptions, and input schemas in a signed manifest. Re-scan the server after an update and compare it with the install-time baseline.
 
 ```bash
-pip install "matrixscroll[mcp]==0.7.0"
+pip install "matrixscroll[mcp]==0.8.0"
 
 matrixscroll mcp scan \
   --connect stdio \
@@ -124,7 +124,7 @@ matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 Install the hardware and MCP extras:
 
 ```bash
-pip install "matrixscroll[mcp,hardware]==0.7.0"
+pip install "matrixscroll[mcp,hardware]==0.8.0"
 ```
 
 Set the hardware provider and USB CDC port before starting the MCP server.
@@ -181,7 +181,7 @@ The host receives only the public material needed to verify the record. Qualifie
 The Python package includes a CLI and Git hooks for workflows that do not use MCP.
 
 ```bash
-pip install "matrixscroll==0.7.0"
+pip install "matrixscroll==0.8.0"
 matrixscroll hook-install
 
 export MATRIXSCROLL_ACTOR_TYPE=ci
@@ -204,10 +204,10 @@ matrixscroll verify release.signed.json
 
 <!-- vale ai-tells.ShipOveruse = NO -->
 
-- Release: PyPI `matrixscroll==0.7.0` installs the 14-tool stdio MCP server and Git hooks. The release also includes the MCP Trust Scanner, offline verification, and USB signer host integration.
+- Release: PyPI `matrixscroll==0.8.0` installs the 14-tool stdio MCP server and Git hooks. The release also includes the MCP Trust Scanner, offline verification, and USB signer host integration.
 - Hardware supply: SSX360 produces the USB signer and supplies it after a direct inquiry. PyPI distributes the host software.
 - Hosted tools: `list_envelopes` and the hosted modes of `verify_pr_range` and `audit_export` require `SSX360_API_KEY` and a deployed SSX360 API. Local signing and verification remain available without a key.
-- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). This tree defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment; published PyPI `0.7.0` still defaults to `ml-dsa-65` until a release ships the change. That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
+- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). Release `0.8.0` defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment (`0.7.0` and earlier default to `ml-dsa-65`; pass `--algorithm` or `MATRIXSCROLL_PQC` to choose a set explicitly). That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
 - Verification scope: an Ed25519 signature proves that the signed bytes match and correspond to the included public key. A trusted-key and authorization policy establishes whether the declared `actor_type` can perform the action.
 - Adjacent controls: identity and access management, sandboxing, prompt filtering, and agent runtime policy remain separate controls.
 
@@ -217,11 +217,11 @@ matrixscroll verify release.signed.json
 
 GitHub Actions publishes each Matrix Scroll release through PyPI Trusted Publishing. PyPI records a PEP 740 attestation for the wheel and source distribution.
 
-Ask PyPI for the `0.7.0` wheel provenance:
+Ask PyPI for the `0.8.0` wheel provenance:
 
 ```bash
 curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
-  https://pypi.org/integrity/matrixscroll/0.7.0/matrixscroll-0.7.0-py3-none-any.whl/provenance
+  https://pypi.org/integrity/matrixscroll/0.8.0/matrixscroll-0.8.0-py3-none-any.whl/provenance
 ```
 
 The response names the GitHub publisher:

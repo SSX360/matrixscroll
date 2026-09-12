@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.7.0"
+version = "0.8.0"
 description = "MCP server for signed machine-action records, offline tool-surface checks, and SSX360 USB signer support."
 readme = "README.md"
 requires-python = ">=3.10"
