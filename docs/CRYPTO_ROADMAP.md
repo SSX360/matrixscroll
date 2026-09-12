@@ -38,7 +38,8 @@ otherwise noted, and that SLH-DSA is not part of CNSA 2.0. The CNSA 2.0 advisory
 | Software overlay `slh-dsa-sha2-256s` / `256f` | **Shipping now** | FIPS 205 Category 5 hash-based options; SLH-DSA is not a CNSA 2.0 algorithm |
 | Software overlay `slh-dsa-sha2-128s` / `128f` | **Shipping now** | Smaller SLH-DSA sets; not Category 5 |
 | NIST ACVP known-answer tests for the overlay | **Shipping now** | `vectors/acvp-sigver-fips204-fips205.json` and `tests/test_acvp_sigver.py` (0.8.0): ML-DSA-87 and SLH-DSA-SHA2-256s/f sample vectors from the NIST ACVP-Server; evidence mapping, not a CAVP or CMVP validation |
-| ML-KEM-1024 in Matrix Scroll envelopes | **Not** | Envelopes are signature-only; KEM is out of band |
+| ML-KEM-1024 primitives (`matrixscroll.kem`) | **In progress** | Key generation, encapsulation and decapsulation through liboqs with NIST ACVP known-answer tests (0.8.0); no envelope or export format uses them yet |
+| ML-KEM-1024 in Matrix Scroll envelopes | **Not** | Envelopes are signature-only; the sealed evidence-pack design below is where key establishment enters |
 | LMS / XMSS (SP 800-208) firmware signing | **Not** | Stateful hash-based signatures need state management the file-backed signer does not provide |
 | FN-DSA (FIPS 206) | **Not** | NIST has not published the draft standard as of 12 September 2026; no implementation until a final standard |
 | Hardware PQC (ML-DSA-87 on SE050 class) | **In progress** | NXP's SE050 and SE051 data sheets list no PQC algorithm; PQC signing stays software-only until a secure element ships it |
@@ -78,6 +79,24 @@ TBD            Hardware PQC firmware (SE050 class). Same verifier API, new algor
 Post-sunset    Ed25519-only envelopes rejected when org policy mandates PQC
 ```
 
+## CNSA 2.0 full-suite track (in progress)
+
+The shipped overlay is a hybrid: Ed25519 stays the base scheme and ML-DSA-87 is
+attached beside it. The full CNSA 2.0 suite also names ML-KEM-1024 for key
+establishment. This track takes both Category 5 algorithms from the parameter
+table into working code, in this order.
+
+| Step | What it delivers | Status | Evidence |
+| ---- | ---------------- | ------ | -------- |
+| 1. ML-KEM-1024 primitives | `matrixscroll.kem`: `kem_generate_keypair`, `kem_encapsulate`, `kem_decapsulate`, deterministic key generation from the FIPS 203 seed `d \|\| z` | **Shipping now** (0.8.0) | `tests/test_acvp_mlkem.py` against `vectors/acvp-mlkem-fips203.json`: 5 keyGen, 18 decapsulation (8 NIST ciphertexts, 10 decapsulation cases including implicit rejection) |
+| 2. Sealed evidence packs | An `evidence-pack` export encrypted to an auditor's public key with a hybrid X25519 + ML-KEM-1024 key agreement (the combiner follows the TLS hybrid construction), AES-256-GCM for the body, and the pack digest signed with Ed25519 plus ML-DSA-87 | **In progress** (schema `schemas/sealed-evidence-pack.v1.json` in design; no format shipped) | Design review against RFC 9954 and draft-ietf-tls-ecdhe-mlkem; ACVP vectors for the KEM half already pass |
+| 3. ML-DSA-87 as a first-class signature | A verifier profile that accepts an ML-DSA-87 signature without an Ed25519 companion once an organisation's policy sets a sunset date | **In progress** (policy field designed; `require_pqc` exists, PQC-only acceptance does not) | `formal/tla/DualSignature.tla` extended before code |
+| 4. Hardware ML-DSA-87 | The SSX360 USB signer signing ML-DSA-87 in a secure element | **Not** until a secure element ships FIPS 204 in firmware; NXP's SE050 and SE051 data sheets list none as of September 2026 | Vendor roadmap tracking; TPM 2.0 library specification revision 185 (March 2026) adds ML-DSA to the TPM side |
+
+Each step keeps the claim discipline above: NIST sample vectors show that the
+implementation computes what the standard says; they are not a CAVP certificate
+or a CMVP validation, and the liboqs caveat applies to every step.
+
 ## What we verify today
 
 1. **Ed25519** over canonical manifest bytes (`signature` block, RFC 8032).
@@ -93,7 +112,7 @@ Post-sunset    Ed25519-only envelopes rejected when org policy mandates PQC
 | FIPS 204 (final 13 August 2024) | ML-DSA (Dilithium) | Primary PQC signature | `ml-dsa-44/65/87` via liboqs; default `ml-dsa-87` |
 | FIPS 205 (final 13 August 2024) | SLH-DSA (SPHINCS+) | Hash-based backup | `slh-dsa-sha2-128s/f` and `256s/f` |
 | FIPS 206 (draft not yet published) | FN-DSA (Falcon) | Compact lattice signature | Not implemented; waits for the final standard |
-| FIPS 203 (final 13 August 2024) | ML-KEM (Kyber) | Key establishment | Out of scope for signature-only envelopes |
+| FIPS 203 (final 13 August 2024) | ML-KEM (Kyber) | Key establishment | `ml-kem-1024` and `ml-kem-768` primitives in `matrixscroll.kem` (in progress); not used by any envelope format yet |
 | RFC 9881 (October 2025) | ML-DSA in X.509 | Certificate profile | Not used; envelopes carry raw public keys, not certificates |
 
 Enable: `pip install "matrixscroll[pqc]==0.7.0"` and `MATRIXSCROLL_PQC=ml-dsa-87`
