@@ -8,7 +8,7 @@ import os
 import pytest
 
 from matrixscroll.canonical import canonical_bytes, canonical_bytes_pqc
-from matrixscroll.constants import DEFAULT_PQC_ALGORITHM
+from matrixscroll.constants import DEFAULT_PQC_ALGORITHM, PQC_ALGORITHMS
 from matrixscroll.crypto_backend import pqc_available
 from matrixscroll.manifest import (
     sign_manifest,
@@ -98,3 +98,26 @@ def test_configured_pqc_algorithm(monkeypatch: pytest.MonkeyPatch) -> None:
     assert configured_pqc_algorithm() == "ml-dsa-44"
     monkeypatch.setenv("MATRIXSCROLL_PQC", "off")
     assert configured_pqc_algorithm() is None
+
+
+@pytest.mark.parametrize("algorithm", sorted(PQC_ALGORITHMS))
+def test_every_listed_algorithm_signs_and_verifies(
+    algorithm: str, monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """Each identifier in PQC_ALGORITHMS must resolve to an enabled liboqs mechanism,
+    generate a key, sign, verify, and reject a tampered signature."""
+    import base64
+
+    from matrixscroll.crypto_backend import oqs_mechanism_name
+    from matrixscroll.pqc import sign_pqc_block, verify_pqc_block
+
+    monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
+    assert oqs_mechanism_name(algorithm), f"{algorithm} is not enabled in this liboqs build"
+    manifest = {"schema": "matrixscroll.test.v0", "payload": f"probe-{algorithm}"}
+    block = sign_pqc_block(manifest, algorithm)
+    assert block["algorithm"] == algorithm
+    assert verify_pqc_block(manifest, block)
+    raw = bytearray(base64.b64decode(block["value"]))
+    raw[0] ^= 0x01
+    tampered = dict(block, value=base64.b64encode(bytes(raw)).decode("ascii"))
+    assert not verify_pqc_block(manifest, tampered)

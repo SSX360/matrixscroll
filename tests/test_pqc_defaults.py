@@ -30,3 +30,13 @@ def test_legacy_parameter_sets_remain_selectable() -> None:
     for algo in ("ml-dsa-44", "ml-dsa-65", "slh-dsa-sha2-128s", "slh-dsa-sha2-128f"):
         assert algo in PQC_ALGORITHMS
         assert normalize_pqc_algorithm(algo) == algo
+
+
+def test_pqc_probe_is_stable_across_calls() -> None:
+    """The cached negative probe must not turn into a positive answer on the second call."""
+    from matrixscroll import crypto_backend
+
+    first = crypto_backend.pqc_available()
+    second = crypto_backend.pqc_available()
+    third = crypto_backend.pqc_available()
+    assert first == second == third
