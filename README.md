@@ -7,11 +7,15 @@ Signed machine-action records with offline verification for MCP, Git, and CI.
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
+![SSX360 USB signer: a machined black enclosure with a USB-C port, two light bars and a display reading VERIFIED](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
+
+*The SSX360 USB signer (product visualization, September 2026). It holds the Ed25519 signing key in an NXP SE050 secure element behind an RP2350 USB bridge; the host never sees the private key. See [Use the SSX360 USB signer](#use-the-ssx360-usb-signer).*
+
 An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline.
 
 The `matrixscroll-mcp` stdio server exposes 14 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, agent traces, and the SSX360 USB signer. Local signing and verification need no cloud account.
 
-SSX360 has completed and produced the USB signer shown below. SSX360 supplies it by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
+SSX360 has completed and produced the USB signer shown above. SSX360 supplies it by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
 
 Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and the specification and vectors are CC0 1.0.
 
@@ -117,9 +121,9 @@ matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 
 ## Use the SSX360 USB signer
 
-![SSX360 USB signer product visualization](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
+![Sign round-trip sequence: the host sends GEN_KEY, GET_PUBKEY and SIGN commands to the RP2350 USB bridge, which drives the SE050 secure element; the key is generated in-chip and never exported](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer-round-trip.jpg)
 
-*Product visualization of the finished SSX360 USB signer. Supplied configurations can vary in enclosure details. The product documentation supplied with each unit names that configuration's signing boundary.*
+*The sign round trip. The Ed25519 key pair is generated inside the SE050 and is non-exportable; the host receives the 32-byte public key and 64-byte signatures. The product visualization at the top of this page shows the finished unit; supplied configurations can vary in enclosure details, and the product documentation supplied with each unit names that configuration's signing boundary.*
 
 Install the hardware and MCP extras:
 
@@ -247,6 +251,8 @@ Matrix Scroll code is licensed under Apache-2.0. [`SPEC.md`](https://github.com/
 | --- | --- |
 | Tombstone / schemas | [matrixscroll.com](https://matrixscroll.com/) |
 | Documentation | [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs) |
+| Where Matrix Scroll fits (dated comparison) | [docs/COMPARISON.md](https://github.com/SSX360/matrixscroll/blob/main/docs/COMPARISON.md) |
+| Cryptographic roadmap (Ed25519, ML-DSA-87 overlay, policy dates) | [docs/CRYPTO_ROADMAP.md](https://github.com/SSX360/matrixscroll/blob/main/docs/CRYPTO_ROADMAP.md) |
 | Offline verification | [CLI guide](https://github.com/SSX360/matrixscroll#sign-and-verify-from-the-cli) |
 | Protocol specification | [SPEC.md](https://github.com/SSX360/matrixscroll/blob/main/SPEC.md) |
 | Source repository | [github.com/SSX360/matrixscroll](https://github.com/SSX360/matrixscroll) |

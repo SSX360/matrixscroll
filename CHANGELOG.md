@@ -34,6 +34,16 @@ post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
 - The public README and documentation now lead with the offline verification
   outcome, use explicit verification-boundary sections, and reserve signer
   implementation detail for qualified setup.
+- **Documentation refreshed against the standards status of 12 September 2026.**
+  `docs/CRYPTO_ROADMAP.md` gains a policy-dates table (CNSSP-15 and the CNSA 2.0
+  FAQ v2.1, Executive Order 14412 and OMB M-26-15, the Department of War PQC
+  strategy, the NIST IR 8547 draft) and rows for FIPS 206, ML-KEM, LMS/XMSS and
+  the ACVP tests; `docs/COMPARISON.md` gains a dated landscape section (Sigstore,
+  GitHub attestations, gittuf, forge commit signing, MCP scanners, 2025-2026
+  agent-receipt projects) and a list of claims Matrix Scroll does not make. The
+  README and the documentation home open with the SSX360 USB signer render
+  (`docs/images/ssx360-usb-signer.jpg`, replaced) and the signer section shows
+  the sign round-trip sequence.
 
 ### Added
 - **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
