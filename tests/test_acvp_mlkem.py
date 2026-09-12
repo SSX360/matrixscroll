@@ -115,4 +115,6 @@ def test_round_trip_and_wrong_key(algorithm: str) -> None:
     with pytest.raises(ValueError):
         kem_decapsulate(algorithm, dk, ciphertext[:-1])
     with pytest.raises(ValueError):
+        kem_decapsulate(algorithm, dk[:-1], ciphertext)
+    with pytest.raises(ValueError):
         kem_encapsulate(algorithm, ek[:-1])
