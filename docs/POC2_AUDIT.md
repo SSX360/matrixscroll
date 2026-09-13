@@ -14,6 +14,7 @@ baseline.
 | GitHub Action | `SSX360/matrixscroll/.github/actions/verify@action-v1` |
 | Protocol source | [`SPEC.md`](../SPEC.md) and [`schemas/`](../schemas/) |
 | Security policy | [`SECURITY.md`](../SECURITY.md) — supported versions **0.7.x–0.9.x** |
+| Release evidence log | [`docs/EVIDENCE.md`](EVIDENCE.md) — digests, PEP 740 provenance, PQC boundary |
 | Public git history | Begins at the supported 0.9.0 line; earlier history is not published |
 
 ## Verification behavior

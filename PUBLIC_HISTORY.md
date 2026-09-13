@@ -16,4 +16,5 @@ those copies as untrusted for protocol or transport reconstruction. Prefer a
 fresh clone after the reset.
 
 For release evidence suitable for proposal packages, see
-[`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md) and [`SECURITY.md`](SECURITY.md).
+[`docs/EVIDENCE.md`](docs/EVIDENCE.md), [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
+and [`SECURITY.md`](SECURITY.md).

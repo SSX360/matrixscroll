@@ -97,7 +97,7 @@ Use [`SSX360/matrixscroll/.github/actions/verify@action-v1`](https://github.com/
    PR commits before merge.
 
 **Time anchoring:** envelope `signed_at` is informational only. Use Git commit
-graph order or ledger insertion order for chronology â€” not self-reported timestamps.
+graph order or ledger insertion order for chronology - not self-reported timestamps.
 
 ## Recommended PR flow
 
@@ -118,7 +118,7 @@ graph order or ledger insertion order for chronology â€” not self-reported 
    matrixscroll envelope-publish-notes --base origin/main --head HEAD
    git push origin refs/notes/matrixscroll
    ```
-3. In GitHub **Settings â†’ Branches â†’ Branch protection** for `main`:
+3. In GitHub **Settings -> Branches -> Branch protection** for `main`:
    - Require status check: **Verify PR commit envelope range** (or your workflow job name)
    - Require branches to be up to date before merging
 4. Optional policy file `.github/trusted-keys.json`:

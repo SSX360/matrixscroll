@@ -200,6 +200,7 @@ Matrix Scroll code is licensed under Apache-2.0. [`SPEC.md`](https://github.com/
 
 | Resource | Link |
 | --- | --- |
+| Release evidence (digests, provenance, PQC boundary) | [docs/EVIDENCE.md](https://github.com/SSX360/matrixscroll/blob/main/docs/EVIDENCE.md) |
 | Tombstone / schemas | [matrixscroll.com](https://matrixscroll.com/) |
 | Documentation | [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs) |
 | Where Matrix Scroll fits (dated comparison) | [docs/COMPARISON.md](https://github.com/SSX360/matrixscroll/blob/main/docs/COMPARISON.md) |

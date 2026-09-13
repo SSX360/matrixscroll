@@ -1,6 +1,6 @@
 ﻿# Cryptographic roadmap: Ed25519 today, post-quantum overlay, Q-Day migration
 
-**Status:** CNSA 2.0 parameter readiness Â· September 2026 (standards status checked 12 September 2026)  
+**Status:** CNSA 2.0 parameter readiness - September 2026 (standards status checked 12 September 2026)
 **Audience:** Security reviewers, enterprise pilots, protocol implementers
 
 ## Executive summary

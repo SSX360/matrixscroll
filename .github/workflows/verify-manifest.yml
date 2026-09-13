@@ -23,6 +23,7 @@ jobs:
       - run: pip install -e ".[dev,pqc]"
       - run: pytest tests/test_vectors.py tests/test_canonical_pqc.py -v
       - run: pytest tests/test_pqc.py tests/test_policy.py -v
+      - run: pytest tests/test_acvp_sigver.py tests/test_acvp_mlkem.py tests/test_sealed.py tests/test_independent_verifier.py -v
 
   verify-signed-examples:
     runs-on: ubuntu-latest

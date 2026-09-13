@@ -11,7 +11,7 @@ This guide details how to submit the `matrixscroll-mcp` server to all major MCP 
   1. Every `@mcp.tool()` declares MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`).
   2. Tool docstrings include **when to use**, **when not to use**, sibling alternatives, side effects, and return shape.
   3. Pydantic `Field(description=...)` on every parameter (Glama introspection reads `tools/list` JSON Schema).
-  4. CI guard: `tests/test_mcp_server.py::MCPToolDefinitionTests` asserts â‰¥80% schema description coverage.
+  4. CI guard: `tests/test_mcp_server.py::MCPToolDefinitionTests` asserts >=80% schema description coverage.
 - **How to publish / re-sync:**
   1. **Publish to PyPI first**, then bump `glama.json` `packages[].version` (Glama installs the PyPI pin, and a pin ahead of PyPI fails the build, as in commit `453a3ef`).
   2. CI guards: `scripts/validate_glama_pypi.py` and `scripts/glama_stdio_smoke.py` (PyPI install + stdio `tools/list`).
