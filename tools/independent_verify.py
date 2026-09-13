@@ -15,9 +15,14 @@ run it over ``vectors/`` and compare its verdicts with ``matrixscroll verify``.
 
 Usage::
 
-    python tools/independent_verify.py vectors/            # verdict per file, exit 0 when all match
+    python tools/independent_verify.py vectors/            # verdict per file
     python tools/independent_verify.py --json vectors/     # machine-readable
     python tools/independent_verify.py --canonical FILE    # hex of the canonical signing bytes
+
+The exit status is 0 when every verdict matches the expectation in its file name
+(``valid_*``, ``tampered_*``, ``unsigned_*``) and every file without such a name
+verifies; it is 1 when a verdict contradicts its name or an unnamed file is
+invalid or unreadable, and 2 when no files were given.
 
 The optional post-quantum overlay (SPEC.md section 11) is checked when
 ``liboqs-python`` is importable; otherwise it is reported as not checked. Nothing
@@ -159,7 +164,7 @@ def _point_equal(a, b) -> bool:
 def _recover_x(y: int, sign: int):
     if y >= _P:
         return None
-    x2 = (y * y - 1) * _inv(_D * y * y + 1)
+    x2 = (y * y - 1) * _inv(_D * y * y + 1) % _P
     if x2 == 0:
         return None if sign else 0
     x = pow(x2, (_P + 3) // 8, _P)
@@ -187,16 +192,28 @@ def _point_decompress(raw: bytes):
 _G_Y = 4 * _inv(5) % _P
 _G_X = _recover_x(_G_Y, 0)
 _G = (_G_X, _G_Y, 1, _G_X * _G_Y % _P)
+_IDENTITY = (0, 1, 1, 0)
+
+
+def _has_small_order(point) -> bool:
+    """True for the eight points of the torsion subgroup, the identity included.
+
+    A public key of small order makes the verification equation hold for a
+    signature that needs no private key (R the identity, S zero), so such keys
+    and such R values are rejected, as libsodium does. The SDK keeps the same
+    rule as a blocklist of encodings (``crypto_backend.ed25519_point_is_acceptable``).
+    """
+    return _point_equal(_point_mul(8, point), _IDENTITY)
 
 
 def ed25519_verify(public_key: bytes, message: bytes, signature: bytes) -> bool:
     if len(public_key) != 32 or len(signature) != 64:
         return False
     a = _point_decompress(public_key)
-    if a is None:
+    if a is None or _has_small_order(a):
         return False
     r = _point_decompress(signature[:32])
-    if r is None:
+    if r is None or _has_small_order(r):
         return False
     s = int.from_bytes(signature[32:], "little")
     if s >= _Q:
@@ -244,12 +261,34 @@ def verify_ed25519_block(manifest: object) -> tuple[bool, str]:
 
 
 def verify_pqc_blocks(manifest: dict) -> tuple[str, str]:
-    """Return (status, detail): 'absent', 'valid', 'invalid' or 'not-checked'."""
+    """Return (status, detail): 'absent', 'valid', 'invalid' or 'not-checked'.
+
+    The structural rules of SPEC.md section 11 (schema, allowed algorithm, strict
+    base64 fields, a canonical encoding that exists) are checked first and without
+    liboqs, so a malformed block is 'invalid' whether or not the backend is
+    installed; only the signature check itself can be 'not-checked'.
+    """
     blocks = manifest.get("pqc_signatures")
     if blocks is None:
         return "absent", "no pqc_signatures array"
     if not isinstance(blocks, list) or not blocks:
         return "invalid", "pqc_signatures is not a non-empty array"
+    decoded: list[tuple[str, bytes, bytes]] = []
+    for index, block in enumerate(blocks):
+        if not isinstance(block, dict) or block.get("schema") != PQC_SCHEMA:
+            return "invalid", f"block {index}: schema is not {PQC_SCHEMA}"
+        algorithm = block.get("algorithm")
+        if algorithm not in PQC_MECHANISMS:
+            return "invalid", f"block {index}: algorithm {algorithm!r} is not allowed"
+        public_key = _b64(block.get("public_key"))
+        signature = _b64(block.get("value"))
+        if public_key is None or signature is None:
+            return "invalid", f"block {index}: public_key or value is not strict base64"
+        decoded.append((algorithm, public_key, signature))
+    try:
+        message = canonical_bytes(manifest)
+    except (TypeError, ValueError) as exc:
+        return "invalid", f"canonical encoding failed: {exc}"
     try:
         import oqs  # type: ignore[import-untyped]
     except Exception:
@@ -258,27 +297,17 @@ def verify_pqc_blocks(manifest: dict) -> tuple[str, str]:
         enabled = set(oqs.get_enabled_sig_mechanisms())
     except Exception:
         return "not-checked", "liboqs mechanism list unavailable"
-    message = canonical_bytes(manifest)
-    for index, block in enumerate(blocks):
-        if not isinstance(block, dict) or block.get("schema") != PQC_SCHEMA:
-            return "invalid", f"block {index}: schema is not {PQC_SCHEMA}"
-        candidates = PQC_MECHANISMS.get(block.get("algorithm"))
-        if not candidates:
-            return "invalid", f"block {index}: algorithm {block.get('algorithm')!r} is not allowed"
-        mechanism = next((name for name in candidates if name in enabled), None)
+    for index, (algorithm, public_key, signature) in enumerate(decoded):
+        mechanism = next((name for name in PQC_MECHANISMS[algorithm] if name in enabled), None)
         if mechanism is None:
-            return "not-checked", f"block {index}: {block.get('algorithm')} is not enabled in this liboqs build"
-        public_key = _b64(block.get("public_key"))
-        signature = _b64(block.get("value"))
-        if public_key is None or signature is None:
-            return "invalid", f"block {index}: public_key or value is not strict base64"
+            return "not-checked", f"block {index}: {algorithm} is not enabled in this liboqs build"
         try:
             with oqs.Signature(mechanism) as sig:
                 ok = bool(sig.verify(message, signature, public_key))
         except Exception as exc:
             return "invalid", f"block {index}: verifier error {exc.__class__.__name__}"
         if not ok:
-            return "invalid", f"block {index}: {block.get('algorithm')} signature does not verify"
+            return "invalid", f"block {index}: {algorithm} signature does not verify"
     return "valid", f"{len(blocks)} pqc block(s) verify over the canonical bytes"
 
 
@@ -349,8 +378,8 @@ def main(argv: list[str] | None = None) -> int:
             flag = "" if r["agrees"] is None else ("  (matches its name)" if r["agrees"] else "  (DOES NOT match its name)")
             pqc = "" if r["pqc"] == "absent" else f"; pqc {r['pqc']}"
             print(f"{'VALID  ' if r['valid'] else 'INVALID'}  {r['file']}: {r['reason']}{pqc}{flag}")
-    mismatches = [r for r in results if r["agrees"] is False]
-    return 1 if mismatches else 0
+    failures = [r for r in results if r["agrees"] is False or (r["agrees"] is None and not r["valid"])]
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
