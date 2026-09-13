@@ -63,6 +63,9 @@ cases including the implicit-rejection values for modified ciphertexts.
 `tests/test_acvp_mlkem.py` runs them through `matrixscroll.kem`. Same
 provenance layout, same evidence-mapping boundary.
 
+Sealed evidence-pack format notes (no fixed ciphertext fixtures) live under
+[`sealed/`](sealed/). Round-trips are in `tests/test_sealed.py`.
+
 ## Public domain
 
 The vectors are dedicated to the public domain under CC0 1.0 so any
