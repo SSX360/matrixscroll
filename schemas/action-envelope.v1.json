@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/action-envelope.v1.json",
+  "title": "Matrix Scroll Action Envelope v1",
+  "type": "object",
+  "required": ["schema", "action_type", "payload", "provenance"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.action_envelope.v1"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "git_commit",
+        "ci_step",
+        "iac_change",
+        "db_migration",
+        "api_call",
+        "contract_deploy"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "description": "Action-specific fields; required keys vary by action_type."
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["actor_type", "tool"],
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": ["human", "agent", "ci"]
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "agent_scope": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "remote": { "type": "string" },
+        "branch": { "type": "string" },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "parent_actions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Optional chain-of-custody links to prior signed action envelope IDs."
+    },
+    "signature": {
+      "$ref": "https://matrixscroll.com/schemas/commit-envelope.v1.json#/$defs/signatureBlock"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "action_type": { "const": "ci_step" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["pipeline", "step", "run_id"],
+            "properties": {
+              "pipeline": { "type": "string" },
+              "step": { "type": "string" },
+              "run_id": { "type": "string" },
+              "outcome": { "type": "string", "enum": ["success", "failure", "skipped"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "iac_change" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["tool", "resource_type", "resource_id"],
+            "properties": {
+              "tool": { "type": "string", "enum": ["terraform", "pulumi", "cloudformation", "other"] },
+              "resource_type": { "type": "string" },
+              "resource_id": { "type": "string" },
+              "plan_digest": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "db_migration" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["migration_id", "database", "direction"],
+            "properties": {
+              "migration_id": { "type": "string" },
+              "database": { "type": "string" },
+              "direction": { "type": "string", "enum": ["up", "down"] },
+              "checksum": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "api_call" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["method", "endpoint", "status_code"],
+            "properties": {
+              "method": { "type": "string" },
+              "endpoint": { "type": "string" },
+              "status_code": { "type": "integer" },
+              "request_digest": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "contract_deploy" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["chain", "contract_address", "tx_hash"],
+            "properties": {
+              "chain": { "type": "string" },
+              "contract_address": { "type": "string" },
+              "tx_hash": { "type": "string" },
+              "bytecode_digest": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

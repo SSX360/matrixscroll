@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/evidence-pack.v1.json",
+  "title": "Matrix Scroll Evidence Pack v1",
+  "type": "object",
+  "required": ["schema", "subject", "artifacts"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.evidence_pack.v1"
+    },
+    "subject": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["commit", "release", "agent_task", "deployment"]
+        },
+        "id": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "ref"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "commit_envelope",
+              "release_manifest",
+              "agentic_ai_evidence",
+              "sbom",
+              "audit_log"
+            ]
+          },
+          "ref": { "type": "string" },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "signature": {
+      "type": "object"
+    }
+  }
+}

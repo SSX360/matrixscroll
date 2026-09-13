@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+
+# Build artifacts
+build/
+dist/
+.wheels/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+onboarding-smoke-summary*.json
+
+# Virtual envs
+.venv/
+venv/
+env/
+.glama-test-venv/
+.glama-sdist-venv/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Secrets and credentials (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+credentials/
+
+# Editor / agent local state
+.cursor/
+.playwright-cli/
+
+# Local operational data (workbench / envelopes)
+data/
+
+# Matrix Scroll local store (never commit a private key)
+.matrixscroll/
+device.json
+session.secret
+credentials.once.txt
+workbench.sqlite3
+
+# TLA+ tools (download locally or in CI)
+tla2tools.jar
+
+# TLC run artifacts
+formal/tla/states/
+formal/tla/*_TTrace_*.tla
+formal/tla/*_TTrace_*.bin
+
+# MkDocs build output
+site/
+
+# Vale packages fetched by `vale sync`; do not commit
+.vale/styles/Google/
+.vale/styles/write-good/
+.vale/styles/ai-tells/
+.vale/styles/ai-tells-commits/
+
+.mcp-resign-home/
+
+
+# Local wheel/sdist verify trees
+dist-verify/
+

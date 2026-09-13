@@ -1,0 +1,71 @@
+{
+  "schema": "matrixscroll.agentic_ai_evidence.v1",
+  "task": {
+    "id": "pilot-code-review-001",
+    "classification": "low-risk bounded pilot",
+    "goal": "Review a non-production pull request and produce findings only",
+    "environment": "sandbox",
+    "allowed_operations": [
+      "read_repository",
+      "write_review_comment"
+    ],
+    "denied_operations": [
+      "merge_pull_request",
+      "push_commit",
+      "modify_secrets",
+      "deploy"
+    ]
+  },
+  "least_privilege": {
+    "resources": [
+      "repo:SSX360/matrixscroll:pull_request:read",
+      "repo:SSX360/matrixscroll:pull_request_review:write"
+    ],
+    "credential_type": "temporary scoped token",
+    "expires_at": "2026-06-19T12:30:00Z",
+    "revocation_required": true
+  },
+  "human_accountability": {
+    "system_owner": "security@matrixscroll.com",
+    "access_approver": "repo-owner",
+    "reviewer_required": true,
+    "break_glass_contact": "security@matrixscroll.com",
+    "kill_switch": "revoke token and disable agent workflow"
+  },
+  "risk_controls": {
+    "threat_model_completed": true,
+    "sensitive_data_allowed": false,
+    "prompt_injection_assumed": true,
+    "network_egress": "deny-by-default",
+    "monitoring": [
+      "tool-call log",
+      "signed manifest",
+      "CI verification gate"
+    ],
+    "incident_plan": "security advisory + token revocation + evidence retention"
+  },
+  "supply_chain": {
+    "model_provider": "local-or-approved-provider",
+    "runtime_dependencies_reviewed": true,
+    "sbom_required": true,
+    "conformance_vectors_required": true
+  },
+  "policy": {
+    "guidance": "Careful Adoption of Agentic AI Services",
+    "control_set": "matrixscroll.agentic_ai_controls.v1",
+    "required_controls": [
+      "AAI-01",
+      "AAI-02",
+      "AAI-03",
+      "AAI-04",
+      "AAI-05",
+      "AAI-06",
+      "AAI-07",
+      "AAI-08",
+      "AAI-09",
+      "AAI-10",
+      "AAI-11",
+      "AAI-12"
+    ]
+  }
+}

@@ -1,0 +1,925 @@
+from __future__ import annotations
+
+"""Matrix Scroll MCP server — provenance verbs only.
+
+Install: ``pip install "matrixscroll[mcp]"``
+Run: ``python -m matrixscroll.mcp``
+
+Tools cover commit envelope production, Scroll Gate verification, notes
+transport, and audit export. All verification is offline and read-only except
+where noted (``create_envelope``, ``publish_notes``, ``audit_export`` write
+local files or git notes).
+"""
+
+from pathlib import Path
+from typing import Annotated, Any, Literal
+
+from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
+from pydantic import Field
+
+from . import mcp_core as core
+from ._schemas import schema_path
+from .cloud.client import CloudAuthError, audit_export as cloud_audit_export
+from .cloud.client import list_envelopes as cloud_list_envelopes
+from .cloud.client import verify_range as cloud_verify_range
+
+# MCP tool annotations for Glama TDQS Behavioral Transparency scoring.
+_READ_ONLY = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=False,
+)
+_WRITE_LOCAL = ToolAnnotations(
+    readOnlyHint=False,
+    destructiveHint=False,
+    idempotentHint=False,
+    openWorldHint=False,
+)
+_HOSTED_NETWORK = ToolAnnotations(
+    readOnlyHint=False,
+    destructiveHint=False,
+    idempotentHint=False,
+    openWorldHint=True,
+)
+
+DOCS_URL = "https://github.com/SSX360/matrixscroll/tree/main/docs"
+
+
+def _require_api_key(feature: str) -> dict[str, Any] | None:
+    """Return structured auth error payload when SSX360_API_KEY is unset."""
+    import os
+
+    if os.environ.get("SSX360_API_KEY", "").strip():
+        return None
+    return {
+        "ok": False,
+        "error": "api_key_required",
+        "message": (
+            f"{feature} reaches the hosted SSX360 API and needs SSX360_API_KEY. "
+            "Verification itself needs no key: call `verify_envelope`, or "
+            "`verify_pr_range` with source local, notes, or bundle. "
+            f"See {DOCS_URL}"
+        ),
+        "docs_url": DOCS_URL,
+    }
+
+
+def _cloud_error(exc: Exception) -> dict[str, Any]:
+    if isinstance(exc, CloudAuthError):
+        return {"ok": False, **exc.payload}
+    return {"ok": False, "error": "cloud_error", "message": str(exc)}
+
+mcp = FastMCP(
+    "matrixscroll-mcp",
+    instructions=(
+        "Matrix Scroll MCP exposes provenance verbs for AI agent governance: "
+        "create and verify RFC 8032 Ed25519 commit envelopes, sign universal action types "
+        "(ci_step, iac_change, db_migration, api_call, contract_deploy), run Scroll Gate "
+        "through local or hosted range verification, publish git notes, and export audit bundles. "
+        "Prefer ``status`` first in a new repo. "
+        "Verification tools are read-only; ``create_envelope``, ``sign_action``, "
+        "``publish_notes``, and ``audit_export`` write local artifacts. Hosted "
+        "Scroll Gate and org-wide audit export require SSX360_API_KEY."
+    ),
+)
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+_SCHEMA_PATH = schema_path("commit-envelope.v1.json")
+_ACTION_SCHEMA_PATH = schema_path("action-envelope.v1.json")
+_MCP_MANIFEST_SCHEMA_PATH = schema_path("ssx360.mcp-manifest.v1.json")
+_SPEC_PATH = _REPO_ROOT / "SPEC.md"
+
+
+@mcp.resource("matrixscroll://schema/commit-envelope.v1")
+def commit_envelope_schema() -> str:
+    """Public JSON Schema for Matrix Scroll commit envelopes (v1)."""
+    if _SCHEMA_PATH.is_file():
+        return _SCHEMA_PATH.read_text(encoding="utf-8")
+    return '{"error":"commit-envelope.v1.json not found in install root"}'
+
+
+@mcp.resource("matrixscroll://schema/action-envelope.v1")
+def action_envelope_schema() -> str:
+    """Public JSON Schema for universal provenance action envelopes (v1)."""
+    if _ACTION_SCHEMA_PATH.is_file():
+        return _ACTION_SCHEMA_PATH.read_text(encoding="utf-8")
+    return '{"error":"action-envelope.v1.json not found in install root"}'
+
+
+@mcp.resource("matrixscroll://schema/ssx360.mcp-manifest.v1")
+def mcp_manifest_schema() -> str:
+    """Public JSON Schema for MCP tool-surface manifests (ssx360.mcp-manifest.v1, CC0)."""
+    if _MCP_MANIFEST_SCHEMA_PATH.is_file():
+        return _MCP_MANIFEST_SCHEMA_PATH.read_text(encoding="utf-8")
+    return '{"error":"ssx360.mcp-manifest.v1.json not found in install root"}'
+
+
+@mcp.resource("matrixscroll://spec")
+def specification() -> str:
+    """Matrix Scroll byte contract and verification rules (SPEC.md)."""
+    if _SPEC_PATH.is_file():
+        return _SPEC_PATH.read_text(encoding="utf-8")
+    return "SPEC.md not found in install root."
+
+
+@mcp.prompt()
+def provenance_report(repo_path: str = ".") -> str:
+    """Guide an agent to produce a provenance audit report for a Git repository."""
+    return (
+        f"Using Matrix Scroll MCP tools, inspect the repository at {repo_path!r}:\n"
+        "1. Call ``status`` to confirm hooks and local envelope count.\n"
+        "2. Call ``verify_pr_range`` with source=notes (or local if notes are missing).\n"
+        "3. Call ``audit_export`` to write an evidence bundle under "
+        "``.matrixscroll/audit-export``.\n"
+        "4. Summarize signed vs unsigned commits, actor types, and any policy failures.\n"
+        "Do not modify source code unless the user explicitly asks."
+    )
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def create_envelope(
+    workspace: Annotated[
+        str,
+        Field(
+            description="Absolute or relative path to the Git repository root. "
+            "Leave empty to auto-detect from the current working directory.",
+        ),
+    ] = "",
+    commit_sha: Annotated[
+        str,
+        Field(
+            description="Existing commit to envelope (full or short SHA). "
+            "Empty uses the staged commit or HEAD depending on hook context.",
+        ),
+    ] = "",
+    actor_type: Annotated[
+        str,
+        Field(
+            description="Provenance actor label recorded in the envelope, e.g. agent, human, or ci.",
+        ),
+    ] = "",
+    tool: Annotated[
+        str,
+        Field(
+            description="Producing tool name recorded in provenance, e.g. cursor or claude-code.",
+        ),
+    ] = "",
+    agent_scope: Annotated[
+        str,
+        Field(
+            description="Optional path or glob limiting what an agent commit claims to touch.",
+        ),
+    ] = "",
+    sign: Annotated[
+        bool,
+        Field(
+            description="When true (default), Ed25519-sign the envelope with the active key store.",
+        ),
+    ] = True,
+    save: Annotated[
+        bool,
+        Field(
+            description="When true (default), persist the envelope under .matrixscroll/envelopes/.",
+        ),
+    ] = True,
+) -> dict[str, Any]:
+    """Create a signed Git commit envelope with Ed25519 provenance metadata.
+
+    Use after staging changes and before or after ``git commit`` when you need
+    commit-time actor/tool proof. Prefer ``sign_action`` for non-Git evidence
+    (CI steps, IaC, migrations). Do not use for verification — call
+    ``verify_envelope`` or ``verify_pr_range`` instead.
+
+    Side effects: may write ``.matrixscroll/envelopes/<sha>.json`` when ``save``
+    is true. Requires a Git repo and Matrix Scroll identity store. No network.
+    Returns ``{ok, sha, envelope, path, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        commit_sha: Existing commit to envelope (defaults to staged/next commit).
+        actor_type: Provenance actor, e.g. agent, human, ci.
+        tool: Producing tool name, e.g. cursor, claude-code.
+        agent_scope: Optional bounded scope path/glob for agent commits.
+        sign: Ed25519-sign the envelope (default True).
+        save: Persist under .matrixscroll/envelopes (default True).
+    """
+    return core.create_envelope(
+        workspace,
+        commit_sha=commit_sha,
+        actor_type=actor_type,
+        tool=tool,
+        agent_scope=agent_scope,
+        sign=sign,
+        save=save,
+    )
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def verify_envelope(
+    workspace: Annotated[
+        str,
+        Field(
+            description="Git repository root. Empty auto-detects from the working directory.",
+        ),
+    ] = "",
+    commit_sha: Annotated[
+        str,
+        Field(
+            description="Commit SHA whose local envelope file should be verified offline.",
+        ),
+    ] = "",
+    envelope: Annotated[
+        str,
+        Field(
+            description="Path to a commit envelope JSON file to verify. Alias for envelope_path; "
+            "use when importing bundles from CI artifacts or audit exports.",
+        ),
+    ] = "",
+    envelope_path: Annotated[
+        str,
+        Field(
+            description="Optional explicit path to an envelope JSON file instead of the default "
+            "``.matrixscroll/envelopes/<sha>.json`` location.",
+        ),
+    ] = "",
+    require_mode: Annotated[
+        str,
+        Field(
+            description="Policy filter on signature mode, e.g. emulated or hardware. "
+            "Empty skips mode enforcement.",
+        ),
+    ] = "",
+    trusted_keys: Annotated[
+        str,
+        Field(
+            description="Path to a JSON policy file listing trusted Ed25519 public keys "
+            "(device_id or base64 public keys). Alias for trusted_keys_file.",
+        ),
+    ] = "",
+    trusted_keys_file: Annotated[
+        str,
+        Field(
+            description="Path to a JSON policy file listing trusted Ed25519 public keys.",
+        ),
+    ] = "",
+    check_expiry: Annotated[
+        bool,
+        Field(
+            description="When true, reject envelopes whose signed delegation or agent-scope "
+            "manifest includes an expired ``expires_at`` timestamp (ISO 8601 UTC).",
+        ),
+    ] = False,
+    require_actor_types: Annotated[
+        list[str] | None,
+        Field(
+            description="If set, fail verification unless provenance.actor_type is in this list.",
+        ),
+    ] = None,
+    deny_actor_types: Annotated[
+        list[str] | None,
+        Field(
+            description="If set, fail verification when provenance.actor_type matches any denied value.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
+    """Verify one signed commit envelope offline against RFC 8032 Ed25519 rules.
+
+    Use for a single commit SHA or explicit envelope JSON file. Prefer
+    ``verify_pr_range`` for PR/branch ranges and ``audit_export`` for procurement
+    bundles spanning many commits. Do not use when you only need hook status —
+    call ``status`` instead.
+
+    Read-only: no network or SSX360_API_KEY required. Does not modify Git state.
+    Returns ``{ok, sha, actor_type, mode, error?, envelope?}``; ``ok`` is false
+    on signature, policy, expiry, or missing-envelope errors.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        commit_sha: Commit SHA to verify (uses local envelope file).
+        envelope / envelope_path: Optional explicit path to envelope JSON.
+        require_mode: Policy filter, e.g. emulated or hardware (empty skips).
+        trusted_keys / trusted_keys_file: JSON file listing trusted public keys.
+        check_expiry: Reject envelopes with expired delegation timestamps.
+        require_actor_types / deny_actor_types: Actor policy allow/deny lists.
+    """
+    resolved_path = envelope_path or envelope
+    keys_file = trusted_keys_file or trusted_keys
+    result = core.verify_envelope(
+        workspace,
+        commit_sha=commit_sha,
+        envelope_path=resolved_path,
+        require_mode=require_mode,
+        trusted_keys_file=keys_file,
+        require_actor_types=require_actor_types,
+        deny_actor_types=deny_actor_types,
+    )
+    if check_expiry and result.get("ok"):
+        envelope_obj = result.get("envelope") or {}
+        provenance = envelope_obj.get("provenance") or {}
+        expires_at = provenance.get("expires_at")
+        if expires_at:
+            from datetime import datetime, timezone
+
+            try:
+                expiry = datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+                if expiry.tzinfo is None:
+                    expiry = expiry.replace(tzinfo=timezone.utc)
+                if expiry < datetime.now(timezone.utc):
+                    return {**result, "ok": False, "error": "envelope_expired", "expires_at": expires_at}
+            except ValueError:
+                pass
+    return result
+
+
+@mcp.tool(annotations=_HOSTED_NETWORK)
+def verify_pr_range(
+    workspace: Annotated[
+        str,
+        Field(description="Git repository root. Empty auto-detects from the working directory."),
+    ] = "",
+    base: Annotated[
+        str,
+        Field(description="Range start Git ref (exclusive), typically origin/main."),
+    ] = "origin/main",
+    head: Annotated[
+        str,
+        Field(description="Range end Git ref (inclusive), e.g. HEAD or a PR head SHA."),
+    ] = "HEAD",
+    source: Annotated[
+        Literal["hosted", "local", "notes", "bundle"],
+        Field(
+            description="Envelope transport: hosted Scroll Gate (default, requires SSX360_API_KEY), "
+            "local files, git notes, or bundle dir for offline verification.",
+        ),
+    ] = "hosted",
+    notes_ref: Annotated[
+        str,
+        Field(description="Git notes ref when source=notes, default refs/notes/matrixscroll."),
+    ] = "refs/notes/matrixscroll",
+    bundle_dir: Annotated[
+        str,
+        Field(description="Directory containing exported envelope bundles when source=bundle."),
+    ] = "",
+    require_mode: Annotated[
+        str,
+        Field(description="Optional policy require_mode filter applied to every commit in the range."),
+    ] = "",
+    trusted_keys_file: Annotated[
+        str,
+        Field(description="Optional JSON file of trusted public keys for the range check."),
+    ] = "",
+    require_actor_types: Annotated[
+        list[str] | None,
+        Field(description="Optional allow-list of provenance.actor_type values."),
+    ] = None,
+    deny_actor_types: Annotated[
+        list[str] | None,
+        Field(description="Optional deny-list of provenance.actor_type values."),
+    ] = None,
+    allow_empty: Annotated[
+        bool,
+        Field(
+            description="Explicitly accept an empty range. Defaults to false and the result remains labelled empty."
+        ),
+    ] = False,
+) -> dict[str, Any]:
+    """Scroll Gate: verify signed/unsigned commits across a PR commit range.
+
+    Use for merge gates and PR review (many commits). Prefer ``verify_envelope``
+    for one commit offline. Prefer ``audit_export`` when auditors need bundles,
+    not pass/fail on a range.
+
+    Hosted mode (default): calls ssx360.com; requires SSX360_API_KEY.
+    Set ``source=local|notes|bundle`` to verify offline without an API key.
+    Read-only for Git refs; hosted mode emits usage to ssx360.com.
+    Returns ``{ok, verified_count, unsigned_shas?, failures?, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        base: Range start ref (exclusive), e.g. origin/main.
+        head: Range end ref (inclusive), e.g. HEAD or PR head SHA.
+        source: Envelope transport — hosted, local, notes, or bundle.
+        notes_ref: Git notes ref when source=notes.
+        bundle_dir: Bundle directory when source=bundle.
+        require_mode: Policy require_mode filter.
+        trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.
+        require_actor_types / deny_actor_types: Actor policy lists.
+        allow_empty: Accept a labelled empty range. Defaults to false.
+    """
+    if source in ("local", "notes", "bundle"):
+        return core.verify_pr_range(
+            workspace,
+            base=base,
+            head=head,
+            source=source,
+            notes_ref=notes_ref,
+            bundle_dir=bundle_dir,
+            require_mode=require_mode,
+            trusted_keys_file=trusted_keys_file,
+            require_actor_types=require_actor_types,
+            deny_actor_types=deny_actor_types,
+            allow_empty=allow_empty,
+        )
+
+    auth_err = _require_api_key("verify_pr_range (hosted Scroll Gate)")
+    if auth_err:
+        return auth_err
+    try:
+        shas = core.commits_for_range(workspace, base=base, head=head)
+        if not shas:
+            result = {
+                "ok": bool(allow_empty),
+                "base": base,
+                "head": head,
+                "total": 0,
+                "verified_count": 0,
+                "empty_range": True,
+                "allow_empty_range": bool(allow_empty),
+            }
+            if not allow_empty:
+                result["error"] = (
+                    f"no commits in range {base or '(root)'}..{head}, so nothing "
+                    "was verified"
+                )
+            return result
+        return cloud_verify_range(
+            base=base,
+            head=head,
+            commits=[{"sha": sha} for sha in shas],
+        )
+    except Exception as exc:
+        return _cloud_error(exc)
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def publish_notes(
+    workspace: Annotated[
+        str,
+        Field(description="Git repository root. Empty auto-detects from the working directory."),
+    ] = "",
+    base: Annotated[
+        str,
+        Field(description="Range start ref (exclusive) for envelopes to publish."),
+    ] = "origin/main",
+    head: Annotated[
+        str,
+        Field(description="Range end ref (inclusive) for envelopes to publish."),
+    ] = "HEAD",
+    notes_ref: Annotated[
+        str,
+        Field(description="Git notes ref to write, default refs/notes/matrixscroll."),
+    ] = "refs/notes/matrixscroll",
+) -> dict[str, Any]:
+    """Publish local signed envelopes to git notes for CI Scroll Gate verification.
+
+    Use after ``create_envelope`` when CI reads ``refs/notes/matrixscroll``.
+    Do not use for offline single-commit checks — call ``verify_envelope``.
+    Do not use for hosted org audit — call ``audit_export`` with SSX360_API_KEY.
+
+    Side effects: updates the local git notes ref only; push
+    ``refs/notes/matrixscroll`` to remote separately. Returns
+    ``{ok, published, notes_ref, error?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+        base: Range start ref (exclusive) for envelopes to publish.
+        head: Range end ref (inclusive) for envelopes to publish.
+        notes_ref: Git notes ref to write (default refs/notes/matrixscroll).
+    """
+    return core.publish_notes(workspace, base=base, head=head, notes_ref=notes_ref)
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def status(workspace: Annotated[
+    str,
+    Field(description="Git repository root. Empty auto-detects from the working directory."),
+] = "") -> dict[str, Any]:
+    """Report hook install state, local envelope count, and Matrix Scroll config.
+
+    Call first in a new repo before any verify/sign tool. Read-only: no Git or
+    filesystem writes, no network. Do not use for signature checks — call
+    ``verify_envelope`` or ``verify_pr_range`` instead.
+
+    Returns ``{ok, config, hook_installed, envelope_count, mode?, device_id?}``.
+
+    Parameters:
+        workspace: Git repo root (defaults to detected repo).
+    """
+    return core.status(workspace)
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def sign_action(
+    action_type: Annotated[
+        str,
+        Field(
+            description="Provenance action type: git_commit, ci_step, iac_change, db_migration, "
+            "api_call, contract_deploy, or custom labels for evidence packs. "
+            "Typed actions validate required payload fields per schemas/action-envelope.v1.json.",
+        ),
+    ],
+    payload: Annotated[
+        dict[str, Any],
+        Field(
+            description="JSON object to sign. Keys are canonicalized before Ed25519 signing per SPEC.md §4. "
+            "Do not include a top-level signature block.",
+        ),
+    ],
+    key_path: Annotated[
+        str,
+        Field(
+            description="Optional override for the Matrix Scroll identity store directory "
+            "(defaults to MATRIXSCROLL_HOME or ~/.matrixscroll). Use for CI ephemeral keys.",
+        ),
+    ] = "",
+    save_path: Annotated[
+        str,
+        Field(
+            description="Optional file path to write the signed document. When empty, returns JSON only.",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Sign a universal provenance action envelope with the active Ed25519 identity.
+
+    Use for CI steps, IaC changes, DB migrations, API calls, contract deploys,
+    or agent delegation grants. Prefer ``create_envelope`` for Git commits.
+    Do not use for verification — call ``verify_envelope`` on exported JSON.
+
+    Side effects: writes ``save_path`` when set; uses local identity store.
+    No network unless you later upload the signed artifact yourself.
+    Returns ``{ok, signed, device_id, mode, path?, error?}``.
+
+    Parameters:
+        action_type: Provenance label (git_commit, ci_step, iac_change, etc.).
+        payload: JSON object to sign (no top-level signature block).
+        key_path: Optional MATRIXSCROLL_HOME override for CI ephemeral keys.
+        save_path: Optional file path to write the signed document.
+    """
+    import json
+    import os
+    from pathlib import Path
+
+    from .provenance import build_action_envelope, sign_action_envelope, validate_action_payload
+    from .manifest import sign_manifest
+
+    prev_home = os.environ.get("MATRIXSCROLL_HOME")
+    if key_path.strip():
+        os.environ["MATRIXSCROLL_HOME"] = key_path.strip()
+    try:
+        body = dict(payload)
+        ok, err = validate_action_payload(action_type, body)
+        if ok and action_type != "git_commit":
+            signed = sign_action_envelope(
+                build_action_envelope(action_type, body)  # type: ignore[arg-type]
+            )
+        else:
+            body.setdefault("action_type", action_type)
+            if not ok and action_type in {
+                "ci_step", "iac_change", "db_migration", "api_call", "contract_deploy"
+            }:
+                return {"ok": False, "error": "invalid_payload", "message": err}
+            signed = sign_manifest(body)
+        if save_path.strip():
+            out = Path(save_path).expanduser()
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "signed": signed,
+            "device_id": signed.get("signature", {}).get("device_id"),
+            "mode": signed.get("signature", {}).get("mode"),
+            "path": save_path or None,
+        }
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+    finally:
+        if key_path.strip():
+            if prev_home is None:
+                os.environ.pop("MATRIXSCROLL_HOME", None)
+            else:
+                os.environ["MATRIXSCROLL_HOME"] = prev_home
+
+
+@mcp.tool(annotations=_HOSTED_NETWORK)
+def audit_export(
+    start_date: Annotated[
+        str,
+        Field(
+            description="ISO 8601 UTC lower bound for audit records (inclusive), e.g. 2026-01-01T00:00:00Z. "
+            "Hosted export filters org audit history; local export filters by commit author date when available.",
+        ),
+    ] = "",
+    end_date: Annotated[
+        str,
+        Field(
+            description="ISO 8601 UTC upper bound for audit records (inclusive), e.g. 2026-06-30T23:59:59Z.",
+        ),
+    ] = "",
+    signer_id: Annotated[
+        str,
+        Field(
+            description="Filter export to envelopes signed by this device_id (MS-XXXX-YYYY) or Ed25519 "
+            "public-key fingerprint. Empty includes all signers in scope.",
+        ),
+    ] = "",
+    format: Annotated[
+        Literal["json", "guac", "evidence-pack"],
+        Field(
+            description="Export serialization: json (envelope bundle), guac (GUAC JSONL ingest), or "
+            "evidence-pack (compliance bundle with verification metadata).",
+        ),
+    ] = "json",
+    include_verification: Annotated[
+        bool,
+        Field(
+            description="When true (default), attach per-envelope verification results and trusted-key "
+            "policy outcomes to the export for auditor replay without re-running Scroll Gate.",
+        ),
+    ] = True,
+    workspace: Annotated[
+        str,
+        Field(
+            description="Git repository root for local fallback export. Empty auto-detects from cwd.",
+        ),
+    ] = "",
+    base: Annotated[
+        str,
+        Field(
+            description="Local-only: Git ref (exclusive) when exporting from git notes or on-disk envelopes.",
+        ),
+    ] = "origin/main",
+    head: Annotated[
+        str,
+        Field(
+            description="Local-only: Git ref (inclusive) when exporting from git notes or on-disk envelopes.",
+        ),
+    ] = "HEAD",
+    output_dir: Annotated[
+        str,
+        Field(
+            description="Local-only: directory for exported files. Relative paths resolve under the repo root.",
+        ),
+    ] = ".matrixscroll/audit-export",
+) -> dict[str, Any]:
+    """Export a compliance or procurement audit bundle with optional verification proofs.
+
+    Use when auditors need envelope bundles (JSON, GUAC JSONL, or evidence-pack).
+    Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.
+    Prefer ``list_envelopes`` to browse hosted metadata without exporting files.
+
+    Hosted mode requires SSX360_API_KEY and calls ssx360.com/api/v1/audit/export.
+    Local fallback: exports from git notes or on-disk envelopes when no API key.
+    Side effects: writes files under ``output_dir`` locally; hosted mode returns
+    download metadata. Returns ``{ok, bundle?, download_url?, error?}``.
+
+    Parameters:
+        start_date / end_date: ISO 8601 UTC bounds (hosted filter).
+        signer_id: Filter by device_id or public-key fingerprint.
+        format: json, guac, or evidence-pack serialization.
+        include_verification: Attach per-envelope verification replay data.
+        workspace / base / head / output_dir: Local fallback range and output path.
+    """
+    auth_err = _require_api_key("audit_export (hosted)")
+    if auth_err is None:
+        try:
+            return cloud_audit_export(
+                format=format,
+                start_date=start_date,
+                end_date=end_date,
+                signer_id=signer_id,
+                include_verification=include_verification,
+            )
+        except Exception as exc:
+            return _cloud_error(exc)
+    if auth_err.get("error") != "api_key_required":
+        return auth_err
+    include_guac = format == "guac"
+    result = core.audit_export(
+        workspace,
+        base=base,
+        head=head,
+        output_dir=output_dir,
+        include_guac=include_guac,
+    )
+    if include_verification:
+        result["include_verification"] = True
+    if signer_id:
+        result["signer_filter"] = signer_id
+    if start_date or end_date:
+        result["date_filter"] = {"start_date": start_date or None, "end_date": end_date or None}
+    return result
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def list_envelopes(
+    limit: Annotated[
+        int,
+        Field(
+            description="Maximum envelopes to return per page (1–200). Default 50. "
+            "Use with offset for paginated audit review in agent workflows.",
+        ),
+    ] = 50,
+    offset: Annotated[
+        int,
+        Field(
+            description="Number of newest matching envelopes to skip before returning results. "
+            "Zero-based pagination index for large org histories.",
+        ),
+    ] = 0,
+    signer_filter: Annotated[
+        str,
+        Field(
+            description="Optional device_id (MS-XXXX-YYYY) or public-key prefix to restrict results "
+            "to envelopes signed by one identity.",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """List commit envelopes stored on ssx360.com for the authenticated organization.
+
+    Use for paginated org triage and agent memory. Requires SSX360_API_KEY.
+    Do not use for offline Git repos — call ``status`` and ``verify_envelope``.
+    Do not use for bulk export — call ``audit_export`` instead.
+
+    Read-only: no local Git writes. Returns ``{ok, envelopes, total?, error?}``.
+
+    Parameters:
+        limit: Maximum envelopes per page (1–200, default 50).
+        offset: Pagination skip index (zero-based).
+        signer_filter: Optional device_id or public-key prefix.
+    """
+    auth_err = _require_api_key("list_envelopes")
+    if auth_err:
+        return auth_err
+    try:
+        return cloud_list_envelopes(limit=limit, offset=offset, signer_filter=signer_filter)
+    except Exception as exc:
+        return _cloud_error(exc)
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def scan_mcp_server(
+    tools: Annotated[
+        list[dict[str, Any]],
+        Field(
+            description="MCP tool definitions (name, description, inputSchema) to fingerprint.",
+        ),
+    ],
+    server_name: Annotated[str, Field(description="Optional MCP server display name.")] = "",
+    server_version: Annotated[str, Field(description="Optional server version.")] = "",
+    server_url: Annotated[str, Field(description="Optional server URL or package registry link.")] = "",
+    package: Annotated[str, Field(description="Optional npm/pypi package coordinate.")] = "",
+) -> dict[str, Any]:
+    """Fingerprint an MCP server's tool surface into an unsigned ssx360.mcp-manifest.v1.
+
+    Use before ``sign_mcp_manifest`` to capture install-time tool names, descriptions,
+    and input schema hashes. Re-scan later and pass results to ``verify_mcp_manifest``
+    with a baseline to detect rug-pull drift. Read-only; no network required when
+    ``tools`` is supplied directly.
+
+    Returns ``{ok, tool_count, surface_hash, manifest}``.
+    """
+    from .mcp_trust import scan_mcp_server as _scan
+
+    return _scan(
+        tools,
+        server_name=server_name,
+        server_version=server_version,
+        server_url=server_url,
+        package=package,
+    )
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def sign_mcp_manifest(
+    manifest: Annotated[
+        dict[str, Any],
+        Field(description="Unsigned ssx360.mcp-manifest.v1 document from scan_mcp_server."),
+    ],
+    save_path: Annotated[
+        str,
+        Field(description="Optional file path to write the signed manifest."),
+    ] = "",
+) -> dict[str, Any]:
+    """Ed25519-sign an MCP tool-surface manifest for offline install verification.
+
+    Use after ``scan_mcp_server``. Prefer ``verify_mcp_manifest`` for checks.
+    Side effects: may write ``save_path``; uses local identity store. No network.
+    Returns ``{ok, signed, device_id, path?, error?}``.
+    """
+    import json
+    from pathlib import Path
+
+    from .mcp_trust import sign_mcp_manifest as _sign
+
+    try:
+        signed = _sign(manifest)
+        if save_path.strip():
+            out = Path(save_path).expanduser()
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(signed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "signed": signed,
+            "device_id": (signed.get("signature") or {}).get("device_id"),
+            "path": save_path or None,
+        }
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def verify_mcp_manifest(
+    manifest: Annotated[
+        dict[str, Any],
+        Field(description="Signed ssx360.mcp-manifest.v1 to verify offline."),
+    ],
+    baseline: Annotated[
+        dict[str, Any] | None,
+        Field(
+            description="Optional baseline signed manifest for rug-pull drift detection.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
+    """Verify a signed MCP manifest and optionally diff against an install-time baseline.
+
+    Use in CI or before trusting an MCP server after upgrade. Read-only; no network.
+    Returns ``{ok, surface_hash, tool_count, drift?, error?}``; ``ok`` is false on
+    bad signature or surface drift vs baseline.
+    """
+    from .mcp_trust import verify_mcp_manifest as _verify
+
+    return _verify(manifest, baseline=baseline)
+
+
+@mcp.tool(annotations=_WRITE_LOCAL)
+def sign_agent_trace(
+    trace_path: Annotated[
+        str,
+        Field(description="Path to a WEB_WIZARD `.traces/<runId>.jsonl` run log."),
+    ],
+    save_path: Annotated[
+        str,
+        Field(
+            description="Optional envelope output path (default: `<trace>.envelope.json`).",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Sign a browser-agent JSONL trace with the active Ed25519 identity.
+
+    Use when a WEB_WIZARD or Steel run completes. Hashes the full trace bytes,
+    records step count and run_id, and writes an offline-verifiable envelope.
+    Side effects: writes envelope file; uses local identity store. No network.
+    Returns ``{ok, signed, path?, error?}``.
+    """
+    from pathlib import Path
+
+    from .agent_trace import sign_agent_trace as _sign
+
+    try:
+        result = _sign(
+            trace_path,
+            envelope_path=save_path.strip() or None,
+        )
+        return result
+    except Exception as exc:
+        return {"ok": False, "error": "sign_failed", "message": str(exc)}
+
+
+@mcp.tool(annotations=_READ_ONLY)
+def verify_agent_trace(
+    envelope_path: Annotated[
+        str,
+        Field(description="Signed matrixscroll.agent_trace.v1 envelope JSON."),
+    ],
+    trace_path: Annotated[
+        str,
+        Field(
+            description="Optional live `.jsonl` path to confirm bytes match the signed hash.",
+        ),
+    ] = "",
+) -> dict[str, Any]:
+    """Verify a signed agent trace envelope offline; optional trace byte check.
+
+    Use in CI or auditor handoff. Read-only; no network.
+    Returns ``{ok, run_id?, step_count?, error?}``.
+    """
+    from .agent_trace import verify_agent_trace as _verify
+
+    try:
+        return _verify(
+            envelope_path,
+            trace_path=trace_path.strip() or None,
+        )
+    except Exception as exc:
+        return {"ok": False, "error": "verify_failed", "message": str(exc)}
+
+
+def main() -> None:
+    """Run the Matrix Scroll MCP server over stdio."""
+    mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()

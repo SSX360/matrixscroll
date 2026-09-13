@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/ssx360.mcp-manifest.v1.json",
+  "title": "SSX360 MCP Tool Surface Manifest v1",
+  "description": "CC0 — Ed25519-signed fingerprint of an MCP server's tool surface for offline verify and drift detection.",
+  "type": "object",
+  "required": ["schema", "scanned_at", "tools", "surface_hash"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "ssx360.mcp-manifest.v1"
+    },
+    "scanned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the tool surface was fingerprinted (ISO 8601)."
+    },
+    "server": {
+      "type": "object",
+      "description": "Optional MCP server metadata captured at scan time.",
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "package": {
+          "type": "string",
+          "description": "npm/pypi package coordinate when applicable."
+        }
+      },
+      "additionalProperties": true
+    },
+    "tools": {
+      "type": "array",
+      "description": "Sorted tool fingerprints (name ascending).",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "input_schema_hash"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "input_schema_hash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "description": "Canonical JSON hash of the MCP tool inputSchema."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "surface_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Aggregate hash over the sorted tools array."
+    },
+    "signature": {
+      "type": "object",
+      "description": "Matrix Scroll Ed25519 signature block (matrixscroll.signature.v1).",
+      "required": ["schema", "algorithm", "device_id", "public_key", "mode", "signed_at", "value"],
+      "properties": {
+        "schema": { "type": "string", "const": "matrixscroll.signature.v1" },
+        "algorithm": { "type": "string", "const": "ed25519" },
+        "device_id": { "type": "string" },
+        "public_key": { "type": "string" },
+        "mode": { "type": "string" },
+        "signed_at": { "type": "string", "format": "date-time" },
+        "value": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

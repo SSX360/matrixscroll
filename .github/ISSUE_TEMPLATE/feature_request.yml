@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest a protocol or SDK enhancement
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What commit-envelope or verification gap does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+    validations:
+      required: true
+  - type: checkboxes
+    id: spec
+    attributes:
+      label: Scope
+      options:
+        - label: This requires a SPEC.md / schema version bump
+          required: false
+        - label: I am willing to open a PR
+          required: false

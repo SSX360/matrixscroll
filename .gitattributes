@@ -1,0 +1,12 @@
+# Normalize text files for public, cross-platform development.
+* text=auto eol=lf
+
+# Keep generated archives binary.
+*.gz binary
+*.zip binary
+*.whl binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary

@@ -1,0 +1,132 @@
+[build-system]
+requires = ["hatchling>=1.31.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "matrixscroll"
+version = "0.9.0"
+description = "MCP server for signed machine-action records, offline tool-surface checks, with device-agnostic custody and CNSA 2.0 Category 5 crypto (ML-DSA-87, ML-KEM-1024)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    { name = "SSX360", email = "security@matrixscroll.com" },
+]
+keywords = [
+    "ed25519",
+    "ml-dsa",
+    "ml-kem",
+    "slh-dsa",
+    "post-quantum",
+    "fips-204",
+    "fips-205",
+    "signing",
+    "authorization",
+    "machine-action",
+    "provenance",
+    "root-of-trust",
+    "supply-chain",
+    "ssx360",
+    "matrixscroll",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "cryptography>=43.0",
+]
+
+[project.optional-dependencies]
+pqc = [
+    "liboqs-python>=0.16.0",
+]
+dev = [
+    "pytest>=9.1.1",
+    "build>=1.5.0",
+    "hypothesis>=6.165.2",
+    "jsonschema>=4.23.0",
+    "PyYAML>=6.0.3",
+    "pytest-cov>=7.1.0",
+]
+git = []
+yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
+tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
+mcp = [
+    # MCP 2.0 removed mcp.server.fastmcp; stay on the verified FastMCP API.
+    "mcp>=1.28.0,<2.0.0",
+]
+
+[project.scripts]
+matrixscroll = "matrixscroll.cli:main"
+matrixscroll-mcp = "matrixscroll.mcp:main"
+ssx360 = "matrixscroll.ssx360_cli:main"
+ssx360-ledger = "matrixscroll.ssx360_cli:ledger_main"
+
+# Every link points at its final destination. The previous set routed
+# Documentation and Verifier through ssx360.com redirects that land on
+# matrixscroll.com, and "Reference Device" pointed at a page that no longer
+# exists. Compare duplicated Documentation.
+[project.urls]
+Homepage = "https://matrixscroll.com"
+Documentation = "https://github.com/SSX360/matrixscroll/tree/main/docs"
+Specification = "https://github.com/SSX360/matrixscroll/blob/main/SPEC.md"
+Verifier = "https://matrixscroll.com/#verify-offline"
+Repository = "https://github.com/SSX360/matrixscroll"
+Source = "https://github.com/SSX360/matrixscroll"
+Issues = "https://github.com/SSX360/matrixscroll/issues"
+Whitepaper = "https://github.com/SSX360/matrixscroll/blob/main/docs/WHITEPAPER.md"
+Changelog = "https://github.com/SSX360/matrixscroll/blob/main/CHANGELOG.md"
+Discussions = "https://github.com/SSX360/matrixscroll/discussions"
+Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
+"GitHub Action" = "https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify"
+Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
+"Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
+"Crypto Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/CRYPTO_ROADMAP.md"
+Maintainer = "https://ssx360.com/about"
+
+[tool.hatch.build.targets.wheel]
+packages = ["matrixscroll"]
+
+# The schemas live at the repository root because SPEC.md and the docs link
+# them there. Map that directory next to the module so `pip install matrixscroll`
+# receives them too. `matrixscroll._schemas` reads this location first and falls
+# back to the repository root for source checkouts.
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "matrixscroll/schemas"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/matrixscroll",
+    "/controls",
+    "/docs",
+    "/schemas",
+    "/examples",
+    "/tests",
+    "/tools/independent_verify.py",
+    "/vectors",
+    "/README.md",
+    "/LICENSE",
+    "/SECURITY.md",
+    "/SPEC.md",
+    "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra"

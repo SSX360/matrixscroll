@@ -1,0 +1,44 @@
+﻿extends: script
+message: "%s"
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: error
+# `raw` gives the script the whole file instead of one block at a time, which is
+# what makes "the hedge may live anywhere in the file" expressible. Vale's
+# `conditional` extension cannot express this: it compares literal capture
+# strings, so it can only assert that a token was previously defined verbatim.
+scope: raw
+script: |
+  text := import("text")
+
+  // Bare "NIST" is deliberately absent. NIST also names cryptographic standards
+  // ("NIST ML-DSA"), which is a technical reference, not a compliance claim.
+  // Only the framework documents belong here.
+  frameworks := ["DORA", "PCI DSS", "EU AI Act", "SOC 2", "NIST SSDF", "SSDF",
+                 "NIST CSF", "NIST 800-53", "FS-AI RMF", "FS AI RMF"]
+
+  hedges := ["evidence mapping", "not a certification claim", "not certification",
+             "does not certify", "produces evidence for", "crosswalk only",
+             "readiness, not", "not a live mandate", "never \"required by\"",
+             "never “required by”", "not an audit opinion"]
+
+  matches := []
+  hedged := false
+
+  for h in hedges {
+    if text.contains(scope, h) {
+      hedged = true
+    }
+  }
+
+  if !hedged {
+    for f in frameworks {
+      idx := text.index(scope, f)
+      if idx > -1 {
+        matches = append(matches, {
+          begin: idx,
+          end: idx + len(f),
+          message: "'" + f + "' is named but this file carries no hedge. Add 'evidence mapping, not a certification claim' (or an equivalent) somewhere in the file."
+        })
+      }
+    }
+  }

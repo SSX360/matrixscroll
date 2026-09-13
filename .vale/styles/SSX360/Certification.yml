@@ -1,0 +1,23 @@
+extends: existence
+message: "Compliance overclaim: '%s'. Matrix Scroll produces evidence; it does not certify. Say 'evidence mapping, not a certification claim'."
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: error
+ignorecase: true
+tokens:
+  - "is (fully |now )?certified"
+  - "are (fully |now )?certified"
+  - "fully certified"
+  - "certified (compliant|to|under|against)"
+  - "SOC 2 certified"
+  - "ISO 27001 certified"
+  - "guarantees? compliance"
+  - "ensures? (you are |your )?compliance"
+  - "makes? (you|your \\w+) compliant"
+  - "compliant with (DORA|PCI|SOC|NIST|the EU AI Act)"
+  - "meets? (all )?(DORA|PCI DSS|SOC 2|NIST|EU AI Act) requirements"
+  - "required by (DORA|PCI DSS|SOC 2|NIST|the EU AI Act|FS-AI RMF)"
+  - "(DORA|PCI DSS|SOC 2|NIST|EU AI Act)[- ]compliant"
+  # Hyphen required. "audit proof surfaces" is a verb phrase, not this claim.
+  - "audit-proof"
+  - "regulator[- ]approved"
+  - "pre[- ]certified"

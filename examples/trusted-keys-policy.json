@@ -1,0 +1,7 @@
+{
+  "require_mode": "emulated",
+  "require_delegation_for_actor_types": ["agent"],
+  "verify_agent_scope": true,
+  "deny_actor_types": [],
+  "trusted_public_keys": []
+}

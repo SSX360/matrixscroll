@@ -1,0 +1,13 @@
+{
+  "artifact": "matrixscroll-0.1.0.whl",
+  "release": "v0.1.0",
+  "signature": {
+    "algorithm": "ed25519",
+    "device_id": "MS-4775-7BD5",
+    "mode": "emulated",
+    "public_key": "PLDaipe8r3pmSN/YDPJDd9BnIoI3dYsB+QdoLzInQ5g=",
+    "schema": "matrixscroll.signature.v1",
+    "signed_at": "2026-06-19T12:00:00Z",
+    "value": "ihFHsFTkcq5MNESu00ux9JeMJXgQa+U1UHIK/jNEzOcFudT+c+qedbaW1IQhyQLbvf6UHICO7glLvxsQt++CAA=="
+  }
+}

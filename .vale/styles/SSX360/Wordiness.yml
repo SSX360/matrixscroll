@@ -1,0 +1,51 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+link: https://developers.google.com/style/word-list
+level: warning
+ignorecase: true
+nonword: false
+swap:
+  # Verbose to plain
+  "in order to": to
+  "in order for": for
+  "due to the fact that": because
+  "owing to the fact that": because
+  "for the purpose of": to
+  "with the exception of": except
+  "in the event that": if
+  "at this point in time": now
+  "at the present time": now
+  "prior to": before
+  "subsequent to": after
+  "in close proximity to": near
+  "a large number of": many
+  "a majority of": most
+  "the vast majority of": most
+  "is able to": can
+  "are able to": can
+  "has the ability to": can
+  "make use of": use
+  "makes use of": uses
+  "utilize": use
+  "utilizes": uses
+  "utilization": use
+  "utilizing": using
+  "endeavour|endeavor": try
+  "commence(s)?": start
+  "terminate(s)?": stop
+  "facilitate(s)?": help
+  "additional": more
+  "approximately": about
+  "sufficient": enough
+  "numerous": many
+  "obtain": get
+  "provide(s)? (the )?ability to": lets you
+  "in the case of": for
+  "it is important to note that": ""
+  "it should be noted that": ""
+  "please note that": ""
+  "as a matter of fact": ""
+  "needless to say": ""
+  # House terms
+  "crypto(?:graphically)? secure": Ed25519-signed
+  "military grade encryption": Ed25519 signatures

@@ -1,0 +1,17 @@
+extends: existence
+message: "Negative-parallelism tic: '%s'. One deliberate instance per page maximum. Vale cannot count per page, so confirm this is the only one."
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: warning
+ignorecase: true
+nonword: true
+tokens:
+  # "It's not X, it's Y" / "not X, but Y"
+  - "[Ii]t('s| is| was) not [^.,;]{2,40}, it('s| is| was)"
+  - "[Tt]his is not [^.,;]{2,40}, (it('s| is)|this is)"
+  - "\\bnot (just |merely |simply |only )?[a-z][^.,;]{2,40}, but\\b"
+  # "X is not Y." as a standalone aphorism
+  - "\\b[A-Z][a-z]+ (is|are|was|were) not [a-z][a-z ]{2,30}\\."
+  # Bare appositive negation: "Notary, not watchtower"
+  - "\\b[A-Za-z]{3,20}, not [a-z][a-z]{2,20}\\b"
+  # "We don't X. We Y." adjacent-sentence flip
+  - "\\bWe (don't|do not) [a-z][^.]{2,40}\\. We [a-z]"

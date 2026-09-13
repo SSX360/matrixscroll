@@ -1,0 +1,5 @@
+{
+  "trusted_public_keys": [],
+  "require_mode": "",
+  "notes": "Optional CI policy file for --trusted-keys. Pin release team public keys here when enforcing hardware or emulated mode on protected branches."
+}

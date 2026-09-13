@@ -1,0 +1,47 @@
+extends: existence
+message: "Marketing filler: '%s'. Name the real thing instead."
+link: https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/style-supplement.md
+level: error
+ignorecase: true
+tokens:
+  # Generic AI/marketing vocabulary
+  - seamless(ly)?
+  - cutting[- ]edge
+  - robust
+  - game[- ]changer
+  - game[- ]changing
+  - unleash(es|ing)?
+  - elevate(s|d)?
+  - next[- ]gen(eration)?
+  - revolutioniz(e|es|ing)
+  - delve(s|d)? into
+  - tapestry
+  - leverage(s|d|ing)?
+  - harness(es|ed|ing)?
+  - empower(s|ed|ing)?
+  - state[- ]of[- ]the[- ]art
+  - best[- ]in[- ]class
+  - world[- ]class
+  - paradigm shift
+  - supercharge(s|d)?
+  - unlock(s|ing)? (new )?(possibilities|potential|value)
+  - in today's .{0,30}(landscape|world|environment)
+  - the future of
+  - ever[- ](evolving|changing)
+  - rapidly evolving
+  - deep dive
+  - holistic
+  - synergy
+  - synergies
+  - turnkey
+  - frictionless
+  - bleeding[- ]edge
+  # The project's own tells
+  - military[- ]grade
+  - bank[- ]grade
+  - unbreakable
+  - bulletproof
+  - future[- ]proof(ed|ing)?
+  - zero[- ]compromise
+  - iron[- ]clad
+  - ironclad

@@ -1,0 +1,27 @@
+#!/bin/sh
+# matrixscroll-git hook
+# Verifies commit envelopes before push (enforce when configured).
+
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+CONFIG="$ROOT/.git/matrixscroll/config.json"
+
+if ! command -v matrixscroll >/dev/null 2>&1; then
+  exit 0
+fi
+
+if ! python -c "import matrixscroll.git" 2>/dev/null; then
+  exit 0
+fi
+
+python -m matrixscroll.git hook pre-push "$@" || {
+  ENFORCE=$(python -c "import json,sys; print(json.load(open(sys.argv[1])).get('enforce', False))" "$CONFIG" 2>/dev/null || echo False)
+  if [ "$ENFORCE" = "True" ] || [ "$ENFORCE" = "true" ]; then
+    echo "matrixscroll: envelope verification failed (enforce mode)" >&2
+    exit 2
+  fi
+  echo "matrixscroll: envelope verification failed (warn mode, continuing)" >&2
+}
+
+exit 0
