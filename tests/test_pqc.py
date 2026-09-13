@@ -130,15 +130,17 @@ def test_signing_with_a_key_set_this_build_lacks_raises_identity_error(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
     """An existing key file naming a set the build does not enable fails through IdentityError,
-    the same contract as key generation, not through the backend's ValueError."""
-    from matrixscroll import crypto_backend
-    from matrixscroll.pqc import sign_pqc_block
+    the same contract as key generation, not through the backend's ValueError.
+
+    The build that lacks the set is simulated at the resolver the signing path
+    calls (``matrixscroll.pqc.oqs_mechanism_name``), not by editing a cache."""
+    from matrixscroll import pqc
 
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     if not liboqs_family_enabled("ML-DSA"):
         pytest.skip("this liboqs build has no ML-DSA mechanisms")
     manifest = {"schema": "matrixscroll.test.v0", "payload": "probe-missing-set"}
-    sign_pqc_block(manifest, "ml-dsa-87")  # writes the key file for ml-dsa-87
-    monkeypatch.setitem(crypto_backend._OQS_RESOLVED, "ml-dsa-87", "")  # this build "lacks" it now
+    pqc.sign_pqc_block(manifest, "ml-dsa-87")  # writes the key file for ml-dsa-87
+    monkeypatch.setattr(pqc, "oqs_mechanism_name", lambda algorithm: None)  # this build "lacks" it now
     with pytest.raises(IdentityError, match="not enabled in this liboqs build"):
-        sign_pqc_block(manifest, "ml-dsa-87")
+        pqc.sign_pqc_block(manifest, "ml-dsa-87")

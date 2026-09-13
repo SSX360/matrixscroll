@@ -75,8 +75,27 @@ def test_mechanism_resolves_to_fips_203_names() -> None:
     if "ML-KEM-1024" not in enabled:
         pytest.skip("this liboqs build has no ML-KEM mechanisms")
     assert oqs_kem_mechanism_name("ml-kem-1024") == "ML-KEM-1024"
-    assert oqs_kem_mechanism_name("ml-kem-768") == "ML-KEM-768"
+    if "ML-KEM-768" in enabled:
+        assert oqs_kem_mechanism_name("ml-kem-768") == "ML-KEM-768"
+    else:
+        assert oqs_kem_mechanism_name("ml-kem-768") is None
     assert oqs_kem_mechanism_name("kyber-1024") is None
+
+
+def test_operations_report_the_missing_backend_before_importing_oqs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Without liboqs every operation raises the documented RuntimeError, not
+    ModuleNotFoundError, and an unknown identifier is rejected first either way."""
+    from matrixscroll import kem
+
+    monkeypatch.setattr(kem, "pqc_available", lambda: False)
+    with pytest.raises(RuntimeError, match="PQC backend not available"):
+        kem.kem_generate_keypair("ml-kem-1024")
+    with pytest.raises(RuntimeError, match="PQC backend not available"):
+        kem.kem_encapsulate("ml-kem-1024", bytes(1568))
+    with pytest.raises(RuntimeError, match="PQC backend not available"):
+        kem.kem_decapsulate("ml-kem-1024", bytes(3168), bytes(1568))
+    with pytest.raises(ValueError, match="unknown KEM algorithm"):
+        kem.kem_generate_keypair("kyber-1024")
 
 
 @needs_liboqs
