@@ -22,7 +22,7 @@ from matrixscroll.sealed import (
     unseal_evidence_pack,
 )
 
-pytestmark = pytest.mark.skipif(not kem_available(), reason="matrixscroll[pqc] / liboqs required")
+needs_pqc = pytest.mark.skipif(not kem_available(), reason="matrixscroll[pqc] / liboqs required")
 
 
 def _recipient() -> tuple[bytes, bytes, bytes, bytes]:
@@ -36,6 +36,17 @@ def test_hkdf_labels_are_stable() -> None:
     assert HKDF_INFO == b"aes-256-gcm"
 
 
+def test_requires_pqc_backend_message(monkeypatch) -> None:
+    monkeypatch.setattr("matrixscroll.sealed.kem_available", lambda: False)
+    with pytest.raises(RuntimeError, match=r"matrixscroll\[pqc\]"):
+        seal_evidence_pack(
+            b"x",
+            recipient_kem_public=b"\x00" * 1568,
+            recipient_x25519_public=b"\x00" * 32,
+        )
+
+
+@needs_pqc
 def test_seal_unseal_roundtrip(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     kem_pub, kem_sec, x_pub, x_sec = _recipient()
@@ -53,6 +64,7 @@ def test_seal_unseal_roundtrip(tmp_path, monkeypatch) -> None:
     assert json.loads(out.decode("utf-8")) == payload
 
 
+@needs_pqc
 def test_tampered_ciphertext_fails_signature(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     kem_pub, kem_sec, x_pub, x_sec = _recipient()
@@ -70,6 +82,7 @@ def test_tampered_ciphertext_fails_signature(tmp_path, monkeypatch) -> None:
         unseal_evidence_pack(bad, recipient_kem_secret=kem_sec, recipient_x25519_secret=x_sec)
 
 
+@needs_pqc
 def test_tampered_ciphertext_after_resign_fails_gcm(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     kem_pub, kem_sec, x_pub, x_sec = _recipient()
@@ -91,6 +104,7 @@ def test_tampered_ciphertext_after_resign_fails_gcm(tmp_path, monkeypatch) -> No
         )
 
 
+@needs_pqc
 def test_wrong_kem_key_fails(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     kem_pub, _, x_pub, x_sec = _recipient()
@@ -104,6 +118,7 @@ def test_wrong_kem_key_fails(tmp_path, monkeypatch) -> None:
         unseal_evidence_pack(pack, recipient_kem_secret=wrong_sec, recipient_x25519_secret=x_sec)
 
 
+@needs_pqc
 def test_mutated_pack_fails_signature(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
     kem_pub, kem_sec, x_pub, x_sec = _recipient()
@@ -117,13 +132,3 @@ def test_mutated_pack_fails_signature(tmp_path, monkeypatch) -> None:
     bad["subject"] = {"type": "commit", "id": "two"}
     with pytest.raises(IdentityError, match="Ed25519"):
         unseal_evidence_pack(bad, recipient_kem_secret=kem_sec, recipient_x25519_secret=x_sec)
-
-
-def test_requires_pqc_backend_message(monkeypatch) -> None:
-    monkeypatch.setattr("matrixscroll.sealed.kem_available", lambda: False)
-    with pytest.raises(RuntimeError, match="matrixscroll\\[pqc\\]"):
-        seal_evidence_pack(
-            b"x",
-            recipient_kem_public=b"\x00" * 1568,
-            recipient_x25519_public=b"\x00" * 32,
-        )

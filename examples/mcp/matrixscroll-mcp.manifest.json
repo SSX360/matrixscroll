@@ -1,16 +1,15 @@
 {
-  "scanned_at": "2026-07-03T16:55:29Z",
+  "scanned_at": "2026-09-13T10:47:38Z",
   "schema": "ssx360.mcp-manifest.v1",
   "server": {
     "name": "matrixscroll-mcp",
-    "package": "pypi:matrixscroll",
-    "version": "1.28.0"
+    "package": "pypi:matrixscroll"
   },
-  "surface_hash": "sha256:e5494ecfca737991c50a658914a26602c83e3cd8f7fba8ee628222bd16f69d38",
+  "surface_hash": "sha256:02e2a0fb6f0a5fa84e545ddb28d8be1f724843ef5770fec007dbada5a9ec8d84",
   "tools": [
     {
-      "description": "Export a compliance or procurement audit bundle with optional verification proofs.\n\n    Use when auditors need envelope bundles (JSON, GUAC JSONL, or evidence-pack).\n    Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.\n    Prefer ``list_envelopes`` to browse hosted metadata without exporting files.\n\n    Hosted (Team+): requires SSX360_API_KEY; calls ssx360.com/api/v1/audit/export.\n    Local fallback: exports from git notes or on-disk envelopes when no API key.\n    Side effects: writes files under ``output_dir`` locally; hosted mode returns\n    download metadata. Returns ``{ok, bundle?, download_url?, error?}``.\n\n    Parameters:\n        start_date / end_date: ISO 8601 UTC bounds (hosted filter).\n        signer_id: Filter by device_id or public-key fingerprint.\n        format: json, guac, or evidence-pack serialization.\n        include_verification: Attach per-envelope verification replay data.\n        workspace / base / head / output_dir: Local fallback range and output path.\n    ",
-      "input_schema_hash": "sha256:645a271911052e6dcd3d88ea50b348fd418f63e00a297c035ab147552833cace",
+      "description": "Export a compliance or procurement audit bundle with optional verification proofs.\n\n    Use when auditors need envelope bundles (JSON, GUAC JSONL, or evidence-pack).\n    Prefer ``verify_pr_range`` for merge-gate pass/fail on a commit range.\n    Prefer ``list_envelopes`` to browse hosted metadata without exporting files.\n\n    Hosted mode requires SSX360_API_KEY and calls ssx360.com/api/v1/audit/export.\n    Local fallback: exports from git notes or on-disk envelopes when no API key.\n    Side effects: writes files under ``output_dir`` locally; hosted mode returns\n    download metadata. Returns ``{ok, bundle?, download_url?, error?}``.\n\n    Parameters:\n        start_date / end_date: ISO 8601 UTC bounds (hosted filter).\n        signer_id: Filter by device_id or public-key fingerprint.\n        format: json, guac, or evidence-pack serialization.\n        include_verification: Attach per-envelope verification replay data.\n        workspace / base / head / output_dir: Local fallback range and output path.\n    ",
+      "input_schema_hash": "sha256:a5191231250fa7715d9fca8d716ed9faaf4804e279fe9019188dce5915012066",
       "name": "audit_export"
     },
     {
@@ -39,6 +38,11 @@
       "name": "sign_action"
     },
     {
+      "description": "Sign a browser-agent JSONL trace with the active Ed25519 identity.\n\n    Use when a WEB_WIZARD or Steel run completes. Hashes the full trace bytes,\n    records step count and run_id, and writes an offline-verifiable envelope.\n    Side effects: writes envelope file; uses local identity store. No network.\n    Returns ``{ok, signed, path?, error?}``.\n    ",
+      "input_schema_hash": "sha256:7ca6a7869513629210568341fdb1243a61d0a23da078fe2133ed2ce3b20928b4",
+      "name": "sign_agent_trace"
+    },
+    {
       "description": "Ed25519-sign an MCP tool-surface manifest for offline install verification.\n\n    Use after ``scan_mcp_server``. Prefer ``verify_mcp_manifest`` for checks.\n    Side effects: may write ``save_path``; uses local identity store. No network.\n    Returns ``{ok, signed, device_id, path?, error?}``.\n    ",
       "input_schema_hash": "sha256:b3c40a8f7e00a7bdedf4faf16d11ec9834642342cae1bff622fb08a459f9c3d6",
       "name": "sign_mcp_manifest"
@@ -47,6 +51,11 @@
       "description": "Report hook install state, local envelope count, and Matrix Scroll config.\n\n    Call first in a new repo before any verify/sign tool. Read-only: no Git or\n    filesystem writes, no network. Do not use for signature checks \u2014 call\n    ``verify_envelope`` or ``verify_pr_range`` instead.\n\n    Returns ``{ok, config, hook_installed, envelope_count, mode?, device_id?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n    ",
       "input_schema_hash": "sha256:81f8e41c66d6b1a40c7558b3b4c0f261302d295232fc219e00aa51cdf0c8c78f",
       "name": "status"
+    },
+    {
+      "description": "Verify a signed agent trace envelope offline; optional trace byte check.\n\n    Use in CI or auditor handoff. Read-only; no network.\n    Returns ``{ok, run_id?, step_count?, error?}``.\n    ",
+      "input_schema_hash": "sha256:0f8813cc60c58714ba5ca725e43395a94481b3e4362b53d4bfcb0d56e8cc04e6",
+      "name": "verify_agent_trace"
     },
     {
       "description": "Verify one signed commit envelope offline against RFC 8032 Ed25519 rules.\n\n    Use for a single commit SHA or explicit envelope JSON file. Prefer\n    ``verify_pr_range`` for PR/branch ranges and ``audit_export`` for procurement\n    bundles spanning many commits. Do not use when you only need hook status \u2014\n    call ``status`` instead.\n\n    Read-only: no network or SSX360_API_KEY required. Does not modify Git state.\n    Returns ``{ok, sha, actor_type, mode, error?, envelope?}``; ``ok`` is false\n    on signature, policy, expiry, or missing-envelope errors.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        commit_sha: Commit SHA to verify (uses local envelope file).\n        envelope / envelope_path: Optional explicit path to envelope JSON.\n        require_mode: Policy filter, e.g. emulated or hardware (empty skips).\n        trusted_keys / trusted_keys_file: JSON file listing trusted public keys.\n        check_expiry: Reject envelopes with expired delegation timestamps.\n        require_actor_types / deny_actor_types: Actor policy allow/deny lists.\n    ",
@@ -59,8 +68,8 @@
       "name": "verify_mcp_manifest"
     },
     {
-      "description": "Scroll Gate: verify signed/unsigned commits across a PR commit range.\n\n    Use for merge gates and PR review (many commits). Prefer ``verify_envelope``\n    for one commit offline. Prefer ``audit_export`` when auditors need bundles,\n    not pass/fail on a range.\n\n    Hosted mode (default): calls ssx360.com; requires SSX360_API_KEY.\n    Set ``source=local|notes|bundle`` to verify offline without an API key.\n    Read-only for Git refs; hosted mode emits usage to ssx360.com.\n    Returns ``{ok, verified_count, unsigned_shas?, failures?, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        base: Range start ref (exclusive), e.g. origin/main.\n        head: Range end ref (inclusive), e.g. HEAD or PR head SHA.\n        source: Envelope transport \u2014 hosted, local, notes, or bundle.\n        notes_ref: Git notes ref when source=notes.\n        bundle_dir: Bundle directory when source=bundle.\n        require_mode: Policy require_mode filter.\n        trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.\n        require_actor_types / deny_actor_types: Actor policy lists.\n    ",
-      "input_schema_hash": "sha256:cd4186e326bb6c02b41f2dc9b005f124b24ad853d62d912868e461c8301953a0",
+      "description": "Scroll Gate: verify signed/unsigned commits across a PR commit range.\n\n    Use for merge gates and PR review (many commits). Prefer ``verify_envelope``\n    for one commit offline. Prefer ``audit_export`` when auditors need bundles,\n    not pass/fail on a range.\n\n    Hosted mode (default): calls ssx360.com; requires SSX360_API_KEY.\n    Set ``source=local|notes|bundle`` to verify offline without an API key.\n    Read-only for Git refs; hosted mode emits usage to ssx360.com.\n    Returns ``{ok, verified_count, unsigned_shas?, failures?, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        base: Range start ref (exclusive), e.g. origin/main.\n        head: Range end ref (inclusive), e.g. HEAD or PR head SHA.\n        source: Envelope transport \u2014 hosted, local, notes, or bundle.\n        notes_ref: Git notes ref when source=notes.\n        bundle_dir: Bundle directory when source=bundle.\n        require_mode: Policy require_mode filter.\n        trusted_keys_file: Trusted keys JSON for signed/untrusted actor checks.\n        require_actor_types / deny_actor_types: Actor policy lists.\n        allow_empty: Accept a labelled empty range. Defaults to false.\n    ",
+      "input_schema_hash": "sha256:fdd3484d0ecd0a729851cd13093baf5f5c4953a6229164c8360041e91efd0cef",
       "name": "verify_pr_range"
     }
   ]
