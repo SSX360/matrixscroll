@@ -2,9 +2,11 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "matrixscroll-mcp",
   "displayName": "Matrix Scroll MCP",
-  "version": "0.7.0",
-  "description": "MCP server for RFC 8032 Ed25519 commit envelopes, signed action records, offline tool-surface checks, audit export, and SSX360 SE050 USB signer host support. Hosted Scroll Gate requires SSX360_API_KEY.",
-  "maintainers": ["SSX360"],
+  "version": "0.9.0",
+  "description": "MCP server for RFC 8032 Ed25519 commit envelopes, signed action records, sealed evidence packs, offline tool-surface checks, and audit export. Hosted Scroll Gate requires SSX360_API_KEY.",
+  "maintainers": [
+    "SSX360"
+  ],
   "homepage": "https://matrixscroll.com",
   "repository": "https://github.com/SSX360/matrixscroll",
   "documentation": "https://github.com/SSX360/matrixscroll/tree/main/docs",
@@ -15,8 +17,10 @@
     {
       "registry": "pypi",
       "name": "matrixscroll",
-      "version": "0.7.0",
-      "extras": ["mcp"],
+      "version": "0.9.0",
+      "extras": [
+        "mcp"
+      ],
       "command": "matrixscroll-mcp"
     }
   ]
