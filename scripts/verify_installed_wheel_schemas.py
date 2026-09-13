@@ -15,6 +15,7 @@ SCHEMAS = (
     "evidence-pack.v1.json",
     "pqc-signature.v1.json",
     "release-manifest.v1.json",
+    "sealed-evidence-pack.v1.json",
     "ssx360.evidence-pack.v1.json",
     "ssx360.mcp-manifest.v1.json",
 )

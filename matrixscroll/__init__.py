@@ -1,10 +1,10 @@
 """Matrix Scroll — open protocol for signed AI-assisted code provenance.
 
 This package is the Python reference implementation of the Matrix Scroll
-protocol. It exposes Ed25519 signing through a file-backed software provider or
-the SSX360 USB signer with an NXP SE050 secure element. The hardware provider
-uses USB CDC, and its private key remains inside the secure element. The SDK
-also includes an in-process hardware mock for development and CI.
+protocol. It exposes Ed25519 signing through a file-backed software provider
+and an ``IdentityProvider`` seam so any device or HSM can plug in. An optional
+post-quantum overlay defaults to ML-DSA-87; ML-KEM-1024 primitives and sealed
+evidence packs support the CNSA 2.0 Category 5 track.
 
 Quickstart:
 
@@ -23,7 +23,6 @@ from ._core import (
     SCHEMA,
     SIGNATURE_SCHEMA,
     EmulatedProvider,
-    HardwareProvider,
     IdentityError,
     IdentityProvider,
     device_id,
@@ -37,14 +36,14 @@ from ._core import (
     verify,
     verify_manifest,
 )
+from .sealed import seal_evidence_pack, unseal_evidence_pack
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
 __all__ = [
     "ALGORITHM",
     "DEVICE_FILE",
     "EmulatedProvider",
-    "HardwareProvider",
     "IdentityError",
     "IdentityProvider",
     "SCHEMA",
@@ -54,10 +53,12 @@ __all__ = [
     "get_provider",
     "identity_info",
     "public_key_b64",
+    "seal_evidence_pack",
     "sign",
     "sign_manifest",
     "status",
     "store_dir",
+    "unseal_evidence_pack",
     "verify",
     "verify_manifest",
 ]

@@ -9,9 +9,9 @@ from typing import Any
 
 from ..constants import ALGORITHM, SCHEMA
 from ..crypto_backend import ed25519_verify
+from ..errors import IdentityError
 from .base import IdentityProvider
 from .emulated import EmulatedProvider, device_id, store_dir
-from .hardware import HardwareProvider
 
 _PROVIDER: IdentityProvider | None = None
 
@@ -22,8 +22,13 @@ def get_provider(*, refresh: bool = False) -> IdentityProvider:
         return _PROVIDER
     mode = os.environ.get("MATRIXSCROLL_MODE", "emulated").strip().lower()
     if mode == "hardware":
-        _PROVIDER = HardwareProvider()
-    elif mode == "yubikey":
+        raise IdentityError(
+            "MATRIXSCROLL_MODE=hardware was removed in matrixscroll 0.9.0. "
+            "The USB/SE050 signing path is no longer shipped. Use the default "
+            "emulated provider, or implement IdentityProvider for your device. "
+            "Historical envelopes with signature.mode='hardware' still verify."
+        )
+    if mode == "yubikey":
         from .yubikey import YubiKeyProvider
 
         _PROVIDER = YubiKeyProvider()

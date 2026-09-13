@@ -122,7 +122,6 @@ exclude_docs: |
   SOFTWARE_PRODUCTS.md
   WHITEPAPER.md
   delegation-attestation-rfc.md
-  hardware-provider.md
   quickstart-agent.md
   quickstart-claude-code.md
   quickstart-git.md

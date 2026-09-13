@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/sealed-evidence-pack.v1.json",
+  "title": "Matrix Scroll Sealed Evidence Pack v1",
+  "description": "Evidence body encrypted to an auditor public key with hybrid X25519 + ML-KEM-1024 key agreement and AES-256-GCM. The pack digest is signed with Ed25519; an optional ML-DSA (or SLH-DSA) overlay may be attached. Parameter-set readiness through liboqs — not CNSA certification, FIPS CMVP validation, or NSA approval.",
+  "type": "object",
+  "required": [
+    "schema",
+    "created_at",
+    "subject",
+    "kem_algorithm",
+    "kem_ciphertext",
+    "x25519_ephemeral_public",
+    "x25519_recipient_public",
+    "nonce",
+    "ciphertext",
+    "content_type",
+    "signature"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.sealed-evidence-pack.v1"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC timestamp when the pack was sealed"
+    },
+    "subject": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "type": "string" },
+        "id": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "kem_algorithm": {
+      "type": "string",
+      "enum": ["ml-kem-1024", "ml-kem-768"],
+      "default": "ml-kem-1024",
+      "description": "FIPS 203 KEM identifier; ml-kem-1024 is the CNSA 2.0 Category 5 set"
+    },
+    "kem_ciphertext": {
+      "type": "string",
+      "description": "Base64-encoded ML-KEM ciphertext"
+    },
+    "x25519_ephemeral_public": {
+      "type": "string",
+      "description": "Base64-encoded sealer ephemeral X25519 public key (32 bytes)"
+    },
+    "x25519_recipient_public": {
+      "type": "string",
+      "description": "Base64-encoded recipient long-term X25519 public key (32 bytes)"
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Base64-encoded AES-256-GCM nonce (12 bytes)"
+    },
+    "ciphertext": {
+      "type": "string",
+      "description": "Base64-encoded AES-256-GCM ciphertext including the authentication tag"
+    },
+    "content_type": {
+      "type": "string",
+      "description": "MIME type of the plaintext (e.g. application/json)"
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "schema",
+        "algorithm",
+        "device_id",
+        "public_key",
+        "mode",
+        "signed_at",
+        "value"
+      ],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "matrixscroll.signature.v1"
+        },
+        "algorithm": {
+          "type": "string",
+          "const": "ed25519"
+        },
+        "device_id": {
+          "type": "string",
+          "pattern": "^MS-[0-9A-F]{4}-[0-9A-F]{4}$"
+        },
+        "public_key": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["emulated", "hardware", "yubikey", "tpm"]
+        },
+        "signed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "value": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "pqc_signatures": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "pqc-signature.v1.json" },
+      "description": "Optional PQC overlay over the same canonical bytes as Ed25519"
+    }
+  }
+}

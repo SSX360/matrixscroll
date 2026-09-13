@@ -7,15 +7,9 @@ Signed machine-action records with offline verification for MCP, Git, and CI.
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
-![SSX360 USB signer: a machined black enclosure with a USB-C port, two light bars and a display reading VERIFIED](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer.jpg)
+An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline, with an optional ML-DSA-87 post-quantum overlay and ML-KEM-1024 sealed evidence packs on the CNSA 2.0 Category 5 track.
 
-*The SSX360 USB signer (product visualization, September 2026). It holds the Ed25519 signing key in an NXP SE050 secure element behind an RP2350 USB bridge; the host never sees the private key. See [Use the SSX360 USB signer](#use-the-ssx360-usb-signer).*
-
-An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline.
-
-The `matrixscroll-mcp` stdio server exposes 14 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, agent traces, and the SSX360 USB signer. Local signing and verification need no cloud account.
-
-SSX360 has completed and produced the USB signer shown above. SSX360 supplies it by direct inquiry through [SSX360 contact](https://ssx360.com/contact) or `mission@ssx360.com`. Integration details are available to qualified operators during setup.
+The `matrixscroll-mcp` stdio server exposes 13 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, and agent traces. Custody is device-agnostic: the default is a file-backed software provider, and any device or HSM plugs in through the `IdentityProvider` seam. Local signing and verification need no cloud account.
 
 Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and the specification and vectors are CC0 1.0.
 
@@ -24,7 +18,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 - [Install the MCP server](#install-the-mcp-server)
 - [MCP tools](#mcp-tools)
 - [Detect MCP tool-surface changes](#detect-mcp-tool-surface-changes)
-- [Use the SSX360 USB signer](#use-the-ssx360-usb-signer)
+- [Device-agnostic custody](#device-agnostic-custody)
 - [Sign and verify from the CLI](#sign-and-verify-from-the-cli)
 - [Verification boundaries](#verification-boundaries)
 - [Verify the release](#verify-the-release)
@@ -36,7 +30,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 Install the current release from PyPI:
 
 ```bash
-pip install "matrixscroll[mcp]==0.8.0"
+pip install "matrixscroll[mcp]==0.9.0"
 ```
 
 Register the stdio server in your MCP client:
@@ -64,7 +58,7 @@ After your client connects, call `status`. The server reports the local identity
 
 ## MCP tools
 
-The `0.8.0` server exposes these tools:
+The `0.9.0` server exposes these tools:
 
 | Tool | What it does | Network or write behavior |
 | --- | --- | --- |
@@ -76,21 +70,20 @@ The `0.8.0` server exposes these tools:
 | `publish_notes` | Publishes local envelopes to `refs/notes/matrixscroll` | Writes local Git notes |
 | `audit_export` | Exports evidence for review | Writes a local bundle or uses the hosted API when configured |
 | `list_envelopes` | Lists organization envelopes | Requires `SSX360_API_KEY` and the hosted API |
-| `connect_card` | Probes the SSX360 USB signer over USB CDC | Opens the configured serial port |
 | `scan_mcp_server` | Fingerprints MCP tool names, descriptions, and input schemas | Read-only when tools are supplied |
 | `sign_mcp_manifest` | Signs an MCP tool-surface manifest | Writes only when `save_path` is set |
 | `verify_mcp_manifest` | Verifies a manifest and compares it with a signed baseline | Read-only and local |
 | `sign_agent_trace` | Signs a browser-agent JSONL trace | Writes a signed envelope |
 | `verify_agent_trace` | Verifies a signed trace and optionally checks the source bytes | Read-only and local |
 
-An API key is optional. Local signing, offline verification, MCP manifest checks, and USB signer access do not require one. Hosted organization history and hosted range verification use `SSX360_API_KEY`.
+An API key is optional. Local signing, offline verification, and MCP manifest checks do not require one. Hosted organization history and hosted range verification use `SSX360_API_KEY`.
 
 ## Detect MCP tool-surface changes
 
 Matrix Scroll records an MCP server's tool names, descriptions, and input schemas in a signed manifest. Re-scan the server after an update and compare it with the install-time baseline.
 
 ```bash
-pip install "matrixscroll[mcp]==0.8.0"
+pip install "matrixscroll[mcp]==0.9.0"
 
 matrixscroll mcp scan \
   --connect stdio \
@@ -120,73 +113,20 @@ The verify command exits with code `2` when the signature is invalid or the curr
 matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 ```
 
-## Use the SSX360 USB signer
+## Device-agnostic custody
 
-![Sign round-trip sequence: the host sends GEN_KEY, GET_PUBKEY and SIGN commands to the RP2350 USB bridge, which drives the SE050 secure element; the key is generated in-chip and never exported](https://raw.githubusercontent.com/SSX360/matrixscroll/main/docs/images/ssx360-usb-signer-round-trip.jpg)
+Signing goes through an `IdentityProvider` (`public_key_bytes`, `sign`, `mode`). The default `emulated` provider stores an Ed25519 key under `~/.matrixscroll`. To adapt Matrix Scroll to any device or HSM, implement that interface and select it with `MATRIXSCROLL_MODE` (or pass a provider instance to the library APIs). Experimental `tpm` and `yubikey` previews remain available; they are not the Category 5 story and do not claim hardware ML-DSA.
 
-*The sign round trip. The Ed25519 key pair is generated inside the SE050 and is non-exportable; the host receives the 32-byte public key and 64-byte signatures. The product visualization at the top of this page shows the finished unit; supplied configurations can vary in enclosure details, and the product documentation supplied with each unit names that configuration's signing boundary.*
+Historical envelopes with `signature.mode` equal to `"hardware"` still verify. The USB/SE050 signing path was removed in 0.9.0; `MATRIXSCROLL_MODE=hardware` raises instead of opening a serial port.
 
-Install the hardware and MCP extras:
-
-```bash
-pip install "matrixscroll[mcp,hardware]==0.8.0"
-```
-
-Set the hardware provider and USB CDC port before starting the MCP server.
-
-Windows PowerShell:
-
-```powershell
-$env:MATRIXSCROLL_MODE = "hardware"
-$env:MATRIXSCROLL_SE050_PORT = "COM3"
-matrixscroll status
-matrixscroll-mcp
-```
-
-Linux:
-
-```bash
-export MATRIXSCROLL_MODE=hardware
-export MATRIXSCROLL_SE050_PORT=/dev/ttyACM0
-matrixscroll status
-matrixscroll-mcp
-```
-
-You can also pass the hardware settings through the MCP client configuration:
-
-```json
-{
-  "mcpServers": {
-    "matrixscroll": {
-      "command": "matrixscroll-mcp",
-      "args": [],
-      "env": {
-        "MATRIXSCROLL_MODE": "hardware",
-        "MATRIXSCROLL_SE050_PORT": "COM3"
-      }
-    }
-  }
-}
-```
-
-Call `connect_card` to confirm that the signer responds. Then call `status` to inspect the active provider before creating an envelope.
-
-SSX360 supplies the finished signer through direct contact. Ask for the Matrix Scroll USB signer through [SSX360 contact](https://ssx360.com/contact). The hardware is not distributed through PyPI or listed for self-service purchase.
-
-### How hardware signing works
-
-1. The signer creates and retains the private Ed25519 key in hardware.
-2. The host sends canonical record bytes and receives the public key and detached signature.
-3. Matrix Scroll assembles the record and checks it with the same offline verifier used for software signing.
-
-The host receives only the public material needed to verify the record. Qualified operators receive the integration guide during setup.
+Sealed evidence packs (`matrixscroll.sealed`) encrypt a payload to a recipient's ML-KEM-1024 key with a hybrid X25519 + ML-KEM-1024 agreement, AES-256-GCM for the body, and Ed25519 plus ML-DSA-87 signatures over the pack. Install `matrixscroll[pqc]`. This is parameter-set readiness through liboqs, not a CNSA certification or FIPS validation.
 
 ## Sign and verify from the CLI
 
 The Python package includes a CLI and Git hooks for workflows that do not use MCP.
 
 ```bash
-pip install "matrixscroll==0.8.0"
+pip install "matrixscroll==0.9.0"
 matrixscroll hook-install
 
 export MATRIXSCROLL_ACTOR_TYPE=ci
@@ -209,11 +149,10 @@ matrixscroll verify release.signed.json
 
 <!-- vale ai-tells.ShipOveruse = NO -->
 
-- Release: PyPI `matrixscroll==0.8.0` installs the 14-tool stdio MCP server and Git hooks. The release also includes the MCP Trust Scanner, offline verification, and USB signer host integration.
-- Hardware supply: SSX360 produces the USB signer and supplies it after a direct inquiry. PyPI distributes the host software.
+- Release: PyPI `matrixscroll==0.9.0` installs the 13-tool stdio MCP server and Git hooks, the MCP Trust Scanner, offline verification, sealed evidence packs, and device-agnostic custody.
 - Hosted tools: `list_envelopes` and the hosted modes of `verify_pr_range` and `audit_export` require `SSX360_API_KEY` and a deployed SSX360 API. Local signing and verification remain available without a key.
-- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). Release `0.8.0` defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment (`0.7.0` and earlier default to `ml-dsa-65`; pass `--algorithm` or `MATRIXSCROLL_PQC` to choose a set explicitly). That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
-- CNSA 2.0 full-suite track (in progress): `matrixscroll.kem` provides ML-KEM-1024 key generation, encapsulation and decapsulation through liboqs, checked against the NIST ACVP sample vectors in `vectors/acvp-mlkem-fips203.json` (keyGen from seed, decapsulation, implicit rejection). No envelope or export format uses it yet; the sealed evidence-pack design that will is described in `docs/CRYPTO_ROADMAP.md`. Same boundary as the signature overlay: evidence mapping against NIST vectors, not a validation.
+- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). Release `0.9.0` defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment (`0.7.0` and earlier default to `ml-dsa-65`; pass `--algorithm` or `MATRIXSCROLL_PQC` to choose a set explicitly). That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
+- CNSA 2.0 full-suite track: `matrixscroll.kem` provides ML-KEM-1024 primitives (ACVP-checked). Sealed evidence packs in `matrixscroll.sealed` use hybrid X25519 + ML-KEM-1024 with Ed25519 + ML-DSA-87. Same boundary as the signature overlay: evidence mapping against NIST vectors, not a validation. See `docs/CRYPTO_ROADMAP.md`.
 - Verification scope: an Ed25519 signature proves that the signed bytes match and correspond to the included public key. A trusted-key and authorization policy establishes whether the declared `actor_type` can perform the action.
 - Adjacent controls: identity and access management, sandboxing, prompt filtering, and agent runtime policy remain separate controls.
 
@@ -223,11 +162,11 @@ matrixscroll verify release.signed.json
 
 GitHub Actions publishes each Matrix Scroll release through PyPI Trusted Publishing. PyPI records a PEP 740 attestation for the wheel and source distribution.
 
-Ask PyPI for the `0.8.0` wheel provenance:
+Ask PyPI for the `0.9.0` wheel provenance:
 
 ```bash
 curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
-  https://pypi.org/integrity/matrixscroll/0.8.0/matrixscroll-0.8.0-py3-none-any.whl/provenance
+  https://pypi.org/integrity/matrixscroll/0.9.0/matrixscroll-0.9.0-py3-none-any.whl/provenance
 ```
 
 The response names the GitHub publisher:
@@ -245,7 +184,7 @@ Compare the attested `subject[].digest.sha256` value with the SHA-256 digest of 
 
 ## Ten-minute check for reviewers
 
-Five questions a programme manager or auditor asks first, each with the command that answers it. Everything below runs offline from a clone of this repository with `pip install "matrixscroll[pqc]==0.8.0"` (the `pqc` extra is needed only for the last two lines of question 3).
+Five questions a programme manager or auditor asks first, each with the command that answers it. Everything below runs offline from a clone of this repository with `pip install "matrixscroll[pqc]==0.9.0"` (the `pqc` extra is needed only for the last two lines of question 3).
 
 1. **Does it run in one command, offline?** `matrixscroll verify vectors/valid_simple.json` prints `"ok": true` and exits `0`; `matrixscroll verify vectors/tampered_field.json` prints `"ok": false` and exits `2`. Neither command opens a network connection. Exit codes are fixed in [docs/reference/exit-codes.md](https://github.com/SSX360/matrixscroll/blob/main/docs/reference/exit-codes.md).
 2. **Is there a second implementation of the verifier?** `python tools/independent_verify.py vectors/` re-implements SPEC.md sections 3 to 6 from the text, with its own canonical serializer and a pure-Python RFC 8032 Ed25519, and imports nothing from the SDK. It must reach the same verdict as the SDK on every committed vector and on 500 randomly generated documents; `tests/test_independent_verifier.py` enforces that in CI on every change.

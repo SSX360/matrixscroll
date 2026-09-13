@@ -1,6 +1,6 @@
 """Compatibility shim — prefer importing from matrixscroll submodules directly.
 
-This module re-exports the v0.1.x public surface. It will be removed in v0.3.0.
+This module re-exports the v0.1.x public surface. It will be removed in a future major.
 """
 
 from __future__ import annotations
@@ -11,7 +11,6 @@ from .errors import IdentityError
 from .manifest import sign_manifest, verify_manifest
 from .providers.base import IdentityProvider
 from .providers.emulated import EmulatedProvider, device_id, store_dir
-from .providers.hardware import HardwareProvider
 from .providers.registry import (
     get_provider,
     identity_info,
@@ -25,11 +24,11 @@ __all__ = [
     "ALGORITHM",
     "DEVICE_FILE",
     "EmulatedProvider",
-    "HardwareProvider",
     "IdentityError",
     "IdentityProvider",
     "SCHEMA",
     "SIGNATURE_SCHEMA",
+    "_canonical",
     "device_id",
     "get_provider",
     "identity_info",
