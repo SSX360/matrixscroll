@@ -46,7 +46,7 @@ Not label. Sources are numbered at the end of the page.
 
 ### Signed records of who acted
 
-| Tool (version, date) | What it signs | Names the acting agent | Range or sequence check | Verifies offline | Post-quantum signature option | Hardware key path | Licence |
+| Tool (version, date) | What it signs | Names the acting agent | Range or sequence check | Verifies offline | Post-quantum signature option | Hardware key path | License |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Matrix Scroll 0.8.0 (September 2026) | Commit envelopes, action records, MCP tool-surface manifests, agent traces | Yes: `actor_type` is `human`, `agent` or `ci`, with a required `tool` field [S1] | Scroll Gate verifies every commit in `base..head` and fails closed on an empty range (`allow_empty` opts out) [S1] | Yes, by default; no log lookup [S1] | ML-DSA-44/65/87 and SLH-DSA-SHA2 overlay through liboqs; `ml-dsa-87` default for new software keys; NIST ACVP sample vectors in the test suite [S1] | SSX360 USB signer, NXP SE050, Ed25519 only, supplied by direct inquiry [S1] | Apache-2.0; spec and vectors CC0 1.0 |
 | Sigstore cosign 3.1.3 (6 August 2026) | OCI images, blobs, DSSE attestations | No; identity is the OIDC subject or the key [S2] | No | Yes, from a bundle with a trusted root [S3] | `ML_DSA_44/65/87` are experimental entries in protobuf-specs for private deployments; the public instance issues ECDSA, Ed25519 and RSA [S4] | PIV and PKCS#11 tokens (ECDSA P-256) [S5] | Apache-2.0 |
@@ -62,10 +62,10 @@ Not label. Sources are numbered at the end of the page.
 | Matrix Scroll `matrixscroll mcp scan`, `sign`, `verify` (0.6.0 onward; 0.8.0) | Manifest of tool names, descriptions and input schemas, signed with Ed25519 | Yes | `verify --baseline` exits `2` on a changed surface or an invalid signature [S1] | Yes |
 | MCP specification revision 2026-07-28 | Protocol text; `tools/list` is deterministic, tool annotations are hints | No signing of tool definitions; SEP-1766 proposes SHA-256 digest pinning (open since November 2025) [S12] | Client-defined | n/a |
 | Snyk Agent Scan 0.6.3 (10 September 2026; formerly mcp-scan) | Prompt-injection and tool-poisoning detection through the Snyk API; local state file | No | Heuristic [S13] | Needs the API |
-| Cisco AI Defense MCP Scanner | YARA rules, LLM judgement, behavioural code analysis | No | Heuristic [S14] | Partly |
-| Trail of Bits mcp-context-protector | Trust-on-first-use pinning of instructions, descriptions and schemas | No (unsigned pins) | Blocks on change [S15] | Yes |
-| MCPTrust (no tagged release) | `mcp-lock.json` signed with Ed25519 or Sigstore keyless; CEL policy | Yes | Fails CI on drift [S16] | Yes |
-| ToolHive (Stacklok) | Provenance of server images, tool filtering, OpenTelemetry audit logging | Image provenance only | Not for the live tool surface [S17] | Partly |
+| Cisco AI Defense MCP Scanner 4.8.4 (28 August 2026) | YARA rules, LLM judgement, behavioural code analysis | No | Heuristic [S14] | Partly |
+| Trail of Bits mcp-context-protector (no tagged release; `main` at `05e56c1`, 13 February 2026) | Trust-on-first-use pinning of instructions, descriptions and schemas | No (unsigned pins) | Blocks on change [S15] | Yes |
+| MCPTrust v0.1.2 (tag of 23 December 2025; no GitHub release) | `mcp-lock.json` signed with Ed25519 or Sigstore keyless; CEL policy | Yes | Fails CI on drift [S16] | Yes |
+| ToolHive (Stacklok) v0.49.0 (11 September 2026) | Provenance of server images, tool filtering, OpenTelemetry audit logging | Image provenance only | Not for the live tool surface [S17] | Partly |
 
 A signed manifest tells you that the surface you approved is the surface you
 are running. It does not tell you whether the approved descriptions were safe.

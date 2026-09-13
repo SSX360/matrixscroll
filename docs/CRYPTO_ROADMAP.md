@@ -38,7 +38,7 @@ otherwise noted, and that SLH-DSA is not part of CNSA 2.0. The CNSA 2.0 advisory
 | Software overlay `slh-dsa-sha2-256s` / `256f` | **Shipping now** | FIPS 205 Category 5 hash-based options; SLH-DSA is not a CNSA 2.0 algorithm |
 | Software overlay `slh-dsa-sha2-128s` / `128f` | **Shipping now** | Smaller SLH-DSA sets; not Category 5 |
 | NIST ACVP known-answer tests for the overlay | **Shipping now** | `vectors/acvp-sigver-fips204-fips205.json` and `tests/test_acvp_sigver.py` (0.8.0): ML-DSA-87 and SLH-DSA-SHA2-256s/f sample vectors from the NIST ACVP-Server; evidence mapping, not a CAVP or CMVP validation |
-| ML-KEM-1024 primitives (`matrixscroll.kem`) | **In progress** | Key generation, encapsulation and decapsulation through liboqs with NIST ACVP known-answer tests (0.8.0); no envelope or export format uses them yet |
+| ML-KEM-1024 primitives (`matrixscroll.kem`) | **Shipping now** | Key generation, encapsulation and decapsulation through liboqs with NIST ACVP known-answer tests (0.8.0); primitives only, no envelope or export format uses them yet; the full-suite track that will (below) is in progress |
 | ML-KEM-1024 in Matrix Scroll envelopes | **Not** | Envelopes are signature-only; the sealed evidence-pack design below is where key establishment enters |
 | LMS / XMSS (SP 800-208) firmware signing | **Not** | Stateful hash-based signatures need state management the file-backed signer does not provide |
 | FN-DSA (FIPS 206) | **Not** | NIST has not published the draft standard as of 12 September 2026; no implementation until a final standard |
