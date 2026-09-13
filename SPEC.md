@@ -248,8 +248,10 @@ Category 5 parameter set. That matches the CNSA 2.0 signature selection for
 National Security Systems. Supporting and defaulting to that set is
 parameter-set readiness through liboqs. It is not CNSA certification, FIPS
 CMVP validation, or NSA approval. ML-KEM-1024 (FIPS 203 Category 5) is the
-CNSA 2.0 key-establishment set; Matrix Scroll envelopes remain signature-only
-and do not implement KEM.
+CNSA 2.0 key-establishment set; Matrix Scroll envelopes remain signature-only.
+The SDK's `matrixscroll.kem` module (0.8.0) provides ML-KEM-1024 primitives for
+the sealed evidence-pack design described in `docs/CRYPTO_ROADMAP.md`; no
+envelope or manifest format defined here uses them.
 
 `slh-dsa-sha2-128s` / `128f` remain supported for smaller deployments.
 `slh-dsa-sha2-256s` / `256f` are the FIPS 205 Category 5 hash-based options

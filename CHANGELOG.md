@@ -6,26 +6,98 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-12
+
+Default post-quantum signature set moves to the CNSA 2.0 parameter set. No
+wire-format change; Ed25519 remains the default signature scheme and the
+post-quantum overlay remains opt-in through `MATRIXSCROLL_PQC`.
+
 ### Changed
-- **Default PQC algorithm is now `ml-dsa-87`.** When `MATRIXSCROLL_PQC` enables
-  the overlay without naming a set, and when `matrixscroll pqc-keygen` is run
-  without `--algorithm`, the SDK selects ML-DSA-87 (FIPS 204 Category 5). That
-  matches the CNSA 2.0 signature parameter set. It is parameter-set readiness
-  through liboqs, not CNSA certification, FIPS CMVP validation, or NSA approval.
+- **Default PQC algorithm is now `ml-dsa-87`.** When you run
+  `matrixscroll pqc-keygen` without `--algorithm`, and when a library caller
+  invokes `load_pqc_keypair` or `attach_pqc_overlay` without an algorithm while
+  `MATRIXSCROLL_PQC` is unset, the SDK selects ML-DSA-87 (FIPS 204 Category 5).
+  That matches the CNSA 2.0 signature parameter set. Git commit envelopes and
+  `sign_manifest_with_pqc` attach the overlay only when you enable it:
+  `MATRIXSCROLL_PQC` names the set (`MATRIXSCROLL_PQC=ml-dsa-87`) or the caller
+  passes `pqc_algorithm`; `0`, `false`, `off` and `no` disable it, and an unset
+  variable leaves the manifest Ed25519-only. `matrixscroll sign`, the MCP
+  `sign_action` tool and `sign_mcp_manifest` remain Ed25519-only, as in 0.7.0;
+  the MCP `create_envelope` tool signs Git envelopes through
+  `sign_manifest_with_pqc`. It is parameter-set readiness through liboqs, not
+  CNSA certification, FIPS CMVP validation, or NSA approval.
   Callers can still pass `ml-dsa-44` or `ml-dsa-65` explicitly. Existing key
   files under `~/.matrixscroll/pqc/` are unchanged; a new default only affects
-  newly generated keys. Published PyPI `0.7.0` still defaults to `ml-dsa-65`
-  until this change ships in a release.
+  newly generated keys. `0.7.0` and earlier default to `ml-dsa-65`. Status of
+  each algorithm (shipping now, in progress, not planned) is the table in
+  `docs/CRYPTO_ROADMAP.md`.
 - The public README and documentation now lead with the offline verification
   outcome, use explicit verification-boundary sections, and reserve signer
   implementation detail for qualified setup.
+- **Documentation refreshed against the standards status of 12 September 2026.**
+  `docs/CRYPTO_ROADMAP.md` gains a policy-dates table (CNSSP-15 and the CNSA 2.0
+  FAQ v2.1, Executive Order 14412 and OMB M-26-15, the Department of War PQC
+  strategy, the NIST IR 8547 draft) and rows for FIPS 206, ML-KEM, LMS/XMSS and
+  the ACVP tests; `docs/COMPARISON.md` gains a dated landscape section (Sigstore,
+  GitHub attestations, gittuf, forge commit signing, MCP scanners, 2025-2026
+  agent-receipt projects) and a list of claims Matrix Scroll does not make. The
+  README and the documentation home open with the SSX360 USB signer render
+  (`docs/images/ssx360-usb-signer.jpg`, replaced) and the signer section shows
+  the sign round-trip sequence.
 
 ### Added
 - **`slh-dsa-sha2-256s` and `slh-dsa-sha2-256f`** in the allowed PQC algorithm
   list (FIPS 205 Category 5 hash-based options), schema, and CLI choices.
+- **NIST ACVP vectors** for the overlay: `vectors/acvp-sigver-fips204-fips205.json`
+  carries a subset of the ACVP-Server sample vectors for ML-DSA-87,
+  SLH-DSA-SHA2-256s and SLH-DSA-SHA2-256f (external interface, pure variant):
+  sigVer cases with the NIST tcIds, verdicts and reason strings, and sigGen
+  expected signatures over an empty context restated as positive cases. The
+  provenance block records the URL and SHA-256 of each source file. This is an
+  evidence mapping to NIST sample vectors, not a certification claim
+  (`docs/CRYPTO_ROADMAP.md`).
+- **`tests/test_acvp_sigver.py`** verifies the NIST-valid empty-context
+  signatures through `pqc_verify`, verifies and rejects the context-string
+  cases through liboqs's `verify_with_ctx_str` on the same mechanism the
+  overlay uses, and treats a wrong-length signature as invalid without calling
+  the verifier; the provenance check runs without liboqs.
+- **`tests/test_pqc.py`** signs, verifies and rejects a tampered signature for
+  every identifier in `PQC_ALGORITHMS`, and checks that a key file naming a set
+  the build does not enable fails through `IdentityError`.
+- **`tools/independent_verify.py`**, a second implementation of the verifier
+  written from SPEC.md alone: its own canonical serializer, a pure-Python
+  RFC 8032 Ed25519, the device-id derivation and the section 6 procedure, with
+  no import from the SDK (the section 11 overlay is checked when liboqs is
+  present). `tests/test_independent_verifier.py` holds it against the SDK on
+  every committed vector, on 500 random documents and on fresh signatures; the
+  README's "Ten-minute check for reviewers" names the commands.
+- **`matrixscroll.kem`** (CNSA 2.0 full-suite track, in progress): ML-KEM-1024
+  and ML-KEM-768 key generation, encapsulation and decapsulation through liboqs,
+  with deterministic key generation from the FIPS 203 seed. No envelope or
+  export format uses the module yet; `docs/CRYPTO_ROADMAP.md` names the sealed
+  evidence-pack design that will. `vectors/acvp-mlkem-fips203.json` and
+  `tests/test_acvp_mlkem.py` check it against the NIST ACVP sample vectors
+  (keyGen, decapsulation of NIST ciphertexts, implicit rejection of modified
+  ciphertexts); evidence mapping, not a certification claim.
 - **`CNSA_PREFERRED_PQC_ALGORITHM`** constant (`ml-dsa-87`) for policy and docs
   that need a named CNSA 2.0 signature target without hard-coding the string.
 - **`docs/CRYPTO_ROADMAP.md`** CNSA 2.0 shipping / in progress / not table.
+
+### Fixed
+- **SLH-DSA identifiers now resolve against liboqs.** The overlay mapped the
+  `slh-dsa-*` identifiers to mechanism names liboqs does not expose
+  (`SLH-DSA-SHA2-256s`), so every SLH-DSA key generation, signature and
+  verification raised `MechanismNotSupportedError` on liboqs 0.16. The backend
+  now resolves each identifier against `oqs.get_enabled_sig_mechanisms()`
+  (`SLH_DSA_PURE_SHA2_256S` on liboqs 0.13 and later, the hyphenated spelling as
+  a fallback) and reports an unsupported set as `IdentityError` with the liboqs
+  version. ML-DSA was unaffected.
+- **`pqc_available()` no longer flips to true on the second call.** The probe
+  cached its negative result as an empty string and returned it unchanged on
+  later calls, so any second query reported the backend as present without
+  liboqs installed and the next signing call failed with a raw import error
+  instead of `IdentityError`. Found by the new tests, which query the probe
+  from two modules.
 
 ## [0.7.0] - 2026-08-11
 
@@ -408,6 +480,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.8.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.8.0
 [0.7.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.7.0
 [0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4
 [0.6.3]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.3

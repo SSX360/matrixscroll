@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import json
-import os
 
 import pytest
 
 from matrixscroll.canonical import canonical_bytes, canonical_bytes_pqc
-from matrixscroll.constants import DEFAULT_PQC_ALGORITHM
+from matrixscroll.constants import DEFAULT_PQC_ALGORITHM, PQC_ALGORITHMS
 from matrixscroll.crypto_backend import pqc_available
 from matrixscroll.manifest import (
     sign_manifest,
@@ -20,6 +19,7 @@ from matrixscroll.manifest import (
 from matrixscroll.policy import VerifyPolicy, verify_manifest_with_policy
 from matrixscroll.errors import IdentityError
 from matrixscroll.pqc import attach_pqc_overlay, configured_pqc_algorithm
+from tests._pqc_support import liboqs_family_enabled
 
 pytestmark = pytest.mark.skipif(not pqc_available(), reason="liboqs PQC backend not installed")
 
@@ -98,3 +98,49 @@ def test_configured_pqc_algorithm(monkeypatch: pytest.MonkeyPatch) -> None:
     assert configured_pqc_algorithm() == "ml-dsa-44"
     monkeypatch.setenv("MATRIXSCROLL_PQC", "off")
     assert configured_pqc_algorithm() is None
+
+
+@pytest.mark.parametrize("algorithm", sorted(PQC_ALGORITHMS))
+def test_every_listed_algorithm_signs_and_verifies(
+    algorithm: str, monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """Each identifier in PQC_ALGORITHMS must resolve to an enabled liboqs mechanism,
+    generate a key, sign, verify, and reject a tampered signature."""
+    import base64
+
+    from matrixscroll.crypto_backend import oqs_mechanism_name
+    from matrixscroll.pqc import sign_pqc_block, verify_pqc_block
+
+    monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
+    family = "ML-DSA" if algorithm.startswith("ml-dsa") else "SLH-DSA"
+    if not liboqs_family_enabled(family):
+        pytest.skip(f"this liboqs build has no {family} mechanisms")
+    assert oqs_mechanism_name(algorithm), f"{algorithm} does not resolve to an enabled liboqs mechanism"
+    manifest = {"schema": "matrixscroll.test.v0", "payload": f"probe-{algorithm}"}
+    block = sign_pqc_block(manifest, algorithm)
+    assert block["algorithm"] == algorithm
+    assert verify_pqc_block(manifest, block)
+    raw = bytearray(base64.b64decode(block["value"]))
+    raw[0] ^= 0x01
+    tampered = dict(block, value=base64.b64encode(bytes(raw)).decode("ascii"))
+    assert not verify_pqc_block(manifest, tampered)
+
+
+def test_signing_with_a_key_set_this_build_lacks_raises_identity_error(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """An existing key file naming a set the build does not enable fails through IdentityError,
+    the same contract as key generation, not through the backend's ValueError.
+
+    The build that lacks the set is simulated at the resolver the signing path
+    calls (``matrixscroll.pqc.oqs_mechanism_name``), not by editing a cache."""
+    from matrixscroll import pqc
+
+    monkeypatch.setenv("MATRIXSCROLL_HOME", str(tmp_path))
+    if not liboqs_family_enabled("ML-DSA"):
+        pytest.skip("this liboqs build has no ML-DSA mechanisms")
+    manifest = {"schema": "matrixscroll.test.v0", "payload": "probe-missing-set"}
+    pqc.sign_pqc_block(manifest, "ml-dsa-87")  # writes the key file for ml-dsa-87
+    monkeypatch.setattr(pqc, "oqs_mechanism_name", lambda algorithm: None)  # this build "lacks" it now
+    with pytest.raises(IdentityError, match="not enabled in this liboqs build"):
+        pqc.sign_pqc_block(manifest, "ml-dsa-87")
