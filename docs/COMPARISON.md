@@ -32,7 +32,7 @@ artifact. A complete software supply-chain review may use both:
 ## Signer choices
 
 The file-backed provider is included for local use, tests, and CI. The completed
-SSX360 USB signer keeps the Ed25519 private key inside an NXP SE050 secure
+Optional hardware custody keeps the Ed25519 private key inside a non-exportable
 element and is supplied through [SSX360 contact](https://ssx360.com/contact).
 Both paths produce the same public envelope format.
 
@@ -48,7 +48,7 @@ Not label. Sources are numbered at the end of the page.
 
 | Tool (version, date) | What it signs | Names the acting agent | Range or sequence check | Verifies offline | Post-quantum signature option | Hardware key path | License |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Matrix Scroll 0.8.0 (September 2026) | Commit envelopes, action records, MCP tool-surface manifests, agent traces | Yes: `actor_type` is `human`, `agent` or `ci`, with a required `tool` field [S1] | Scroll Gate verifies every commit in `base..head` and fails closed on an empty range (`allow_empty` opts out) [S1] | Yes, by default; no log lookup [S1] | ML-DSA-44/65/87 and SLH-DSA-SHA2 overlay through liboqs; `ml-dsa-87` default for new software keys; NIST ACVP sample vectors in the test suite [S1] | SSX360 USB signer, NXP SE050, Ed25519 only, supplied by direct inquiry [S1] | Apache-2.0; spec and vectors CC0 1.0 |
+| Matrix Scroll 0.8.0 (September 2026) | Commit envelopes, action records, MCP tool-surface manifests, agent traces | Yes: `actor_type` is `human`, `agent` or `ci`, with a required `tool` field [S1] | Scroll Gate verifies every commit in `base..head` and fails closed on an empty range (`allow_empty` opts out) [S1] | Yes, by default; no log lookup [S1] | ML-DSA-44/65/87 and SLH-DSA-SHA2 overlay through liboqs; `ml-dsa-87` default for new software keys; NIST ACVP sample vectors in the test suite [S1] | Device-agnostic IdentityProvider / HSM; no USB host path on PyPI [S1] | Apache-2.0; spec and vectors CC0 1.0 |
 | Sigstore cosign 3.1.3 (6 August 2026) | OCI images, blobs, DSSE attestations | No; identity is the OIDC subject or the key [S2] | No | Yes, from a bundle with a trusted root [S3] | `ML_DSA_44/65/87` are experimental entries in protobuf-specs for private deployments; the public instance issues ECDSA, Ed25519 and RSA [S4] | PIV and PKCS#11 tokens (ECDSA P-256) [S5] | Apache-2.0 |
 | Sigstore gitsign 0.17.1 (5 August 2026) | Git commits and tags with short-lived Fulcio certificates | No | No | Default verification queries Rekor; offline mode is documented as experimental [S6] | None | None (ephemeral keys) | Apache-2.0 |
 | GitHub Artifact Attestations (GA 25 June 2024; SLSA Build L3 20 January 2026) | Build provenance and SBOM for artifacts | No; the workflow is the identity [S7] | No | `gh attestation verify --bundle` with a downloaded trusted root [S8] | Not stated | None | GitHub service |
@@ -111,7 +111,7 @@ cryptographic signing.
   which the Open Quantum Safe project does not recommend for production use.
   The ACVP tests show algorithm correctness on NIST sample vectors; they are not
   a CAVP certificate or a CMVP validation.
-- The SSX360 USB signer signs with Ed25519 only. NXP's SE050 and SE051 data
+- Hardware signing devices, when offered commercially, sign with Ed25519 only until a secure element ships a PQC algorithm. The public SDK does not ship a USB host transport.
   sheets list no post-quantum algorithm, so any ML-DSA signature is produced in
   software.
 - Records are tamper-evident. A signer that controls its own key can omit or

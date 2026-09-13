@@ -1,13 +1,13 @@
-# Cryptographic roadmap: Ed25519 today, post-quantum overlay, Q-Day migration
+﻿# Cryptographic roadmap: Ed25519 today, post-quantum overlay, Q-Day migration
 
-**Status:** CNSA 2.0 parameter readiness · September 2026 (standards status checked 12 September 2026)  
+**Status:** CNSA 2.0 parameter readiness Â· September 2026 (standards status checked 12 September 2026)  
 **Audience:** Security reviewers, enterprise pilots, protocol implementers
 
 ## Executive summary
 
 | Layer | Algorithm | Shipping now | Q-Day window (est.) | Replacement |
 | ----- | --------- | ------------ | ------------------- | ----------- |
-| **Root of trust (hardware)** | Ed25519 (RFC 8032) | Signet / SE050 class, Ed25519 only | 2028-2033 CRQC risk | Ed25519 until hardware PQC firmware |
+| **Root of trust (hardware)** | Ed25519 (RFC 8032) | HSM / secure-element class, Ed25519 only | 2028-2033 CRQC risk | Ed25519 until hardware PQC firmware |
 | **Software signers** | Ed25519 + optional overlay | `matrixscroll[pqc]` ML-DSA / SLH-DSA | Same | Dual-verify: Ed25519 + PQC required by policy |
 | **Verifier contract** | Ed25519 required | All envelopes | Transition period | Accept PQC-only after announced sunset |
 
@@ -42,7 +42,7 @@ otherwise noted, and that SLH-DSA is not part of CNSA 2.0. The CNSA 2.0 advisory
 | ML-KEM-1024 in Matrix Scroll envelopes | **Not** | Commit/action envelopes remain signature-only; sealed evidence packs carry KEM ciphertext |
 | LMS / XMSS (SP 800-208) firmware signing | **Not** | Stateful hash-based signatures need state management the file-backed signer does not provide |
 | FN-DSA (FIPS 206) | **Not** | NIST has not published the draft standard as of 12 September 2026; no implementation until a final standard |
-| Hardware PQC (ML-DSA-87 on SE050 class) | **In progress** | NXP's SE050 and SE051 data sheets list no PQC algorithm; PQC signing stays software-only until a secure element ships it |
+| Hardware PQC (ML-DSA-87 on secure-element class) | **In progress** | PQC signing stays software-only until a secure element ships it |
 | CNSA 2.0 certification / NSA approval | **Not** | Never claimed |
 | FIPS CMVP validation of the overlay | **Not** | liboqs algorithm implementation only; the Open Quantum Safe project states that it does not recommend relying on liboqs in production |
 
@@ -75,7 +75,7 @@ for it; the dates above are the reason the overlay defaults to the Category 5 se
 2028+          Hybrid verify default: Ed25519 AND ML-DSA pass
 2030-2031      EO 14412 / DoW dates: PQC key establishment, then PQC signatures
 2035           NIST IR 8547 draft: Ed25519, ECDSA and RSA disallowed
-TBD            Hardware PQC firmware (SE050 class). Same verifier API, new algorithm field
+TBD            Hardware PQC firmware (secure-element class). Same verifier API, new algorithm field
 Post-sunset    Ed25519-only envelopes rejected when org policy mandates PQC
 ```
 
@@ -154,3 +154,4 @@ and wrong-key failures remain impossible regardless of PQC overlay presence.
 - RFC 8032 (Ed25519); RFC 9881 (ML-DSA in X.509, October 2025)
 - [`docs/SECURITY_PROPERTIES.md`](SECURITY_PROPERTIES.md)
 - [`schemas/pqc-signature.v1.json`](../schemas/pqc-signature.v1.json)
+
