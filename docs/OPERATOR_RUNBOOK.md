@@ -76,7 +76,7 @@ unless a separate retention policy says otherwise. Document the decision in
 | Surface | Action |
 |---------|--------|
 | Emulated `~/.matrixscroll/device.json` | `matrixscroll status` on clean host; new key; update deployment `trusted-keys.json` |
-| SE050 / USB fleet | Re-provision per [`hardware-provider.md`](./hardware-provider.md) |
+| Device adapters | Implement `IdentityProvider`; experimental TPM/YubiKey previews in docs |
 | Production signing | Move to hardware token or HSM; laptops must not hold production private keys |
 
 Record rotation date in team notes. See [`SECURITY.md`](../SECURITY.md) for custody policy.

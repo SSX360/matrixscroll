@@ -1,11 +1,9 @@
 """ML-KEM (FIPS 203) key-encapsulation primitives for the CNSA 2.0 full-suite track.
 
-Status: the primitives are **Shipping now** (0.8.0); the CNSA 2.0 full-suite track
-that will use them is **In progress** (see ``docs/CRYPTO_ROADMAP.md``). No envelope,
-manifest or evidence-pack format uses this module yet. It exists so
-that the sealed evidence-pack design can be built on primitives that are already
-checked against the NIST ACVP sample vectors (``vectors/acvp-mlkem-fips203.json``,
-``tests/test_acvp_mlkem.py``) instead of on a specification alone.
+Status: the primitives are **Shipping now** (0.8.0); sealed evidence packs that use
+them are **Shipping now** (0.9.0) via ``matrixscroll.sealed``. Checked against the
+NIST ACVP sample vectors (``vectors/acvp-mlkem-fips203.json``,
+``tests/test_acvp_mlkem.py``).
 
 The functions wrap liboqs through ``liboqs-python`` (``pip install matrixscroll[pqc]``)
 and follow the same conventions as the signature overlay in ``crypto_backend``:
@@ -38,7 +36,10 @@ _OQS_KEM_RESOLVED: dict[str, str] = {}
 
 def kem_available() -> bool:
     """True when liboqs is importable; the same probe the signature overlay uses."""
-    return pqc_available()
+    try:
+        return pqc_available()
+    except SystemExit:
+        return False
 
 
 def _enabled_kem_mechanisms() -> list[str]:

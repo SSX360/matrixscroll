@@ -180,8 +180,8 @@ def attach_pqc_overlay(
     mode = block.get("mode")
     if mode == "hardware":
         raise IdentityError(
-            "PQC overlay cannot be attached to hardware-signed envelopes. "
-            "USB/NFC/SE050 devices sign Ed25519 only."
+            "PQC overlay cannot be attached to legacy hardware-mode envelopes. "
+            "Historical USB/SE050 signatures are Ed25519-only; verify them without an overlay."
         )
     if not verify_pqc_signatures(signed_manifest):
         # manifest should not have invalid pqc before attach

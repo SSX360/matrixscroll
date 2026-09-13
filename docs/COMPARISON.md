@@ -143,7 +143,7 @@ start with [`FIVE_MINUTES.md`](FIVE_MINUTES.md).
 
 ## Sources
 
-- [S1] This repository at release 0.8.0: `matrixscroll/gate.py` (`verify_range`), `schemas/commit-envelope.v1.json` and `schemas/action-envelope.v1.json` (`actor_type`, `tool`), `matrixscroll/mcp_core.py`, `docs/CRYPTO_ROADMAP.md`, `vectors/acvp-sigver-fips204-fips205.json`, `docs/hardware-provider.md`.
+- [S1] This repository at release 0.9.0: `matrixscroll/gate.py` (`verify_range`), `schemas/commit-envelope.v1.json` and `schemas/action-envelope.v1.json` (`actor_type`, `tool`), `matrixscroll/mcp_core.py`, `docs/CRYPTO_ROADMAP.md`, `vectors/acvp-sigver-fips204-fips205.json`, `matrixscroll/sealed.py`.
 - [S2] cosign v3.1.3 release notes, 6 August 2026: https://github.com/sigstore/cosign/releases/tag/v3.1.3
 - [S3] Sigstore verification documentation (bundle verification): https://docs.sigstore.dev/cosign/verifying/verify/
 - [S4] Sigstore protobuf-specs, `sigstore_common.proto` (experimental ML-DSA entries): https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_common.proto ; Sigstore post-quantum post, 6 June 2025: https://blog.sigstore.dev/post-quantum-2025/

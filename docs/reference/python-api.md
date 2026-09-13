@@ -21,7 +21,8 @@ docstring is wrong, and the fix belongs in the module.
         - get_provider
         - IdentityProvider
         - EmulatedProvider
-        - HardwareProvider
+        - IdentityProvider
+        - EmulatedProvider
         - IdentityError
       show_root_heading: false
       heading_level: 3

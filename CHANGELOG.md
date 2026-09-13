@@ -6,6 +6,32 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-13
+
+Device-agnostic custody and CNSA 2.0 Category 5 sealed evidence packs. The USB/SE050
+signing path is removed from the public SDK; historical `signature.mode=hardware`
+envelopes still verify.
+
+### Removed
+- **`matrixscroll[hardware]`**, `HardwareProvider`, USB CDC SE050 transport, MCP
+  `connect_card`, SE050 acceptance vectors, and USB-first documentation. Setting
+  `MATRIXSCROLL_MODE=hardware` raises `IdentityError` with migration guidance.
+- Product visualizations and protocol docs that described a single USB signer as the
+  custody path.
+
+### Added
+- **Sealed evidence packs** (`matrixscroll.sealed`, schema
+  `matrixscroll.sealed-evidence-pack.v1`): hybrid X25519 + ML-KEM-1024 key agreement,
+  AES-256-GCM body, Ed25519 + ML-DSA-87 signatures. Requires `matrixscroll[pqc]`.
+  Parameter-set readiness through liboqs; not a CNSA certification or FIPS validation.
+- Device-agnostic custody documentation: implement `IdentityProvider` for any device
+  or HSM; default remains the file-backed `emulated` provider.
+
+### Changed
+- MCP stdio server is **13 tools** (was 14). Version pins, action default, and
+  public docs target **0.9.0**.
+- CRYPTO_ROADMAP sealed-pack step marked shipping for 0.9.0.
+
 ## [0.8.0] - 2026-09-12
 
 Default post-quantum signature set moves to the CNSA 2.0 parameter set. No
@@ -480,6 +506,7 @@ Initial public release. Extracted from the SSX360 reference implementation.
 - Device id format: `MS-XXXX-XXXX` (SHA-256 of the raw public key, first 8 hex
   chars, uppercase).
 
+[0.9.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.9.0
 [0.8.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.8.0
 [0.7.0]: https://github.com/SSX360/matrixscroll/releases/tag/v0.7.0
 [0.6.4]: https://github.com/SSX360/matrixscroll/releases/tag/v0.6.4

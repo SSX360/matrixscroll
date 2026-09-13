@@ -14,11 +14,6 @@
       "name": "audit_export"
     },
     {
-      "description": "Probe AP2 Vault Card / SE050 USB CDC hardware signing bridge availability.\n\nUse before hardware signing pilots to confirm the reader responds on the serial port. Do not use for everyday signing \u2014 use create_envelope (emulated mode) instead. Do not use for verification \u2014 call verify_envelope after envelopes exist. Prefer status to check local identity without opening USB.\n\nSide effects: opens a short-lived serial session; does not export private keys. No SSX360_API_KEY required. Returns {ok, mode, reader_name, available?, error?}.\n\nParameters:\n    reader_name: Serial port, e.g. COM3 or /dev/ttyACM0 (or env default).\n    pin: Optional secure-element PIN; prefer MATRIXSCROLL_PIV_PIN in CI.\n    timeout: Transport timeout in milliseconds (default 3000).",
-      "input_schema_hash": "sha256:2d4145cf0c5fc071300ce485362f1bc2a2addc3525d664270e0e7889e0594655",
-      "name": "connect_card"
-    },
-    {
       "description": "Create a signed Git commit envelope with Ed25519 provenance metadata.\n\n    Use after staging changes and before or after ``git commit`` when you need\n    commit-time actor/tool proof. Prefer ``sign_action`` for non-Git evidence\n    (CI steps, IaC, migrations). Do not use for verification \u2014 call\n    ``verify_envelope`` or ``verify_pr_range`` instead.\n\n    Side effects: may write ``.matrixscroll/envelopes/<sha>.json`` when ``save``\n    is true. Requires a Git repo and Matrix Scroll identity store. No network.\n    Returns ``{ok, sha, envelope, path, error?}``.\n\n    Parameters:\n        workspace: Git repo root (defaults to detected repo).\n        commit_sha: Existing commit to envelope (defaults to staged/next commit).\n        actor_type: Provenance actor, e.g. agent, human, ci.\n        tool: Producing tool name, e.g. cursor, claude-code.\n        agent_scope: Optional bounded scope path/glob for agent commits.\n        sign: Ed25519-sign the envelope (default True).\n        save: Persist under .matrixscroll/envelopes (default True).\n    ",
       "input_schema_hash": "sha256:4e69c3fb6479ace99e7a7c6413974d11cc67328f7217bcde483d0b338047b06f",
       "name": "create_envelope"

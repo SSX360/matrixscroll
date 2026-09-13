@@ -5,8 +5,9 @@ import unittest
 from pathlib import Path
 
 import matrixscroll
-from matrixscroll import EmulatedProvider, HardwareProvider, IdentityError
+from matrixscroll import EmulatedProvider, IdentityError
 from matrixscroll._core import DEVICE_FILE, _canonical
+from matrixscroll.providers.registry import get_provider
 
 
 def _provider(directory: Path) -> EmulatedProvider:
@@ -44,18 +45,18 @@ class StatusSurfaceTests(unittest.TestCase):
             for key in ("schema", "device_id", "public_key", "algorithm", "mode", "created_at"):
                 self.assertEqual(status[key], info[key])
 
-    def test_status_hardware_reports_unavailable_without_raising(self):
-        status = matrixscroll.status(HardwareProvider())
-        self.assertFalse(status["available"])
-        self.assertEqual(status["mode"], "hardware")
-        self.assertIn("reason", status)
-        self.assertNotIn("device_id", status)
-        self.assertNotIn("public_key", status)
-
-    def test_identity_info_still_raises_for_unavailable_provider(self):
-        with self.assertRaises(IdentityError):
-            matrixscroll.identity_info(HardwareProvider())
-
+    def test_hardware_mode_env_raises(self):
+        previous = os.environ.get("MATRIXSCROLL_MODE")
+        os.environ["MATRIXSCROLL_MODE"] = "hardware"
+        try:
+            with self.assertRaises(IdentityError):
+                get_provider(refresh=True)
+        finally:
+            if previous is None:
+                os.environ.pop("MATRIXSCROLL_MODE", None)
+            else:
+                os.environ["MATRIXSCROLL_MODE"] = previous
+            get_provider(refresh=True)
 
 class CryptoIntegrityTests(unittest.TestCase):
     def test_sign_verify_roundtrip(self):

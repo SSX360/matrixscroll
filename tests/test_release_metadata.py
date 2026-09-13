@@ -18,7 +18,7 @@ def test_public_metadata_uses_stable_device_url():
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert "docs/hardware-provider.md" in pyproject
+    assert "Public Roadmap" in pyproject
     assert "matrixscroll.com" in pyproject
     assert "github.com/SSX360/matrixscroll" in pyproject
     assert "github.com/SSX360/matrixscroll" in readme

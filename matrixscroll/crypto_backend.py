@@ -209,7 +209,7 @@ def _probe_pqc() -> str | None:
 
         _ = oqs.oqs_version()
         _PQC_BACKEND = "liboqs"
-    except Exception:
+    except (Exception, SystemExit):
         _PQC_BACKEND = ""
     return _PQC_BACKEND or None
 

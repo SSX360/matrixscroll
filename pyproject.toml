@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.8.0"
-description = "MCP server for signed machine-action records, offline tool-surface checks, and SSX360 USB signer support."
+version = "0.9.0"
+description = "MCP server for signed machine-action records, offline tool-surface checks, with device-agnostic custody and CNSA 2.0 Category 5 crypto (ML-DSA-87, ML-KEM-1024)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -16,6 +16,7 @@ authors = [
 keywords = [
     "ed25519",
     "ml-dsa",
+    "ml-kem",
     "slh-dsa",
     "post-quantum",
     "fips-204",
@@ -25,7 +26,6 @@ keywords = [
     "machine-action",
     "provenance",
     "root-of-trust",
-    "secure-element",
     "supply-chain",
     "ssx360",
     "matrixscroll",
@@ -63,7 +63,6 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 git = []
-hardware = ["pyserial>=3.5"]
 yubikey = ["python-pkcs11>=0.9.5"]  # experimental preview; mock path in tests
 tpm = []  # experimental preview; software-sealed mock when MATRIXSCROLL_MODE=tpm
 mcp = [
@@ -96,7 +95,7 @@ Security = "https://github.com/SSX360/matrixscroll/blob/main/SECURITY.md"
 "GitHub Action" = "https://github.com/SSX360/matrixscroll/tree/main/.github/actions/verify"
 Tests = "https://github.com/SSX360/matrixscroll/tree/main/tests"
 "Public Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/ROADMAP_2026-07.md"
-"Hardware Status" = "https://github.com/SSX360/matrixscroll/blob/main/docs/hardware-provider.md"
+"Crypto Roadmap" = "https://github.com/SSX360/matrixscroll/blob/main/docs/CRYPTO_ROADMAP.md"
 Maintainer = "https://ssx360.com/about"
 
 [tool.hatch.build.targets.wheel]

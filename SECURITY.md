@@ -94,7 +94,8 @@ Production signing keys must not reside on developer laptops.
 | Rotation | Generate new identity, update deployment `trusted-keys.json`, record date in team notes |
 
 See [`docs/OPERATOR_RUNBOOK.md`](docs/OPERATOR_RUNBOOK.md) for credential rotation
-and [`docs/hardware-provider.md`](docs/hardware-provider.md) for SE050 provisioning.
+and [`docs/CRYPTO_ROADMAP.md`](docs/CRYPTO_ROADMAP.md) for the Category 5 overlay
+and sealed evidence-pack posture.
 
 ## Cryptographic Primitives
 

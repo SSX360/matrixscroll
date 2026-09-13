@@ -49,6 +49,6 @@ blur the trust model.
 
 ## Related docs
 
-- [`hardware-provider.md`](hardware-provider.md)
+- [`CRYPTO_ROADMAP.md`](CRYPTO_ROADMAP.md)
 - [`SE050_USB_PROTOCOL.md`](SE050_USB_PROTOCOL.md)
 - [`SE050_POC_SCOPE.md`](SE050_POC_SCOPE.md)
