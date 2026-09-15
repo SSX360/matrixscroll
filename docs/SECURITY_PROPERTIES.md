@@ -41,7 +41,10 @@ Rust rewrite.
 ## Formal methods (TLA+ / PlusCal)
 
 Design-level models live in [`formal/`](../formal/). TLC exhaustively checks safety
-invariants before implementation changes land.
+invariants before implementation changes land. The programme gold standard
+([`docs/explanation/gold-standard.md`](explanation/gold-standard.md)) names a
+Lean 4 / F\* extracted verifier as the long-term bar; that extraction is not a
+shipping claim until the tree contains it.
 
 | Model | Safety invariant (sample) | Code |
 | ----- | ------------------------- | ---- |

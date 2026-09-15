@@ -6,6 +6,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- Public gold standard documented as
+  [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md) with
+  diagram `docs/assets/formal-mathematics-of-accountability.png`. README,
+  doctrine, formal methods, exit-code vocabulary (CONSISTENT / INCONSISTENT /
+  INDETERMINATE), and agent prose rules now point at that bar. Lean 4 / F\*
+  extracted verifier remains the bar, not a shipping claim.
+
 ## [0.9.0] - 2026-09-13
 
 Device-agnostic custody and CNSA 2.0 Category 5 sealed evidence packs. The USB/SE050

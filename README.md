@@ -7,6 +7,10 @@ Signed machine-action records with offline verification for MCP, Git, and CI.
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
+![Matrix Scroll: The Formal Mathematics of Accountability. Raw event to domain-separated hash to time-epoch batching to FIPS 204 ML-DSA; post-quantum proofs, offline verification, fail-closed verdicts; Rule of Refusal.](docs/assets/formal-mathematics-of-accountability.png)
+
+**Gold standard.** Raw event → domain-separated hash → time-epoch batching → post-quantum signature (FIPS 204 ML-DSA). Reviewers verify offline. Results are **CONSISTENT**, **INCONSISTENT**, or **INDETERMINATE**. AI never enters the verified core and never decides a technical conclusion. Full mapping to the shipping package: [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md).
+
 An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline, with an optional ML-DSA-87 post-quantum overlay and ML-KEM-1024 sealed evidence packs on the CNSA 2.0 Category 5 track.
 
 The `matrixscroll-mcp` stdio server exposes 13 tools for commit envelopes, action records, pull-request checks, Git notes, MCP surface manifests, and agent traces. Custody is device-agnostic: the default is a file-backed software provider, and any device or HSM plugs in through the `IdentityProvider` seam. Local signing and verification need no cloud account.
@@ -15,6 +19,7 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 
 ## Contents
 
+- [Gold standard](#gold-standard)
 - [Install the MCP server](#install-the-mcp-server)
 - [MCP tools](#mcp-tools)
 - [Detect MCP tool-surface changes](#detect-mcp-tool-surface-changes)
@@ -24,6 +29,20 @@ Matrix Scroll is an open protocol. The Python SDK is Apache-2.0 software, and th
 - [Verify the release](#verify-the-release)
 - [Ten-minute check for reviewers](#ten-minute-check-for-reviewers)
 - [Security and license](#security-and-license)
+
+## Gold standard
+
+Three pillars and one refusal rule govern the protocol:
+
+| Pillar | Requirement |
+| --- | --- |
+| Post-quantum proofs | FIPS 204 ML-DSA and FIPS 205 SLH-DSA overlays so attestation survives the quantum computers the programme monitors (parameter readiness through liboqs; not FIPS CMVP or CNSA certification) |
+| Offline verification | An auditor reconstructs events from raw records offline. Shipping: independent verifier + TLC. Bar: Lean 4 / F\* extracted executable |
+| Fail-closed architecture | Every result is **CONSISTENT** (`0`), **INCONSISTENT** (`2`), or **INDETERMINATE** (`1`). No silent pass on missing evidence |
+
+**Rule of Refusal.** We refuse to accept AI-generated or AI-altered data into the verified core. The provenance of every artifact is digest-pinned. No AI system is a decision authority for any technical conclusion.
+
+See [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md) and [docs/DOCTRINE.md](docs/DOCTRINE.md).
 
 ## Install the MCP server
 
@@ -200,6 +219,7 @@ Matrix Scroll code is licensed under Apache-2.0. [`SPEC.md`](https://github.com/
 
 | Resource | Link |
 | --- | --- |
+| Gold standard (formal mathematics of accountability) | [docs/explanation/gold-standard.md](https://github.com/SSX360/matrixscroll/blob/main/docs/explanation/gold-standard.md) |
 | Release evidence (digests, provenance, PQC boundary) | [docs/EVIDENCE.md](https://github.com/SSX360/matrixscroll/blob/main/docs/EVIDENCE.md) |
 | Tombstone / schemas | [matrixscroll.com](https://matrixscroll.com/) |
 | Documentation | [GitHub docs](https://github.com/SSX360/matrixscroll/tree/main/docs) |

@@ -1,14 +1,18 @@
 # Exit codes
 
-Every Matrix Scroll command uses the same three codes. The separation between
-`1` and `2` is deliberate: a gate must be able to tell a failed proof apart from
-a broken tool, because they call for different responses.
+Every Matrix Scroll command uses the same three codes. They are the fail-closed
+verdicts from the
+[gold standard](../explanation/gold-standard.md): **CONSISTENT**,
+**INCONSISTENT**, and **INDETERMINATE**. The separation between `1` and `2` is
+deliberate: a gate must be able to tell a failed proof apart from a broken tool,
+because they call for different responses. The verifier never returns a silent
+pass on missing evidence.
 
-| Code | Meaning | What a CI gate should do |
-| --- | --- | --- |
-| `0` | Verification succeeded, or the command completed | Continue |
-| `1` | The tool could not run. An unresolvable ref, a missing module, a failed hook install, or `--source bundle` with no `--bundle` directory | Fail the build and page the owner |
-| `2` | Verification failed, or the command cannot read an input file | Fail the build and block the merge |
+| Code | Verdict | Meaning | What a CI gate should do |
+| --- | --- | --- | --- |
+| `0` | CONSISTENT | Verification succeeded, or the command completed | Continue |
+| `1` | INDETERMINATE | The tool could not run. An unresolvable ref, a missing module, a failed hook install, or `--source bundle` with no `--bundle` directory | Fail the build and page the owner |
+| `2` | INCONSISTENT | Verification failed, or the command cannot read an input file | Fail the build and block the merge |
 
 An unreadable input file returns `2`, not `1`. This applies to
 `matrixscroll verify`, `matrixscroll envelope-verify` and

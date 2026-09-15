@@ -1,12 +1,21 @@
 # Formal methods (TLA+ / PlusCal)
 
 Matrix Scroll treats **protocol rules as mathematics first, implementations second**.
+The public gold standard is
+[`docs/explanation/gold-standard.md`](../docs/explanation/gold-standard.md)
+(diagram:
+[`docs/assets/formal-mathematics-of-accountability.png`](../docs/assets/formal-mathematics-of-accountability.png)).
 
-We model core governance at the root with [TLA+](https://lamport.azurewebsites.net/tla/tla.html) and
+**Shipping now.** We model core governance with [TLA+](https://lamport.azurewebsites.net/tla/tla.html) and
 [PlusCal](https://lamport.azurewebsites.net/tla/pluscal.html), then run the **TLC model checker** to
 exhaustively explore state space and emit **counterexample traces** when an invariant breaks.
+`tools/independent_verify.py` is a second implementation of SPEC.md sections 3 to 6.
 
-This complements Hypothesis property tests in `tests/test_security_properties.py` — Hypothesis
+**Bar (not claimed until present).** A machine-checked verifier core in Lean 4 or F\*
+with an extracted executable. Do not write copy that implies that extraction
+ships in the current PyPI release.
+
+This complements Hypothesis property tests in `tests/test_security_properties.py`. Hypothesis
 fuzzes implementations; TLC falsifies **designs** before code ships.
 
 ## Layout

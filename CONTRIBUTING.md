@@ -6,6 +6,11 @@ well-tested, spec-aware."
 
 ## Ground rules
 
+- **Gold standard first.** Changes that touch crypto, verification, gates, or
+  public claims must meet
+  [`docs/explanation/gold-standard.md`](docs/explanation/gold-standard.md)
+  (fail-closed CONSISTENT / INCONSISTENT / INDETERMINATE; Rule of Refusal; no
+  unhedged FIPS or Lean shipping claims).
 - **Spec changes are breaking changes.** Anything that affects the canonical
   encoding, signature block layout, device id derivation, or the value of
   `SCHEMA` / `SIGNATURE_SCHEMA` requires a schema version bump and a paired PR
@@ -15,8 +20,7 @@ well-tested, spec-aware."
 - **No new runtime dependencies** without discussion in an issue first. The
   surface area of a cryptographic SDK should stay tight.
 - **Signed commits preferred.** Use `git config commit.gpgsign true` or an SSH
-  signing key. Once the SSX360 device ships, hardware-backed commit signing is
-  the preferred default.
+  signing key.
 
 ## Development setup
 

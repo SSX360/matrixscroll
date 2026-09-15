@@ -46,11 +46,15 @@ comma, a period, or parentheses. Use a hyphen for numeric ranges, as in
 One deliberate instance per page, maximum. It is the most recognisable structural
 AI tell. Vale flags every occurrence as a warning; you decide which one survives.
 
-These approved positioning lines are exempt:
+Retired AP2 mandate-chain slogans stay retired. Do not reinstate them.
 
-- "Everyone audits the money. Nobody audits the authorization."
-- "We prove your mandate chain is complete. Nothing altered, nothing hidden."
-- "We hold no keys and sell no platform. That is what makes the signature worth something."
+## Gold standard
+
+[`docs/explanation/gold-standard.md`](docs/explanation/gold-standard.md) is the
+bar for protocol and claims work. Post-quantum proofs, offline verification,
+fail-closed CONSISTENT / INCONSISTENT / INDETERMINATE verdicts, and the Rule of
+Refusal bind every public surface. Do not claim a Lean 4 / F\* extracted
+verifier until it exists in the tree.
 
 ## Evidence mapping, not certification
 
@@ -81,8 +85,14 @@ is audit-proof.
 Every surface making a capability claim carries a "Shipping now / In progress /
 Not" block. Never delete or soften one. It is the strongest asset in the copy.
 
+## Rule of Refusal
+
+Do not land AI-generated or AI-altered bytes as authority in the verified core
+(vectors, ACVP fixtures, TLA+ models, schemas, SPEC). Digest-pin provenance.
+No AI system is a decision authority for any technical conclusion.
+
 ## Register
 
 Developer surfaces get one concrete declarative sentence, in the class of
-"Signed provenance for agent-assisted Git commits with offline verification".
+"Signed machine-action records with offline verification".
 Keep the mystical register off developer surfaces entirely.

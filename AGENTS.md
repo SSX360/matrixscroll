@@ -23,6 +23,15 @@ writing or editing any user-facing text. The condensed version:
 - Do not claim CNSA 2.0 certification, FIPS CMVP validation, or NSA approval.
   Naming ML-DSA-87 as the Category 5 / CNSA 2.0 signature parameter set is
   parameter readiness only.
+- Hold every crypto, verifier, gate, and claims change to
+  [`docs/explanation/gold-standard.md`](docs/explanation/gold-standard.md)
+  (diagram in `docs/assets/formal-mathematics-of-accountability.png`).
+- Fail closed: verdicts are CONSISTENT / INCONSISTENT / INDETERMINATE (exit
+  `0` / `2` / `1`). No silent pass on missing evidence.
+- Rule of Refusal: no AI-generated or AI-altered data in the verified core;
+  digest-pin provenance; no AI as decision authority for technical conclusions.
+- Lean 4 / F\* extracted verifier is the bar, not a shipping claim, until the
+  tree contains it.
 
 ## Commit attribution
 

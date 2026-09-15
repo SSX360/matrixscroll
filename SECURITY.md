@@ -19,6 +19,12 @@ remediation or mitigation plan within **30 days** for confirmed issues.
 
 ## Scope
 
+The programme gold standard is
+[`docs/explanation/gold-standard.md`](docs/explanation/gold-standard.md):
+offline reconstruction, fail-closed CONSISTENT / INCONSISTENT / INDETERMINATE
+verdicts, digest-pinned provenance, and the Rule of Refusal (no AI as decision
+authority for technical conclusions).
+
 In scope:
 
 - Cryptographic correctness of the signing and verification paths.

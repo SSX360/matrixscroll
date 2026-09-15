@@ -9,6 +9,11 @@ and an optional scope. Anyone can verify that envelope later from the CLI or fro
 CI. Verification needs no network and no trust in the session that produced the
 commit.
 
+The programme gold standard is
+[The formal mathematics of accountability](explanation/gold-standard.md):
+post-quantum proofs, offline verification, fail-closed CONSISTENT /
+INCONSISTENT / INDETERMINATE verdicts, and the Rule of Refusal.
+
 Matrix Scroll is an open protocol. The SDK is Apache-2.0. SSX360 supplies hosted
 verification and scoped cybersecurity services separately. Custody is
 device-agnostic: implement `IdentityProvider` for your HSM or secure element, or
@@ -37,10 +42,9 @@ pip install "matrixscroll==0.9.0"
     CLI commands, exit codes, the commit-envelope schema, and the Python API
     generated from source.
 
-- **[Explanation](explanation/commit-time-vs-artifact-time.md)**
+- **[Explanation](explanation/gold-standard.md)**
 
-    Why commit-time provenance, how this relates to AP2, and exactly what the
-    trust boundaries are.
+    Gold standard, commit-time provenance, AP2, and trust boundaries.
 
 </div>
 
