@@ -13,8 +13,10 @@ from typing import Any
 from .canonical import canonical_bytes
 from .crypto_backend import sha256_hex
 from .gate import BUNDLE_INDEX, verify_commit_envelope_for_sha
+from .git import repo_root
 
 REKOR_API = "rekor/v2"
+REKOR_PUBLISH_ENV = "MATRIXSCROLL_REKOR_PUBLISH"
 
 
 def _artifact_digest(envelope: dict[str, Any]) -> str:
@@ -129,3 +131,44 @@ def publish_rekor_cli(
         uploaded.append(sha)
 
     return {"ok": True, "uploaded": uploaded, "rekor_url": url}
+
+
+def publish_rekor_live(
+    bundle_dir: Path,
+    output_dir: Path | None = None,
+    *,
+    enabled: bool = False,
+    rekor_url: str | None = None,
+    root: Path | None = None,
+) -> dict[str, Any]:
+    """Publish to Rekor only when explicitly enabled and ``rekor-cli`` exists.
+
+    Live upload runs when *enabled* is true **and**
+    ``MATRIXSCROLL_REKOR_PUBLISH=1`` **and** ``rekor-cli`` is on ``PATH``.
+    Otherwise this function writes a dry-run artifact set and returns
+    ``mode: dry-run``.
+    """
+    env_on = os.environ.get(REKOR_PUBLISH_ENV, "").strip() == "1"
+    cli_present = shutil.which("rekor-cli") is not None
+    staging = output_dir or (Path(bundle_dir) / ".rekor-staging")
+
+    if not (enabled and env_on and cli_present):
+        dry = publish_rekor_dry_run(bundle_dir, staging, root=root)
+        return {
+            **dry,
+            "mode": "dry-run",
+            "live_skipped_reason": _live_skip_reason(enabled, env_on, cli_present),
+        }
+
+    live = publish_rekor_cli(bundle_dir, rekor_url=rekor_url, root=root)
+    return {**live, "mode": "live"}
+
+
+def _live_skip_reason(enabled: bool, env_on: bool, cli_present: bool) -> str:
+    if not enabled:
+        return "enabled=False"
+    if not env_on:
+        return f"{REKOR_PUBLISH_ENV} is not 1"
+    if not cli_present:
+        return "rekor-cli not found on PATH"
+    return "unknown"

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/delegation-chain.v1.json",
+  "title": "Matrix Scroll Delegation Chain v1",
+  "description": "Human mandate linking to a subsequent agent action. Evidence mapping for mandate-chain review, not a certification claim.",
+  "type": "object",
+  "required": ["schema", "mandate", "action_ref"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.delegation_chain.v1"
+    },
+    "mandate": {
+      "type": "object",
+      "required": ["owner_id", "scope", "issued_at"],
+      "additionalProperties": true,
+      "properties": {
+        "owner_id": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "issued_at": { "type": "string" },
+        "expires_at": { "type": "string" },
+        "human_public_key": { "type": "string" }
+      }
+    },
+    "action_ref": {
+      "type": "object",
+      "required": ["envelope_digest"],
+      "additionalProperties": true,
+      "properties": {
+        "envelope_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "action_type": { "type": "string" },
+        "agent_tool": { "type": "string" }
+      }
+    },
+    "parent_chain_id": { "type": "string" },
+    "signature": {
+      "type": "object",
+      "description": "Optional Ed25519 signature over the unsigned body."
+    }
+  }
+}

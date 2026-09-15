@@ -582,6 +582,65 @@ def _cmd_agent_trace_verify(args: argparse.Namespace) -> int:
     return 0 if result.get("ok") else 2
 
 
+def _load_or_empty_ledger(bundle_path: Path):
+    from .ledger import Ledger
+
+    if bundle_path.is_file():
+        data = json.loads(bundle_path.read_text(encoding="utf-8-sig"))
+        return Ledger.from_bundle(data)
+    return Ledger()
+
+
+def _cmd_ledger_append(args: argparse.Namespace) -> int:
+    from .ledger import dump_bundle
+
+    bundle_path = Path(args.bundle)
+    try:
+        payload = json.loads(Path(args.payload).read_text(encoding="utf-8-sig"))
+        ledger = _load_or_empty_ledger(bundle_path)
+        record = ledger.append(payload)
+        dump_bundle(ledger, str(bundle_path))
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}, sort_keys=True))
+        return 1
+    print(json.dumps({"ok": True, "record": record.to_dict()}, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_ledger_epoch(args: argparse.Namespace) -> int:
+    from .ledger import dump_bundle
+
+    bundle_path = Path(args.bundle)
+    try:
+        ledger = _load_or_empty_ledger(bundle_path)
+        epoch = ledger.create_epoch(epoch_id=args.epoch_id, sign=True)
+        dump_bundle(ledger, str(bundle_path))
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}, sort_keys=True))
+        return 1
+    print(json.dumps({"ok": True, "epoch": epoch.to_dict()}, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_ledger_verify(args: argparse.Namespace) -> int:
+    from .ledger import load_bundle, verify_bundle
+
+    try:
+        bundle = load_bundle(args.bundle)
+        verdict = verify_bundle(bundle)
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        print(
+            json.dumps(
+                {"ok": False, "verdict": "INDETERMINATE", "exit_code": 1, "error": str(exc)},
+                sort_keys=True,
+            )
+        )
+        return 1
+    payload = verdict.to_dict()
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return int(verdict)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="matrixscroll",
@@ -805,6 +864,32 @@ def build_parser() -> argparse.ArgumentParser:
     agent_verify.add_argument("--trace", help="Optional live trace path for byte-level drift check")
     agent_verify.set_defaults(command="agent-trace-verify")
 
+    ledger_p = sub.add_parser(
+        "ledger",
+        help="Hash-linked ledger append, epoch, and verify (SPEC section 12)",
+    )
+    ledger_sub = ledger_p.add_subparsers(dest="ledger_command")
+    ledger_append = ledger_sub.add_parser(
+        "append",
+        help="Append a JSON payload to a ledger bundle file",
+    )
+    ledger_append.add_argument("--bundle", required=True, help="Ledger bundle JSON path")
+    ledger_append.add_argument("--payload", required=True, help="JSON file to append as payload")
+    ledger_append.set_defaults(command="ledger-append")
+    ledger_epoch = ledger_sub.add_parser(
+        "epoch",
+        help="Create a signed epoch checkpoint over the current bundle",
+    )
+    ledger_epoch.add_argument("--bundle", required=True, help="Ledger bundle JSON path")
+    ledger_epoch.add_argument("--epoch-id", default=None, help="Optional epoch id")
+    ledger_epoch.set_defaults(command="ledger-epoch")
+    ledger_verify = ledger_sub.add_parser(
+        "verify",
+        help="Verify chain links and epochs; prints three-valued verdict JSON",
+    )
+    ledger_verify.add_argument("--bundle", required=True, help="Ledger bundle JSON path")
+    ledger_verify.set_defaults(command="ledger-verify")
+
     return parser
 
 
@@ -836,6 +921,9 @@ def _dispatch(argv: list[str] | None) -> int:
         "mcp-verify": _cmd_mcp_verify,
         "agent-trace-sign": _cmd_agent_trace_sign,
         "agent-trace-verify": _cmd_agent_trace_verify,
+        "ledger-append": _cmd_ledger_append,
+        "ledger-epoch": _cmd_ledger_epoch,
+        "ledger-verify": _cmd_ledger_verify,
     }
     handler = handlers.get(args.command)
     if handler is None:

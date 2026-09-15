@@ -1,0 +1,45 @@
+/*
+ * Matrix Scroll ledger chain (Tamarin stub)
+ *
+ * Lemmas listed for review. This file is a scaffold: it may not parse or
+ * prove under an arbitrary Tamarin release without edits. Prefer
+ * formal/tla/LedgerChain.tla for the runnable TLC model today.
+ */
+
+theory LedgerChain
+begin
+
+functions: hash/1, tip/1, prev/1
+
+/* Informal rules (pseudocode for reviewers)
+ *
+ * rule AppendRecord:
+ *   [ !Chain(i, tip) ]
+ *   --[ Append(i, tip, payload) ]->
+ *   [ !Chain(i+1, hash(<tip, payload>)) ]
+ *
+ * rule EpochCheckpoint:
+ *   [ !Chain(n, tip) ]
+ *   --[ Epoch(n, tip, root) ]->
+ *   [ !Epoch(n, tip, root) ]
+ */
+
+/*
+ * Lemma Inv_NoFork:
+ *   All traces. There do not exist two distinct tips at the same index.
+ *
+ * Lemma Inv_NoGap:
+ *   All traces. Indices are contiguous from 0.
+ *
+ * Lemma Inv_TipBindsEpoch:
+ *   All traces. An epoch claiming tip T for end index n is only consistent
+ *   when the chain tip at n equals T.
+ *
+ * Lemma Inv_TamperBreaksVerify:
+ *   All traces. Changing a payload without updating hashes breaks verify.
+ *
+ * Lemma Live_AppendPossible:
+ *   Exists a trace where Append succeeds from genesis.
+ */
+
+end

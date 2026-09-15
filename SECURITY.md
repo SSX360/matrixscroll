@@ -46,15 +46,15 @@ Out of scope:
 
 | Version | Status |
 | ------- | ------ |
-| 0.9.x | Current. Security fixes ship as patch releases. Published release: **0.9.0**. |
-| 0.8.x | Supported if you built from the 0.8 line; upgrade to 0.9.x when you can. No separate public git tag. |
+| 0.10.x | Current. Security fixes ship as patch releases. Published release: **0.10.0**. |
+| 0.8.x | Supported if you built from the 0.8 line; upgrade to 0.10.x when you can. No separate public git tag. |
 | 0.7.x | Supported floor. Published release: **0.7.0** on PyPI. Source of record for 0.7.x is the PyPI sdist/wheel, not the public git history. |
-| 0.6.x and earlier | **Unsupported.** Do not use for new work. Yanked from recommended install paths. Upgrade to 0.7.0 or 0.9.0. |
+| 0.6.x and earlier | **Unsupported.** Do not use for new work. Yanked from recommended install paths. Upgrade to 0.7.0 or 0.10.0. |
 
 Pre-1.0 there is no extended support window beyond the table above. Pin to a
 known-good supported version in production until 1.0.
 
-Public git history on `SSX360/matrixscroll` begins at the supported 0.9.0 line.
+Public git history on `SSX360/matrixscroll` begins at the supported 0.10.0 line.
 Earlier development history is not published.
 
 ## Disclosure

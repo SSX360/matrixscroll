@@ -13,9 +13,9 @@ writing or editing any user-facing text. The condensed version:
 - Naming DORA, PCI DSS, the EU AI Act, SOC 2, NIST, the SSDF, or the FS-AI RMF
   obliges the file to carry "evidence mapping, not a certification claim".
   Never assert that anything is certified or compliant.
-- The published version is `0.9.0`, per `pyproject.toml` and
+- The published version is `0.10.0`, per `pyproject.toml` and
   `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly in every install
-  example. Supported install line: **0.7.0–0.9.0**. Do not document or revive
+  example. Supported install line: **0.7.0–0.10.0**. Do not document or revive
   pre-0.7 releases.
 - Custody is device-agnostic (`IdentityProvider`). Do not document USB/SE050
   host transports or protocol details as current product surface.

@@ -36,9 +36,11 @@ from ._core import (
     verify,
     verify_manifest,
 )
+from .ledger import Ledger, verify_bundle, verify_chain
 from .sealed import seal_evidence_pack, unseal_evidence_pack
+from .verdict import Verdict
 
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 
 __all__ = [
     "ALGORITHM",
@@ -46,8 +48,10 @@ __all__ = [
     "EmulatedProvider",
     "IdentityError",
     "IdentityProvider",
+    "Ledger",
     "SCHEMA",
     "SIGNATURE_SCHEMA",
+    "Verdict",
     "__version__",
     "device_id",
     "get_provider",
@@ -60,5 +64,7 @@ __all__ = [
     "store_dir",
     "unseal_evidence_pack",
     "verify",
+    "verify_bundle",
+    "verify_chain",
     "verify_manifest",
 ]

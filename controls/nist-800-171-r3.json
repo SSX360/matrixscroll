@@ -1,0 +1,56 @@
+{
+  "schema": "matrixscroll.controls_mapping.v1",
+  "framework": "NIST SP 800-171 Revision 3",
+  "hedge": "Evidence mapping, not a certification claim. Requirement IDs name where Matrix Scroll outputs can support an assessment; they do not assert 800-171 compliance.",
+  "version": "0.9.x",
+  "mappings": [
+    {
+      "requirement_id": "03.03.01",
+      "title": "Event logging",
+      "record_types": ["commit_envelope", "action_envelope", "ledger_record"],
+      "evidence_note": "Signed machine-action and commit records document security-relevant events."
+    },
+    {
+      "requirement_id": "03.03.02",
+      "title": "Audit record content",
+      "record_types": ["commit_envelope", "action_envelope", "policy_decision"],
+      "evidence_note": "Provenance and payload fields supply who/what/when content for reviewers."
+    },
+    {
+      "requirement_id": "03.03.03",
+      "title": "Audit record generation",
+      "record_types": ["commit_envelope", "action_envelope", "mcp_intercept"],
+      "evidence_note": "CLI and MCP surfaces generate records at action time."
+    },
+    {
+      "requirement_id": "03.03.04",
+      "title": "Response to audit logging process failures",
+      "record_types": ["verdict", "gate_result"],
+      "evidence_note": "Fail-closed verdicts (CONSISTENT / INCONSISTENT / INDETERMINATE) surface verify failures."
+    },
+    {
+      "requirement_id": "03.03.05",
+      "title": "Audit record review, analysis, and reporting",
+      "record_types": ["evidence_pack", "ssx360_evidence_pack", "ocsf_export"],
+      "evidence_note": "Evidence packs and OCSF-shaped exports support offline review workflows."
+    },
+    {
+      "requirement_id": "03.03.06",
+      "title": "Audit record reduction and report generation",
+      "record_types": ["ledger_epoch", "evidence_pack"],
+      "evidence_note": "Epoch checkpoints and pack indexes summarize ranges for report generation."
+    },
+    {
+      "requirement_id": "03.03.07",
+      "title": "Time stamps",
+      "record_types": ["timestamp_token", "signature.signed_at", "ledger_epoch"],
+      "evidence_note": "signed_at plus optional RFC 3161-shaped tokens bind time metadata."
+    },
+    {
+      "requirement_id": "03.03.08",
+      "title": "Protection of audit information",
+      "record_types": ["signature", "pqc_signatures", "trusted_keys"],
+      "evidence_note": "Signatures and trusted-key windows protect integrity and acceptance of records."
+    }
+  ]
+}

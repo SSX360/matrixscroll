@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "matrixscroll"
-version = "0.9.0"
+version = "0.10.0"
 description = "MCP server for signed machine-action records, offline tool-surface checks, with device-agnostic custody and CNSA 2.0 Category 5 crypto (ML-DSA-87, ML-KEM-1024)."
 readme = "README.md"
 requires-python = ">=3.10"

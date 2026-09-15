@@ -79,3 +79,7 @@ site/
 # Local wheel/sdist verify trees
 dist-verify/
 
+# Rust build output
+rust/target/
+**/target/
+

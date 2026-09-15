@@ -31,15 +31,15 @@ artifact. A complete software supply-chain review may use both:
 
 ## Signer choices
 
-The file-backed provider is included for local use, tests, and CI. The completed
-Optional hardware custody keeps the Ed25519 private key inside a non-exportable
-element and is supplied through [SSX360 contact](https://ssx360.com/contact).
-Both paths produce the same public envelope format.
+The file-backed provider is included for local use, tests, and CI. Optional
+hardware custody keeps the Ed25519 private key inside a non-exportable element
+and is supplied through [SSX360 contact](https://ssx360.com/contact). Both paths
+produce the same public envelope format.
 
-## Landscape, checked 12 September 2026
+## Landscape, checked 15 September 2026
 
 The tables below compare shipped behaviour, with a version and a date for every
-row. Matrix Scroll's column names release `0.8.0` features only; anything
+row. Matrix Scroll's column names release `0.10.0` features only; anything
 planned lives in [`CRYPTO_ROADMAP.md`](CRYPTO_ROADMAP.md) and
 [`ROADMAP_2026-07.md`](ROADMAP_2026-07.md) under a Shipping now / In progress /
 Not label. Sources are numbered at the end of the page.
@@ -48,10 +48,11 @@ Not label. Sources are numbered at the end of the page.
 
 | Tool (version, date) | What it signs | Names the acting agent | Range or sequence check | Verifies offline | Post-quantum signature option | Hardware key path | License |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Matrix Scroll 0.8.0 (September 2026) | Commit envelopes, action records, MCP tool-surface manifests, agent traces | Yes: `actor_type` is `human`, `agent` or `ci`, with a required `tool` field [S1] | Scroll Gate verifies every commit in `base..head` and fails closed on an empty range (`allow_empty` opts out) [S1] | Yes, by default; no log lookup [S1] | ML-DSA-44/65/87 and SLH-DSA-SHA2 overlay through liboqs; `ml-dsa-87` default for new software keys; NIST ACVP sample vectors in the test suite [S1] | Device-agnostic IdentityProvider / HSM; no USB host path on PyPI [S1] | Apache-2.0; spec and vectors CC0 1.0 |
+| Matrix Scroll 0.10.0 (September 2026) | Commit envelopes, action records, MCP tool-surface manifests, agent traces, sealed packs, hash-linked ledger epochs | Yes: `actor_type` is `human`, `agent` or `ci`, with a required `tool` field [S1] | Scroll Gate verifies every commit in `base..head` and fails closed on an empty range (`allow_empty` opts out); ledger verifies hash links and epoch roots [S1] | Yes, by default; no log lookup [S1] | ML-DSA-44/65/87 and SLH-DSA-SHA2 overlay through liboqs; `ml-dsa-87` default for new software keys; NIST ACVP sample vectors in the test suite [S1] | Device-agnostic IdentityProvider / HSM; no USB host path on PyPI [S1] | Apache-2.0; spec and vectors CC0 1.0 |
+| Pipelock 3.5.0 (1 September 2026) | Ed25519 receipts for proxied HTTP/MCP/A2A/WS calls; signed flight-recorder checkpoints | Proxy identity | Hash-chained flight recorder | Yes (`verify-receipt`) | None | None | Apache-2.0 core; ELv2 enterprise |
 | Sigstore cosign 3.1.3 (6 August 2026) | OCI images, blobs, DSSE attestations | No; identity is the OIDC subject or the key [S2] | No | Yes, from a bundle with a trusted root [S3] | `ML_DSA_44/65/87` are experimental entries in protobuf-specs for private deployments; the public instance issues ECDSA, Ed25519 and RSA [S4] | PIV and PKCS#11 tokens (ECDSA P-256) [S5] | Apache-2.0 |
 | Sigstore gitsign 0.17.1 (5 August 2026) | Git commits and tags with short-lived Fulcio certificates | No | No | Default verification queries Rekor; offline mode is documented as experimental [S6] | None | None (ephemeral keys) | Apache-2.0 |
-| GitHub Artifact Attestations (GA 25 June 2024; SLSA Build L3 20 January 2026) | Build provenance and SBOM for artifacts | No; the workflow is the identity [S7] | No | `gh attestation verify --bundle` with a downloaded trusted root [S8] | Not stated | None | GitHub service |
+| GitHub Artifact Attestations (GA 25 June 2024; SLSA Build L3 20 January 2026) | Build provenance and artifact SBOM | No; the workflow is the identity [S7] | No | `gh attestation verify --bundle` with a downloaded trusted root [S8] | Not stated | None | GitHub service |
 | gittuf 0.16.0 (4 September 2026; OpenSSF incubating, beta) | Reference state log and policy metadata for a Git repository | No | Hash-chained log of reference updates, verifiable from any clone [S9] | Yes | None | SSH and GPG keys as the underlying signers | Apache-2.0 |
 | Git commit signatures on GitHub and GitLab (GPG, SSH, S/MIME) | Commit objects | No; GitHub's Copilot cloud agent signs with a GitHub-held key and adds an `Agent-Logs-Url` trailer (3 April 2026) [S10] | No | Yes, with the public keys | OpenSSH 10.4 (6 July 2026) adds an experimental `mldsa44-ed25519` key type that neither forge verifies [S11] | `sk-*` security keys, OpenPGP cards | Git: GPL-2.0 |
 
@@ -59,8 +60,8 @@ Not label. Sources are numbered at the end of the page.
 
 | Tool (version, date) | Method | Signed baseline | Drift detection | Runs offline |
 | --- | --- | --- | --- | --- |
-| Matrix Scroll `matrixscroll mcp scan`, `sign`, `verify` (0.6.0 onward; 0.8.0) | Manifest of tool names, descriptions and input schemas, signed with Ed25519 | Yes | `verify --baseline` exits `2` on a changed surface or an invalid signature [S1] | Yes |
-| MCP specification revision 2026-07-28 | Protocol text; `tools/list` is deterministic, tool annotations are hints | No signing of tool definitions; SEP-1766 proposes SHA-256 digest pinning (open since November 2025) [S12] | Client-defined | n/a |
+| Matrix Scroll `matrixscroll mcp scan`, `sign`, `verify` (0.10.0) | Manifest of tool names, descriptions and input schemas, signed with Ed25519 | Yes | `verify --baseline` exits `2` on a changed surface or an invalid signature [S1] | Yes |
+| MCP specification revision 2026-07-28 | Protocol text; `tools/list` is deterministic, tool annotations are hints | No signing of tool definitions; SEP-1766 (digest pinning) closed 24 June 2026 without adoption [S12] | Client-defined | n/a |
 | Snyk Agent Scan 0.6.3 (10 September 2026; formerly mcp-scan) | Prompt-injection and tool-poisoning detection through the Snyk API; local state file | No | Heuristic [S13] | Needs the API |
 | Cisco AI Defense MCP Scanner 4.8.4 (28 August 2026) | YARA rules, LLM judgement, behavioural code analysis | No | Heuristic [S14] | Partly |
 | Trail of Bits mcp-context-protector (no tagged release; `main` at `05e56c1`, 13 February 2026) | Trust-on-first-use pinning of instructions, descriptions and schemas | No (unsigned pins) | Blocks on change [S15] | Yes |
@@ -75,9 +76,13 @@ Run a scanner on the baseline once and let the signature hold it still.
 
 | Project (version, date) | Record | Signature | Chain | Notes |
 | --- | --- | --- | --- | --- |
-| Matrix Scroll 0.8.0 | Action records and commit envelopes with `actor_type`, `tool`, scope and commit SHA; signed agent traces | Ed25519, optional ML-DSA-87 or SLH-DSA overlay | Range verification over Git history | Offline verifier, CI gate, MCP manifests and a hardware signer in one SDK [S1] |
+| Matrix Scroll 0.10.0 | Action records and commit envelopes with `actor_type`, `tool`, scope and commit SHA; signed agent traces; ledger epochs | Ed25519, optional ML-DSA-87 or SLH-DSA overlay | Range verification over Git history; hash-linked ledger | Offline verifier, CI gate, MCP manifests, MCP intercept hook, sealed packs [S1] |
+| Pipelock 3.5.0 (1 September 2026) | Receipts for every proxied call | Ed25519 | Hash-chained flight recorder; optional Rekor | Cross-language conformance suite; automatic capture |
 | Asqav 0.10.10 (5 September 2026) | Compliance receipts for agent actions | ML-DSA-65 with RFC 3161 timestamps | Hash chain | Elastic License 2.0; individual IETF draft (August 2026) [S18] |
-| Vaara Receipt draft-07 (12 August 2026) | Paired authorization and execution receipts | ES256 default, ML-DSA-65 option | JCS-recomputable | Individual IETF draft [S19] |
+| Vaara Receipt draft-10 (4 September 2026) | Paired authorization and execution receipts | ES256 default, ML-DSA-65 option | JCS-recomputable | Individual IETF draft [S19] |
+| draft-birkholz-verifiable-agent-conversations-01 | COSE_Sign1 session and tool-invocation records | COSE | SCITT registration | Standards-track intent [S28] |
+| draft-kuehlewind-audit-architecture-01 | Audit architecture for agent systems | Profile-dependent | SCITT-oriented | Standards-track intent [S29] |
+| draft-mih-scitt-agent-action-capsule-04 (August 2026) | Agent action capsules as SCITT statements | COSE | SCITT | Standards-track intent [S30] |
 | AIVS (SwarmSync) | Proof bundles with a standalone verifier | Ed25519 | SHA-256 chain | W3C community group opened 5 April 2026 [S20] |
 | Phionyx AIREP 0.2.0-beta.1 (9 September 2026) | Runtime evidence envelopes | Ed25519 | Hash chain | AGPL-3.0 with dual licensing [S21] |
 | Microsoft Agent Governance Toolkit (public preview) | Audit log entries | HMAC (symmetric; verification needs the key) | Merkle chain | MIT [S22] |
@@ -85,10 +90,15 @@ Run a scanner on the baseline once and let the signature hold it still.
 | IETF SCITT architecture, RFC 9943 (30 June 2026) | Signed statements on append-only logs with receipts | COSE | Transparency log | The standards-track model for receipts of this kind [S24] |
 
 Matrix Scroll puts commit-time Git binding, MCP manifests, a fail-closed CI
-gate, a hardware Ed25519 path and the Category 5 overlay in one Apache-2.0
-package. Asqav and Vaara specify ML-DSA-65 and RFC 3161 timestamps at the
-receipt-format level; Matrix Scroll has no timestamp-authority integration and
-publishes to Rekor only through the dry-run bridge in `envelope-publish-rekor`.
+gate, a device-agnostic Ed25519 path, sealed packs, a hash-linked ledger, and
+the Category 5 overlay in one Apache-2.0 package. Asqav and Vaara specify
+ML-DSA-65 and RFC 3161 timestamps at the receipt-format level; Matrix Scroll
+ships an RFC 3161-shaped timestamp field and offline structure checks, with
+live TSA fetch optional. Pipelock leads on automatic capture of proxied calls;
+Matrix Scroll's MCP intercept hook is the cooperative-proxy path for the same
+problem. Microsoft's toolkit uses HMAC, which a third party cannot verify
+without the key. Rekor publication remains dry-run unless
+`MATRIXSCROLL_REKOR_PUBLISH=1` and `rekor-cli` are present.
 
 ### Regulatory context
 
@@ -111,9 +121,10 @@ cryptographic signing.
   which the Open Quantum Safe project does not recommend for production use.
   The ACVP tests show algorithm correctness on NIST sample vectors; they are not
   a CAVP certificate or a CMVP validation.
-- Hardware signing devices, when offered commercially, sign with Ed25519 only until a secure element ships a PQC algorithm. The public SDK does not ship a USB host transport.
-  sheets list no post-quantum algorithm, so any ML-DSA signature is produced in
-  software.
+- Hardware signing devices, when offered commercially, sign with Ed25519 only
+  until a secure element ships a PQC algorithm. The public SDK does not ship a
+  USB host transport. Secure-element datasheets that list no post-quantum
+  algorithm keep ML-DSA in software.
 - Records are tamper-evident. A signer that controls its own key can omit or
   alter an event before signing it; the protocol detects changes made after
   signing.
@@ -125,9 +136,10 @@ cryptographic signing.
 - `formal/tla/` holds TLA+ models of the canonical-bytes, dual-signature and
   gate rules with TLC configurations. They check the design; they do not verify
   the Python implementation.
-- Matrix Scroll is at release 0.8.0 with a prototype hardware signer supplied by
-  direct inquiry. Sigstore, gittuf and the vendor identity products above have
-  larger deployments.
+- Matrix Scroll is at release 0.10.0 with device-agnostic custody
+  (`IdentityProvider`) and a hardware path offered by direct inquiry. Sigstore,
+  gittuf, Pipelock, Asqav, and the vendor identity products above have larger
+  deployments.
 
 ## Limits
 
@@ -143,7 +155,7 @@ start with [`FIVE_MINUTES.md`](FIVE_MINUTES.md).
 
 ## Sources
 
-- [S1] This repository at release 0.9.0: `matrixscroll/gate.py` (`verify_range`), `schemas/commit-envelope.v1.json` and `schemas/action-envelope.v1.json` (`actor_type`, `tool`), `matrixscroll/mcp_core.py`, `docs/CRYPTO_ROADMAP.md`, `vectors/acvp-sigver-fips204-fips205.json`, `matrixscroll/sealed.py`.
+- [S1] This repository at release 0.10.0: `matrixscroll/gate.py` (`verify_range`), `matrixscroll/ledger.py` (SPEC §12), `schemas/commit-envelope.v1.json` and `schemas/action-envelope.v1.json` (`actor_type`, `tool`), `matrixscroll/mcp_core.py`, `matrixscroll/mcp_intercept.py`, `docs/CRYPTO_ROADMAP.md`, `vectors/acvp-sigver-fips204-fips205.json`, `matrixscroll/sealed.py`, `matrixscroll/timestamp.py`.
 - [S2] cosign v3.1.3 release notes, 6 August 2026: https://github.com/sigstore/cosign/releases/tag/v3.1.3
 - [S3] Sigstore verification documentation (bundle verification): https://docs.sigstore.dev/cosign/verifying/verify/
 - [S4] Sigstore protobuf-specs, `sigstore_common.proto` (experimental ML-DSA entries): https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_common.proto ; Sigstore post-quantum post, 6 June 2025: https://blog.sigstore.dev/post-quantum-2025/
@@ -161,7 +173,7 @@ start with [`FIVE_MINUTES.md`](FIVE_MINUTES.md).
 - [S16] MCPTrust: https://github.com/mcptrust/mcptrust
 - [S17] ToolHive registry criteria: https://docs.stacklok.com/toolhive/concepts/registry-criteria
 - [S18] Asqav on PyPI, 0.10.10, 5 September 2026: https://pypi.org/project/asqav/ ; draft-marques-asqav-compliance-receipts-08, 31 August 2026: https://datatracker.ietf.org/doc/html/draft-marques-asqav-compliance-receipts-08
-- [S19] draft-sirkkavaara-vaara-receipt-07, 12 August 2026: https://datatracker.ietf.org/doc/draft-sirkkavaara-vaara-receipt/07/
+- [S19] draft-sirkkavaara-vaara-receipt-10, 4 September 2026: https://datatracker.ietf.org/doc/draft-sirkkavaara-vaara-receipt/
 - [S20] AIVS specification and W3C community group: https://github.com/swarmsync-ai/aivs-spec ; https://www.w3.org/community/aivs/
 - [S21] Phionyx AIREP adapter, 0.2.0-beta.1, 9 September 2026: https://github.com/halvrenofviryel/phionyx-openai-agents
 - [S22] Microsoft Agent Governance Toolkit, audit and compliance tutorial: https://microsoft.github.io/agent-governance-toolkit/tutorials/04-audit-and-compliance/
@@ -170,3 +182,7 @@ start with [`FIVE_MINUTES.md`](FIVE_MINUTES.md).
 - [S25] EU AI Act Article 12: https://artificialintelligenceact.eu/article/12/ ; Digital Omnibus on AI in force 27 July 2026: https://www.lewissilkin.com/insights/2026/07/27/the-digital-omnibus-on-ai-enters-into-force-today-102nedo
 - [S26] OWASP Top 10 for Agentic Applications 2026, 9 December 2025: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
 - [S27] NIST NCCoE, Software and AI Agent Identity and Authorization: https://www.nccoe.nist.gov/projects/software-and-ai-agent-identity-and-authorization
+- [S28] draft-birkholz-verifiable-agent-conversations-01: https://datatracker.ietf.org/doc/draft-birkholz-verifiable-agent-conversations/
+- [S29] draft-kuehlewind-audit-architecture-01: https://datatracker.ietf.org/doc/draft-kuehlewind-audit-architecture/
+- [S30] draft-mih-scitt-agent-action-capsule-04: https://datatracker.ietf.org/doc/draft-mih-scitt-agent-action-capsule/
+- [S31] Pipelock: https://github.com/luckyPipewrench/pipelock

@@ -129,6 +129,11 @@ def sha256(data: bytes) -> bytes:
     return digest.finalize()
 
 
+def sha256_digest(data: bytes) -> bytes:
+    """Alias for ``sha256`` (raw digest bytes)."""
+    return sha256(data)
+
+
 def sha256_hex(data: bytes) -> str:
     return sha256(data).hex()
 
@@ -275,5 +280,6 @@ __all__ = [
     "pqc_sign",
     "pqc_verify",
     "sha256",
+    "sha256_digest",
     "sha256_hex",
 ]

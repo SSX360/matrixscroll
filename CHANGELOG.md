@@ -6,13 +6,36 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-15
+
+Path-to-10 assessment work: hash-linked ledger, supply-chain hygiene, primary
+ML-DSA-87 opt-in, Rust verifier start, and funder/auditor preparation packs.
+Evidence mapping only; not a certification claim.
+
+### Added
+- **Hash-linked ledger** (`matrixscroll.ledger`, SPEC §12): domain-separated
+  record hashes, Merkle epoch checkpoints, three-valued `Verdict` API, CLI
+  `matrixscroll ledger append|epoch|verify`, schemas, tests, and
+  `formal/tla/LedgerChain.tla`.
+- **Primary ML-DSA-87 mode** via `MATRIXSCROLL_PRIMARY_ALG=ml-dsa-87` (requires
+  `matrixscroll[pqc]`); composite `composite-ml-dsa-65-ed25519` keeps Ed25519
+  primary and attaches ML-DSA-65.
+- RFC 3161-shaped timestamp field, policy knobs `require_timestamp` /
+  `require_receipt`, trusted-key lifecycle windows, MCP intercept helper,
+  OCSF/OTel export, JCS alias, SCITT mapping, I-D scaffold, SSDF map, SBOM
+  script, Scorecard workflow, SHA-pinned CI actions, FIPS policy switch stub
+  (`MATRIXSCROLL_FIPS`), Rust `matrixscroll-verify` crate with Kani stubs.
+- Path-to-10 packs: `docs/AUDIT_RFP.md`, `docs/OPENSSF_SANDBOX_APPLICATION.md`,
+  `docs/CAVP_CMVP_ROUTE.md`, `docs/SCITT_DATATRAILS_PLAYBOOK.md`,
+  `docs/briefings/ERA_OF_STRUCTURAL_TRUST_CORRECTED.md`,
+  `docs/PILOT_EVIDENCE_PACK_TEMPLATE.md`,
+  `docs/ASSESSMENT_PROGRESS_2026-09-15.md`.
+
 ### Changed
-- Public gold standard documented as
-  [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md) with
-  diagram `docs/assets/formal-mathematics-of-accountability.png`. README,
-  doctrine, formal methods, exit-code vocabulary (CONSISTENT / INCONSISTENT /
-  INDETERMINATE), and agent prose rules now point at that bar. Lean 4 / F\*
-  extracted verifier remains the bar, not a shipping claim.
+- README labels Shipping vs Bar for the gold-standard pipeline.
+- COMPARISON.md repaired and extended (Pipelock, IETF agent-record drafts,
+  SEP-1766 closed).
+- CRYPTO_ROADMAP: ML-DSA first-class as opt-in primary.
 
 ## [0.9.0] - 2026-09-13
 

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/ledger-record.v1.json",
+  "title": "Matrix Scroll ledger record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "index", "prev_hash", "payload", "record_hash", "created_at"],
+  "properties": {
+    "schema": { "const": "matrixscroll.ledger_record.v1" },
+    "index": { "type": "integer", "minimum": 0 },
+    "prev_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "payload": { "type": "object" },
+    "record_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  }
+}

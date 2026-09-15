@@ -68,9 +68,9 @@ is audit-proof.
 
 ## Claims that must stay true
 
-- **Version.** The published version is `0.9.0`. It is set in `pyproject.toml`
+- **Version.** The published version is `0.10.0`. It is set in `pyproject.toml`
   and confirmed by `https://pypi.org/pypi/matrixscroll/json`. Pin it explicitly
-  in every install example. Supported line: 0.7.0–0.9.0. Never assert a version
+  in every install example. Supported line: 0.7.0–0.10.0. Never assert a version
   you have not checked.
 - **Custody.** Device-agnostic `IdentityProvider`; default is emulated
   file-backed keys. Do not describe a USB/SE050 host path as shipping on PyPI.
