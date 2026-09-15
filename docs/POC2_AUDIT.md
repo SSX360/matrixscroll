@@ -1,6 +1,6 @@
 # Matrix Scroll release evidence
 
-This checklist records the public evidence for Matrix Scroll **0.9.0**. It is a
+This checklist records the public evidence for Matrix Scroll **0.10.0**. It is a
 release-readiness record, not a third-party audit or certification. Use it when
 assembling NIST, DARPA, or similar packages that need a citable software
 baseline.
@@ -9,20 +9,23 @@ baseline.
 
 | Surface | Current reference |
 | --- | --- |
-| Python package | `matrixscroll==0.9.0` (supported floor also: `0.7.0` on PyPI) |
+| Python package | `matrixscroll==0.10.0` (supported floor: `0.7.0` on PyPI) |
 | MCP server | `matrixscroll-mcp`, **13** tools |
-| GitHub Action | `SSX360/matrixscroll/.github/actions/verify@action-v1` |
+| GitHub Action | `SSX360/matrixscroll/.github/actions/verify@action-v1` (default pin `0.10.0`) |
 | Protocol source | [`SPEC.md`](../SPEC.md) and [`schemas/`](../schemas/) |
-| Security policy | [`SECURITY.md`](../SECURITY.md) — supported versions **0.7.x–0.9.x** |
+| Security policy | [`SECURITY.md`](../SECURITY.md) — supported versions **0.7.x–0.10.x** |
 | Release evidence log | [`docs/EVIDENCE.md`](EVIDENCE.md) — digests, PEP 740 provenance, PQC boundary |
-| Public git history | Begins at the supported 0.9.0 line; earlier history is not published |
+| Public git history | Begins at the supported 0.9.0 line; 0.10.0 continues that line |
 
 ## Verification behavior
 
 - Ed25519 signatures are checked over deterministic canonical JSON bytes.
-- Optional PQC overlay (ML-DSA / SLH-DSA) and sealed evidence packs (ML-KEM-1024
-  hybrid) require `matrixscroll[pqc]`. Parameter-set readiness through liboqs;
-  not a FIPS or CNSA certification claim.
+- Optional primary ML-DSA-87 (`MATRIXSCROLL_PRIMARY_ALG=ml-dsa-87`), PQC overlay
+  (ML-DSA / SLH-DSA), and sealed evidence packs (ML-KEM-1024 hybrid) require
+  `matrixscroll[pqc]`. Parameter-set readiness through liboqs; not a FIPS or
+  CNSA certification claim.
+- Hash-linked ledger records and epoch checkpoints verify under SPEC §12 with
+  three-valued verdicts (CONSISTENT / INCONSISTENT / INDETERMINATE).
 - Invalid signatures, unsupported schemas, malformed records, and empty commit
   ranges fail closed by default.
 - Range checks can read local envelopes, Git notes, or exported bundles without
@@ -39,18 +42,8 @@ baseline.
 - Historical envelopes with `signature.mode` equal to `"hardware"` still verify;
   new hardware signing is not offered through PyPI extras.
 
-## Release chain
+## How to re-run
 
-- GitHub Actions builds the wheel and source distribution from the release
-  repository state.
-- PyPI Trusted Publishing supplies provenance attestations for both artifacts.
-- `python scripts/release-readiness.py` checks package, README, and registry
-  consistency when present in the tree.
-
-## What this is not
-
-- Not a third-party security audit report.
-- Not evidence that any deployment is certified under CNSA 2.0, FIPS 140, or
-  Common Criteria.
-- Not a substitute for your organisation's own verification of digests and
-  signatures against this release.
+See [`docs/EVIDENCE.md`](EVIDENCE.md) for digests, provenance curl, and offline
+commands. Assessment progress vs the 15 Sep funder scorecard is in
+[`docs/ASSESSMENT_PROGRESS_2026-09-15.md`](ASSESSMENT_PROGRESS_2026-09-15.md).

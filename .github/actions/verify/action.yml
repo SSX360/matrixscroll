@@ -38,9 +38,9 @@ inputs:
     required: false
     default: "3.12"
   matrixscroll-version:
-    description: matrixscroll package version pin (recommended 0.9.0)
+    description: matrixscroll package version pin (recommended 0.10.0)
     required: false
-    default: "0.9.0"
+    default: "0.10.0"
   package-source:
     description: Workspace-local package path for repository self-tests; leave empty for PyPI
     required: false

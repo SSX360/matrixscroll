@@ -54,8 +54,9 @@ Out of scope:
 Pre-1.0 there is no extended support window beyond the table above. Pin to a
 known-good supported version in production until 1.0.
 
-Public git history on `SSX360/matrixscroll` begins at the supported 0.10.0 line.
-Earlier development history is not published.
+Public git history on `SSX360/matrixscroll` begins at the supported 0.9.0
+squash line; current `main` is **0.10.0**. Earlier development history is not
+published.
 
 ## Disclosure
 
