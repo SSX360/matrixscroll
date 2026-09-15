@@ -7,7 +7,7 @@ Signed machine-action records with offline verification for MCP, Git, and CI.
 [![Python](https://img.shields.io/pypi/pyversions/matrixscroll)](https://pypi.org/project/matrixscroll/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/SSX360/matrixscroll/blob/main/LICENSE)
 
-![Matrix Scroll: The Formal Mathematics of Accountability. Raw event to domain-separated hash to time-epoch batching to FIPS 204 ML-DSA; post-quantum proofs, offline verification, fail-closed verdicts; Rule of Refusal.](docs/assets/formal-mathematics-of-accountability.png)
+![SSX360 Matrix Scroll: Trust must be checkable. Open verifier matrixscroll 0.10.0; signed sources Ed25519 plus ML-DSA; ledger available.](docs/assets/ssx360-trust-checkable.png)
 
 **Shipping / Bar.** Shipping: raw event → domain-separated hash (`matrixscroll.ledger`) → time-epoch checkpoints → Ed25519 signature with optional FIPS 204 ML-DSA overlay. Bar: ML-DSA-only primary mode as default, Lean 4 / F\* extracted verifier. Reviewers verify offline. Results are **CONSISTENT**, **INCONSISTENT**, or **INDETERMINATE**. AI never enters the verified core and never decides a technical conclusion. Full mapping: [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md).
 
