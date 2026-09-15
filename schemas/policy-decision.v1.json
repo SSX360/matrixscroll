@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/policy-decision.v1.json",
+  "title": "Matrix Scroll Policy Decision v1",
+  "description": "Records which policy version allowed an action. Evidence mapping for policy audit trails, not a certification claim.",
+  "type": "object",
+  "required": ["schema", "policy_version", "decision", "action_ref", "decided_at"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "matrixscroll.policy_decision.v1"
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque version string or content digest of the policy document."
+    },
+    "policy_id": { "type": "string" },
+    "decision": {
+      "type": "string",
+      "enum": ["allow", "deny", "require_human"]
+    },
+    "reasons": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "action_ref": {
+      "type": "object",
+      "required": ["envelope_digest"],
+      "additionalProperties": true,
+      "properties": {
+        "envelope_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "action_type": { "type": "string" }
+      }
+    },
+    "decided_at": { "type": "string" },
+    "evaluator": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "object",
+      "description": "Optional Ed25519 signature over the unsigned body."
+    }
+  }
+}

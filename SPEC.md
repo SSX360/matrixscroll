@@ -24,12 +24,17 @@ the schema string.
 
 ## 2. Algorithm
 
-- **Signing:** Ed25519 (RFC 8032). 32-byte private seed, 32-byte public key,
-  64-byte signature.
+- **Default primary signing:** Ed25519 (RFC 8032). 32-byte private seed,
+  32-byte public key, 64-byte signature.
+- **Optional primary signing (0.10.0):** ML-DSA-87 as the primary
+  `signature.algorithm` when `MATRIXSCROLL_PRIMARY_ALG=ml-dsa-87` and the
+  `matrixscroll[pqc]` extra is installed. Device id remains
+  `MS-` + uppercase hex of `SHA-256(public_key_bytes)[0:8]` (§3).
 - **Hash for device id derivation:** SHA-256 of the raw public key bytes.
 
-No other algorithms are valid for v1. A `signature.algorithm` value other
-than `"ed25519"` MUST be rejected.
+A `signature.algorithm` value other than `"ed25519"` or an allowed ML-DSA
+parameter set (`ml-dsa-44`, `ml-dsa-65`, `ml-dsa-87`) MUST be rejected by the
+primary verifier. Overlay algorithms remain in `pqc_signatures` (§11).
 
 ## 3. Device identifier
 
@@ -143,9 +148,14 @@ A corrupt or truncated store **MUST** fail loud (no silent re-mint).
 
 ## 8. Hardware mode
 
-In `MATRIXSCROLL_MODE=hardware`, the provider talks to a secure element (the
-reference device uses an NXP SE050) and `device.json` holds only public
-material. The protocol is identical; only the provider implementation changes.
+In `MATRIXSCROLL_MODE=hardware`, the provider keeps the Ed25519 private key
+non-exportable behind an operator-supplied `IdentityProvider` (HSM, secure
+element, or other device). `device.json` holds only public material. The
+protocol is identical; only the provider implementation changes.
+
+The public SDK does not ship a USB or NXP SE050 host transport. SSX360 may
+supply completed hardware through direct contact; that path is outside this
+repository's required product surface.
 
 ## 9. Conformance
 
@@ -284,3 +294,69 @@ first, the PQC signing input is byte-identical to the Ed25519 signing input.
 
 JSON Schema: [`schemas/pqc-signature.v1.json`](schemas/pqc-signature.v1.json),
 [`schemas/commit-envelope.v1.1.json`](schemas/commit-envelope.v1.1.json).
+
+Hardware mode (`signature.mode` = `"hardware"`) means the Ed25519 private key
+is non-exportable on an operator-supplied device or HSM behind
+`IdentityProvider`. The public SDK does not ship a USB/SE050 host transport.
+PQC overlays remain software-only until a FIPS 140-3 module path is documented
+in `docs/CRYPTO_ROADMAP.md`.
+
+## 12. Hash-linked ledger and epoch checkpoints
+
+This section is the on-the-wire form of the gold-standard pipeline stages
+"domain-separated hash" and "time-epoch batching". It maps to NIST IR 8536
+hash-linked traceability chains as evidence mapping, not a certification claim.
+
+### 12.1 Domain-separated hashes
+
+Every ledger hash is `SHA-256(tag || data)` with a fixed ASCII tag ending in
+NUL:
+
+| Tag string | Constant | Use |
+| --- | --- | --- |
+| `matrixscroll/v1/record` | `TAG_RECORD` | Record body hash |
+| `matrixscroll/v1/leaf` | `TAG_LEAF` | Merkle leaf over a record hash |
+| `matrixscroll/v1/node` | `TAG_NODE` | Merkle interior node |
+| `matrixscroll/v1/epoch` | `TAG_EPOCH` | Epoch body digest (informational) |
+
+### 12.2 Ledger record
+
+Schema `matrixscroll.ledger_record.v1`. Fields:
+
+- `index` — zero-based contiguous position
+- `prev_hash` — hex SHA-256 of the previous record, or 64 zero hex digits for genesis
+- `payload` — JSON object (typically a digest reference or signed envelope)
+- `record_hash` — `domain_hash(TAG_RECORD, canonical({schema,index,prev_hash,payload}))`
+- `created_at` — RFC 3339 UTC, informational
+
+A conforming verifier MUST reject reordered indices, a non-matching
+`prev_hash`, a recomputed `record_hash` mismatch, and a non-contiguous index
+sequence. A truncated prefix that still verifies is CONSISTENT for that prefix;
+callers compare tips against epoch checkpoints to detect suffix omission.
+
+JSON Schema: [`schemas/ledger-record.v1.json`](schemas/ledger-record.v1.json).
+
+### 12.3 Epoch checkpoint
+
+Schema `matrixscroll.ledger_epoch.v1`. Fields:
+
+- `epoch_id`, `start_index`, `end_index`, `record_count`
+- `tip_hash` — `record_hash` of the last record in range
+- `root_hash` — binary Merkle root over leaf-hashed record hashes (odd nodes
+  duplicated; empty range is forbidden)
+- optional `signature` / `pqc_signatures` over the unsigned body (§4 / §11)
+
+JSON Schema: [`schemas/ledger-epoch.v1.json`](schemas/ledger-epoch.v1.json).
+
+### 12.4 Three-valued verdict
+
+Chain and epoch verification return a first-class verdict, not only an exit code:
+
+| Verdict | Exit code | Meaning |
+| --- | --- | --- |
+| CONSISTENT | 0 | Links, hashes, and required signatures verify |
+| INDETERMINATE | 1 | Malformed input or incomplete data to decide |
+| INCONSISTENT | 2 | Tamper, reorder, fork, bad signature, or epoch mismatch |
+
+Reference: `matrixscroll.ledger`, `matrixscroll.verdict`,
+`tests/test_ledger.py`, `formal/tla/LedgerChain.tla`.

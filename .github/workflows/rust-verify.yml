@@ -1,0 +1,43 @@
+name: rust-verify
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rust-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rust/**"
+      - ".github/workflows/rust-verify.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "rust/**"
+      - ".github/workflows/rust-verify.yml"
+  workflow_dispatch:
+
+jobs:
+  cargo-test:
+    name: ubuntu · cargo test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo test
+        run: cargo test -p matrixscroll-verify
+
+      # Kani is optional. Install cargo-kani locally and run `cargo kani` in
+      # rust/matrixscroll-verify when you want the invariant proofs. This job
+      # intentionally does not install or run Kani.

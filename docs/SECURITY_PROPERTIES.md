@@ -1,6 +1,6 @@
 # Matrix Scroll security properties
 
-Machine-checkable guarantees for the reference SDK (v0.7.0). Properties marked
+Machine-checkable guarantees for the reference SDK (v0.10.0). Properties marked
 **verified** have Hypothesis property tests in `tests/test_security_properties.py`.
 **Formal TLA+ models** in [`formal/tla/`](../formal/tla/) are checked by TLC in
 [`.github/workflows/formal-verify.yml`](../.github/workflows/formal-verify.yml).
@@ -13,7 +13,8 @@ See [`formal/PROPERTIES.md`](../formal/PROPERTIES.md) for the full registry.
 | **P3** | Wrong-key rejection | A signature valid under key A MUST NOT verify under key B's public key. | **Verified** (Hypothesis) |
 | **P4** | Canonical determinism | Identical logical manifests produce identical signing input bytes after canonical JSON encoding (sorted keys, ASCII escapes, no NaN). | **Verified** (unit + vectors) |
 | **P5** | Offline verification | Envelope verification requires no network, hosted API, or hardware ping once the envelope and trusted key set are local. | **Verified** (unit) |
-| **P6** | Algorithm binding | Only Ed25519 (RFC 8032) signatures with `algorithm: "ed25519"` are accepted; other algorithms are rejected. | **Verified** (unit + vectors) |
+| **P6** | Algorithm binding | Only Ed25519 (RFC 8032) signatures with `algorithm: "ed25519"` are accepted as the primary block; other primary algorithms are rejected. | **Verified** (unit + vectors) |
+| **P7** | Ledger chain integrity | Reorder, omit-with-gap, fork, and post-hash payload tamper yield INCONSISTENT; a truncated verifying prefix is CONSISTENT; signed epoch tip and Merkle root bind the slice. | **Verified** (`tests/test_ledger.py`, `formal/tla/LedgerChain.tla`) |
 
 ## Cryptographic backend
 

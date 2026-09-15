@@ -20,7 +20,7 @@ device-agnostic: implement `IdentityProvider` for your HSM or secure element, or
 use the default file-backed emulated provider.
 
 ```bash
-pip install "matrixscroll==0.9.0"
+pip install "matrixscroll==0.10.0"
 ```
 
 ## Start here
@@ -62,11 +62,11 @@ section. If you are trying to get something working, read the how-to guides.
 
 ## Verification boundaries
 
-- **Shipping now.** PyPI `matrixscroll==0.9.0`, Git post-commit hooks,
+- **Shipping now.** PyPI `matrixscroll==0.10.0`, Git post-commit hooks,
   `sign-action`, `scroll commit`, `envelope-verify`, Scroll Gate pull-request
   verification, the GitHub Action, the `matrixscroll-mcp` stdio server (13 tools),
   and sealed evidence packs (`matrixscroll[pqc]`). Emulated mode is the default
-  provider. Supported install line: **0.7.0–0.9.0**.
+  provider. Supported install line: **0.7.0–0.10.0**.
 - **In progress.** External hardware key backends via `IdentityProvider`;
   transparency-log integration; hosted verification as a required CI check.
 - **Not.** Identity and access management, sandboxing, prompt filtering, or an

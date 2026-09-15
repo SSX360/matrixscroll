@@ -9,7 +9,7 @@ Signed machine-action records with offline verification for MCP, Git, and CI.
 
 ![Matrix Scroll: The Formal Mathematics of Accountability. Raw event to domain-separated hash to time-epoch batching to FIPS 204 ML-DSA; post-quantum proofs, offline verification, fail-closed verdicts; Rule of Refusal.](docs/assets/formal-mathematics-of-accountability.png)
 
-**Gold standard.** Raw event → domain-separated hash → time-epoch batching → post-quantum signature (FIPS 204 ML-DSA). Reviewers verify offline. Results are **CONSISTENT**, **INCONSISTENT**, or **INDETERMINATE**. AI never enters the verified core and never decides a technical conclusion. Full mapping to the shipping package: [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md).
+**Shipping / Bar.** Shipping: raw event → domain-separated hash (`matrixscroll.ledger`) → time-epoch checkpoints → Ed25519 signature with optional FIPS 204 ML-DSA overlay. Bar: ML-DSA-only primary mode as default, Lean 4 / F\* extracted verifier. Reviewers verify offline. Results are **CONSISTENT**, **INCONSISTENT**, or **INDETERMINATE**. AI never enters the verified core and never decides a technical conclusion. Full mapping: [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md).
 
 An MCP server can change its tool descriptions or input schemas after installation. A Git commit can also declare an actor or tool without carrying a signed authorization record. Matrix Scroll records both surfaces as Ed25519-signed evidence that reviewers can verify offline, with an optional ML-DSA-87 post-quantum overlay and ML-KEM-1024 sealed evidence packs on the CNSA 2.0 Category 5 track.
 
@@ -49,7 +49,7 @@ See [docs/explanation/gold-standard.md](docs/explanation/gold-standard.md) and [
 Install the current release from PyPI:
 
 ```bash
-pip install "matrixscroll[mcp]==0.9.0"
+pip install "matrixscroll[mcp]==0.10.0"
 ```
 
 Register the stdio server in your MCP client:
@@ -77,7 +77,7 @@ After your client connects, call `status`. The server reports the local identity
 
 ## MCP tools
 
-The `0.9.0` server exposes these tools:
+The `0.10.0` server exposes these tools:
 
 | Tool | What it does | Network or write behavior |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ An API key is optional. Local signing, offline verification, and MCP manifest ch
 Matrix Scroll records an MCP server's tool names, descriptions, and input schemas in a signed manifest. Re-scan the server after an update and compare it with the install-time baseline.
 
 ```bash
-pip install "matrixscroll[mcp]==0.9.0"
+pip install "matrixscroll[mcp]==0.10.0"
 
 matrixscroll mcp scan \
   --connect stdio \
@@ -136,7 +136,7 @@ matrixscroll mcp scan --tools tools.json --output manifest.json --pretty
 
 Signing goes through an `IdentityProvider` (`public_key_bytes`, `sign`, `mode`). The default `emulated` provider stores an Ed25519 key under `~/.matrixscroll`. To adapt Matrix Scroll to any device or HSM, implement that interface and select it with `MATRIXSCROLL_MODE` (or pass a provider instance to the library APIs). Experimental `tpm` and `yubikey` previews remain available; they are not the Category 5 story and do not claim hardware ML-DSA.
 
-Historical envelopes with `signature.mode` equal to `"hardware"` still verify. The USB/SE050 signing path was removed in 0.9.0; `MATRIXSCROLL_MODE=hardware` raises instead of opening a serial port.
+Historical envelopes with `signature.mode` equal to `"hardware"` still verify. The USB/SE050 signing path was removed in 0.10.0; `MATRIXSCROLL_MODE=hardware` raises instead of opening a serial port.
 
 Sealed evidence packs (`matrixscroll.sealed`) encrypt a payload to a recipient's ML-KEM-1024 key with a hybrid X25519 + ML-KEM-1024 agreement, AES-256-GCM for the body, and Ed25519 plus ML-DSA-87 signatures over the pack. Install `matrixscroll[pqc]`. This is parameter-set readiness through liboqs, not a CNSA certification or FIPS validation.
 
@@ -145,7 +145,7 @@ Sealed evidence packs (`matrixscroll.sealed`) encrypt a payload to a recipient's
 The Python package includes a CLI and Git hooks for workflows that do not use MCP.
 
 ```bash
-pip install "matrixscroll==0.9.0"
+pip install "matrixscroll==0.10.0"
 matrixscroll hook-install
 
 export MATRIXSCROLL_ACTOR_TYPE=ci
@@ -168,9 +168,9 @@ matrixscroll verify release.signed.json
 
 <!-- vale ai-tells.ShipOveruse = NO -->
 
-- Release: PyPI `matrixscroll==0.9.0` installs the 13-tool stdio MCP server and Git hooks, the MCP Trust Scanner, offline verification, sealed evidence packs, and device-agnostic custody.
+- Release: PyPI `matrixscroll==0.10.0` installs the 13-tool stdio MCP server and Git hooks, the MCP Trust Scanner, offline verification, sealed evidence packs, and device-agnostic custody.
 - Hosted tools: `list_envelopes` and the hosted modes of `verify_pr_range` and `audit_export` require `SSX360_API_KEY` and a deployed SSX360 API. Local signing and verification remain available without a key.
-- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). Release `0.9.0` defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment (`0.7.0` and earlier default to `ml-dsa-65`; pass `--algorithm` or `MATRIXSCROLL_PQC` to choose a set explicitly). That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
+- Post-quantum evaluation path: the optional `matrixscroll[pqc]` extra provides ML-DSA and SLH-DSA through liboqs, including Category 5 sets (`ml-dsa-87`, `slh-dsa-sha2-256s`/`256f`). Release `0.10.0` defaults new software keys to `ml-dsa-87` for CNSA 2.0 signature-parameter alignment (`0.7.0` and earlier default to `ml-dsa-65`; pass `--algorithm` or `MATRIXSCROLL_PQC` to choose a set explicitly). That is parameter-set readiness, not CNSA certification, FIPS CMVP validation, or NSA approval. This module has no CMVP validation. liboqs states that applications should not rely on it to protect sensitive data in production.
 - CNSA 2.0 full-suite track: `matrixscroll.kem` provides ML-KEM-1024 primitives (ACVP-checked). Sealed evidence packs in `matrixscroll.sealed` use hybrid X25519 + ML-KEM-1024 with Ed25519 + ML-DSA-87. Same boundary as the signature overlay: evidence mapping against NIST vectors, not a validation. See `docs/CRYPTO_ROADMAP.md`.
 - Verification scope: an Ed25519 signature proves that the signed bytes match and correspond to the included public key. A trusted-key and authorization policy establishes whether the declared `actor_type` can perform the action.
 - Adjacent controls: identity and access management, sandboxing, prompt filtering, and agent runtime policy remain separate controls.
@@ -181,11 +181,11 @@ matrixscroll verify release.signed.json
 
 GitHub Actions publishes each Matrix Scroll release through PyPI Trusted Publishing. PyPI records a PEP 740 attestation for the wheel and source distribution.
 
-Ask PyPI for the `0.9.0` wheel provenance:
+Ask PyPI for the `0.10.0` wheel provenance:
 
 ```bash
 curl -H "Accept: application/vnd.pypi.integrity.v1+json" \
-  https://pypi.org/integrity/matrixscroll/0.9.0/matrixscroll-0.9.0-py3-none-any.whl/provenance
+  https://pypi.org/integrity/matrixscroll/0.10.0/matrixscroll-0.10.0-py3-none-any.whl/provenance
 ```
 
 The response names the GitHub publisher:
@@ -203,7 +203,7 @@ Compare the attested `subject[].digest.sha256` value with the SHA-256 digest of 
 
 ## Ten-minute check for reviewers
 
-Five questions a programme manager or auditor asks first, each with the command that answers it. Everything below runs offline from a clone of this repository with `pip install "matrixscroll[pqc]==0.9.0"` (the `pqc` extra is needed only for the last two lines of question 3).
+Five questions a programme manager or auditor asks first, each with the command that answers it. Everything below runs offline from a clone of this repository with `pip install "matrixscroll[pqc]==0.10.0"` (the `pqc` extra is needed only for the last two lines of question 3).
 
 1. **Does it run in one command, offline?** `matrixscroll verify vectors/valid_simple.json` prints `"ok": true` and exits `0`; `matrixscroll verify vectors/tampered_field.json` prints `"ok": false` and exits `2`. Neither command opens a network connection. Exit codes are fixed in [docs/reference/exit-codes.md](https://github.com/SSX360/matrixscroll/blob/main/docs/reference/exit-codes.md).
 2. **Is there a second implementation of the verifier?** `python tools/independent_verify.py vectors/` re-implements SPEC.md sections 3 to 6 from the text, with its own canonical serializer and a pure-Python RFC 8032 Ed25519, and imports nothing from the SDK. It must reach the same verdict as the SDK on every committed vector and on 500 randomly generated documents; `tests/test_independent_verifier.py` enforces that in CI on every change.

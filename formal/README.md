@@ -26,6 +26,11 @@ fuzzes implementations; TLC falsifies **designs** before code ships.
 | [`tla/ScrollGate.tla`](tla/ScrollGate.tla) | PR merge gate | `matrixscroll/gate.py`, `ssx360 check` |
 | [`tla/AuthorityFive.tla`](tla/AuthorityFive.tla) | Five commercial authorities | AP2 mandate roadmap, WAYE-style governance |
 | [`tla/OrgPlanSync.tla`](tla/OrgPlanSync.tla) | Entitlement → org plan lattice | `lib/platform-service.ts` (SSX360) |
+| [`tla/LedgerChain.tla`](tla/LedgerChain.tla) | Hash-linked ledger / epochs | `matrixscroll/ledger.py` |
+| [`tla/DualSignature.tla`](tla/DualSignature.tla) | Ed25519 + PQC overlay | `matrixscroll/pqc.py`, policy `require_pqc` |
+| [`tamarin/`](tamarin/) | Tamarin stubs (not necessarily runnable) | Ledger lemmas; see `tamarin/README.md` |
+| [`tla/LedgerChain.tla`](tla/LedgerChain.tla) | Hash-linked ledger | `matrixscroll/ledger.py`, SPEC §12 |
+| [`tamarin/`](tamarin/) | Protocol attacker model (stub) | WP5 track; not yet CI-gated |
 | [`pluscal/*.tla`](pluscal/) | Human-editable PlusCal sources | Compile with TLA+ Toolbox → sync `tla/` |
 | [`PROPERTIES.md`](PROPERTIES.md) | Property ID registry | `docs/SECURITY_PROPERTIES.md` |
 

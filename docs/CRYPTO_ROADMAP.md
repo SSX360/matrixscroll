@@ -61,6 +61,7 @@ against the enabled mechanism list at run time.
 | Executive Order 14412 (22 June 2026) and OMB M-26-15 | 31 December 2030 / 31 December 2031 | Federal high-value assets: quantum-resistant key establishment by end of 2030, signatures by end of 2031 |
 | Department of War PQC Strategy (dated 1 April 2026) | 31 December 2030 / 31 December 2031 | Systems support PQC or are phased out by end of 2030; use PQC by end of 2031 |
 | NIST IR 8547 (initial public draft, November 2024) | 2030 / 2035 | Quantum-vulnerable signatures at 112-bit strength deprecated after 2030; ECDSA, RSA and EdDSA disallowed after 2035. Still a draft as of 12 September 2026 |
+| Composite pairings (Matrix Scroll primary-mode roadmap) | Policy-driven | `composite-ml-dsa-65-ed25519` is named in `MATRIXSCROLL_PRIMARY_ALG` for hybrid classical+PQC primary signing (experimental; Ed25519 remains default). `ML-DSA-87+Ed448` is planned. Dates follow IR 8547 / CNSA 2.0 tables above; naming a pairing is parameter readiness, not a certification claim |
 
 Ed25519 falls under the 2035 disallowance line in the IR 8547 draft. Matrix Scroll keeps
 Ed25519 as the base scheme through the transition and adds the overlay where policy asks
@@ -90,7 +91,8 @@ table into working code, in this order.
 | ---- | ---------------- | ------ | -------- |
 | 1. ML-KEM-1024 primitives | `matrixscroll.kem`: `kem_generate_keypair`, `kem_encapsulate`, `kem_decapsulate`, deterministic key generation from the FIPS 203 seed `d \|\| z` | **Shipping now** (0.8.0) | `tests/test_acvp_mlkem.py` against `vectors/acvp-mlkem-fips203.json`: 5 keyGen, 18 decapsulation (8 NIST ciphertexts, 10 decapsulation cases including implicit rejection) |
 | 2. Sealed evidence packs | An `evidence-pack` export encrypted to an auditor's public key with a hybrid X25519 + ML-KEM-1024 key agreement (the combiner follows the TLS hybrid construction), AES-256-GCM for the body, and the pack digest signed with Ed25519 plus ML-DSA-87 | **Shipping now** (0.9.0) | `schemas/sealed-evidence-pack.v1.json`, `matrixscroll.sealed` (`seal_evidence_pack` / `unseal_evidence_pack`), `tests/test_sealed.py`; ACVP vectors for the KEM half already pass |
-| 3. ML-DSA-87 as a first-class signature | A verifier profile that accepts an ML-DSA-87 signature without an Ed25519 companion once an organisation's policy sets a sunset date | **In progress** (policy field designed; `require_pqc` exists, PQC-only acceptance does not) | `formal/tla/DualSignature.tla` extended before code |
+| 3. ML-DSA-87 as a first-class signature | Opt-in primary via `MATRIXSCROLL_PRIMARY_ALG=ml-dsa-87` (requires `matrixscroll[pqc]`); composite `composite-ml-dsa-65-ed25519`; Ed25519 remains the default | **Shipping now** (0.10.0) | `matrixscroll/manifest.py`, `matrixscroll/signing_modes.py`, `tests/test_primary_mldsa.py`; liboqs parameter readiness only |
+
 | 4. Hardware ML-DSA-87 | External secure-element firmware signing ML-DSA-87 (not shipped in this SDK) | **Not** until a secure element ships FIPS 204 in firmware | Vendor roadmap tracking; TPM 2.0 library specification revision 185 (March 2026) adds ML-DSA to the TPM side |
 
 Each step keeps the claim discipline above: NIST sample vectors show that the

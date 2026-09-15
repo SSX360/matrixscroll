@@ -1,0 +1,62 @@
+{
+  "schema": "matrixscroll.controls_mapping.v1",
+  "framework": "NIST SP 800-53 Revision 5.2",
+  "hedge": "Evidence mapping, not a certification claim. Control IDs name where Matrix Scroll record types can supply evidence; they do not assert that a deployment is 800-53 assessed or authorized.",
+  "version": "0.9.x",
+  "mappings": [
+    {
+      "control_id": "AU-2",
+      "title": "Event Logging",
+      "record_types": ["commit_envelope", "action_envelope", "ledger_record"],
+      "evidence_note": "Signed envelopes and ledger records document which events were recorded."
+    },
+    {
+      "control_id": "AU-3",
+      "title": "Content of Audit Records",
+      "record_types": ["commit_envelope", "action_envelope", "policy_decision"],
+      "evidence_note": "Actor, tool, schema, and payload fields supply structured audit content."
+    },
+    {
+      "control_id": "AU-8",
+      "title": "Time Stamps",
+      "record_types": ["timestamp_token", "ledger_epoch"],
+      "evidence_note": "Optional RFC 3161-shaped tokens and epoch checkpoints bind time metadata."
+    },
+    {
+      "control_id": "AU-9",
+      "title": "Protection of Audit Information",
+      "record_types": ["signature", "pqc_signatures", "ledger_record"],
+      "evidence_note": "Ed25519 (and optional PQC overlay) signatures protect record integrity."
+    },
+    {
+      "control_id": "AU-10",
+      "title": "Non-repudiation",
+      "record_types": ["signature", "delegation_chain"],
+      "evidence_note": "Device-bound keys and optional human mandate chains support non-repudiation evidence."
+    },
+    {
+      "control_id": "AU-12",
+      "title": "Audit Record Generation",
+      "record_types": ["commit_envelope", "action_envelope", "mcp_intercept"],
+      "evidence_note": "CLI, MCP tools, and optional proxy intercept generate signed records."
+    },
+    {
+      "control_id": "SC-12",
+      "title": "Cryptographic Key Establishment and Management",
+      "record_types": ["trusted_keys", "pqc_identity", "kem"],
+      "evidence_note": "Trusted-key policy, PQC identity store, and ML-KEM primitives for sealed packs."
+    },
+    {
+      "control_id": "SI-7",
+      "title": "Software, Firmware, and Information Integrity",
+      "record_types": ["commit_envelope", "release_manifest", "sealed_evidence_pack"],
+      "evidence_note": "Offline verify and sealed packs support integrity checking of signed artifacts."
+    },
+    {
+      "control_id": "SA-15(13)",
+      "title": "Development Process, Standards, and Tools | Minimize Personally Identifiable Information",
+      "record_types": ["action_envelope", "evidence_pack"],
+      "evidence_note": "Schemas encourage scope-bounded payloads; operators still control what enters a record."
+    }
+  ]
+}

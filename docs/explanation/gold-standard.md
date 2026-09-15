@@ -3,7 +3,7 @@
 This page is the **gold standard** for Matrix Scroll. Every protocol change,
 verifier change, and public claim is judged against it. The diagram is the
 compact form; the sections below map each box to what ships in
-`matrixscroll==0.9.0` and what remains the bar.
+`matrixscroll==0.10.0` and what remains the bar.
 
 ![Matrix Scroll: The Formal Mathematics of Accountability. Pipeline from raw event through domain-separated hash and time-epoch batching to a FIPS 204 ML-DSA signature, three pillars (post-quantum proofs, offline verification, fail-closed architecture), and the Rule of Refusal.](../assets/formal-mathematics-of-accountability.png)
 
@@ -12,8 +12,8 @@ compact form; the sections below map each box to what ships in
 | Stage | Gold-standard label | Shipping now | Bar |
 | --- | --- | --- | --- |
 | 1 | Raw event | Commit SHA, action record, MCP tool surface, or agent trace bytes | Keep every verified input reconstructible from raw records |
-| 2 | Domain-separated hash | Canonical JSON bytes per `SPEC.md` §4, then SHA-256 where digests are pinned | Explicit domain separation tags on every hash context |
-| 3 | Time-epoch batching | Scroll Gate walks `base..head` commit ranges; sealed packs batch evidence for an auditor | Stable epoch identifiers for batched attestation |
+| 2 | Domain-separated hash | `matrixscroll.ledger` tags (`matrixscroll/v1/record`, `/leaf`, `/node`, `/epoch`) over canonical JSON per `SPEC.md` §4 and §12 | Keep tags stable across languages |
+| 3 | Time-epoch batching | Signed ledger epoch checkpoints (`matrixscroll.ledger_epoch.v1`) with Merkle root over the range; Scroll Gate still walks `base..head` for Git | Optional witness cosignatures and live transparency-log receipts |
 | 4 | Post-quantum signature | Ed25519 base signature; optional FIPS 204 ML-DSA / FIPS 205 SLH-DSA overlay via `matrixscroll[pqc]` (default ML-DSA-87) | Parameter readiness only; not FIPS CMVP or CNSA certification |
 
 ## Three pillars

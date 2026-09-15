@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matrixscroll.com/schemas/trusted-keys.v1.json",
+  "title": "Matrix Scroll Trusted Keys Policy v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "trusted_public_keys": {
+      "type": "array",
+      "description": "Trusted Ed25519 public keys as base64 strings or objects with validity windows.",
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "required": ["public_key"],
+            "additionalProperties": true,
+            "properties": {
+              "public_key": { "type": "string", "minLength": 1 },
+              "device_id": { "type": "string" },
+              "not_before": {
+                "type": "string",
+                "description": "RFC 3339 UTC; reject signatures with signed_at before this instant."
+              },
+              "not_after": {
+                "type": "string",
+                "description": "RFC 3339 UTC; reject signatures with signed_at after this instant."
+              },
+              "revoked_at": {
+                "type": "string",
+                "description": "RFC 3339 UTC; reject signatures with signed_at at or after this instant."
+              },
+              "note": { "type": "string" }
+            }
+          }
+        ]
+      }
+    },
+    "require_mode": { "type": ["string", "null"] },
+    "require_timestamp": { "type": "boolean", "default": false },
+    "require_receipt": { "type": "boolean", "default": false },
+    "require_pqc": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "string", "enum": ["true", "false", "emulated_only"] }
+      ]
+    },
+    "allowed_schemas": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "require_actor_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "deny_actor_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "require_delegation_for_actor_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "verify_agent_scope": { "type": "boolean" }
+  }
+}

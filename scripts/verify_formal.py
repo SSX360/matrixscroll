@@ -19,6 +19,7 @@ MODELS = [
     ("AuthorityFive.tla", "AuthorityFive.cfg"),
     ("OrgPlanSync.tla", "OrgPlanSync.cfg"),
     ("DualSignature.tla", "DualSignature.cfg"),
+    ("LedgerChain.tla", "LedgerChain.cfg"),
 ]
 
 

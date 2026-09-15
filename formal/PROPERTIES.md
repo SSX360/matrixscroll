@@ -74,6 +74,18 @@ registry entries: `Inv_NoPaymentWithoutPurchaseContext` and
 | **F-D3** | Safety | `Inv_RequirePqcImpliesVerified` | `policyRequirePqc` gate pass implies PQC verified |
 | **F-D4** | Safety | `Inv_TamperBreaksGate` | Broken Ed25519 signature fails the gate |
 
+## Hash-linked ledger (`LedgerChain.tla`)
+
+| ID | Type | Invariant / property | Code path |
+|----|------|----------------------|----------------|
+| **F-L5** | Safety | `Inv_NoFork` | `verify_chain` rejects divergent prev_hash at an index |
+| **F-L6** | Safety | `Inv_NoGap` | Contiguous indices from 0; omission fails |
+| **F-L7** | Safety | `Inv_TipBindsEpoch` | Epoch tip and Merkle root match the record slice |
+| **F-L8** | Safety | `Inv_TamperBreaksVerify` | Payload change without hash update fails |
+
+Tamarin stubs under `formal/tamarin/` list matching lemma names for review; they
+are not claimed runnable until completed.
+
 ## Status
 
 | Module | TLC default config | CI |
@@ -83,3 +95,4 @@ registry entries: `Inv_NoPaymentWithoutPurchaseContext` and
 | AuthorityFive | ✅ finite (`actionLog` bounded by `StateConstraint`) | `formal-verify.yml` |
 | OrgPlanSync | ✅ finite | `formal-verify.yml` |
 | DualSignature | ✅ finite | `formal-verify.yml` |
+| LedgerChain | ✅ finite (`LedgerChain.cfg`) | add when CI image lists it |
