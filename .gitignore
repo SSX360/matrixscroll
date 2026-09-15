@@ -83,3 +83,7 @@ dist-verify/
 rust/target/
 **/target/
 
+
+# Downloaded CI release artifacts
+dist-ci/
+

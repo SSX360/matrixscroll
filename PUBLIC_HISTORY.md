@@ -5,8 +5,8 @@ published tree matches the supported product line only.
 
 | Item | Policy |
 | --- | --- |
-| Supported installs | `matrixscroll==0.7.0` and `matrixscroll==0.9.0` on PyPI |
-| Public git source | Current `main` at **0.9.0** (device-agnostic custody) |
+| Supported installs | `matrixscroll==0.7.0` through `matrixscroll==0.10.0` on PyPI |
+| Public git source | Current `main` at **0.10.0** (ledger + primary ML-DSA opt-in) |
 | Pre-0.7 git history | Not published |
 | Pre-0.7 PyPI versions | Unsupported; yank when credentials allow |
 | USB / SE050 host path | Removed from the public SDK in 0.9.0; protocol docs are not published |
@@ -17,4 +17,5 @@ fresh clone after the reset.
 
 For release evidence suitable for proposal packages, see
 [`docs/EVIDENCE.md`](docs/EVIDENCE.md), [`docs/POC2_AUDIT.md`](docs/POC2_AUDIT.md)
-and [`SECURITY.md`](SECURITY.md).
+and [`SECURITY.md`](SECURITY.md). The pre-0.9 history digest statement lives in
+[`docs/PRE_0_9_HISTORY_STATEMENT.md`](docs/PRE_0_9_HISTORY_STATEMENT.md).

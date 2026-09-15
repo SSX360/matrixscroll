@@ -9,13 +9,15 @@ accreditation.
 | Item | Value |
 | --- | --- |
 | Package | `matrixscroll==0.10.0` |
-| Supported install line | `0.7.0` through `0.10.0` on PyPI (once published) |
+| Supported install line | `0.7.0` through `0.10.0` on PyPI |
 | Public git history | Begins at the supported 0.9.0 line (`PUBLIC_HISTORY.md`); 0.10.0 continues that line |
-| Wheel SHA-256 | Confirm on the PyPI files page after Trusted Publishing completes |
-| Sdist SHA-256 | Confirm on the PyPI files page after Trusted Publishing completes |
+| Wheel SHA-256 | `07e6a64b54ca9906ef8134336567f72018aefba18f58953c47de67c23a341e1b` |
+| Sdist SHA-256 | `f4ad791ccef4f55b5b08222b2457e536c206b6ede5061c51637a18d59ffe6b2b` |
 | MCP tools | 13 |
 | Default custody | Device-agnostic `IdentityProvider`; emulated Ed25519 under `~/.matrixscroll` |
 | New in 0.10.0 | Hash-linked ledger (SPEC §12), primary ML-DSA-87 opt-in, Rust verifier crate |
+| GitHub Release | https://github.com/SSX360/matrixscroll/releases/tag/v0.10.0 |
+| PyPI | https://pypi.org/project/matrixscroll/0.10.0/ |
 
 Confirm digests against the files you download. Do not trust a copied table alone.
 

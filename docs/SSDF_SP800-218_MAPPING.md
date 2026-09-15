@@ -1,4 +1,4 @@
-# SSDF (NIST SP 800-218) practice mapping
+﻿# SSDF (NIST SP 800-218) practice mapping
 
 This document maps Matrix Scroll SDK surfaces to NIST SP 800-218
 (Secure Software Development Framework) practices. It is an **evidence
@@ -23,7 +23,7 @@ assert that a deployment is SSDF-assessed or that SSX360 is SSDF certified.
 
 | Item | Status |
 | --- | --- |
-| Offline Ed25519 verify + commit/action envelopes | Shipping now (0.9.0) |
+| Offline Ed25519 verify + commit/action envelopes | Shipping now (0.10.0) |
 | SSDF practice table in this file | Shipping now (0.9.x docs) |
 | Third-party SSDF assessment of SSX360 or Matrix Scroll | Not |
 

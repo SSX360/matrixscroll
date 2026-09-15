@@ -215,5 +215,5 @@ wire-format change.
 
 Versions before 0.7.0 are unsupported. Their detailed change notes and the
 development history that produced them are not part of the public git
-repository. Install only 0.7.0 or 0.9.0 from PyPI for supported work.
+repository. Install `0.7.0` through `0.10.0` from PyPI for supported work.
 
